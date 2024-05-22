@@ -1,5 +1,3 @@
-import { ReactNode } from "react";
-
 interface MyProps { }
 
 function Nested(props: React.PropsWithChildren<MyProps>) {
