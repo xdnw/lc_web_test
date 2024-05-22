@@ -1,7 +1,6 @@
 import { Button } from 'reacthalfmoon';
 import HelloWorld from './HelloWorld';
 import Nested from './Nested';
-import ProjectsPage from './ProjectsPage';
 import "./App.css"
 import { useEffect } from 'react';
 
