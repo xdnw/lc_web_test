@@ -91,7 +91,7 @@ canvas {
   height: 300%;
   width: 300%;
   position: fixed;
-  opacity:0.1;
+  opacity:0.05;
    animation: animateGrain 10s steps(10) infinite;
 }
 
