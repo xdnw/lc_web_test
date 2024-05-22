@@ -16,6 +16,16 @@ function setupAnimation(): void {
   let w: number = canvas.width = document.documentElement.clientWidth;
   let h: number = canvas.height = document.documentElement.clientHeight;
 
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = 'hsla(' + hue + ', 64%, 0%, 1)';
+  ctx.fillRect(0, 0, w, h)
+
+  // Create an off-screen canvas
+const offscreenCanvas = document.createElement('canvas');
+offscreenCanvas.width = w;
+offscreenCanvas.height = h;
+const offscreenCtx = offscreenCanvas.getContext('2d') as CanvasRenderingContext2D;
+
   const canvas2 = document.createElement('canvas'),
       ctx2 = canvas2.getContext('2d') as CanvasRenderingContext2D;
       canvas2.width = 100;
@@ -64,61 +74,74 @@ function setupAnimation(): void {
 
     constructor() {
       this.orbitRadius = random(maxOrbit(w,h));
-      this.radius = random(60, this.orbitRadius) / 12;
+      this.radius = random(60, this.orbitRadius) * 0.03333333333333333333333333333333;
       this.orbitX = w / 2;
       this.orbitY = h / 2;
       this.timePassed = random(0, maxStars);
-      this.speed = random(this.orbitRadius) / 500000;
-      this.alpha = random(2, 10) / 10;
+      this.speed = random(this.orbitRadius) * 0.000002;
+      this.alpha = random(2, 10) * 0.1;
 
       stars.push(this);
+    }
+
+    reset(): void {
+      this.orbitRadius = random(maxOrbit(w,h));
+      this.radius = random(60, this.orbitRadius) * 0.03333333333333333333333333333333;
+      this.orbitX = w / 2;
+      this.orbitY = h / 2;
+      this.timePassed = random(0, maxStars);
+      this.speed = random(this.orbitRadius) * 0.000002;
+      this.alpha = random(2, 10) * 0.1;
     }
 
     draw(): void {
       const x = Math.sin(this.timePassed) * this.orbitRadius + this.orbitX,
           y = Math.cos(this.timePassed) * this.orbitRadius + this.orbitY,
           twinkle = random(10);
-
-      if (twinkle === 1 && this.alpha > 0) {
+  
+      if (twinkle === 1 && this.alpha > 0.2) {
         this.alpha -= 0.05;
-      } else if (twinkle === 2 && this.alpha < 1) {
+      } else if (twinkle === 2 && this.alpha < 0.8) {
         this.alpha += 0.05;
       }
-
-      ctx.globalAlpha = this.alpha;
-      ctx.drawImage(canvas2, x - this.radius / 2, y - this.radius / 2, this.radius, this.radius);
+  
+      offscreenCtx.globalAlpha = this.alpha;
+      offscreenCtx.drawImage(canvas2, x - this.radius * 0.5, y - this.radius * 0.5, this.radius, this.radius);
       this.timePassed += this.speed;
     }
   }
 
   for (let i = 0; i < maxStars; i++) {
-    new Star();
+    if (i < stars.length) {
+      stars[i].reset();
+    } else {
+      new Star();
+    }
   }
 
   let frameCount = 0;
 
   function animation(): void {
     frameCount++;
-
-    if (frameCount % 4 === 0) {
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.globalAlpha = 0.8;
-      ctx.fillStyle = 'hsla(' + hue + ', 64%, 6%, 1)';
-      ctx.fillRect(0, 0, w, h)
-
-      ctx.globalCompositeOperation = 'lighter';
+  
+    if (frameCount % 1 === 0) {
+      offscreenCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+      offscreenCtx.globalCompositeOperation = 'lighter';
       for (let i = 1, l = stars.length; i < l; i++) {
         stars[i].draw();
       };
+  
+      // Draw the off-screen canvas onto the main canvas
+      ctx.drawImage(offscreenCanvas, 0, 0);
     }
-
+  
     window.requestAnimationFrame(animation);
   }
 
-  window.addEventListener('resize', function() {
-    w = canvas.width = document.documentElement.clientWidth;
-    h = canvas.height = document.documentElement.clientHeight;
-  });
+  // window.addEventListener('resize', function() {
+  //   w = canvas.width = document.documentElement.clientWidth;
+  //   h = canvas.height = document.documentElement.clientHeight;
+  // });
 
   animation();
 }
