@@ -13,7 +13,7 @@ async function fetchName(id: number) {
 }
 
 export default function Start() {
-    const [id, setId] = useState<number>(0);
+    const [id, setId] = useState<number>(6);
     const location = useLocation();
     const search = location.search.substring(1); // remove the '#' at start
     const params = new URLSearchParams(search);
