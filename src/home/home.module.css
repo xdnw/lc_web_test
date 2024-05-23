@@ -59,6 +59,7 @@
 }
  .overlay{
   position:fixed;
+  display: fixed;
   top: 0;
   left: 0;
   z-index: -1;
@@ -71,6 +72,7 @@
 }
 .hero{
   position:fixed;
+  display: fixed;
   top: 0;
   left: 0;
   justify-content:center;
@@ -81,6 +83,10 @@
 }
 
 .hero:after{
+  position:fixed;
+  display: fixed;
+  top: 0;
+  left: 0;
   z-index: -1;
   content:"";
   background-color: hsla(217, 100%, 10%, 1);
