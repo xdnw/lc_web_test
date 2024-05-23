@@ -25,12 +25,14 @@ export default function Start() {
     if (key) {
         pnwkit.setKeys(key);
     } else {
-        console.log("No key provided. Set `key` in the URL query parameters.");
+        console.log("No key provided. Set `key` in the URL query parameters (1).");
     }
 
     const handleClick = async () => {
         if (!key) {
+            console.log("alert");
             alert("No key provided. Set `key` in the URL query parameters.");
+            return;
         } 
         const name = await fetchName(id);
         alert("Name: " + name);
