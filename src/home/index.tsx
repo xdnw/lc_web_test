@@ -1,6 +1,6 @@
 import { buttonVariants } from "@/components/ui/button";
 import { useEffect } from "react";
-import { Link, HashRouter as Router } from "react-router-dom";
+import { Link } from "react-router-dom";
 import classes from './home.module.css';
 
 function setupAnimation(): void {
