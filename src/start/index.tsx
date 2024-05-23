@@ -29,6 +29,9 @@ export default function Start() {
     }
 
     const handleClick = async () => {
+        if (!key) {
+            alert("No key provided. Set `key` in the URL query parameters.");
+        } 
         const name = await fetchName(id);
         alert("Name: " + name);
     }
