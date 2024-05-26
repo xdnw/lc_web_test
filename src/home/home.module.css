@@ -89,12 +89,11 @@
   left: 0;
   z-index: -1;
   content:"";
-  background-color: hsla(217, 100%, 10%, 1);
-  background-image:url("https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Dissolve_Noise_Texture.png");
+  background-image:url("http://assets.iceable.com/img/noise-transparent.png");
   height: 300%;
   width: 300%;
   position: fixed;
-  opacity:0.05;
+  opacity:0.8;
    animation: animateGrain 10s steps(10) infinite;
 }
 

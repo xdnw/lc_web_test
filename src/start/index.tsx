@@ -4,7 +4,10 @@ import { nation } from 'pnwkit-2.0/build/src/interfaces/queries/nation';
 import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ThemeProvider } from '@/components/ui/theme-provider';
+import { ModeToggle } from '@/components/ui/mode-toggle';
+import classes from './start.module.css';
 
 async function fetchName(id: number) {
     const nations: nation[] = await pnwkit.nationQuery({id: [id], first: 1}, `nation_name`);
@@ -18,9 +21,6 @@ export default function Start() {
     const search = location.search.substring(1); // remove the '#' at start
     const params = new URLSearchParams(search);
     const key = params.get('key') as string;
-
-    console.log("Key is: ", key);
-    console.log("Location ", location);
 
     if (key) {
         pnwkit.setKeys(key);
@@ -36,9 +36,21 @@ export default function Start() {
     }
 
     return (
-        <Card>
-            <Input type="number" value={id} onChange={(e) => setId(Number(e.target.value))} />
-            <Button onClick={handleClick}>Fetch Name</Button>
-        </Card>
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Card Title</CardTitle>
+                    <CardDescription>Card Description</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Input type="number" value={id} onChange={(e) => setId(Number(e.target.value))} />
+                    <Button onClick={handleClick}>Fetch Name</Button>
+                </CardContent>
+                <CardFooter>
+                    <p>Card Footer</p>
+                </CardFooter>
+            </Card>
+            <ModeToggle></ModeToggle>
+        </ThemeProvider>
     );
 }
