@@ -37,20 +37,30 @@ export default function Start() {
     // }
 
     const [commands, setCommands] = useState<CommandMap | null>(() => (null));
+    const [filter, setFilter] = useState('');
     useEffect(() => {
         withCommands().then(setCommands);
     }, []);
 
+    const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      setFilter(event.currentTarget.value);
+  };
+    const filteredCommands = commands && Object.entries(commands.getCommands()).filter(([name, cmd]) => name.includes(filter) || (cmd.command.desc != null && cmd.command.desc.split(' ').includes(filter)));
+
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        {commands && Object.entries(commands.getCommands()).map(([name, group]) => (
-              <Card>
-              <CardHeader>
-                <CardTitle>/{name}</CardTitle>
-                <CardDescription>{group.command.desc}</CardDescription>
-              </CardHeader>
+          <div className="flex w-full max-w-sm items-center space-x-2">
+              <Input type="search" placeholder="Description" onKeyUp={handleKeyUp} />
+              <Button type="submit">Semantic Search</Button>
+          </div>
+        {filteredCommands && filteredCommands.map(([name, group]) => (
+            <Card>
+                <CardHeader>
+                    <CardTitle>/{name}</CardTitle>
+                    <CardDescription>{group.command.desc}</CardDescription>
+                </CardHeader>
             </Card>
-          ))}
+        ))}
         </ThemeProvider>
       );
 }
