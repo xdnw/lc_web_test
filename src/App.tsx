@@ -4,7 +4,6 @@ import Home from './home';
 import Start from './start';
 import Blah from "./blah";
 
-
 export default function App() {
   return (
       <Router>
