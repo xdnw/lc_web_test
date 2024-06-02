@@ -1,85 +1,71 @@
 import React, { useEffect, useState, } from 'react';
-import pnwkit from 'pnwkit-2.0'; // Import the 'pnwkit' module
-import { nation } from 'pnwkit-2.0/build/src/interfaces/queries/nation';
-import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ThemeProvider } from '@/components/ui/theme-provider';
-import { ModeToggle } from '@/components/ui/mode-toggle';
-import classes from './start.module.css';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { withCommands } from './StateUtil';
-import { CommandMap } from './Command';
-import { hashWithMD5, toVector } from './Embedding';
+import { Command, CommandMap } from './Command';
+import { CommandWeights, cosineSimilarity, loadWeights, Sentence, toVector } from './Embedding';
 
-// async function fetchName(id: number) {
-//     const nations: nation[] = await pnwkit.nationQuery({id: [id], first: 1}, `nation_name`);
-//     console.log("Nations: ", nations);
-//     return nations[0].nation_name;
-// }
 export default function Start() {
-    // const [id, setId] = useState<number>(6);
-    // const location = useLocation();
-    // const search = location.search.substring(1); // remove the '#' at start
-    // const params = new URLSearchParams(search);
-    // const key = params.get('key') as string;
-
-    // if (key) {
-    //     pnwkit.setKeys(key);
-    // }
-
-    // const handleClick = async () => {
-    //     if (!key) {
-    //         alert("No key provided. Set `key` in the URL query parameters.");
-    //         return;
-    //     } 
-    //     const name = await fetchName(id);
-    //     alert("Name: " + name);
-    // }
-
     const [commands, setCommands] = useState<CommandMap | null>(() => (null));
+    const [weights, setWeights] = useState<CommandWeights | null>(() => (null));
     const [filter, setFilter] = useState('');
+    const [filteredCommands, setFilteredCommands] = useState<Command[] | null>(null);
+
     useEffect(() => {
         withCommands().then(async f => {
-            // iterate commands
-            const vectors:{[key: string]: {
-                vector: number[],
-                hash: string
-            }} = {};
-            // for (const [name, group] of Object.entries(f.getCommands())) {
-            //     const fullText = name + " " + group.command.desc;
-            //     const vector = await toVector(fullText);
-            //     const hash = hashWithMD5(fullText);
-            //     vectors[name] = {
-            //         vector,
-            //         hash
-            //     };
-            //     console.log(JSON.stringify(vectors));
-            // }
-            console.log("Done");
             setCommands(f);
+            setFilteredCommands(Object.values(f.getCommands()));
         });
     }, []);
 
     const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-      setFilter(event.currentTarget.value);
-  };
-    const filteredCommands = commands && Object.entries(commands.getCommands()).filter(([name, cmd]) => name.includes(filter) || (cmd.command.desc != null && cmd.command.desc.split(' ').includes(filter)));
+        const value = event.currentTarget.value;
+        setFilter(value);
+        const newFilteredCommands = commands && Object.values(commands.getCommands()).filter((cmd) => cmd.name.includes(value) || (cmd.command.desc != null && cmd.command.desc.split(' ').includes(value)));
+        setFilteredCommands(newFilteredCommands);
+    };
+
+    async function semanticSearch() {
+        let loaded = weights;
+        if (!loaded) {
+            loaded = await loadWeights();
+            setWeights(loaded);
+        }
+        if (!loaded || !commands) {
+            alert("Could not load text weights.");
+            return;
+        }
+        console.log("Filter: ", filter);
+        const myVector = await toVector(filter);
+        // command => sentence map
+        const similarityMap: {[key: string]: number} = {};
+        for (const [key, cmd] of Object.entries(commands.getCommands())) {
+            const sentence = cmd.toSentence(loaded!);
+            if (sentence) {
+                similarityMap[key] = cosineSimilarity(sentence.vector,myVector);
+            }
+        }
+        const similarityArray = Object.entries(similarityMap);
+        similarityArray.sort((a, b) => b[1] - a[1]);
+        const sortedCommands = similarityArray.map(([key]) => commands.get(key));
+        setFilteredCommands(sortedCommands);
+    }
 
     return (
         <div>
-          <div className="flex w-full max-w-sm items-center space-x-2">
-              <Input type="search" placeholder="Description" onKeyUp={handleKeyUp} />
-              <Button type="submit">Semantic Search</Button>
-          </div>
-        {filteredCommands && filteredCommands.map(([name, group]) => (
-            <Card key={name}>
-                <CardHeader>
-                    <CardTitle>/{name}</CardTitle>
-                    <CardDescription>{group.command.desc}</CardDescription>
-                </CardHeader>
-            </Card>
-        ))}
+        <div className="flex w-full max-w-sm items-center space-x-2">
+          <Input type="search" placeholder="Description" onKeyUp={handleKeyUp} />
+          <Button type="submit" onClick={semanticSearch}>Semantic Search</Button>
         </div>
+        {filteredCommands && filteredCommands.map((cmd) => (
+          <Card key={cmd.name}>
+            <CardHeader>
+              <CardTitle>/{cmd.name}</CardTitle>
+              <CardDescription>{cmd.command.desc}</CardDescription>
+            </CardHeader>
+          </Card>
+        ))}
+      </div>
       );
 }

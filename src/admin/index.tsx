@@ -2,11 +2,9 @@ import { BlockCopyButton } from '@/components/ui/block-copy-button';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
-import { ThemeProvider } from '@/components/ui/theme-provider';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { getCommands, loadWeights } from '@/start/CommandUtil';
-import { hashWithMD5, toVector } from '@/start/Embedding';
-import { limitConcurrency } from '@/start/StateUtil';
+import { getCommands } from '@/start/CommandUtil';
+import { hashWithMD5, loadWeights, toVector } from '@/start/Embedding';
 import React, { useRef } from 'react';
 
 // generate new embeddings
@@ -80,7 +78,7 @@ export default function Admin() {
             <h2 className="text-lg font-bold">Command embeddings</h2>
             <section className="ps-4 pb-4 rounded shadow">
                 <p className="text-gray-700">
-                    Run bge-micro-v2 sentence transformer for the command descriptions to generate vectors and hashes for semantic search.
+                    Run a sentence transformer for the command descriptions to generate vectors and hashes for semantic search.
                     Copy the contents to the weights.json file
                 </p>
                 </section>

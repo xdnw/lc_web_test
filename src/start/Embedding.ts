@@ -6,8 +6,8 @@ let extractorPromise: Promise<FeatureExtractionPipeline> | null = null;
 
 async function load() {
     if (extractorPromise === null) {
-        console.log("Loading model TaylorAI/bge-micro-v2...");
-        extractorPromise = pipeline('feature-extraction', 'TaylorAI/bge-micro-v2');
+        console.log("Loading model...");
+        extractorPromise = pipeline('feature-extraction', 'Snowflake/snowflake-arctic-embed-xs');
         console.log("Model loaded.");
     }
     return extractorPromise;
@@ -50,4 +50,21 @@ export async function compareSentences(sentences: Sentence[], compareTo: string)
         result.push(cosineSimilarity(sentence.vector, output));
     });
     return result;
+}
+
+export type CommandWeights = {
+    [key: string]: {
+        vector: number[];
+        hash: string;
+    }
+}
+
+export async function loadWeights(): Promise<CommandWeights> {
+    const url = `${import.meta.env.BASE_URL}/assets/weights.json`;
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const weights = await response.json();
+    return weights;
 }

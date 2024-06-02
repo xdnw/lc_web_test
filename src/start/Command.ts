@@ -1,3 +1,5 @@
+import { CommandWeights, Sentence } from "./Embedding";
+
 export type IArgument = {
     name: string;
     optional: boolean;
@@ -47,8 +49,22 @@ export type ICommandMap = {
 
 export class Command {
     command: ICommand;
-    constructor(command: ICommand) {
+    name: string;
+    constructor(name: string, command: ICommand) {
         this.command = command;
+        this.name = name;
+    }
+
+    getFullText(): string {
+        return `${this.name} ${this.command.desc}`;
+    }
+
+    toSentence(weights: CommandWeights): Sentence {
+        const weight = weights[this.name];
+        return weight && {
+            text: this.getFullText(),
+            vector: weight.vector
+        };
     }
 }
 
@@ -67,7 +83,7 @@ export class CommandMap {
                 const value = commandGroup[key];
                 const newKey: string = prefix ? `${prefix} ${key}` : key;
                 if (isCommand(value)) {
-                    const cmd = new Command(value as ICommand);
+                    const cmd = new Command(newKey, value as ICommand);
                     flatCommands[newKey] = cmd;
                 } else {
                     flattenCommands(value, newKey);
@@ -77,6 +93,11 @@ export class CommandMap {
         flattenCommands(this.data.commands, "");
         this.flat = flatCommands;
         return flatCommands;
+    }
+
+    get(text: string): Command {
+        const commands = this.getCommands();
+        return commands[text];
     }
 }
 
