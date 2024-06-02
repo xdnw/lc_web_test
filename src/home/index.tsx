@@ -13,6 +13,7 @@ function setupAnimation(): void {
     let w: number = canvas.width = document.documentElement.clientWidth;
     let h: number = canvas.height = document.documentElement.clientHeight;
   
+    console.log("Setup animation ", w, h);
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = 'hsla(' + hue + ', 64%, 0%, 1)';
     ctx.fillRect(0, 0, w, h)

@@ -10,6 +10,7 @@ import { ModeToggle } from '@/components/ui/mode-toggle';
 import classes from './start.module.css';
 import { withCommands } from './StateUtil';
 import { CommandMap } from './Command';
+import { hashWithMD5, toVector } from './Embedding';
 
 // async function fetchName(id: number) {
 //     const nations: nation[] = await pnwkit.nationQuery({id: [id], first: 1}, `nation_name`);
@@ -39,7 +40,25 @@ export default function Start() {
     const [commands, setCommands] = useState<CommandMap | null>(() => (null));
     const [filter, setFilter] = useState('');
     useEffect(() => {
-        withCommands().then(setCommands);
+        withCommands().then(async f => {
+            // iterate commands
+            const vectors:{[key: string]: {
+                vector: number[],
+                hash: string
+            }} = {};
+            // for (const [name, group] of Object.entries(f.getCommands())) {
+            //     const fullText = name + " " + group.command.desc;
+            //     const vector = await toVector(fullText);
+            //     const hash = hashWithMD5(fullText);
+            //     vectors[name] = {
+            //         vector,
+            //         hash
+            //     };
+            //     console.log(JSON.stringify(vectors));
+            // }
+            console.log("Done");
+            setCommands(f);
+        });
     }, []);
 
     const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -48,19 +67,19 @@ export default function Start() {
     const filteredCommands = commands && Object.entries(commands.getCommands()).filter(([name, cmd]) => name.includes(filter) || (cmd.command.desc != null && cmd.command.desc.split(' ').includes(filter)));
 
     return (
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <div>
           <div className="flex w-full max-w-sm items-center space-x-2">
               <Input type="search" placeholder="Description" onKeyUp={handleKeyUp} />
               <Button type="submit">Semantic Search</Button>
           </div>
         {filteredCommands && filteredCommands.map(([name, group]) => (
-            <Card>
+            <Card key={name}>
                 <CardHeader>
                     <CardTitle>/{name}</CardTitle>
                     <CardDescription>{group.command.desc}</CardDescription>
                 </CardHeader>
             </Card>
         ))}
-        </ThemeProvider>
+        </div>
       );
 }
