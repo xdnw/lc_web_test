@@ -59,9 +59,6 @@ export default function Admin() {
                 if (result) {
                     setProgressText(`- Processing ${result.name}...`);
                     if (result.percent !== progress) {
-                        if (result.percent % 5 === 0) {
-                            textareaRef.current!.value = JSON.stringify(weights);
-                        }
                         setProgress(result.percent);
                     }
                     console.log("Processed: ", result.name);
