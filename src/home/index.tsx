@@ -72,7 +72,7 @@ function setupAnimation(): void {
   
       constructor() {
         this.orbitRadius = random(maxOrbit(w,h));
-        this.radius = random(60, this.orbitRadius) * 0.03333333333333333333333333333333;
+        this.radius = random(60, this.orbitRadius) * 0.033333333333333333;
         this.orbitX = w / 2;
         this.orbitY = h / 2;
         this.timePassed = random(0, maxStars);
@@ -84,7 +84,7 @@ function setupAnimation(): void {
   
       reset(): void {
         this.orbitRadius = random(maxOrbit(w,h));
-        this.radius = random(60, this.orbitRadius) * 0.03333333333333333333333333333333;
+        this.radius = random(60, this.orbitRadius) * 0.033333333333333333;
         this.orbitX = w / 2;
         this.orbitY = h / 2;
         this.timePassed = random(0, maxStars);
@@ -155,7 +155,7 @@ export default function Home() {
             <div className={classes.typedContainer}>
                 <p className={classes.typed}>LOCUTUS</p>
             </div>
-            <Link to="/start" className={`${buttonVariants({ variant: "outline" })} opacity-25 border border-white border-4 bg-transparent text-white hover:bg-white hover:text-black ${classes.mybutton}`}>&gt;START</Link>
+            <Link to="/commands" className={`${buttonVariants({ variant: "outline" })} opacity-25 border border-white border-4 bg-transparent text-white hover:bg-white hover:text-black ${classes.mybutton}`}>&gt;START</Link>
         </div>
         </div>
     </>;

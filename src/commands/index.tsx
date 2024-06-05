@@ -4,9 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { withCommands } from './StateUtil';
 import { Command, CommandMap } from './Command';
-import { CommandWeights, cosineSimilarity, loadWeights, Sentence, toVector } from './Embedding';
+import { CommandWeights, cosineSimilarity, loadWeights, toVector } from './Embedding';
 
-export default function Start() {
+export default function Commands() {
     const [commands, setCommands] = useState<CommandMap | null>(() => (null));
     const [weights, setWeights] = useState<CommandWeights | null>(() => (null));
     const [filter, setFilter] = useState('');

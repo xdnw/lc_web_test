@@ -2,7 +2,7 @@ import { CommandWeights, Sentence } from "./Embedding";
 
 export type IArgument = {
     name: string;
-    optional: boolean;
+    optional: boolean | null;
     flag: string | null;
     desc: string;
     type: string;
@@ -47,12 +47,25 @@ export type ICommandMap = {
     options: { [name: string]: IOptionData };
 }
 
+export class Argument {
+    name: string;
+    arg: IArgument;
+    command: Command;
+    constructor(name: string, arg: IArgument, command: Command) {
+        this.name = name;
+        this.arg = arg;
+        this.command = command;
+    }
+}
+
 export class Command {
     command: ICommand;
     name: string;
-    constructor(name: string, command: ICommand) {
+    ref: CommandMap;
+    constructor(name: string, command: ICommand, ref: CommandMap) {
         this.command = command;
         this.name = name;
+        this.ref = ref;
     }
 
     getFullText(): string {
@@ -65,6 +78,10 @@ export class Command {
             text: this.getFullText(),
             vector: weight.vector
         };
+    }
+
+    getArguments(): Argument[] {
+        return Object.entries(this.command.arguments).map(([name, arg]) => new Argument(name, arg, this));
     }
 }
 

@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { getCommands } from '@/start/CommandUtil';
-import { hashWithMD5, loadWeights, toVector } from '@/start/Embedding';
+import { getCommands } from '@/commands/CommandUtil';
+import { hashWithMD5, loadWeights, toVector } from '@/commands/Embedding';
 import React, { useRef } from 'react';
 
 // generate new embeddings
