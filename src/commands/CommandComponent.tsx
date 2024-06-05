@@ -1,3 +1,4 @@
+import ArgComponent from "./ArgComponent";
 import { Command } from "./Command";
 
 export default function CommandComponent({ command }: {command: Command}) {
@@ -19,17 +20,7 @@ export default function CommandComponent({ command }: {command: Command}) {
             <p>annotations: {JSON.stringify(command.command.annotations)}</p>
             {command.getArguments().map((arg, index) => (
                 <div key={index} className="my-2">
-                    <h3 className="text-xl">{arg.name}</h3>
-                    <p>name: {arg.arg.name}</p>
-                    <p>optional: {arg.arg.optional ? "true" : "false"}</p>
-                    <p>flag: {arg.arg.flag}</p>
-                    <p>desc: {arg.arg.desc}</p>
-                    <p>type: {arg.arg.type}</p>
-                    <p>default: {arg.arg.default}</p>
-                    <p>choices: {arg.arg.choices}</p>
-                    <p>min: {arg.arg.min}</p>
-                    <p>max: {arg.arg.max}</p>
-                    <p>filter: {arg.arg.filter}</p>
+                    <ArgComponent arg={arg} />
                     <hr />
                 </div>
             ))}
