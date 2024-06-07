@@ -101,29 +101,25 @@ const components = {
 
     const [isFocused, setIsFocused] = useState(false);
     const handleFocus = () => {
-        console.log("Focused");
         setIsFocused(true);
     }
     const handleBlur = () => {
         setTimeout(() => {
             const activeElement = document.activeElement;
-            if (scrollRef.current && scrollRef.current.contains(activeElement)) {
-                return; // Early return if activeElement is a child of scrollRef
+            if (scrollRef.current && (scrollRef.current === activeElement || scrollRef.current.contains(activeElement))) {
+                return;
             }
-            console.log("Select " + selectRef.current, scrollRef.current)
-            const selectControlElement = selectRef.current?.select?.controlRef;
-            if (selectControlElement && selectControlElement.contains(activeElement)) {
-                return; // Early return if activeElement is a child of selectRef's control element
+            const selectControlElement = selectRef.current?.controlRef;
+            if (selectControlElement && (selectControlElement === activeElement || selectControlElement.contains(activeElement))) {
+                return;
             }
-            console.log("Blurred", activeElement);
             setIsFocused(false);
         }, 0);
     };
     useEffect(() => {
         const scrollElement = scrollRef.current;
-        console.log("Element: " + scrollElement)
-        scrollElement.addEventListener('focus', handleFocus, true); // Use capture phase for focus
-        scrollElement.addEventListener('blur', handleBlur, true); // Use capture phase for blur
+        scrollElement.addEventListener('focus', handleFocus, true);
+        scrollElement.addEventListener('blur', handleBlur, true);
     
         return () => {
           scrollElement.removeEventListener('focus', handleFocus, true);
