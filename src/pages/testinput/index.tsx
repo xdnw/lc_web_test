@@ -7,11 +7,7 @@ import './select.css';
 import Select from "node_modules/react-select/dist/declarations/src/Select";
 
 
-const components = {
-    DropdownIndicator: null,
-  };
-  
-  export default function TestInput() {
+export default function TestInput() {
     const [options, setOptions] = useState<{label: string, value: string}[]>(
         Array.from({length: 100000}, (_, i) => ({label: Math.random().toString(36), value: i.toString()}))
     );
@@ -128,7 +124,7 @@ const components = {
       }, []);
     
     return (
-        <div style={{position: 'relative'}}>
+        <>
         <h1 className="text-2xl font-bold">
             Test Input</h1>
         <p>
@@ -138,7 +134,6 @@ const components = {
          ref={selectRef}
          className="react-select-container"
          classNamePrefix="react-select"
-        components={components}
         inputValue={inputValue}
         isClearable={false}
         isMulti
@@ -177,7 +172,6 @@ const components = {
             <li className="clusterize-no-data">Loading data…</li>
         </ol>
         </div>
-        <p>Hello World<br/>line<br/>dsa<br/><br/><br/><br/>dsa<br/></p>
-        </div>
+    </>
     );
 }
