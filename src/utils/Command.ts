@@ -5,9 +5,10 @@ export type IArgument = {
     optional: boolean | null;
     flag: string | null;
     desc: string;
+    group: number | null;
     type: string;
     default: string | null;
-    choices: string[] | null;
+    choices: {[key: string]: string} | null;
     min: number | null;
     max: number | null;
     filter: string | null;
@@ -100,7 +101,7 @@ export class CommandMap {
                 const value = commandGroup[key];
                 const newKey: string = prefix ? `${prefix} ${key}` : key;
                 if (isCommand(value)) {
-                    const cmd = new Command(newKey, value as ICommand);
+                    const cmd = new Command(newKey, value as ICommand, this);
                     flatCommands[newKey] = cmd;
                 } else {
                     flattenCommands(value, newKey);
@@ -115,6 +116,92 @@ export class CommandMap {
     get(text: string): Command {
         const commands = this.getCommands();
         return commands[text];
+    }
+
+    builder(name: string): CommandBuilder {
+        return new CommandBuilder(name, this);
+    }
+
+    buildTest(): Command {
+        // get all argument types
+        const allArgs: {[key: string]: IArgument} = {};
+
+        // iterate all commands
+        // iterate their arguments
+        // add the arg.arg (the IArgument) to the allArgs with the type as the key
+        Object.values(this.getCommands()).forEach((cmd) => {
+            if (!cmd.command.arguments) {
+                return;
+            }
+            Object.values(cmd.command.arguments).forEach((arg) => {
+                if (!allArgs[arg.type]) {
+                    allArgs[arg.type] = arg;
+                }
+            });
+        });
+
+        const builder = this.builder("test");
+        builder.help("This is a test command")
+            .desc("This is a test description");
+
+        // add all the arguments to the command
+        Object.entries(allArgs).forEach(([key, arg]) => {
+            builder.argument(key, arg.optional == null ? false : arg.optional, arg.desc, arg.type, arg.default, arg.choices, arg.filter);
+        });
+        return builder.build();
+    }
+}
+
+export class CommandBuilder {
+    command: ICommand;
+    name: string;
+    parent: CommandMap;
+
+    constructor(name: string, map: CommandMap) {
+        this.command = {
+            help: "",
+            desc: "",
+            groups: [],
+            group_descs: [],
+            annotations: {},
+            arguments: {}
+        };
+        this.name = name;
+        this.parent = map;
+    }
+
+    // set help
+    help(help: string): CommandBuilder {
+        this.command.help = help;
+        return this;
+    }
+
+    // set description
+    desc(desc: string): CommandBuilder {
+        this.command.desc = desc;
+        return this;
+    }
+
+    argument(name: string, optional: boolean = false, desc: string, type: string, def: string | null, choices: string[] | null, filter: string | null): CommandBuilder {
+        const arg: IArgument = {
+            name,
+            optional,
+            flag: null,
+            desc,
+            group: null,
+            type,
+            default: def,
+            choices,
+            min: null,
+            max: null,
+            filter
+        };
+        this.command.arguments[name] = arg;
+        return this;
+    }
+
+    build(): Command {
+        return new Command(this.name, this.command, this.parent)
     }
 }
 

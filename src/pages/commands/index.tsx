@@ -2,11 +2,11 @@ import React, { useEffect, useState, } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { withCommands } from './StateUtil';
-import { Command, CommandMap } from './Command';
-import { CommandWeights, cosineSimilarity, loadWeights, toVector } from './Embedding';
+import { withCommands } from '../../utils/StateUtil';
+import { Command, CommandMap } from '../../utils/Command';
+import { CommandWeights, cosineSimilarity, loadWeights, toVector } from '../../utils/Embedding';
 
-export default function Commands() {
+export default function CommandsPage() {
     const [commands, setCommands] = useState<CommandMap | null>(() => (null));
     const [weights, setWeights] = useState<CommandWeights | null>(() => (null));
     const [filter, setFilter] = useState('');
@@ -54,9 +54,9 @@ export default function Commands() {
 
     return (
         <div>
-        <div className="flex w-full max-w-sm items-center space-x-2">
+        <div className="flex w-max max-w-sm items-center space-x-2 pb-1">
           <Input type="search" placeholder="Description" onKeyUp={handleKeyUp} />
-          <Button type="submit" onClick={semanticSearch}>Semantic Search</Button>
+          <Button type="submit" size={'sm'} variant='outline' onClick={semanticSearch}>Semantic Search</Button>
         </div>
         {filteredCommands && filteredCommands.map((cmd) => (
           <Card key={cmd.name}>

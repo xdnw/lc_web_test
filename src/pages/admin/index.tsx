@@ -3,16 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { getCommands } from '@/commands/CommandUtil';
-import { hashWithMD5, loadWeights, toVector } from '@/commands/Embedding';
+import { getCommands } from '@/utils/CommandUtil';
+import { hashWithMD5, loadWeights, toVector } from '@/utils/Embedding';
 import React, { useRef } from 'react';
-
-// generate new embeddings
-// iterate, set div with json output
-// div has copy button
-// progress bar (blue with numerical X/Y value shown above)
-// 
-
 
 export default function Admin() {
     const textareaRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
@@ -72,12 +65,12 @@ export default function Admin() {
     }
 
     return (
-        <div className="container">
-            <h1 className="text-2xl font-bold my-4">Admin Panel</h1>
+        <>
+            <h1 className="text-2xl font-bold">Admin Panel</h1>
             <hr/>
             <h2 className="text-lg font-bold">Command embeddings</h2>
             <section className="ps-4 pb-4 rounded shadow">
-                <p className="text-gray-700">
+                <p className="">
                     Run a sentence transformer for the command descriptions to generate vectors and hashes for semantic search.
                     Copy the contents to the weights.json file
                 </p>
@@ -100,6 +93,6 @@ export default function Admin() {
                     <span>{progress}%{progressText}</span>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

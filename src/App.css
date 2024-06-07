@@ -1,0 +1,20 @@
+html, body, #root {min-height:100vh;}
+body, html {
+    height: 100%;
+}
+.dark .themeBody {
+    background-image: linear-gradient(120deg, #09203f 0%, #537895 100%);
+}
+.light .themeBody {
+    background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%) !important;
+}
+.dark .themeDiv {
+    background-color: rgb(32 64 96 / var(--tw-bg-opacity));
+}
+.light .themeDiv {
+    background-color: rgb(220 240 255 / var(--tw-bg-opacity));
+}
+.clusterize-scroll {
+    height: 300px; /* adjust this value as needed */
+    overflow: auto;
+}
