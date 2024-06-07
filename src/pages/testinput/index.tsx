@@ -28,7 +28,6 @@ export default function TestInput() {
       }
     };
 
-
     // rewrite the above as a function so i can call addValue from the clusterize click event and elsewhere
     function addValue(option: {label: string, value: string} | undefined, input: string) {
         if (option) {
@@ -68,16 +67,7 @@ export default function TestInput() {
 
             if (clusterize) {
                 clusterize.update(filteredOptions);
-                // if (scrollPosition != 0) {
-                    // setTimeout(() => {
-                    //     clusterize.update(filteredOptions);
-                    //     if (scrollRef.current) {
-                    //         scrollRef.current.scrollTop = scrollPosition;
-                    //     }
-                    // }, 0);
-                // }
             } else {
-                // If clusterize is not initialized, create a new instance
                 const newClusterize = new Clusterize({
                     rows: filteredOptions,
                     scrollElem: scrollRef.current,
@@ -159,8 +149,6 @@ export default function TestInput() {
                 if (target.tagName.toLowerCase() === 'li') {
                     const option = options.find((o) => o.label === target.innerText);
                     if (option) {
-                        // const scrollPos = inputValue === '' ? scrollRef.current?.scrollTop || 0 : 0;
-                        // setScrollPosition(scrollPos);
                         if (value.find((v) => v.value === option.value)) {
                             setValue((prev) => prev.filter((v) => v.value !== option.value));
                         } else {
