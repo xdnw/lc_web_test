@@ -1,10 +1,10 @@
-import { Input } from "@/components/ui/input";
 import React, { useRef, useEffect, KeyboardEventHandler, useState } from "react";
 // @ts-expect-error Clusterize is not typed
 import Clusterize from 'clusterize.js';
 import 'clusterize.js/clusterize.css';
 import CreatableSelect from 'react-select/creatable';
 import './select.css';
+import Select from "node_modules/react-select/dist/declarations/src/Select";
 
 
 const components = {
@@ -50,6 +50,7 @@ const components = {
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLOListElement>(null);
+    const selectRef = useRef<Select>(null);
     const [clusterize, setClusterize] = useState<Clusterize | null>(null);
     // const [scrollPosition, setScrollPosition] = useState(0);
 
@@ -97,14 +98,48 @@ const components = {
             if (clusterize) clusterize.destroy(true);
         };
     }, []);
+
+    const [isFocused, setIsFocused] = useState(false);
+    const handleFocus = () => {
+        console.log("Focused");
+        setIsFocused(true);
+    }
+    const handleBlur = () => {
+        setTimeout(() => {
+            const activeElement = document.activeElement;
+            if (scrollRef.current && scrollRef.current.contains(activeElement)) {
+                return; // Early return if activeElement is a child of scrollRef
+            }
+            console.log("Select " + selectRef.current, scrollRef.current)
+            const selectControlElement = selectRef.current?.select?.controlRef;
+            if (selectControlElement && selectControlElement.contains(activeElement)) {
+                return; // Early return if activeElement is a child of selectRef's control element
+            }
+            console.log("Blurred", activeElement);
+            setIsFocused(false);
+        }, 0);
+    };
+    useEffect(() => {
+        const scrollElement = scrollRef.current;
+        console.log("Element: " + scrollElement)
+        scrollElement.addEventListener('focus', handleFocus, true); // Use capture phase for focus
+        scrollElement.addEventListener('blur', handleBlur, true); // Use capture phase for blur
+    
+        return () => {
+          scrollElement.removeEventListener('focus', handleFocus, true);
+          scrollElement.removeEventListener('blur', handleBlur, true);
+        };
+      }, []);
+    
     return (
-        <>
+        <div style={{position: 'relative'}}>
         <h1 className="text-2xl font-bold">
             Test Input</h1>
         <p>
             Num options: {options.length}
         </p>
          <CreatableSelect
+         ref={selectRef}
          className="react-select-container"
          classNamePrefix="react-select"
         components={components}
@@ -121,8 +156,13 @@ const components = {
         onKeyDown={handleKeyDown}
         placeholder="Type something and press enter..."
         value={value}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
       />
-      <div className="clusterize-scroll" ref={scrollRef}>
+      <div 
+      className={`absolute z-10 ${isFocused ? '' : 'invisible'} w-full rounded-md bg-background shadow-lg clusterize-scroll`}
+      ref={scrollRef}
+      >
         <ol className="clusterize-content" ref={contentRef} onClick={(e) => {
                 const target = e.target as HTMLElement;
                 if (target.tagName.toLowerCase() === 'li') {
@@ -141,6 +181,7 @@ const components = {
             <li className="clusterize-no-data">Loading data…</li>
         </ol>
         </div>
-        </>
+        <p>Hello World<br/>line<br/>dsa<br/><br/><br/><br/>dsa<br/></p>
+        </div>
     );
 }

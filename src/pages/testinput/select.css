@@ -39,7 +39,7 @@ color: white;
 }
 
 .dark .react-select-container .react-select__input {
-color: white;
+color: white !important;
 }
 
 .dark .react-select-container .react-select__placeholder {
