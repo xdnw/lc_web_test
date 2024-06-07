@@ -4,7 +4,7 @@ import React, { useRef, useEffect, KeyboardEventHandler, useState } from "react"
 import Clusterize from 'clusterize.js';
 import 'clusterize.js/clusterize.css';
 import CreatableSelect from 'react-select/creatable';
-import { darkThemeStyles } from "@/components/layout/react-select-dark";
+import './select.css';
 
 
 const components = {
@@ -97,39 +97,22 @@ const components = {
             if (clusterize) clusterize.destroy(true);
         };
     }, []);
-
-    const [isDarkMode, setIsDarkMode] = useState(document.documentElement.classList.contains('dark'));
-    useEffect(() => {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    const isDark = document.documentElement.classList.contains('dark');
-                    setIsDarkMode(isDark);
-                }
-            });
-        });
-
-        observer.observe(document.documentElement, {
-            attributes: true, // Listen for attribute changes
-            attributeFilter: ['class'], // Specifically for 'class' changes
-        });
-
-        return () => observer.disconnect(); // Cleanup observer on component unmount
-    }, []);
-
     return (
         <>
+        <h1 className="text-2xl font-bold">
+            Test Input</h1>
         <p>
             Num options: {options.length}
         </p>
          <CreatableSelect
+         className="react-select-container"
+         classNamePrefix="react-select"
         components={components}
         inputValue={inputValue}
         isClearable={false}
         isMulti
         menuIsOpen={false}
         onChange={(newValue) => setValue(newValue)}
-        styles={isDarkMode ? darkThemeStyles : undefined}
         onInputChange={(newValue, actionMeta) => {
         if (actionMeta.action !== 'input-blur' && actionMeta.action !== 'menu-close' && actionMeta.action !== 'set-value') {
             setInputValue(newValue);
