@@ -57,7 +57,7 @@ export default function TestInput() {
                 if (option.label.includes(inputValue)) {
                     let li;
                     if (selectedValueSet.has(option.value)) {
-                        li = "<li class='bg-secondary'>" + option.label + "</li>";
+                        li = "<li class='bg-input'>" + option.label + "</li>";
                     } else {
                         li = "<li>" + option.label + "</li>";
                     }
