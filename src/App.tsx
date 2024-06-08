@@ -7,6 +7,7 @@ import Admin from "./pages/admin";
 import CommandPage from "./pages/command";
 import PageView from "./components/layout/page-view";
 import TestInput from "./pages/testinput";
+import AutoComplete from "./pages/testinput/autocomplete";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="/admin" element={<Admin />} />
             <Route path="/blah" element={<Blah />} />
             <Route path="/testinput" element={<TestInput />} />
+            <Route path="/autocomplete" element={<AutoComplete />} />
         </Routes>
         </PageView>} />
     </Routes>
