@@ -71,8 +71,8 @@ export default function Admin() {
             <h2 className="text-lg font-bold">Command embeddings</h2>
             <section className="ps-4 pb-4 rounded shadow">
                 <p className="">
-                    Run a sentence transformer for the command descriptions to generate vectors and hashes for semantic search.
-                    Copy the contents to the weights.json file
+                    Test the sentence transformer for the command text similarity vectors and hashes for semantic search.
+                    The contents should match the weights.json (temp) file
                 </p>
                 </section>
             <div className="relative">

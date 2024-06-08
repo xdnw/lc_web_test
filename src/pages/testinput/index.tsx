@@ -21,7 +21,6 @@ export default function TestInput() {
         case 'Enter':
         case 'Tab': {
             const option = options.find((o) => o.label === inputValue);
-            // setScrollPosition(0);
             addValue(option, inputValue);
             event.preventDefault();
         }
@@ -47,7 +46,6 @@ export default function TestInput() {
     const contentRef = useRef<HTMLOListElement>(null);
     const selectRef = useRef<Select>(null);
     const [clusterize, setClusterize] = useState<Clusterize | null>(null);
-    // const [scrollPosition, setScrollPosition] = useState(0);
 
     useEffect(() => {
         if (scrollRef.current && contentRef.current && options) {

@@ -9,17 +9,18 @@ export default function CommandPage() {
     useEffect(() => {
         (async () => {
             const cmdMap = (await withCommands());
-            // const commandName: string = "deposits convertnegative";
-            // const fetchedCommand = cmdMap.get(commandName);
-            const fetchedCommand = cmdMap.buildTest();
+            const commandName: string = "deposits convertnegative";
+            const fetchedCommand = cmdMap.get(commandName);
+            // const fetchedCommand = cmdMap.buildTest();
             setCommand(fetchedCommand);
         })();
     }, []);
 
     if (!command) {
+        console.log("Not command");
         return <div>Loading...</div>; // or some loading spinner
     }
-
+    console.log("Command");
     return (
         <CommandComponent command={command} filterArguments={() => true} defaults={{}} />
     );
