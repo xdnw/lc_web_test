@@ -5,6 +5,12 @@ import { Command } from '../../utils/Command';
 
 export default function CommandPage() {
     const [command, setCommand] = useState<Command | null>(null);
+    const [initialValues, setInitialValues] = useState<{ [key: string]: string }>({});
+    const [outputValues, setOutputValues] = useState<{ [key: string]: string }>({});
+    // pass in the initial values to the command component
+    // pass in the setOutputValues function to the command component
+
+    // add ann interface for these values so I can reuse it for the components
 
     useEffect(() => {
         (async () => {

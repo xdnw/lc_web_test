@@ -24,10 +24,6 @@ export default function ArgComponent({ arg, initValue, onInputChange }: {arg: Ar
         // Generate dummy data of 5000 uuids
         options = Array.from({length: 50000}, () => Math.random().toString(36));
     }
-    // Choices makes it a list input
-    // min/max make it a number input
-    // Filter add a pattern
-    // default sets the default if no value is set
     return (
         <>
             <div className="w-full mb-1">
@@ -36,19 +32,13 @@ export default function ArgComponent({ arg, initValue, onInputChange }: {arg: Ar
                     <span className="inline-block rounded-md bg-red-400 text-red-800 me-1 text-xs px-1">Required</span>}
                     {arg.name}: {arg.arg.type}<br/><p className="font-thin mb-1">{arg.arg.desc}</p>
                 </Label>
-                <ListComponent options={options} value={value} handleChange={handleChange} />
+                <MyComponent options={options} value={value} handleChange={handleChange} />
             </div>
         </>
     )
 }
 
-export function ListComponent({options, value, handleChange}: {options: string[] | null, value: string, handleChange: (newValue: string) => void}) {
-    // {/* <p>default: {arg.arg.default}</p> */}
-    //         {/* <p>choices: {arg.arg.choices}</p> */}
-    //         {/* <p>min: {arg.arg.min}</p> */}
-    //         {/* <p>max: {arg.arg.max}</p> */}
-    //         {/* <p>filter: {arg.arg.filter}</p> */}
-
+export function MyComponent({options, value, handleChange}: {options: string[] | null, value: string, handleChange: (newValue: string) => void}) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLTableSectionElement>(null);
 
@@ -72,13 +62,6 @@ export function ListComponent({options, value, handleChange}: {options: string[]
         }
     }, [options]);
     if (options) {
-        // return (
-        //     <ReactSelect
-        //     options={labelled}
-        //     onChange={(selectedValue) => setSelectedOption(selectedValue)}
-        //     value={selectedOption}
-        //   />
-        // );
         return (
             <>
             <Input className="form-control form-control-sm" type="text" placeholder="Select.." />

@@ -72,7 +72,7 @@ export default function CommandComponent({ command, filterArguments, defaults }:
                         {name}: {value}
                     </span>
                 ))
-            }    
+            }
         </p>
         </>
     );
