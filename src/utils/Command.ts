@@ -1,4 +1,5 @@
 import { CommandWeights, Sentence } from "./Embedding";
+import { splitIgnoringBrackets } from "./StringUtil";
 
 export type IArgument = {
     name: string;
@@ -8,7 +9,7 @@ export type IArgument = {
     group: number | null;
     type: string;
     default: string | null;
-    choices: {[key: string]: string} | null;
+    choices: string[] | null;
     min: number | null;
     max: number | null;
     filter: string | null;
@@ -52,10 +53,88 @@ export class Argument {
     name: string;
     arg: IArgument;
     command: Command;
+    breakdown: TypeBreakdown | null = null;
     constructor(name: string, arg: IArgument, command: Command) {
         this.name = name;
         this.arg = arg;
         this.command = command;
+    }
+
+    getKeyData(): IKeyData {
+        const result = this.command.ref.data.keys[this.arg.type];
+        if (result == null) {
+            return {desc: "", examples: null};
+        }
+        return result;
+    }
+
+    getTypeDesc(): string {
+        return this.getKeyData().desc;
+    }
+
+    getExamples(): string[] {
+        return this.getKeyData().examples || [];
+    }
+
+    getOptionData(): OptionData {
+        const breakdown = this.getTypeBreakdown();
+        let options: IOptionData | null = null;
+        let multi = false;
+        if (breakdown.element === "Set" && breakdown.child !== null) {
+            options = breakdown.child[0].getOptionData();
+            multi = true;
+        } else {
+            options = breakdown.getOptionData();
+        }
+        if (options != null) {
+            return new OptionData(this.command.ref, options, multi);
+        }
+        return new OptionData(this.command.ref, {options: null, query: false, completions: false, guild: false, nation: false, user: false}, false);
+    }
+
+    getTypeBreakdown(): TypeBreakdown {
+        if (this.breakdown != null) return this.breakdown;
+        return this.breakdown = getTypeBreakdown(this.command.ref, this.arg.type);
+    }
+}
+
+class OptionData {
+    options: string[] | null;
+    query: boolean;
+    completions: boolean;
+    guild: boolean;
+    nation: boolean;
+    user: boolean;
+    multi: boolean;
+    map: CommandMap;
+
+    constructor(map: CommandMap, data: IOptionData, multi: boolean) {
+        this.map = map;
+        this.options = data.options;
+        this.query = data.query || false;
+        this.completions = data.completions || false;
+        this.guild = data.guild || false;
+        this.nation = data.nation || false;
+        this.user = data.user || false;
+        this.multi = multi;
+    }
+}
+
+function getTypeBreakdown(ref: CommandMap, type: string): TypeBreakdown {
+    let annotations: string | null = null;
+    if (type.endsWith(']')) {
+        const annotationStart = type.indexOf('[');
+        annotations = type.substring(annotationStart + 1, type.length - 1);
+        type = type.substring(0, annotationStart);
+    }
+    if (type.endsWith('>')) {
+        const openBracket = type.indexOf('<');
+        const childStr = splitIgnoringBrackets(type.substring(openBracket + 1, type.length - 1), ",");
+        const element = type.substring(0, openBracket);
+        const child = childStr.map((childType) => getTypeBreakdown(ref, childType));
+        return new TypeBreakdown(ref, element, annotations, child);
+    } else {
+        return new TypeBreakdown(ref, type, annotations, null);
     }
 }
 
@@ -170,13 +249,11 @@ export class CommandBuilder {
         this.parent = map;
     }
 
-    // set help
     help(help: string): CommandBuilder {
         this.command.help = help;
         return this;
     }
 
-    // set description
     desc(desc: string): CommandBuilder {
         this.command.desc = desc;
         return this;
@@ -207,4 +284,36 @@ export class CommandBuilder {
 
 function isCommand(obj: ICommandGroup | ICommand): obj is ICommand {
     return (obj as ICommand).help !== undefined && (obj as ICommand).desc !== undefined;
+}
+
+export class TypeBreakdown {
+    map: CommandMap;
+    element: string;
+    annotations: string | null;
+    child: TypeBreakdown[] | null;
+
+    constructor(map: CommandMap, element: string, annotations: string | null, child: TypeBreakdown[] | null) {
+        this.map = map;
+        this.element = element;
+        this.annotations = annotations;
+        this.child = child;
+    }
+
+    getOptionData(): IOptionData {
+        return this.map.data.options[this.element];
+    }
+
+    getPlaceholderTypeName(): string {
+        return this.element.replace("DB", "").replace("Wrapper", "")
+                    .replace(/[0-9]/g, "")
+                    .toLowerCase();
+    }
+
+    toJSON() {
+        return {
+            element: this.element,
+            annotations: this.annotations,
+            child: this.child,
+        };
+    }
 }

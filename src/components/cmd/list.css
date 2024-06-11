@@ -49,3 +49,6 @@ color: #ccc;
 .dark .react-select-container .react-select__single-value {
 color: white;
 }
+.react-select__control {
+    border-radius: 0!important;
+}

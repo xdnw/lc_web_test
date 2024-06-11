@@ -1,22 +1,24 @@
 import { useState } from "react";
 import ArgComponent from "./ArgComponent";
 import { Argument, Command } from "../../utils/Command";
+import { Label } from "../ui/label";
 
-export default function CommandComponent({ command, filterArguments, defaults }: {command: Command, filterArguments: (arg: Argument) => boolean, defaults: { [key: string]: string }}) {
-    const [argValues, setArgValues] = useState<{ [key: string]: string }>({});
+interface CommandProps {
+    command: Command,
+    filterArguments: (arg: Argument) => boolean,
+    initialValues: { [key: string]: string },
+    setOutputValue: (name: string, value: string) => void
+}
 
-    const handleInputChange = (name: string, value: string) => {
-        const copy = { ...argValues };
-        if (value) copy[name] = value;
-        else delete copy[name];
-        setArgValues(copy);
-    };
-
+// use CommandProps
+export default function CommandComponent({ command, filterArguments, initialValues, setOutputValue }: CommandProps) {
     const groupedArgs: Argument[][] = [];
 
     const argsArr = command.getArguments();
     let lastGroupId = -1;
     let lastGroup: Argument[] = [];
+
+    // todo handle // arg.arg.default
 
     for (let i = 0; i < argsArr.length; i++) {
         const arg = argsArr[i];
@@ -39,9 +41,8 @@ export default function CommandComponent({ command, filterArguments, defaults }:
             groupedArgs.map((group, index) => {
                 const groupExists = group[0].arg.group != null;
                 const groupDescExists = command.command.group_descs && command.command.group_descs[group[0].arg.group || 0];
-
                 return (
-                    <div className="m-1 shadow-md border-2 rounded-lg p-1" key={index}>
+                    <div className="mb-0.5 bg-black bg-opacity-10 px-1 pb-1" key={index + "g"}>
                     {groupExists && 
                         <>
                             <p className="font-bold">
@@ -54,26 +55,23 @@ export default function CommandComponent({ command, filterArguments, defaults }:
                             }
                         </>
                     }
-                    <div key={index} className="">
+                    <div>
                         {group.map((arg, argIndex) => (
                             filterArguments(arg) &&
-                            <ArgComponent key={argIndex} arg={arg} initValue={defaults[arg.name || '']} onInputChange={handleInputChange} />
+                            <div className="w-full" key={index + "-" + argIndex + "m"}>
+                                <Label>
+                                    {arg.arg.optional ? <span className="inline-block bg-blue-400 text-blue-800 me-1 text-xs px-0.5">Optional</span> : 
+                                    <span className="inline-block bg-red-400 text-red-800 me-1 text-xs px-0.5">Required</span>}
+                                    <span className="text-xs bg-white bg-opacity-20 px-1">{arg.name}: {arg.arg.type}</span><br/><p className="font-thin mb-1">{arg.arg.desc}</p>
+                                </Label>
+                                <ArgComponent arg={arg} initialValue={initialValues[arg.name]} setOutputValue={(value) => setOutputValue(arg.name, value)} />
+                            </div>
                         ))}
                     </div>
                     </div>
                 );
             })
         }
-        <p className="bg-blue-500">/{command.name}&nbsp;
-            {
-                argValues &&
-                Object.entries(argValues).map(([name, value]) => (
-                    <span key={name} className="me-1">
-                        {name}: {value}
-                    </span>
-                ))
-            }
-        </p>
         </>
     );
 }

@@ -112,11 +112,6 @@ export default function ListComponent({options, isMulti}: {options: {label: stri
     
     return (
         <>
-        <h1 className="text-2xl font-bold">
-            Test Input</h1>
-        <p>
-            Num options: {options.length}
-        </p>
          <CreatableSelect
          ref={selectRef}
          className="react-select-container"
@@ -138,7 +133,7 @@ export default function ListComponent({options, isMulti}: {options: {label: stri
         onBlur={handleBlur}
       />
       <div 
-      className={`absolute z-10 ${isFocused ? '' : 'invisible'} w-full rounded-md bg-background shadow-lg clusterize-scroll`}
+      className={`absolute z-10 ${isFocused ? '' : 'invisible'} w-full bg-background shadow-lg clusterize-scroll`}
       ref={scrollRef}
       >
         <ol className="clusterize-content" ref={contentRef} onClick={(e) => {

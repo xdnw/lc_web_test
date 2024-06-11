@@ -69,7 +69,7 @@ export default function Admin() {
             <h1 className="text-2xl font-bold">Admin Panel</h1>
             <hr/>
             <h2 className="text-lg font-bold">Command embeddings</h2>
-            <section className="ps-4 pb-4 rounded shadow">
+            <section className="ps-4 pb-4 shadow">
                 <p className="">
                     Test the sentence transformer for the command text similarity vectors and hashes for semantic search.
                     The contents should match the weights.json (temp) file
@@ -86,11 +86,11 @@ export default function Admin() {
                 <BlockCopyButton getText={() => textareaRef.current ? textareaRef.current.value : ''} />
                 </TooltipProvider>
             </div>
-            <Button type="submit" className="w-full" variant="outline" onClick={async () => {setup();}}>Load Weights</Button>
+            <Button type="submit" className="w-full" variant="outline" size='sm' onClick={async () => {setup();}}>Load Weights</Button>
             <div className="relative">
                 <Progress value={progress} max={100} />
-                <div className="absolute inset-0 flex items-center justify-center font-bold text-gray-500">
-                    <span>{progress}%{progressText}</span>
+                <div className="absolute inset-0 flex items-center justify-center font-bold text-gray-400">
+                    <span>{progress}%&nbsp;{progressText}</span>
                 </div>
             </div>
         </>

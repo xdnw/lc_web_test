@@ -8,6 +8,5 @@ export default function TestInput() {
     const [options, setOptions] = useState<{label: string, value: string}[]>(
         Array.from({length: 100000}, (_, i) => ({label: Math.random().toString(36), value: i.toString()}))
     );
-
     return <ListComponent options={options} isMulti={isMulti2} />
 }
