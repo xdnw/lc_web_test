@@ -1,24 +1,21 @@
-import { useState } from "react";
 import ArgComponent from "./ArgComponent";
 import { Argument, Command } from "../../utils/Command";
 import { Label } from "../ui/label";
+import { CommandStoreType } from "@/utils/StateUtil";
 
 interface CommandProps {
     command: Command,
     filterArguments: (arg: Argument) => boolean,
     initialValues: { [key: string]: string },
-    setOutputValue: (name: string, value: string) => void
+    commandStore: CommandStoreType
 }
 
-// use CommandProps
-export default function CommandComponent({ command, filterArguments, initialValues, setOutputValue }: CommandProps) {
+export default function CommandComponent({ command, filterArguments, initialValues, commandStore }: CommandProps) {
     const groupedArgs: Argument[][] = [];
 
     const argsArr = command.getArguments();
     let lastGroupId = -1;
     let lastGroup: Argument[] = [];
-
-    // todo handle // arg.arg.default
 
     for (let i = 0; i < argsArr.length; i++) {
         const arg = argsArr[i];
@@ -59,7 +56,7 @@ export default function CommandComponent({ command, filterArguments, initialValu
                             filterArguments(arg) &&
                             <div className="w-full" key={index + "-" + argIndex + "m"}>
                                 <ArgDescComponent arg={arg} />
-                                <ArgComponent arg={arg} initialValue={initialValues[arg.name]} setOutputValue={(value) => setOutputValue(arg.name, value)} />
+                                <ArgComponent arg={arg} initialValue={initialValues[arg.name]} commandStore={commandStore} />
                             </div>
                         ))}
                     </div>

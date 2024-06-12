@@ -5,10 +5,20 @@ import 'clusterize.js/clusterize.css';
 import CreatableSelect from 'react-select/creatable';
 import './list.css';
 import Select from "node_modules/react-select/dist/declarations/src/Select";
+import { useSyncedStateFunc } from "@/utils/StateUtil";
 
-export default function ListComponent({options, isMulti}: {options: {label: string, value: string}[], isMulti: boolean}) {
+export default function ListComponent(
+    {options, isMulti, initialValue, setOutputValue}: 
+    {
+        options: {label: string, subtext: string | null, value: string}[], 
+        isMulti: boolean, 
+        initialValue: string,
+        setOutputValue: (name: string, value: string) => void
+    }
+) {
+    isMulti = true;
     const [inputValue, setInputValue] = React.useState('');
-    const [value, setValue] = useState<{label: string, value: string}[]>([]);
+    const [value, setValue] = useSyncedStateFunc(initialValue || '', (v) => v ? v.split(',').map((v) => ({label: v, value: v})) : []);
   
     const handleKeyDown: KeyboardEventHandler = (event) => {
       if (!inputValue) return;
@@ -27,9 +37,14 @@ export default function ListComponent({options, isMulti}: {options: {label: stri
         if (option) {
             if (!value.find((v) => v.value === option.value)) {
                 if (isMulti) {
-                    setValue((prev) => [...prev, option]);
+                    const copy = [...value];
+                    copy.push(option);
+                    const valueStr = copy.map((v) => v.label).join(',');
+                    setOutputValue('value', valueStr);
+                    setValue(copy);
                 } else {
                     setValue([option]);
+                    setOutputValue('value', option.label);
                 }
                 setInputValue('');
             } else {

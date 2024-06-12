@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { getCommands } from './CommandUtil';
 import { CommandMap } from './Command';
+import { useEffect, useState } from 'react';
 
 type State = {
   commands: CommandMap | null;
@@ -22,31 +23,70 @@ export async function withCommands(): Promise<CommandMap> {
   
     return commands;
 }
+export function useSyncedState<T>(initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [value, setValue] = useState<T>(initialValue);
+  const [lastInitial, setLastInitial] = useState<T>(initialValue);
 
-export function limitConcurrency(funcs, limit) {
-  let active = 0;
-  let i = 0;
-  const results = new Array(funcs.length);
-  return new Promise((resolve, reject) => {
-      const run = async () => {
-          if (i === funcs.length) {
-              if (active === 0) resolve(results);
-              return;
-          }
-          const index = i++;
-          const func = funcs[index];
-          results[index] = await func();
-          active--;
-          run();
-      };
-      while (active < limit && i < funcs.length) {
-          active++;
-          run();
-      }
-  });
+  useEffect(() => {
+    if (initialValue !== lastInitial) {
+      setValue(initialValue);
+      setLastInitial(initialValue);
+    }
+  }, [initialValue, lastInitial]);
+
+  return [value, setValue];
 }
 
+export function useSyncedStateFunc<T>(initialValue: string, parseValue: (value: string) => T): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [value, setValue] = useState<T>(parseValue(initialValue));
+  const [lastInitial, setLastInitial] = useState<string>(initialValue);
 
+  useEffect(() => {
+    if (initialValue !== lastInitial) {
+      setValue(parseValue(initialValue));
+      setLastInitial(initialValue);
+    }
+  }, [initialValue, lastInitial]);
+
+  return [value, setValue];
+}
+
+export function createCommandStore() {
+    return create<{ output: { [key: string]: string }; setOutput: (key: string, value: string) => void; }>((set) => ({
+      output: {},
+      setOutput: (key, value) => set((state) => {
+            const copy = { ...state.output };
+            if (value) copy[key] = value;
+            else delete copy[key];
+            return { output: copy };
+        }),
+    }));
+}
+
+export type CommandStoreType = ReturnType<typeof createCommandStore>;
+
+// export function limitConcurrency(funcs, limit) {
+//   let active = 0;
+//   let i = 0;
+//   const results = new Array(funcs.length);
+//   return new Promise((resolve, reject) => {
+//       const run = async () => {
+//           if (i === funcs.length) {
+//               if (active === 0) resolve(results);
+//               return;
+//           }
+//           const index = i++;
+//           const func = funcs[index];
+//           results[index] = await func();
+//           active--;
+//           run();
+//       };
+//       while (active < limit && i < funcs.length) {
+//           active++;
+//           run();
+//       }
+//   });
+// }
 // export function runInWorker(func: (...args: unknown[]) => void, ...args: unknown[]) {
 //   return new Promise((resolve, reject) => {
 //       // Convert the function to a string of JavaScript code

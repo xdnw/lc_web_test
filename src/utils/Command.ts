@@ -150,6 +150,7 @@ export class Command {
     command: ICommand;
     name: string;
     ref: CommandMap;
+    arguments: Argument[] | null = null;
     constructor(name: string, command: ICommand, ref: CommandMap) {
         this.command = command;
         this.name = name;
@@ -169,7 +170,10 @@ export class Command {
     }
 
     getArguments(): Argument[] {
-        return Object.entries(this.command.arguments).map(([name, arg]) => new Argument(name, arg, this));
+        if (this.arguments == null) {
+            this.arguments = Object.entries(this.command.arguments).map(([name, arg]) => new Argument(name, arg, this));
+        }
+        return this.arguments;
     }
 }
 

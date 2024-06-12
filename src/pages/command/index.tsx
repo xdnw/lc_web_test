@@ -1,26 +1,21 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import CommandComponent from '../../components/cmd/CommandComponent'; // Import CommandComponent
-import { withCommands } from '../../utils/StateUtil';
-import { Command } from '../../utils/Command';
+import { CommandStoreType, createCommandStore, withCommands } from '../../utils/StateUtil';
+import { Argument, Command } from '../../utils/Command';
 
 export default function CommandPage() {
     const [command, setCommand] = useState<Command | null>(null);
     const [initialValues, setInitialValues] = useState<{ [key: string]: string }>({});
-    const outputValues = useRef<{ [key: string]: string }>({});
-
-    function setOutputValue(name: string, value: string) {
-        if (value) outputValues.current[name] = value;
-        else delete outputValues.current[name];
-    }
+    const commandStore = useRef(createCommandStore());
 
     useEffect(() => {
         (async () => {
             const cmdMap = (await withCommands());
             console.log(Object.keys(cmdMap.data.options))
             console.log(cmdMap.data.keys)
-            const commandName: string = "announcement watermark";
-            const fetchedCommand = cmdMap.get(commandName);
-            // const fetchedCommand = cmdMap.buildTest();
+            // const commandName: string = "announcement watermark";
+            // const fetchedCommand = cmdMap.get(commandName);
+            const fetchedCommand = cmdMap.buildTest();
             setCommand(fetchedCommand);
         })();
     }, []);
@@ -32,17 +27,23 @@ export default function CommandPage() {
 
     return (
         <>
-            <CommandComponent key={command.name} command={command} filterArguments={() => true} initialValues={initialValues} setOutputValue={setOutputValue} />
-            <p className="bg-blue-500">/{command?.name}&nbsp;
-                {
-                    Object.entries(outputValues.current).map(([name, value]) => (
-                        <span key={name} className="me-1">
-                            {name}: {value}
-                        </span>
-                    ))
-                }
-            </p>
+            <CommandComponent key={command.name} command={command} filterArguments={() => true} initialValues={initialValues} commandStore={commandStore.current} />
+            <OutputValuesDisplay command={command} store={commandStore.current} />
         </>
     );
-    
+}
+
+export function OutputValuesDisplay({command, store}: {command: Command, store: CommandStoreType}) {
+    const output = store((state) => state.output);
+    return (
+        <p className="bg-blue-500">/{command?.name}&nbsp;
+            {
+                Object.entries(output).map(([name, value]) => (
+                    <span key={name} className="me-1">
+                        {name}: {value}
+                    </span>
+                ))
+            }
+        </p>
+    );
 }
