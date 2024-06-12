@@ -76,11 +76,19 @@ export class Argument {
         return this.getKeyData().examples || [];
     }
 
+    getPlaceholder(): ICommandGroup | null {
+        const breakdown = this.getTypeBreakdown();
+        if (breakdown.child == null) return null;
+        const phName = breakdown.getPlaceholderTypeName();
+        console.log("phName" + phName);
+        return this.command.ref.data.placeholders[phName];
+    }
+
     getOptionData(): OptionData {
         const breakdown = this.getTypeBreakdown();
         let options: IOptionData | null = null;
         let multi = false;
-        if (breakdown.element === "Set" && breakdown.child !== null) {
+        if ((breakdown.element === "Set" || breakdown.element === "TypedFunction" || breakdown.element === "Predicate") && breakdown.child !== null) {
             options = breakdown.child[0].getOptionData();
             multi = true;
         } else {
@@ -304,9 +312,11 @@ export class TypeBreakdown {
     }
 
     getPlaceholderTypeName(): string {
+        if (this.child != null && this.child.length == 1) {
+            return this.child[0].getPlaceholderTypeName();
+        }
         return this.element.replace("DB", "").replace("Wrapper", "")
-                    .replace(/[0-9]/g, "")
-                    .toLowerCase();
+                    .replace(/[0-9]/g, "");
     }
 
     toJSON() {
