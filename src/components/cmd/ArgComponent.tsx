@@ -22,7 +22,6 @@ export default function ArgComponent({ arg, initialValue, setOutputValue }: ArgP
     if ((initialValue || '') !== lastInitial) {
         setValue(initialValue || '');
         setLastInitial(initialValue || '');
-        console.log("Initial value changed for " + arg.name + " to " + initialValue);
     }
     const options = arg.getOptionData();
     if (options.options) {
@@ -49,23 +48,58 @@ export default function ArgComponent({ arg, initialValue, setOutputValue }: ArgP
             return (
                 <>
                 <p className="text-xs text-red-600">{validText}</p>
-                <Input type="number" 
-                    {...(arg.arg.min !== null ? { min: arg.arg.min } : {})}
-                    {...(arg.arg.max !== null ? { max: arg.arg.max } : {})}
-                    step="any"
+                <div className="flex items-center gap-2">
+                <Input type="text" 
                     value={value}
                     onChange={(e) => {
+                        const containsAnyExpr = /[\\(\\)+\-*/%^]/.test(e.target.value);
+                        try {
+                            const myNum: number = containsAnyExpr ? calculate(e.target.value) : parseFloat(e.target.value);
+                            if (Number. isNaN(myNum)) {
+                                throw new Error("Invalid number");
+                            }
+                            if (!Number.isFinite(myNum)) {
+                                throw new Error("Number is not finite");
+                            }
+                            if (arg.arg.min !== null && myNum < arg.arg.min) {
+                                throw new Error("Minimum value is " + arg.arg.min + " but got " + myNum);
+                            }
+                            if (arg.arg.max !== null && myNum > arg.arg.max) {
+                                throw new Error("Maximum value is " + arg.arg.max + " but got " + myNum);
+                            }
+                            setIsValid(true);
+                            setOutputValue(myNum + "");
+                            setValidText("");
+                            setNoteText(containsAnyExpr ? myNum + "" : "");
+                        } catch (err) {
+                            setIsValid(false);
+                            const message = typeof err === "object" && err !== null && "message" in err ? err.message + "" : "Invalid number";
+                            setValidText(message);
+                            setNoteText("");
+                        }
                         setValue(e.target.value);
-                        setOutputValue(e.target.value);
-                        setIsValid(e.target.checkValidity());
-                        setValidText(e.target.validationMessage);
                     }} placeholder="Type here..." 
                     className={`${!isValid ? 'border border-2 border-red-500' : ''}`}
                     />
+                    <span>{noteText}</span>
+                    </div>
                 </>
             )
         }
         case 'long':
+            if (breakdown.annotations != null && (breakdown.annotations.includes("Timediff") || breakdown.annotations.includes("Timestamp"))) {
+                return (
+                    <input type="datetime-local"
+                        className="dark:bg-gray-800 bg-gray-200"
+                        value={value}
+                        onChange={(e) => {
+                            const localDateTimeString = e.target.value;
+                            const date = new Date(localDateTimeString);
+                            setValue(e.target.value);
+                            setOutputValue("timestamp:" + Math.floor(date.getTime()));
+                        }} />
+                )
+            }
         case "integer":
         case "int": {
             return (
@@ -76,7 +110,7 @@ export default function ArgComponent({ arg, initialValue, setOutputValue }: ArgP
                     onChange={(e) => {
                         const containsAnyExpr = /[\\(\\)+\-*/%^]/.test(e.target.value);
                         try {
-                            const myNum: number = containsAnyExpr ? calculate(e.target.value) : parseInt(e.target.value);
+                            const myNum: number = containsAnyExpr ? Math.round(calculate(e.target.value)) : parseInt(e.target.value);
                             if (Number. isNaN(myNum)) {
                                 throw new Error("Invalid number");
                             }
@@ -124,7 +158,6 @@ export default function ArgComponent({ arg, initialValue, setOutputValue }: ArgP
                 <Input type="text" 
                     value={value}
                     onChange={(e) => {
-                        console.log("Setting value for " + arg.name + " to " + e.target.value);
                     setValue(e.target.value);
                     setOutputValue(e.target.value);
                 }} placeholder="Type here..." />
