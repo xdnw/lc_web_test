@@ -16,7 +16,6 @@ export default function ListComponent(
         setOutputValue: (name: string, value: string) => void
     }
 ) {
-    isMulti = true;
     const [inputValue, setInputValue] = React.useState('');
     const [value, setValue] = useSyncedStateFunc(initialValue || '', (v) => v ? v.split(',').map((v) => ({label: v, value: v})) : []);
   
