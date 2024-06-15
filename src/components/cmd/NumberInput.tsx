@@ -5,12 +5,13 @@ import { calculate } from "@/utils/MathUtil";
 import { useSyncedState } from "@/utils/StateUtil";
 
 export default function NumberInput(
-    {arg, initialValue, setOutputValue, isFloat}:
+    {arg, initialValue, setOutputValue, isFloat, className}:
     {
         arg: Argument,
         initialValue: string,
         setOutputValue: (name: string, value: string) => void,
-        isFloat: boolean
+        isFloat: boolean,
+        className?: string
     }
 ) {
     const [value, setValue] = useSyncedState(initialValue || '');
@@ -19,8 +20,8 @@ export default function NumberInput(
     const [noteText, setNoteText] = useState('');
     return (
         <>
-        <p className="text-xs text-red-600">{validText}</p>
-        <div className="flex items-center gap-2">
+        <p className="text-xs text-red-600 px-0 mx-0">{validText}</p>
+        <div className="px-0 mx-0 m-0">
         <Input type="text" 
             value={value}
             onChange={(e) => {
@@ -55,10 +56,10 @@ export default function NumberInput(
                     setNoteText("");
                 }
                 setValue(e.target.value);
-            }} placeholder="Type here..." 
-            className={`${!isValid ? 'border border-2 border-red-500' : ''}`}
+            }} placeholder="Type here..."
+            className={`${!isValid ? 'border border-2 border-red-500' : ''} ${className} px-0`}
             />
-            <span>{noteText}</span>
+            <span className={`${noteText ? noteText + " px-1" : ""}`}>{noteText}</span>
             </div>
         </>
     )

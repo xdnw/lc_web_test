@@ -2,7 +2,7 @@ import { Argument } from "@/utils/Command";
 import { useSyncedState } from "@/utils/StateUtil";
 import { Input } from "../ui/input";
 
-export default function TimeInput(
+export default function BooleanInput(
     {arg, initialValue, setOutputValue}:
     {
         arg: Argument,

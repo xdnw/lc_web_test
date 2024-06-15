@@ -1,9 +1,9 @@
 import { Argument } from "@/utils/Command";
 import { useSyncedState } from "@/utils/StateUtil";
-import { Input } from "../ui/input";
 import { useState } from "react";
+import { Textarea } from "../ui/textarea";
 
-export default function StringInput(
+export default function TextInput(
     {arg, initialValue, filter, setOutputValue}:
     {
         arg: Argument,
@@ -15,7 +15,7 @@ export default function StringInput(
     const [value, setValue] = useSyncedState(initialValue || '');
     const [isValid, setIsValid] = useState(true);
     return (
-        <Input type="text" 
+        <Textarea
                     value={value}
                     onChange={(e) => {
                     setValue(e.target.value);
@@ -25,7 +25,6 @@ export default function StringInput(
                     }
                 }} 
                 className={`${!isValid ? 'border border-2 border-red-500' : ''}`}
-                pattern={filter ? filter : ".*"}
                 placeholder="Type here..." />
     )
 }

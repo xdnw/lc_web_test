@@ -5,6 +5,8 @@ import NumberInput from "./NumberInput";
 import TimeInput from "./TimeInput";
 import BooleanInput from "./BooleanInput";
 import StringInput from "./StringInput";
+import TextComponent from "./TextInput";
+import TaxRateInput from "./TaxRateInput";
 
 interface ArgProps {
     arg: Argument,
@@ -35,6 +37,10 @@ export default function ArgComponent({ arg, initialValue, commandStore }: ArgPro
     }
 
     const breakdown = arg.getTypeBreakdown();
+    console.log("Ann " + breakdown.annotations);
+    if (breakdown.annotations && breakdown.annotations.includes("TextArea")) {
+        return <TextComponent arg={arg} initialValue={initialValue} setOutputValue={setOutputValue} />
+    }
     switch (breakdown.element.toLowerCase()) {
         case 'map': {
             return "TODO MAP " + JSON.stringify(breakdown);
@@ -56,11 +62,18 @@ export default function ArgComponent({ arg, initialValue, commandStore }: ArgPro
         case "boolean": {
             return <BooleanInput arg={arg} initialValue={initialValue} setOutputValue={setOutputValue} />
         }
+        case "spreadsheet": {
+            const regexPattern = "^(sheet:[A-Za-z0-9]+(?:,\\d+)?|https://docs\\.google\\.com/spreadsheets/d/[A-Za-z0-9]+/edit(?:#gid=\\d+)?)$";
+            return <StringInput arg={arg} initialValue={initialValue} setOutputValue={setOutputValue} filter={regexPattern}/>
+        }
         case "string": {
             return <StringInput arg={arg} initialValue={initialValue} setOutputValue={setOutputValue} />
         }
         case 'set': {
             return "TODO SET " + JSON.stringify(breakdown);
+        }
+        case "taxrate": {
+            return <TaxRateInput arg={arg} initialValue={initialValue} setOutputValue={setOutputValue} />
         }
         default: {
             return breakdown.element + " UNKNOWN TYPE " + JSON.stringify(breakdown);
