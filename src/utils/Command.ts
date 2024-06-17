@@ -60,6 +60,15 @@ export class Argument {
         this.command = command;
     }
 
+    getMap(): CommandMap {
+        return this.command.ref;
+    }
+
+    clone(): Argument {
+        const clonedArg = Object.assign(Object.create(Object.getPrototypeOf(this.arg)), this.arg);
+        return new Argument(this.name, clonedArg, this.command);
+    }
+
     getKeyData(): IKeyData {
         const result = this.command.ref.data.keys[this.arg.type];
         if (result == null) {
@@ -74,14 +83,6 @@ export class Argument {
 
     getExamples(): string[] {
         return this.getKeyData().examples || [];
-    }
-
-    getPlaceholder(): ICommandGroup | null {
-        const breakdown = this.getTypeBreakdown();
-        if (breakdown.child == null) return null;
-        const phName = breakdown.getPlaceholderTypeName();
-        console.log("phName" + phName);
-        return this.command.ref.data.placeholders[phName];
     }
 
     getOptionData(): OptionData {
@@ -180,6 +181,7 @@ export class Command {
 export class CommandMap {
     data: ICommandMap;
     flat: { [key: string]: Command } | null = null;
+
     constructor(commands: ICommandMap) {
         this.data = commands;
     }
@@ -202,6 +204,14 @@ export class CommandMap {
         flattenCommands(this.data.commands, "");
         this.flat = flatCommands;
         return flatCommands;
+    }
+
+    getPlaceholderTypes(toSimpleName: boolean): string[] {
+        const result = Object.keys(this.data.placeholders);
+        if (toSimpleName) {
+            return result.map((type) => toPlaceholderName(type));
+        }
+        return result;
     }
 
     get(text: string): Command {
@@ -311,16 +321,11 @@ export class TypeBreakdown {
         this.child = child;
     }
 
-    getOptionData(): IOptionData {
-        return this.map.data.options[this.element];
-    }
-
     getPlaceholderTypeName(): string {
         if (this.child != null && this.child.length == 1) {
             return this.child[0].getPlaceholderTypeName();
         }
-        return this.element.replace("DB", "").replace("Wrapper", "")
-                    .replace(/[0-9]/g, "");
+        return toPlaceholderName(this.element);
     }
 
     toJSON() {
@@ -330,4 +335,30 @@ export class TypeBreakdown {
             child: this.child,
         };
     }
+
+    getPlaceholder(): ICommandGroup | null {
+        if (this.child == null) return null;
+        // const phName = this.getPlaceholderTypeName();
+        // console.log("phName" + phName);
+        return this.map.data.placeholders[this.child[0].element];
+    }
+
+    getOptionData(): OptionData {
+        let options: IOptionData | null = null;
+        let multi = false;
+        if ((this.element === "Set" || this.element === "TypedFunction" || this.element === "Predicate") && this.child !== null) {
+            options = this.map.data.options[this.child[0].element];
+            multi = true;
+        } else {
+            options = this.map.data.options[this.element];
+        }
+        if (options != null) {
+            return new OptionData(this.map, options, multi);
+        }
+        return new OptionData(this.map, {options: null, query: false, completions: false, guild: false, nation: false, user: false}, false);
+    }
+}
+
+function toPlaceholderName(type: string): string {
+    return type.replace("DB", "").replace("Wrapper", "").replace(/[0-9]/g, "");
 }

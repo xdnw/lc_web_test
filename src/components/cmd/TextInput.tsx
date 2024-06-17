@@ -1,12 +1,11 @@
-import { Argument } from "@/utils/Command";
 import { useSyncedState } from "@/utils/StateUtil";
 import { useState } from "react";
 import { Textarea } from "../ui/textarea";
 
 export default function TextInput(
-    {arg, initialValue, filter, setOutputValue}:
+    {argName, initialValue, filter, setOutputValue}:
     {
-        arg: Argument,
+        argName: string,
         initialValue: string,
         filter?: string,
         setOutputValue: (name: string, value: string) => void
@@ -19,7 +18,7 @@ export default function TextInput(
                     value={value}
                     onChange={(e) => {
                     setValue(e.target.value);
-                    setOutputValue(arg.name, e.target.value);
+                    setOutputValue(argName, e.target.value);
                     if (filter) {
                         setIsValid(new RegExp(filter).test(e.target.value));
                     }

@@ -1,7 +1,9 @@
-import { useSyncedStateFunc } from "@/utils/StateUtil";
+import { Argument } from "@/utils/Command";
+import { useSyncedState, useSyncedStateFunc } from "@/utils/StateUtil";
+import { useState } from "react";
 import NumberInput from "./NumberInput";
 
-export default function TaxRateInput(
+export default function CityRanges(
     {argName, initialValue, setOutputValue}:
     {
         argName: string,
@@ -11,7 +13,7 @@ export default function TaxRateInput(
 ) {
     const [value, setValue] = useSyncedStateFunc<[number | null, number | null]>(initialValue, (initial) => {
         const result: [number | null, number | null] = [null, null]
-        if (initial && initial.match(/^\d+\/\d+$/)) {
+        if (initial && initial.match(/^\d+-\d+$/)) {
             const split = initial.split('/');
             result[0] = parseInt(split[0]);
             result[1] = parseInt(split[1]);
@@ -24,8 +26,8 @@ export default function TaxRateInput(
     setOutputValue={
         (name, t) => {
             setValue([t ? parseInt(t) : null, value[1]]);
-            if (!t && value[1] == null) setOutputValue(argName, "");
-            else setOutputValue(argName, t + "/" + (value[1] || 0))
+            if (!t || value[1] == null) setOutputValue(argName, "");
+            else setOutputValue(argName, "c" + t + "-" + (value[1] || 0))
         }
     } isFloat={false} />
     <span>/</span>
@@ -33,8 +35,8 @@ export default function TaxRateInput(
         setOutputValue={
         (name, t) => {
             setValue([value[0], t ? parseInt(t) : null]);
-            if (value[0]== null && !t) setOutputValue(argName, "");
-            else setOutputValue(argName, (value[0] || 0) + "/" + t)
+            if (value[0] == null || !t) setOutputValue(argName, "");
+            else setOutputValue(argName, "c" + (value[0] || 0) + "-" + t)
         }
     } isFloat={false} />
     </div>
