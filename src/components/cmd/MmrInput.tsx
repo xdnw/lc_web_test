@@ -5,23 +5,24 @@ import NumberInput from "./NumberInput";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
 
 export default function MmrInput(
-    {arg, initialValue, setOutputValue}:
+    {argName, allowWildcard, initialValue, setOutputValue}:
     {
-        arg: Argument,
+        argName: string,
+        allowWildcard: boolean,
         initialValue: string,
         setOutputValue: (name: string, value: string) => void
     }
 ) {
     const [value, setValue] = useSyncedState<string>(initialValue || "");
     
-
     return (
           <InputOTP
+            pattern={allowWildcard ? "[0-9X]*" : "[0-9]*"}
             maxLength={4}
             value={value}
             onChange={(value) => {
-                setValue(value)
-                setOutputValue(arg.name, value.length == 4 ? value : "");
+                setValue(value.toUpperCase())
+                setOutputValue(argName, value.length == 4 ? value.toUpperCase() : "");
             }}
           >
             <InputOTPGroup>

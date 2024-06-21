@@ -21,7 +21,7 @@ export default function CityRanges(
         return result;
     });
     
-    return <div className="flex items-center">
+    return <div className="flex items-center">c
     <NumberInput argName={argName} min={0} max={100} initialValue={value[0] ? value[0] + "" : ""} className="w-8"
     setOutputValue={
         (name, t) => {
@@ -30,7 +30,7 @@ export default function CityRanges(
             else setOutputValue(argName, "c" + t + "-" + (value[1] || 0))
         }
     } isFloat={false} />
-    <span>/</span>
+    <span>-</span>
     <NumberInput argName={argName} min={0} max={100} initialValue={value[1] ? value[1] + "" : ""} className="w-8"
         setOutputValue={
         (name, t) => {

@@ -2,6 +2,7 @@ import ArgComponent from "./ArgComponent";
 import { Argument, Command } from "../../utils/Command";
 import { Label } from "../ui/label";
 import { CommandStoreType } from "@/utils/StateUtil";
+import { useCallback } from "react";
 
 interface CommandProps {
     command: Command,
@@ -30,6 +31,7 @@ export default function CommandComponent({ command, filterArguments, initialValu
             lastGroup.push(arg);
         }
     }
+
     return (
     <>
         <h2 className="text-2xl">Command: {command.name}</h2>
@@ -56,7 +58,7 @@ export default function CommandComponent({ command, filterArguments, initialValu
                             filterArguments(arg) &&
                             <div className="w-full" key={index + "-" + argIndex + "m"}>
                                 <ArgDescComponent arg={arg} />
-                                <ArgComponent arg={arg} initialValue={initialValues[arg.name]} commandStore={commandStore} />
+                                <ArgComponent argName={arg.name} breakdown={arg.getTypeBreakdown()} min={arg.arg.min} max={arg.arg.max} initialValue={initialValues[arg.name]} setOutputValue={commandStore((state) => state.setOutput)} />
                             </div>
                         ))}
                     </div>

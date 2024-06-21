@@ -139,8 +139,8 @@ function getTypeBreakdown(ref: CommandMap, type: string): TypeBreakdown {
     if (type.endsWith('>')) {
         const openBracket = type.indexOf('<');
         const childStr = splitIgnoringBrackets(type.substring(openBracket + 1, type.length - 1), ",");
-        const element = type.substring(0, openBracket);
-        const child = childStr.map((childType) => getTypeBreakdown(ref, childType));
+        const element = type.substring(0, openBracket).trim();
+        const child = childStr.map((childType) => getTypeBreakdown(ref, childType.trim()));
         return new TypeBreakdown(ref, element, annotations, child);
     } else {
         return new TypeBreakdown(ref, type, annotations, null);
@@ -337,7 +337,7 @@ export class TypeBreakdown {
     }
 
     getPlaceholder(): ICommandGroup | null {
-        if (this.child == null) return null;
+        if (this.child == null || this.element === "Map") return null;
         // const phName = this.getPlaceholderTypeName();
         // console.log("phName" + phName);
         return this.map.data.placeholders[this.child[0].element];

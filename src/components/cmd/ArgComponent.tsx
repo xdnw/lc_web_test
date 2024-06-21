@@ -1,4 +1,4 @@
-import { Argument } from "../../utils/Command";
+import { Argument, TypeBreakdown } from "../../utils/Command";
 import ListComponent from "./ListComponent";
 import { CommandStoreType } from "@/utils/StateUtil";
 import NumberInput from "./NumberInput";
@@ -11,25 +11,18 @@ import MmrInput from "./MmrInput";
 import MmrDoubleInput from "./MmrDoubleInput";
 import CityRanges from "./CityRanges";
 import ColorInput from "./ColorInput";
+import MapInput from "./MapInput";
 
 interface ArgProps {
-    arg: Argument,
+    argName: string,
+    breakdown: TypeBreakdown,
+    min: number | null,
+    max: number | null,
     initialValue: string,
-    commandStore: CommandStoreType
+    setOutputValue: (key: string, value: string) => void
 }
 
-export interface ArgInputProps {
-    arg: Argument,
-    value: string,
-    setValue: (value: string) => void,
-    setOutputValue: (name: string, value: string) => void
-}
-
-export default function ArgComponent({ arg, initialValue, commandStore }: ArgProps) {
-    const setOutputValue = commandStore((state) => state.setOutput);
-    const argName = arg.name;
-    const breakdown = arg.getTypeBreakdown();
-
+export default function ArgComponent({ argName, breakdown, min, max, initialValue, setOutputValue }: ArgProps) {
     const options = breakdown.getOptionData();
     if (options.options) {
         const labelled = options.options.map((o) => ({label: o, subtext: null, value: o}));
@@ -45,7 +38,7 @@ export default function ArgComponent({ arg, initialValue, commandStore }: ArgPro
     }
     if ((breakdown.element === 'List' || breakdown.element === 'Set') && breakdown.child && breakdown.child[0].element === 'Integer') {
         const regexPattern = "^\\d+(?:,\\d+)*$";
-        return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={regexPattern}/>
+        return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={regexPattern} filterHelp="a comma separated list of numbers"/>
     }
     if (breakdown.element === 'Class' && breakdown.annotations && breakdown.annotations.includes("PlaceholderType")) {
         const types = breakdown.map.getPlaceholderTypes(true);
@@ -54,7 +47,7 @@ export default function ArgComponent({ arg, initialValue, commandStore }: ArgPro
     }
     switch (breakdown.element.toLowerCase()) {
         case 'map': {
-            return "TODO MAP " + JSON.stringify(breakdown);
+            return <MapInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} children={breakdown.child!} />
         }
         case 'typedfunction': {
             return "TODO TYPEDFUNCTION " + JSON.stringify(breakdown);
@@ -66,7 +59,7 @@ export default function ArgComponent({ arg, initialValue, commandStore }: ArgPro
             return <ColorInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
         }
         case "double": {
-            return <NumberInput argName={argName} min={arg.arg.min ? arg.arg.min : undefined} max={arg.arg.max ? arg.arg.max : undefined} initialValue={initialValue} setOutputValue={setOutputValue} isFloat={true} />
+            return <NumberInput argName={argName} min={min ? min : undefined} max={max ? max : undefined} initialValue={initialValue} setOutputValue={setOutputValue} isFloat={true} />
         }
         case 'long':
             if (breakdown.annotations != null && (breakdown.annotations.includes("Timediff") || breakdown.annotations.includes("Timestamp"))) {
@@ -81,26 +74,33 @@ export default function ArgComponent({ arg, initialValue, commandStore }: ArgPro
         }
         case "transfersheet":
         case "spreadsheet": {
-            const regexPattern = "^(sheet:[A-Za-z0-9]+(?:,\\d+)?|https://docs\\.google\\.com/spreadsheets/d/[A-Za-z0-9]+/edit(?:#gid=\\d+)?)$";
-            return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={regexPattern}/>
+            const regexPattern = "^(sheet:[A-Za-z0-9]+(?:,\\d+)?|https://docs\\.google\\.com/spreadsheets/d/[A-Za-z0-9_-]+/edit(?:#gid=\\d+)?)(?:\\?.*)?$";
+            return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={regexPattern} filterHelp="a link to a google sheet"/>
         }
         case "googledoc": {
-            const regexPattern = "^(doc:[A-Za-z0-9]+|https://docs\\.google\\.com/document/d/[A-Za-z0-9]+/edit)$";
-            return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={regexPattern}/>
+            const regexPattern = "^(doc:[A-Za-z0-9]+|https://docs\\.google\\.com/document/d/[A-Za-z0-9_-]+/edit)(?:\\?.*)?$";
+            return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={regexPattern} filterHelp="a link to a google document"/>
         }
         case "dbwar": {
             const regexPattern = "^(https://politicsandwar.com/nation/war/timeline/war=\\d+)$";
-            return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={regexPattern}/>
+            return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={regexPattern} filterHelp="a war timeline url"/>
+        }
+        case "message": {
+            const regexPattern = "^(https://discord\\.com/channels/\\d+/\\d+/\\d+)$";
+            return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={regexPattern} filterHelp="a discord message url"/>
         }
         case "cityranges": {
             return <CityRanges argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
         }
         case "uuid": {
             const regexPattern = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$";
-            return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={regexPattern}/>
+            return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={regexPattern} filterHelp="a uuid in the form XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"/>
         }
         case "mmrint": {
-            return <MmrInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
+            return <MmrInput allowWildcard={false} argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
+        }
+        case "mmrmatcher": {
+            return <MmrInput allowWildcard={true} argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
         }
         case "mmrdouble": {
             return <MmrDoubleInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
@@ -112,7 +112,7 @@ export default function ArgComponent({ arg, initialValue, commandStore }: ArgPro
             return <TaxRateInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
         }
         default: {
-            return breakdown.element + " UNKNOWN TYPE " + JSON.stringify(breakdown);
+            return breakdown.element + " UNKNOWN TYPE " + JSON.stringify(breakdown) + "`" + breakdown.element.toLowerCase() + "`";
         }
     }
 }
