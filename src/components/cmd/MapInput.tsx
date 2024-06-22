@@ -59,7 +59,7 @@ export default function MapInput(
                 );
             })}
             </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="flex items-center space-x-2">
             <div>
               <p>Key: </p>
               <ArgComponent argName={"key"} breakdown={children[0]} min={null} max={null} initialValue={addKey} setOutputValue={(key, value) => {
