@@ -1,5 +1,5 @@
 import { CommandWeights, Sentence } from "./Embedding";
-import { splitIgnoringBrackets } from "./StringUtil";
+import { findMatchingBracket, splitIgnoringBrackets } from "./StringUtil";
 
 export type IArgument = {
     name: string;
@@ -250,6 +250,113 @@ export class CommandMap {
             builder.argument(key, arg.optional == null ? false : arg.optional, arg.desc, arg.type, arg.default, arg.choices, arg.filter);
         });
         return builder.build();
+    }
+
+    // getArguments(method: string, placeholder_type: string, argument_content: string): { [key: string]: string } {
+    
+    // }
+
+    // getType(method: string, placeholder_type: string, argument: string): string {
+    
+    // }
+    
+    getCurrentlyTypingFunction(content: string, token: string, caretPosition: number, placeholder_type: string): string {
+        // The text typed into the textArea may be in the form:
+        // #myFunc(a: blah b: blah2),#myFunc2(a: blah3 b: blah4),#myFuncWithoutArgs,#myFuncEmpty(),#myFuncArgNoValue(a: b:)
+        // check the following:
+        // - # character, find the end of the argument (if it has brackets, it'll be the matching bracket, otherwise any character that isn't a valid function character)
+        // - brackets (skip the contents if the caret isn't inside the brackets)
+    
+        // Not sure if I want to use the above, but that's a regex for functions
+    
+        // I want to iterate by character here, starting from 0, I can skip any function if it closes before the caret position
+        // If that function has arguments, i need to call the getArguments function
+
+        // # -> function
+        // : -> arg value
+        // , -> function or arg value (if multiple)
+        // space: arg type or arg value
+        
+        // co
+
+        console.log("CONTENT " + content);
+        for (let i = 0; i < content.length; i++) {
+            const char = content.charAt(i);
+            // switch (char) {
+            //     case "#":
+            //     case "(":
+            //     case ",":
+            //     case " ":
+            //     case ":":
+            //         break;
+            // }
+            if (char === "#") {
+                // find the index of the first non valid function character
+                let endOfFunction = content.substring(i + 1).search(/[^a-zA-Z0-9_$]/);
+                if (endOfFunction == -1) endOfFunction = caretPosition;
+                else endOfFunction += i;
+                let endOfFunctionAndArgs = endOfFunction;
+                const functionString = content.substring(i + 1, endOfFunction);
+                console.log("Function " + functionString + " " + endOfFunction);
+                // check if the next character is a bracket
+                const nextChar = content.charAt(i + functionString.length);
+                let functionContent = "";
+
+                if (nextChar === "(") {
+                    // get the bracket end using the bracket matching function StringUtils.findMatchingBracket
+                    const bracketEnd = findMatchingBracket(content, i + functionString.length);
+                    // if its not -1
+                    if (bracketEnd !== -1) {
+                        console.log("Bracket end " + bracketEnd);
+                        functionContent = content.substring(i + functionString.length + 1, bracketEnd);
+                        endOfFunctionAndArgs = bracketEnd;
+                    } else {
+                        // suggest arguments
+                        console.log("No matching bracket found")
+                    }
+                }
+                // set i to end of function if caret is past it
+                if (caretPosition > endOfFunctionAndArgs) {
+                    console.log("Caret past function " + caretPosition + " " + endOfFunctionAndArgs)
+                    // i = endOfFunctionAndArgs
+                    if (endOfFunctionAndArgs > i) {
+                        i = endOfFunctionAndArgs;
+                    } else {
+                        return "BREAK";
+                    }
+                    continue;
+                }
+                // if caret position is the bracket, suggest the arguments
+                if (functionContent) {
+                    if (caretPosition === endOfFunctionAndArgs) {
+                        return "END-BRACKET";
+                        // is end bracket
+                    } else if (caretPosition > endOfFunction) {
+                        // is args
+                        // TODO recursive
+                        return "ARGS";
+                    } else if (caretPosition === endOfFunction) {
+                        // is first bracket
+                        return "START-BRACKET";
+                    } else {
+                        // is function part
+                        return "MID-FUC-HAS-ARGS";
+                    }
+                } else if (caretPosition == endOfFunction) {
+                    const options = this.data.placeholders[placeholder_type];
+                    // end of function
+                    // check if function is valid
+                    return "END-FUNC-NO-ARGS";
+                } else {
+
+                    
+                    // middle of function
+                    // check if function is valid, provide suggestions
+                    return "MID-FUNC-NO_ARGS"
+                }
+            }
+        }
+        return "NO-RESULT";
     }
 }
 
