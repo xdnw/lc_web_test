@@ -131,16 +131,16 @@ export default function AutoComplete2() {
 function findCompletion(cmdMap: CommandMap, rtaRef: React.MutableRefObject<ReactTextareaAutocomplete<ItemType> | null>, textAreaRef: React.MutableRefObject<HTMLTextAreaElement | null>, type: string) {
     return {
         dataProvider: (token: string) => {
-          console.log("Current token " + token);
-          if (!cmdMap) return [];
-          const position = rtaRef.current?.getCaretPosition();
-          const content = textAreaRef.current?.value || "";
-          const resultStr = cmdMap?.getCurrentlyTypingFunction(content, token, position, type)
-          return [{
-              name: resultStr,
-              nameLower: resultStr.toLowerCase(),
-              value: resultStr
-          }];
+            console.log("Current token " + token);
+            if (!cmdMap) return [];
+            const position = rtaRef.current?.getCaretPosition();
+            const content = textAreaRef.current?.value || "";
+            const completion = cmdMap?.getCurrentlyTypingFunction(content, token, position, type)
+            return completion.options.map(({ name, value }) => ({
+                name,
+                value,
+                nameLower: name.toLowerCase(),
+            }));
           // const tokenLower = token.toLowerCase();
           // const filtered = options.filter(option => option.nameLower.includes(tokenLower));
           // const sorted = filtered.sort((a, b) => a.nameLower.indexOf(tokenLower) - b.nameLower.indexOf(tokenLower));

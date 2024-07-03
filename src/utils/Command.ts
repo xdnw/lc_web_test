@@ -1,3 +1,4 @@
+import { commandCompletions } from "./CompletionUtil";
 import { CommandWeights, Sentence } from "./Embedding";
 import { findMatchingBracket, splitIgnoringBrackets } from "./StringUtil";
 
@@ -178,6 +179,18 @@ export class Command {
     }
 }
 
+export type Completion = {
+    placeholder_type: string,
+    command?: ICommand,
+    argument?: IArgument,
+    options: {
+        name: string,
+        value: string
+    }[]
+}
+
+export const STRIP_PREFIXES = ["get", "is", "can", "has"];
+
 export class CommandMap {
     data: ICommandMap;
     flat: { [key: string]: Command } | null = null;
@@ -259,8 +272,40 @@ export class CommandMap {
     // getType(method: string, placeholder_type: string, argument: string): string {
     
     // }
+
+    searchPlaceholders(placeholder_type: string, functionString: string) {
+        const commands: ICommandGroup = this.data.placeholders[placeholder_type];
+        const startsWith: {[key: string]: ICommand} = {};
+        const completeMatch: {[key: string]: ICommand} = {};
+        const funcStrLower = functionString.toLowerCase();
+        for (const [key, value] of Object.entries(commands)) {
+            if (key === funcStrLower) {
+                completeMatch[key] = value as ICommand;
+            } else if (key.startsWith(funcStrLower)) {
+                startsWith[key] = value as ICommand;
+            } else {
+                for (const prefix of STRIP_PREFIXES) {
+                    const prefixed = prefix + funcStrLower;
+                    if (key === prefixed) {
+                        completeMatch[key] = value as ICommand;
+                    } else if (key.startsWith(prefixed)) {
+                        startsWith[key] = value as ICommand;
+                    }
+                }
+            }
+        }
+        return {
+            completeMatch,
+            startsWith
+        };
+    }
+
+    getPlaceholderCommand(placeholder_type: string, functionString: string) {
+        const result = this.searchPlaceholders(placeholder_type, functionString);
+        return Object.keys(result.completeMatch).length > 0 ? result.completeMatch[Object.keys(result.completeMatch)[0]] : undefined;
+    }
     
-    getCurrentlyTypingFunction(content: string, token: string, caretPosition: number, placeholder_type: string): string {
+    getCurrentlyTypingFunction(content: string, token: string, caretPosition: number, placeholder_type: string): Completion {
         // The text typed into the textArea may be in the form:
         // #myFunc(a: blah b: blah2),#myFunc2(a: blah3 b: blah4),#myFuncWithoutArgs,#myFuncEmpty(),#myFuncArgNoValue(a: b:)
         // check the following:
@@ -278,9 +323,8 @@ export class CommandMap {
         // space: arg type or arg value
         
         // co
-
         console.log("CONTENT " + content);
-        for (let i = 0; i < content.length; i++) {
+        for (let i = 0; i < caretPosition; i++) {
             const char = content.charAt(i);
             // switch (char) {
             //     case "#":
@@ -294,21 +338,22 @@ export class CommandMap {
                 // find the index of the first non valid function character
                 let endOfFunction = content.substring(i + 1).search(/[^a-zA-Z0-9_$]/);
                 if (endOfFunction == -1) endOfFunction = caretPosition;
-                else endOfFunction += i;
+                else endOfFunction += i + 1;
                 let endOfFunctionAndArgs = endOfFunction;
                 const functionString = content.substring(i + 1, endOfFunction);
                 console.log("Function " + functionString + " " + endOfFunction);
                 // check if the next character is a bracket
-                const nextChar = content.charAt(i + functionString.length);
+                const nextChar = content.charAt(endOfFunction);
                 let functionContent = "";
 
+                console.log("NEXT " + nextChar);
                 if (nextChar === "(") {
                     // get the bracket end using the bracket matching function StringUtils.findMatchingBracket
-                    const bracketEnd = findMatchingBracket(content, i + functionString.length);
+                    const bracketEnd = findMatchingBracket(content, endOfFunction);
                     // if its not -1
                     if (bracketEnd !== -1) {
                         console.log("Bracket end " + bracketEnd);
-                        functionContent = content.substring(i + functionString.length + 1, bracketEnd);
+                        functionContent = content.substring(endOfFunction + 1, bracketEnd);
                         endOfFunctionAndArgs = bracketEnd;
                     } else {
                         // suggest arguments
@@ -316,49 +361,149 @@ export class CommandMap {
                     }
                 }
                 // set i to end of function if caret is past it
-                if (caretPosition > endOfFunctionAndArgs) {
+                if (caretPosition > endOfFunctionAndArgs + 1) {
                     console.log("Caret past function " + caretPosition + " " + endOfFunctionAndArgs)
-                    // i = endOfFunctionAndArgs
                     if (endOfFunctionAndArgs > i) {
                         i = endOfFunctionAndArgs;
                     } else {
-                        return "BREAK";
+                        return {
+                            placeholder_type: placeholder_type,
+                            options: [{
+                                name: "BREAK",
+                                value: token
+                            }]
+                        };
                     }
                     continue;
                 }
                 // if caret position is the bracket, suggest the arguments
                 if (functionContent) {
-                    if (caretPosition === endOfFunctionAndArgs) {
-                        return "END-BRACKET";
+                    if (caretPosition === endOfFunctionAndArgs + 1) {
+                        return {
+                            placeholder_type: placeholder_type,
+                            options: [{
+                                name: "END-BRACKET",
+                                value: token
+                            }]
+                        };
                         // is end bracket
                     } else if (caretPosition > endOfFunction) {
-                        // is args
-                        // TODO recursive
-                        return "ARGS";
+                        // get command
+                        const command = this.getPlaceholderCommand(placeholder_type, functionString);
+                        if (command) {
+                            // TODO recursive
+                            return {
+                                placeholder_type: placeholder_type,
+                                options: [{
+                                    name: "ARGS " + functionContent,
+                                    value: token
+                                }]
+                            };
+                        } else {
+                            return {
+                                placeholder_type: placeholder_type,
+                                options: [{
+                                    name: "ARGS, UNKNOWN COMMAND " + functionString,
+                                    value: token
+                                }]
+                            };
+                        }
                     } else if (caretPosition === endOfFunction) {
                         // is first bracket
-                        return "START-BRACKET";
+                        return {
+                            placeholder_type: placeholder_type,
+                            options: [{
+                                name: "START-BRACKET",
+                                value: token
+                            }]
+                        };
                     } else {
                         // is function part
-                        return "MID-FUC-HAS-ARGS";
+                        return {
+                            placeholder_type: placeholder_type,
+                            options: [{
+                                name: "MID-FUNC-HAS-ARGS",
+                                value: token
+                            }]
+                        };
                     }
                 } else if (caretPosition == endOfFunction) {
-                    const options = this.data.placeholders[placeholder_type];
-                    // end of function
-                    // check if function is valid
-                    return "END-FUNC-NO-ARGS";
+                    const commands: ICommandGroup = this.data.placeholders[placeholder_type];
+                    const startsWith: {[key: string]: ICommand} = {};
+                    const completeMatch: {[key: string]: ICommand} = {};
+                    const funcStrLower = functionString.toLowerCase();
+                    for (const [key, value] of Object.entries(commands)) {
+                        if (key === funcStrLower) {
+                            completeMatch[key] = value as ICommand;
+                        } else if (key.startsWith(funcStrLower)) {
+                            startsWith[key] = value as ICommand;
+                        } else {
+                            for (const prefix of STRIP_PREFIXES) {
+                                const prefixed = prefix + funcStrLower;
+                                if (key === prefixed) {
+                                    completeMatch[key] = value as ICommand;
+                                } else if (key.startsWith(prefixed)) {
+                                    startsWith[key] = value as ICommand;
+                                }
+                            }
+                        }
+                    }
+                    if (Object.keys(completeMatch).length > 0) {
+                        // TODO suggest arguments
+                        // TODO suggest completions
+                        const command = completeMatch[0];
+                        return {
+                            placeholder_type: placeholder_type,
+                            command: command,
+                            options: [{
+                                name: "COMPLETE-MATCH",
+                                value: token
+                            }]
+                        };
+                    } else if (Object.keys(startsWith).length > 0) {
+                        let valPrefix = "#";
+                        // if token contains # then prefix is all the characters up to and including the LAST #
+                        if (token.indexOf("#") !== -1) {
+                            valPrefix = token.substring(0, token.lastIndexOf("#") + 1);
+                        }
+                        return {
+                            placeholder_type: placeholder_type,
+                            options: commandCompletions(startsWith, valPrefix)
+                        };
+                    } else {
+                        return {
+                            placeholder_type: placeholder_type,
+                            options: [{
+                                name: "END-FUNC-NO-ARGS-NO-MATCH",
+                                value: token
+                            }]
+                        };
+                    }
                 } else {
-
-                    
                     // middle of function
                     // check if function is valid, provide suggestions
-                    return "MID-FUNC-NO_ARGS"
+                    return {
+                        placeholder_type: placeholder_type,
+                        options: [{
+                            name: "MID-FUNC-NO_ARGS",
+                            value: token
+                        }]
+                    };
                 }
             }
         }
-        return "NO-RESULT";
+        return {
+            placeholder_type: placeholder_type,
+            options: [{
+                name: "NO-RESULT",
+                value: token
+            }]
+        };
     }
+
+
 }
+
 
 export class CommandBuilder {
     command: ICommand;
