@@ -391,7 +391,12 @@ export class CommandMap {
                         // get command
                         const command = this.getPlaceholderCommand(placeholder_type, functionString);
                         if (command) {
-                            // TODO recursive
+                            // 1: typing an argument name
+                            // 2: typing an argument value
+                            // 3: space or comma (and optional space) and about to type an argument name
+                            const keys = Object.keys(command.arguments);
+                            // anything starting with `key:` and then the text after it
+                            // TODO get the arg at the caret position
                             return {
                                 placeholder_type: placeholder_type,
                                 options: [{

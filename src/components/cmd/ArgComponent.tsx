@@ -12,6 +12,7 @@ import MmrDoubleInput from "./MmrDoubleInput";
 import CityRanges from "./CityRanges";
 import ColorInput from "./ColorInput";
 import MapInput from "./MapInput";
+import TriStateInput from "./TriStateInput";
 
 interface ArgProps {
     argName: string,
@@ -70,6 +71,9 @@ export default function ArgComponent({ argName, breakdown, min, max, initialValu
             return <NumberInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} isFloat={false} />
         }
         case "boolean": {
+            if (breakdown.element === "Boolean") {
+                return <TriStateInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
+            }
             return <BooleanInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
         }
         case "transfersheet":

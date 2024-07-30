@@ -31,7 +31,6 @@ export default function ListComponent(
       }
     };
 
-    // rewrite the above as a function so i can call addValue from the clusterize click event and elsewhere
     function addValue(option: {label: string, value: string} | undefined, input: string) {
         if (option) {
             if (!value.find((v) => v.value === option.value)) {
@@ -53,7 +52,6 @@ export default function ListComponent(
             alert('Invalid value: ' + input);
         }
     }
-    
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLOListElement>(null);
@@ -134,11 +132,16 @@ export default function ListComponent(
         isClearable={false}
         isMulti={isMulti}
         menuIsOpen={false}
-        onChange={(newValue) => setValue(newValue)}
-        onInputChange={(newValue, actionMeta) => {
-        if (actionMeta.action !== 'input-blur' && actionMeta.action !== 'menu-close' && actionMeta.action !== 'set-value') {
-            setInputValue(newValue);
+        onChange={(newValue) => {
+                setValue(newValue)
+                const valueStr = newValue.map((v) => v.label).join(',');
+                setOutputValue('value', valueStr);
+            }
         }
+        onInputChange={(newValue, actionMeta) => {
+            if (actionMeta.action !== 'input-blur' && actionMeta.action !== 'set-value' && actionMeta.action !== 'menu-close') {
+                setInputValue(newValue);
+            }
         }}
         onKeyDown={handleKeyDown}
         placeholder="Type something and press enter..."
