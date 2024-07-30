@@ -87,7 +87,7 @@ export default function CommandsPage() {
           <Button type="submit" size={'sm'} variant='outline' onClick={semanticSearch}>Semantic Search</Button>
           <Button type="button" size={'sm'} variant='outline' onClick={() => setShowFilters(!showFilters)}>Filter Tools {showFilters ? "▲" : "▼"}</Button>
         </div>
-        <div className='bg-secondary mb-1 p-1 pt-0' style={{display: showFilters ? 'block' : 'none'}}>
+        {roles.length > 0 && (<div className='bg-secondary mb-1 p-1 pt-0' style={{display: showFilters ? 'block' : 'none'}}>
           Whitelisted
           <CustomTriInput annotation="whitelist" filter={filter} map={customFilters} set={setCustomFilters} update={updateFilteredCommands}/>
           Whitelisted Coalition
@@ -129,7 +129,7 @@ export default function CommandsPage() {
             }
           }/>
           Require Arguments: TODO
-        </div>
+        </div>)}
         {filteredCommands && filteredCommands.map((cmd) => (
           <Card key={cmd.name}>
             <CardHeader>
