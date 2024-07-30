@@ -1,4 +1,5 @@
-import React, { Component, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+// @ts-ignore
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 import "@webscopeio/react-textarea-autocomplete/style.css";
 import { Button } from "@/components/ui/button";
@@ -16,8 +17,7 @@ function Item({ entity: { name } }: { entity: ItemType }) {
 }
 
 
-const stripPrefixes = ["get", "is", "can", "has"];
-
+// const stripPrefixes = ["get", "is", "can", "has"];
 // TODO both { and # not just the latter
 // TODO cursor move event
 // TODO get the current function

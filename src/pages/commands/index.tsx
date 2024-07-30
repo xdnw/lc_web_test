@@ -110,7 +110,7 @@ export default function CommandsPage() {
               if (value) {
                 const func: (cmd: Command) => boolean = (cmd: Command) => {
                   if (!cmd.command.annotations || !cmd.command.annotations["role"]) return false;
-                  const roleAnn: {value: string[], any?: boolean, root?: boolean} = cmd.command.annotations["role"];
+                  const roleAnn: {value: string[], any?: boolean, root?: boolean} = cmd.command.annotations["role"] as {value: string[], any?: boolean, root?: boolean};
                   if (roleAnn.root) return false;
                   for (const role of roleAnn.value as string[]) {
                     if (optionsSplit.has(role)) {

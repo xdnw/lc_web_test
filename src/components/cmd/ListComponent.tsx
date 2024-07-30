@@ -113,12 +113,12 @@ export default function ListComponent(
     };
     useEffect(() => {
         const scrollElement = scrollRef.current;
-        scrollElement.addEventListener('focus', handleFocus, true);
-        scrollElement.addEventListener('blur', handleBlur, true);
+        scrollElement?.addEventListener('focus', handleFocus, true);
+        scrollElement?.addEventListener('blur', handleBlur, true);
     
         return () => {
-          scrollElement.removeEventListener('focus', handleFocus, true);
-          scrollElement.removeEventListener('blur', handleBlur, true);
+          scrollElement?.removeEventListener('focus', handleFocus, true);
+          scrollElement?.removeEventListener('blur', handleBlur, true);
         };
       }, []);
     
@@ -133,8 +133,8 @@ export default function ListComponent(
         isMulti={isMulti}
         menuIsOpen={false}
         onChange={(newValue) => {
-                setValue(newValue)
-                const valueStr = newValue.map((v) => v.label).join(',');
+                setValue(newValue as {label: string, value: string}[]);
+                const valueStr = (newValue as {label: string, value: string}[]).map((v) => v.label).join(',');
                 setOutputValue('value', valueStr);
             }
         }

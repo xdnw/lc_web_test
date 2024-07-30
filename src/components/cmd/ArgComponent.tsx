@@ -46,6 +46,7 @@ export default function ArgComponent({ argName, breakdown, min, max, initialValu
         const labelled = types.map((o) => ({label: o, subtext: null, value: o}));
         return <ListComponent options={labelled} isMulti={false} initialValue={initialValue} setOutputValue={setOutputValue}/>
     }
+    /* eslint-disable no-fallthrough */
     switch (breakdown.element.toLowerCase()) {
         case 'map': {
             return <MapInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} children={breakdown.child!} />
@@ -64,12 +65,13 @@ export default function ArgComponent({ argName, breakdown, min, max, initialValu
         }
         case 'long':
             if (breakdown.annotations != null && (breakdown.annotations.includes("Timediff") || breakdown.annotations.includes("Timestamp"))) {
-                return <TimeInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
+                return <TimeInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />;
             }
-        case "integer":
-        case "int": {
-            return <NumberInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} isFloat={false} />
-        }
+            return <NumberInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} isFloat={false} />;
+        case 'integer':
+            return <NumberInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} isFloat={false} />;
+        case 'int':
+            return <NumberInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} isFloat={false} />;
         case "boolean": {
             if (breakdown.element === "Boolean") {
                 return <TriStateInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
@@ -119,4 +121,5 @@ export default function ArgComponent({ argName, breakdown, min, max, initialValu
             return breakdown.element + " UNKNOWN TYPE " + JSON.stringify(breakdown) + "`" + breakdown.element.toLowerCase() + "`";
         }
     }
+    /* eslint-enable no-fallthrough */
 }
