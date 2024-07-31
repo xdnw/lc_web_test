@@ -191,9 +191,9 @@ export default function CommandsPage() {
         {filteredCommands && filteredCommands.map((cmd) => (
           <Card key={cmd.name} className=''>
             <CardHeader>
-              <CardTitle>/{cmd.name}</CardTitle>
+              <CardTitle><a href={`#command?${cmd.name}`} className="font-bold no-underline hover:underline text-blue-600 dark:text-blue-500">/{cmd.name}</a></CardTitle>
               <CardDescription className="break-words">
-              desc: {cmd.command.desc}
+              <pre>{cmd.command.desc}</pre>
               <br />annotations: {JSON.stringify(cmd.command.annotations)}
               <br />arguments: {cmd.command.arguments ? Object.keys(cmd.command.arguments) : ""}
               </CardDescription>
