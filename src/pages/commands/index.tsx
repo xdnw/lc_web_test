@@ -25,22 +25,36 @@ export default function CommandsPage() {
             setCommands(f);
             const allCmds = Object.values(f.getCommands());
             setFilteredCommands(allCmds);
-            const argsUnique = new Set<string>(
-                Object.keys(f.data.keys).flatMap(typeStr => getTypeBreakdown(f, typeStr).getAllChildren())
-            );
-            const rolesUnique = new Set<string>();
+            const argsUnique = new Map<string, number>();
+            const rolesUnique = new Map<string, number>();
 
             for (const cmd of allCmds) {
-                if (cmd.command.annotations) {
-                  if (cmd.command.annotations["role"]) {
-                      for (const role of (cmd.command.annotations["role"] as { value: string[] })["value"]) {
-                        rolesUnique.add(role);
-                      }
+              if (cmd.command.annotations) {
+                if (cmd.command.annotations["role"]) {
+                  for (const role of (cmd.command.annotations["role"] as { value: string[] })["value"]) {
+                    rolesUnique.set(role, (rolesUnique.get(role) || 0) + 1);
                   }
                 }
             }
-            setCmdArguments(Array.from(argsUnique).sort().map((arg) => ({label: arg, value: arg})));
-            setRoles(Array.from(rolesUnique).sort().map((role) => ({label: role, value: role})));
+              
+            const args = cmd.getArguments();
+            const uniqueArgs: Set<string> = new Set();
+            for (const arg of args) {
+              for (const child of arg.getTypeBreakdown().getAllChildren()) {
+                uniqueArgs.add(child);
+              }
+            }
+            for (const arg of uniqueArgs) {
+              argsUnique.set(arg, (argsUnique.get(arg) || 0) + 1);
+            }
+          }
+          // print values for argsUnique
+          // for (const [arg, count] of argsUnique.entries()) {
+          //     console.log(arg, count);
+          // }
+
+          setCmdArguments(Array.from(argsUnique.entries()).sort().map(([arg, count]) => ({ label: `${arg} (${count})`, value: arg })));
+          setRoles(Array.from(rolesUnique.entries()).sort().map(([role, count]) => ({ label: `${role} (${count})`, value: role })));
         });
     }, []);
 

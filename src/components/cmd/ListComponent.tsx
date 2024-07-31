@@ -24,7 +24,7 @@ export default function ListComponent(
       switch (event.key) {
         case 'Enter':
         case 'Tab': {
-            const option = options.find((o) => o.label === inputValue);
+            const option = options.find((o) => o.label === inputValue || o.value === inputValue);
             addValue(option, inputValue);
             event.preventDefault();
         }
@@ -37,16 +37,16 @@ export default function ListComponent(
                 if (isMulti) {
                     const copy = [...value];
                     copy.push(option);
-                    const valueStr = copy.map((v) => v.label).join(',');
+                    const valueStr = copy.map((v) => v.value).join(',');
                     setOutputValue('value', valueStr);
                     setValue(copy);
                 } else {
                     setValue([option]);
-                    setOutputValue('value', option.label);
+                    setOutputValue('value', option.value);
                 }
                 setInputValue('');
             } else {
-                alert('Value already exists: ' + option.label);
+                alert('Value already exists: ' + option.value);
             }
         } else {
             alert('Invalid value: ' + input);

@@ -173,7 +173,11 @@ export class Command {
 
     getArguments(): Argument[] {
         if (this.arguments == null) {
-            this.arguments = Object.entries(this.command.arguments).map(([name, arg]) => new Argument(name, arg, this));
+            if (this.command.arguments) {
+                this.arguments = Object.entries(this.command.arguments).map(([name, arg]) => new Argument(name, arg, this));
+            } else {
+                this.arguments = [];
+            }
         }
         return this.arguments;
     }
