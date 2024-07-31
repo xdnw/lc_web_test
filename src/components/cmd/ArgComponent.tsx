@@ -1,6 +1,5 @@
-import { Argument, TypeBreakdown } from "../../utils/Command";
+import { TypeBreakdown } from "../../utils/Command";
 import ListComponent from "./ListComponent";
-import { CommandStoreType } from "@/utils/StateUtil";
 import NumberInput from "./NumberInput";
 import TimeInput from "./TimeInput";
 import BooleanInput from "./BooleanInput";
@@ -26,7 +25,7 @@ interface ArgProps {
 export default function ArgComponent({ argName, breakdown, min, max, initialValue, setOutputValue }: ArgProps) {
     const options = breakdown.getOptionData();
     if (options.options) {
-        const labelled = options.options.map((o) => ({label: o, subtext: null, value: o}));
+        const labelled: {label: string, value: string}[] = options.options.map((o) => ({label: o, value: o}));
         return <ListComponent options={labelled} isMulti={options.multi} initialValue={initialValue} setOutputValue={setOutputValue}/>
     }
 
@@ -43,7 +42,7 @@ export default function ArgComponent({ argName, breakdown, min, max, initialValu
     }
     if (breakdown.element === 'Class' && breakdown.annotations && breakdown.annotations.includes("PlaceholderType")) {
         const types = breakdown.map.getPlaceholderTypes(true);
-        const labelled = types.map((o) => ({label: o, subtext: null, value: o}));
+        const labelled = types.map((o) => ({label: o, value: o}));
         return <ListComponent options={labelled} isMulti={false} initialValue={initialValue} setOutputValue={setOutputValue}/>
     }
     /* eslint-disable no-fallthrough */
