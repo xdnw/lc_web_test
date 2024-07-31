@@ -39,8 +39,8 @@ export default function CommandsPage() {
                   }
                 }
             }
-            setCmdArguments(Array.from(argsUnique).map((arg) => ({label: arg, value: arg})));
-            setRoles(Array.from(rolesUnique).map((role) => ({label: role, value: role})));
+            setCmdArguments(Array.from(argsUnique).sort().map((arg) => ({label: arg, value: arg})));
+            setRoles(Array.from(rolesUnique).sort().map((role) => ({label: role, value: role})));
         });
     }, []);
 

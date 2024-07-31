@@ -62,8 +62,9 @@ export default function ListComponent(
         if (scrollRef.current && contentRef.current && options) {
             const filteredOptions: string[] = [];
             const selectedValueSet: Set<string> = new Set(value.map((v) => v.value));
+            const inputLower = inputValue.toLowerCase();
             for (const option of options) {
-                if (option.label.includes(inputValue)) {
+                if (option.label.toLowerCase().includes(inputLower)) {
                     let li;
                     if (selectedValueSet.has(option.value)) {
                         li = "<li class='bg-input'>" + option.label + "</li>";
