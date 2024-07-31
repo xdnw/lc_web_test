@@ -48,10 +48,6 @@ export default function CommandsPage() {
               argsUnique.set(arg, (argsUnique.get(arg) || 0) + 1);
             }
           }
-          // print values for argsUnique
-          // for (const [arg, count] of argsUnique.entries()) {
-          //     console.log(arg, count);
-          // }
 
           setCmdArguments(Array.from(argsUnique.entries()).sort().map(([arg, count]) => ({ label: `${arg} (${count})`, value: arg })));
           setRoles(Array.from(rolesUnique.entries()).sort().map(([role, count]) => ({ label: `${role} (${count})`, value: role })));
