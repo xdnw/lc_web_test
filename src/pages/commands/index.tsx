@@ -98,10 +98,10 @@ export default function CommandsPage() {
         <div>
         <div className="flex w-max max-w-sm items-center space-x-2 pb-1">
           <Input type="search" placeholder="Description" onKeyUp={handleKeyUp} />
-          <Button type="submit" size={'sm'} variant='outline' onClick={semanticSearch}>Semantic Search</Button>
-          <Button type="button" size={'sm'} variant='outline' onClick={() => setShowFilters(!showFilters)}>Filter Tools {showFilters ? "▲" : "▼"}</Button>
+          <Button type="submit" size={'sm'} variant='outline' onClick={semanticSearch}>Search</Button>
+          <Button type="button" size={'sm'} variant='outline' onClick={() => setShowFilters(!showFilters)}>Filter {showFilters ? "▲" : "▼"}</Button>
         </div>
-        {roles.length > 0 && cmdArgs.length > 0 && (<div className={`bg-secondary mb-1 p-1 pt-0 ${showFilters ? '' : 'invisible h-0'}`}>
+        {roles.length > 0 && cmdArgs.length > 0 && (<div className={`bg-secondary mb-1 p-1 pt-0 ${showFilters ? '' : 'invisible w-0 h-0 p-0 m-0'}`}>
           Whitelisted
           <CustomTriInput annotation="whitelist" filter={filter} map={customFilters} set={setCustomFilters} update={updateFilteredCommands}/>
           Whitelisted Coalition
@@ -189,10 +189,10 @@ export default function CommandsPage() {
           }/>
         </div>)}
         {filteredCommands && filteredCommands.map((cmd) => (
-          <Card key={cmd.name}>
+          <Card key={cmd.name} className=''>
             <CardHeader>
               <CardTitle>/{cmd.name}</CardTitle>
-              <CardDescription>
+              <CardDescription className="break-words">
               desc: {cmd.command.desc}
               <br />annotations: {JSON.stringify(cmd.command.annotations)}
               <br />arguments: {cmd.command.arguments ? Object.keys(cmd.command.arguments) : ""}
