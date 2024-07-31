@@ -130,7 +130,7 @@ class OptionData {
     }
 }
 
-function getTypeBreakdown(ref: CommandMap, type: string): TypeBreakdown {
+export function getTypeBreakdown(ref: CommandMap, type: string): TypeBreakdown {
     let annotations: string | null = null;
     if (type.endsWith(']')) {
         const annotationStart = type.indexOf('[');
@@ -576,6 +576,11 @@ export class TypeBreakdown {
         this.element = element;
         this.annotations = annotations;
         this.child = child;
+    }
+
+    getAllChildren(): string[] {
+        if (this.child == null) return [this.element];
+        return this.child.flatMap((child) => child.getAllChildren());
     }
 
     getPlaceholderTypeName(): string {

@@ -10,7 +10,7 @@ import { useSyncedStateFunc } from "@/utils/StateUtil";
 export default function ListComponent(
     {options, isMulti, initialValue, setOutputValue}: 
     {
-        options: {label: string, subtext: string | null, value: string}[], 
+        options: {label: string, subtext?: string, value: string}[], 
         isMulti: boolean, 
         initialValue: string,
         setOutputValue: (name: string, value: string) => void

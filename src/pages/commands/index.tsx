@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { withCommands } from '../../utils/StateUtil';
-import { Command, CommandMap } from '../../utils/Command';
+import { Command, CommandMap, getTypeBreakdown, TypeBreakdown } from '../../utils/Command';
 import { CommandWeights, cosineSimilarity, loadWeights, toVector } from '../../utils/Embedding';
 import BooleanInput from '@/components/cmd/BooleanInput';
 import ListComponent from '@/components/cmd/ListComponent';
@@ -16,8 +16,8 @@ export default function CommandsPage() {
     const [filteredCommands, setFilteredCommands] = useState<Command[] | null>(null);
     const [showFilters, setShowFilters] = useState(false);
     const [customFilters, setCustomFilters] = useState<{[key: string]: (cmd: Command) => boolean}>(() => ({}));
-    // {label: string, value: string}[], 
-    const [roles, setRoles] = useState<{label: string, value: string, subtext: string | null}[]>([]);
+    const [cmdArgs, setCmdArguments] = useState<{label: string, value: string}[]>([]);
+    const [roles, setRoles] = useState<{label: string, value: string}[]>([]);
 
 
     useEffect(() => {
@@ -25,7 +25,11 @@ export default function CommandsPage() {
             setCommands(f);
             const allCmds = Object.values(f.getCommands());
             setFilteredCommands(allCmds);
+            const argsUnique = new Set<string>(
+                Object.keys(f.data.keys).flatMap(typeStr => getTypeBreakdown(f, typeStr).getAllChildren())
+            );
             const rolesUnique = new Set<string>();
+
             for (const cmd of allCmds) {
                 if (cmd.command.annotations) {
                   if (cmd.command.annotations["role"]) {
@@ -35,7 +39,8 @@ export default function CommandsPage() {
                   }
                 }
             }
-            setRoles(Array.from(rolesUnique).map((role) => ({label: role, value: role, subtext: null})));
+            setCmdArguments(Array.from(argsUnique).map((arg) => ({label: arg, value: arg})));
+            setRoles(Array.from(rolesUnique).map((role) => ({label: role, value: role})));
         });
     }, []);
 
@@ -64,7 +69,6 @@ export default function CommandsPage() {
             alert("Could not load text weights.");
             return;
         }
-        console.log("Filter: ", filter);
         const myVector = await toVector(filter);
         // command => sentence map
         const similarityMap: {[key: string]: number} = {};
@@ -87,7 +91,7 @@ export default function CommandsPage() {
           <Button type="submit" size={'sm'} variant='outline' onClick={semanticSearch}>Semantic Search</Button>
           <Button type="button" size={'sm'} variant='outline' onClick={() => setShowFilters(!showFilters)}>Filter Tools {showFilters ? "▲" : "▼"}</Button>
         </div>
-        {roles.length > 0 && (<div className='bg-secondary mb-1 p-1 pt-0' style={{display: showFilters ? 'block' : 'none'}}>
+        {roles.length > 0 && cmdArgs.length > 0 && (<div className={`bg-secondary mb-1 p-1 pt-0 ${showFilters ? '' : 'invisible h-0'}`}>
           Whitelisted
           <CustomTriInput annotation="whitelist" filter={filter} map={customFilters} set={setCustomFilters} update={updateFilteredCommands}/>
           Whitelisted Coalition
@@ -128,7 +132,49 @@ export default function CommandsPage() {
               updateFilteredCommands(filter, newCustomFilters);
             }
           }/>
-          Require Arguments: TODO
+          Has Arguments:
+          <TriStateInput argName="hasarg" initialValue="0" setOutputValue={
+            (name: string, value: string) => {
+              const newCustomFilters = { ...customFilters };
+              if (value === "1" || value === "-1") {
+                const valueBool = value === "1";
+                const func: (cmd: Command) => boolean = (cmd: Command) => !!(cmd.command.arguments && Object.values(cmd.command.arguments).length > 0) === valueBool;
+                newCustomFilters["hasarg"] = func;
+                setCustomFilters(newCustomFilters);
+              } else {
+                delete newCustomFilters["hasarg"];
+                setCustomFilters(newCustomFilters);
+              }
+              updateFilteredCommands(filter, newCustomFilters);
+            }
+          }/>
+          Require Arguments (All):
+          <ListComponent options={cmdArgs} isMulti={true} initialValue={""} setOutputValue={
+            (name: string, value: string) => {
+              const optionsSplit = new Set(value.split(","));
+              console.log(optionsSplit);
+              const newCustomFilters = { ...customFilters };
+              if (value) {
+                  const func: (cmd: Command) => boolean = (cmd: Command) => {
+                    if (!cmd.command.arguments) return false;
+                    const allChildren = new Set(
+                    cmd.getArguments().flatMap(arg => arg.getTypeBreakdown().getAllChildren())
+                  );
+                  for (const required of optionsSplit) {
+                    if (!allChildren.has(required)) {
+                      return false;
+                    }
+                  }
+                  return true;
+                };
+                newCustomFilters["hasargs"] = func;
+                setCustomFilters(newCustomFilters);
+              } else {
+                delete newCustomFilters["hasargs"];
+                setCustomFilters(newCustomFilters);
+              }
+            }
+          }/>
         </div>)}
         {filteredCommands && filteredCommands.map((cmd) => (
           <Card key={cmd.name}>
