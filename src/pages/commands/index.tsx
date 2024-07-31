@@ -152,14 +152,15 @@ export default function CommandsPage() {
           <ListComponent options={cmdArgs} isMulti={true} initialValue={""} setOutputValue={
             (name: string, value: string) => {
               const optionsSplit = new Set(value.split(","));
-              console.log(optionsSplit);
               const newCustomFilters = { ...customFilters };
               if (value) {
                   const func: (cmd: Command) => boolean = (cmd: Command) => {
-                    if (!cmd.command.arguments) return false;
+                    if (!cmd.command.arguments) {
+                      return false;
+                    }
                     const allChildren = new Set(
-                    cmd.getArguments().flatMap(arg => arg.getTypeBreakdown().getAllChildren())
-                  );
+                      cmd.getArguments().flatMap(arg => arg.getTypeBreakdown().getAllChildren())
+                    );
                   for (const required of optionsSplit) {
                     if (!allChildren.has(required)) {
                       return false;
@@ -173,6 +174,7 @@ export default function CommandsPage() {
                 delete newCustomFilters["hasargs"];
                 setCustomFilters(newCustomFilters);
               }
+              updateFilteredCommands(filter, newCustomFilters);
             }
           }/>
         </div>)}
