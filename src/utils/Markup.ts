@@ -1,3 +1,5 @@
+import hljs from "highlightjs";
+
 export function markup(txt: string, opts: { replaceEmojis?: boolean, inlineBlock?: boolean, inEmbed?:boolean } = {}): string {
     if (opts.replaceEmojis)
         txt = txt.replace(/(?<!code(?: \w+=".+")?>[^>]+)(?<!\/[^\s"]+?):((?!\/)\w+):/g, (match, p) => p && emojis[p] ? emojis[p] : match);
