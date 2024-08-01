@@ -8,6 +8,8 @@ import { CommandWeights, cosineSimilarity, loadWeights, toVector } from '../../u
 import BooleanInput from '@/components/cmd/BooleanInput';
 import ListComponent from '@/components/cmd/ListComponent';
 import TriStateInput from '@/components/cmd/TriStateInput';
+import { markup } from '@/utils/Markup';
+import MarkupRenderer from '@/components/ui/MarkupRenderer';
 
 export default function CommandsPage() {
     const [commands, setCommands] = useState<CommandMap | null>(() => (null));
@@ -193,7 +195,7 @@ export default function CommandsPage() {
             <CardHeader>
               <CardTitle><a href={`#command?${cmd.name}`} className="font-bold no-underline hover:underline text-blue-600 dark:text-blue-500">/{cmd.name}</a></CardTitle>
               <CardDescription className="break-words">
-              <pre>{cmd.command.desc}</pre>
+              <MarkupRenderer content={cmd.command.desc} />
               <br />annotations: {JSON.stringify(cmd.command.annotations)}
               <br />arguments: {cmd.command.arguments ? Object.keys(cmd.command.arguments) : ""}
               </CardDescription>
