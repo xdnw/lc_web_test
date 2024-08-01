@@ -3,12 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { withCommands } from '../../utils/StateUtil';
-import { Command, CommandMap, getTypeBreakdown, TypeBreakdown } from '../../utils/Command';
+import { Command, CommandMap } from '../../utils/Command';
 import { CommandWeights, cosineSimilarity, loadWeights, toVector } from '../../utils/Embedding';
-import BooleanInput from '@/components/cmd/BooleanInput';
 import ListComponent from '@/components/cmd/ListComponent';
 import TriStateInput from '@/components/cmd/TriStateInput';
-import { markup } from '@/utils/Markup';
 import MarkupRenderer from '@/components/ui/MarkupRenderer';
 
 export default function CommandsPage() {
@@ -82,7 +80,6 @@ export default function CommandsPage() {
             return;
         }
         const myVector = await toVector(filter);
-        // command => sentence map
         const similarityMap: {[key: string]: number} = {};
         for (const [key, cmd] of Object.entries(commands.getCommands())) {
             const sentence = cmd.toSentence(loaded!);
@@ -103,7 +100,7 @@ export default function CommandsPage() {
           <Button type="submit" size={'sm'} variant='outline' onClick={semanticSearch}>Search</Button>
           <Button type="button" size={'sm'} variant='outline' onClick={() => setShowFilters(!showFilters)}>Filter {showFilters ? "▲" : "▼"}</Button>
         </div>
-        {roles.length > 0 && cmdArgs.length > 0 && (<div className={`bg-secondary mb-1 p-1 pt-0 ${showFilters ? '' : 'invisible w-0 h-0 p-0 m-0'}`}>
+        {roles.length > 0 && cmdArgs.length > 0 && (<div className={`bg-secondary ${showFilters ? 'mb-1 p-1 pt-0' : 'invisible w-0 h-0 p-0 m-0'}`}>
           Whitelisted
           <CustomTriInput annotation="whitelist" filter={filter} map={customFilters} set={setCustomFilters} update={updateFilteredCommands}/>
           Whitelisted Coalition
@@ -195,7 +192,7 @@ export default function CommandsPage() {
             <CardHeader>
               <CardTitle><a href={`#command?${cmd.name}`} className="font-bold no-underline hover:underline text-blue-600 dark:text-blue-500">/{cmd.name}</a></CardTitle>
               <CardDescription className="break-words">
-              <MarkupRenderer content={cmd.command.desc} />
+              <MarkupRenderer content={cmd.command.desc} highlight={false} />
               <br />annotations: {JSON.stringify(cmd.command.annotations)}
               <br />arguments: {cmd.command.arguments ? Object.keys(cmd.command.arguments) : ""}
               </CardDescription>
