@@ -1,50 +1,10 @@
+import { toHTML } from "discord-markdown";
 import hljs from "highlightjs";
 
 export function markup(txt: string, opts: { replaceEmojis?: boolean, inlineBlock?: boolean, inEmbed?:boolean } = {}): string {
     if (opts.replaceEmojis)
         txt = txt.replace(/(?<!code(?: \w+=".+")?>[^>]+)(?<!\/[^\s"]+?):((?!\/)\w+):/g, (match, p) => p && emojis[p] ? emojis[p] : match);
-    txt = txt
-    /** Markdown */
-    .replace(/&#60;:\w+:(\d{17,19})&#62;/g, '<img class="emoji" src="https://cdn.discordapp.com/emojis/$1.png"/>')
-    .replace(/&#60;a:\w+:(\d{17,20})&#62;/g, '<img class="emoji" src="https://cdn.discordapp.com/emojis/$1.gif"/>')
-    .replace(/~~(.+?)~~/g, '<s>$1</s>')
-    .replace(/\*\*\*(.+?)\*\*\*/g, '<em><strong>$1</strong></em>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/__(.+?)__/g, '<u>$1</u>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/_(.+?)_/g, '<em>$1</em>')
-    //headings
-    .replace(/^# (.*)$/gm, '<h1 class="heading1">$1</h1>')
-    .replace(/^## (.*)$/gm, '<h2 class="heading2">$1</h2>')
-    .replace(/^### (.*)$/gm, '<h3 class="heading3">$1</h3>')
-    // Replace >>> and > with block-quotes. &#62; is HTML code for >
-    .replace(/^(?: *&#62;&#62;&#62; ([\s\S]*))|(?:^ *&#62;(?!&#62;&#62;) +.+\n)+(?:^ *&#62;(?!&#62;&#62;) .+\n?)+|^(?: *&#62;(?!&#62;&#62;) ([^\n]*))(\n?)/mg, (all, match1, match2, newLine) => {
-        return `<div class="blockquote"><div class="blockquoteDivider"></div><blockquote>${match1 || match2 || newLine ? match1 || match2 : all.replace(/^ *&#62; /gm, '')}</blockquote></div>`;
-    })
-
-    /** Mentions */
-    .replace(/&#60;#\d+&#62;/g, () => `<span class="mention channel interactive">channel</span>`)
-    .replace(/&#60;@(?:&#38;|!)?\d+&#62;|@(?:everyone|here)/g, match => {
-        if (match.startsWith('@')) return `<span class="mention">${match}</span>`
-        else return `<span class="mention interactive">@${match.includes('&#38;') ? 'role' : 'user'}</span>`
-    })
-
-    // parse text in brackets and then the URL in parentheses.
-    .replace(/\[([^[\]]+)\]\((.+?)\)/g, `<a title="$1" target="_blank" class="anchor" href="$2">$1</a>`)
-
-    if (opts.inlineBlock)
-        // Treat both inline code and code blocks as inline code
-        txt = txt.replace(/`([^`]+?)`|``([^`]+?)``|```((?:\n|.)+?)```/g, (m, x, y, z) => x ? `<code class="inline">${x}</code>` : y ? `<code class="inline">${y}</code>` : z ? `<code class="inline">${z}</code>` : m);
-    else {
-        // Code block
-        txt = txt.replace(/```(?:([a-z0-9_+\-.]+?)\n)?\n*([^\n][^]*?)\n*```/ig, (m, w, x) => {
-            if (w) return `<pre><code class="${w}">${x.trim()}</code></pre>`
-            else return `<pre><code class="hljs nohighlight">${x.trim()}</code></pre>`
-        });
-        // Inline code
-        txt = txt.replace(/`([^`]+?)`|``([^`]+?)``/g, (m, x, y, z) => x ? `<code class="inline">${x}</code>` : y ? `<code class="inline">${y}</code>` : z ? `<code class="inline">${z}</code>` : m)
-    }
-    return txt;
+    return toHTML(txt);
 }
 
 const encodeHTML = (str: string): string => str.replace(/[\u00A0-\u9999<>&]/g, i => '&#' + i.charCodeAt(0) + ';');

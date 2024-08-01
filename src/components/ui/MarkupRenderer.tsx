@@ -1,10 +1,8 @@
-import { markup } from '@/utils/Markup';
 import DOMPurify from 'dompurify';
+import { toHTML } from 'discord-markdown';
 
 export default function MarkupRenderer({content}: {content: string}) {
-    const sanitizedContent = DOMPurify.sanitize(markup(content));
-
     return (
-        <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
+        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(toHTML(content)) }} />
     );
 }

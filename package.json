@@ -27,6 +27,7 @@
     "clsx": "^2.1.1",
     "clusterize.js": "^1.0.0",
     "crypto-js": "^4.2.0",
+    "discord-markdown": "^2.5.1",
     "dompurify": "^3.1.6",
     "gh-pages": "^6.1.1",
     "highlightjs": "^9.16.2",
