@@ -27,6 +27,7 @@ export default function ListComponent(
             const option = options.find((o) => o.label === inputValue || o.value === inputValue);
             addValue(option, inputValue);
             event.preventDefault();
+            break;
         }
       }
     };
@@ -124,7 +125,7 @@ export default function ListComponent(
       }, []);
     
     return (
-        <>
+        <div className="relative">
          <CreatableSelect
          ref={selectRef}
          className="react-select-container"
@@ -135,7 +136,7 @@ export default function ListComponent(
         menuIsOpen={false}
         onChange={(newValue) => {
                 setValue(newValue as {label: string, value: string}[]);
-                const valueStr = (newValue as {label: string, value: string}[]).map((v) => v.label).join(',');
+                const valueStr = (newValue as {label: string, value: string}[]).map((v) => v.value).join(',');
                 setOutputValue('value', valueStr);
             }
         }
@@ -151,7 +152,7 @@ export default function ListComponent(
         onBlur={handleBlur}
       />
       <div 
-      className={`absolute z-10 ${isFocused ? '' : 'invisible'} w-full bg-background shadow-lg clusterize-scroll`}
+      className={`absolute z-10 ${isFocused ? '' : 'invisible'} inset-x-0 bg-background drop-shadow-md shadow-2xl border border-input ps-1 clusterize-scroll`}
       ref={scrollRef}
       >
         <ol className="clusterize-content" ref={contentRef} onClick={(e) => {
@@ -160,7 +161,10 @@ export default function ListComponent(
                     const option = options.find((o) => o.label === target.innerText);
                     if (option) {
                         if (value.find((v) => v.value === option.value)) {
-                            setValue((prev) => prev.filter((v) => v.value !== option.value));
+                            const newValue = value.filter((v) => v.value !== option.value);
+                            setValue(newValue);
+                            const valueStr = (newValue as {label: string, value: string}[]).map((v) => v.value).join(',');
+                            setOutputValue('value', valueStr);
                         } else {
                             addValue(option, option.label);
                         }
@@ -170,6 +174,6 @@ export default function ListComponent(
             <li className="clusterize-no-data">Loading data…</li>
         </ol>
         </div>
-    </>
+    </div>
     );
 }

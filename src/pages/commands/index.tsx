@@ -9,6 +9,16 @@ import ListComponent from '@/components/cmd/ListComponent';
 import TriStateInput from '@/components/cmd/TriStateInput';
 import MarkupRenderer from '@/components/ui/MarkupRenderer';
 
+function simpleSimilarity(input: string, cmd: Command) {
+// - Command name sequential (full)
+// - Command name sequential start of word
+// - argument (word)
+// - argument (partial)
+// - command name any part of command
+// - description (start of word)
+// - description any part
+}
+
 export default function CommandsPage() {
     const [commands, setCommands] = useState<CommandMap | null>(() => (null));
     const [weights, setWeights] = useState<CommandWeights | null>(() => (null));

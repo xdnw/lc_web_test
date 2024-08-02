@@ -8,7 +8,7 @@ export default function PageView({ children }: {children: ReactNode}): ReactElem
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
     <div className="p-1 min-h-screen themeBody">
     <ModeToggle />
-        <div className="themeDiv bg-opacity-10 backdrop-blur container mt-1 p-1">
+        <div className="themeDiv bg-opacity-10 container mt-1 p-1">
     {children}
         </div>
     </div>
