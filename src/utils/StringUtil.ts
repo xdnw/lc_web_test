@@ -138,3 +138,10 @@ function getMatchingBracket(c: string): string {
       return c;
   }
 }
+
+export function getCharFrequency(str: string): { [key: string]: number } {
+  return [...str].reduce((freq, char) => {
+    freq[char] = (freq[char] || 0) + 1;
+    return freq;
+  }, {} as { [key: string]: number });
+}

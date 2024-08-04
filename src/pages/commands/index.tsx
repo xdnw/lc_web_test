@@ -8,15 +8,45 @@ import { CommandWeights, cosineSimilarity, loadWeights, toVector } from '../../u
 import ListComponent from '@/components/cmd/ListComponent';
 import TriStateInput from '@/components/cmd/TriStateInput';
 import MarkupRenderer from '@/components/ui/MarkupRenderer';
+import { getCharFrequency } from '@/utils/StringUtil';
 
-function simpleSimilarity(input: string, cmd: Command) {
-// - Command name sequential (full)
-// - Command name sequential start of word
-// - argument (word)
-// - argument (partial)
-// - command name any part of command
-// - description (start of word)
-// - description any part
+function simpleSimilarity(input: string, 
+  inputFreq: { [key: string]: number },
+  inputWordFreq: Set<string>,
+  cmd: Command): number {
+  const command = cmd.name.toLowerCase();
+  if (command.includes(input)) {
+    if (command.startsWith(input)) {
+      return 5;
+    }
+    return 4;
+  }
+  let inputIndex = 0;
+  for (let i = 0; i < command.length; i++) {
+    if (command[i] === input[inputIndex]) {
+      inputIndex++;
+      if (inputIndex === input.length) {
+        return 2;
+      }
+    }
+  }
+  const commandFreq = cmd.getCharFrequency();
+  let freqMatchScore = 0;
+  for ( const [char, freq] of Object.entries(inputFreq)) {
+    const foundAmt = commandFreq[char] || 0;
+    if (foundAmt >= freq) {
+      freqMatchScore += Math.min(freq, foundAmt);
+    } else {
+      const wordFreq = cmd.getWordFrequency();
+      for (const word of inputWordFreq) {
+        if (!wordFreq.has(word)) {
+          return 0;
+        }
+      }
+      return 3;
+    }
+  }
+  return freqMatchScore / input.length;
 }
 
 export default function CommandsPage() {
@@ -65,11 +95,21 @@ export default function CommandsPage() {
     }, []);
 
     const updateFilteredCommands = (filterValue: string, customFilters: {[key: string]: (cmd: Command) => boolean}) => {
-      const newFilteredCommands = commands && Object.values(commands.getCommands()).filter((cmd) => {
-        const matchesFilter = cmd.name.includes(filterValue) || (cmd.command.desc != null && cmd.command.desc.split(' ').includes(filterValue));
-        const matchesCustomFilters = Object.values(customFilters).every((filterFunc) => filterFunc(cmd));
-        return matchesFilter && matchesCustomFilters;
-      });
+      const inputLower = filterValue.toLowerCase();
+      const inputFreq = getCharFrequency(inputLower);
+      const inputWordFreq = new Set(inputLower.split(" "));
+      const newFilteredCommands = commands && Object.values(commands.getCommands())
+        .map((cmd) => ({
+          cmd,
+          similarityScore: simpleSimilarity(inputLower, inputFreq, inputWordFreq, cmd)
+        }))
+        .filter(({ cmd, similarityScore }) => {
+          const matchesCustomFilters = Object.values(customFilters).every((filterFunc) => filterFunc(cmd));
+          return similarityScore > 0 && matchesCustomFilters;
+        })
+        .sort((a, b) => b.similarityScore - a.similarityScore)
+        .map(({ cmd }) => cmd);
+    
       setFilteredCommands(newFilteredCommands);
     };
 

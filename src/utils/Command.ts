@@ -1,6 +1,6 @@
 import { commandCompletions } from "./CompletionUtil";
 import { CommandWeights, Sentence } from "./Embedding";
-import { findMatchingBracket, splitIgnoringBrackets } from "./StringUtil";
+import { findMatchingBracket, getCharFrequency, splitIgnoringBrackets } from "./StringUtil";
 
 export type IArgument = {
     name: string;
@@ -153,10 +153,39 @@ export class Command {
     name: string;
     ref: CommandMap;
     arguments: Argument[] | null = null;
+    charFreq: { [key: string]: number } | null = null;
+    descWordFreq: Set<string> | null = null;
+    
     constructor(name: string, command: ICommand, ref: CommandMap) {
         this.command = command;
         this.name = name;
         this.ref = ref;
+    }
+
+    getCharFrequency(): { [key: string]: number } {
+        if (this.charFreq == null) this.charFreq = getCharFrequency(this.name);
+        return this.charFreq;
+    }
+
+    getWordFrequency(): Set<string> {
+        if (this.descWordFreq == null) {
+            this.descWordFreq = new Set();
+            this.command.desc.split(" ").forEach((word) => {
+                this.descWordFreq!.add(word.toLowerCase());
+            });
+            for (const arg of this.getArguments()) {
+                for (const child of arg.getTypeBreakdown().getAllChildren()) {
+                    this.descWordFreq.add(child.toLowerCase());
+                }
+                if (arg.arg.desc) {
+                    arg.arg.desc.split(/[\s_]+/).forEach((word) => {
+                        this.descWordFreq!.add(word.toLowerCase());
+                    });
+                }
+                this.descWordFreq.add(arg.name.toLowerCase());
+            }
+        }
+        return this.descWordFreq;
     }
 
     getFullText(): string {
