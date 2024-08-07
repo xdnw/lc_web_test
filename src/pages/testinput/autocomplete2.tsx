@@ -89,11 +89,9 @@ export default function AutoComplete2() {
     }, []);
   
     const onCaretPositionChange = (position: number) => {
-        // console.log(`Caret position is equal to ${position}`);
         const content = textAreaRef.current?.value as string;
         const token = "";
         const info = cmdMap?.getCurrentlyTypingFunction(content, token, position, type);
-        // 
         setOutputInfo(JSON.stringify(info));
     };
   

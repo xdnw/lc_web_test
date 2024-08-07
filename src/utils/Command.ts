@@ -543,15 +543,26 @@ function getCurrentlyTypingArg(command: ICommand, functionContent: string, caret
     // 3: space or comma (and optional space) and about to type an argument name
     const keys = Object.keys(command.arguments);
     // functionContent
-    const iRel = caretPosition - i;
-    for (let j = 0; j < functionString.length; j++) {
-        const char = functionString.charAt(j);
+    for (let j = 0; j < functionContent.length; j++) {
+        const char = functionContent.charAt(j);
         if (isQuoteOrBracket(char)) {
-            j = findMatchingQuoteOrBracket(functionString, j);
+            const jEnd = findMatchingQuoteOrBracket(functionContent, j);
             continue;
         }
         if (char == ":") {
-            // check if preceeding characters are a key
+            for (const key of keys) {
+                if (functionContent.endsWith(key, j)) {
+                    return {
+                        placeholder_type: placeholder_type,
+                        argument: command.arguments[key],
+                        options: [{
+                            name: "ARG-VALUE " + key,
+                            value: "HELLO WORLD"
+                        }]
+                    };
+                }
+            }
+
         }
 
     }
