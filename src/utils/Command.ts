@@ -1,6 +1,6 @@
 import { commandCompletions } from "./CompletionUtil";
 import { CommandWeights, Sentence } from "./Embedding";
-import { findMatchingBracket, getCharFrequency, splitIgnoringBrackets } from "./StringUtil";
+import { findMatchingBracket, findMatchingQuoteOrBracket, getCharFrequency, isQuoteOrBracket, splitIgnoringBrackets } from "./StringUtil";
 
 export type IArgument = {
     name: string;
@@ -55,6 +55,7 @@ export class Argument {
     arg: IArgument;
     command: Command;
     breakdown: TypeBreakdown | null = null;
+    
     constructor(name: string, arg: IArgument, command: Command) {
         this.name = name;
         this.arg = arg;
@@ -155,6 +156,14 @@ export class Command {
     arguments: Argument[] | null = null;
     charFreq: { [key: string]: number } | null = null;
     descWordFreq: Set<string> | null = null;
+    descShort: string | null = null;
+
+    getDescShort(): string {
+        if (this.descShort == null) {
+            this.descShort = this.command.desc.split("\n")[0];
+        }
+        return this.descShort;
+    }
     
     constructor(name: string, command: ICommand, ref: CommandMap) {
         this.command = command;
@@ -359,14 +368,14 @@ export class CommandMap {
         console.log("CONTENT " + content);
         for (let i = 0; i < caretPosition; i++) {
             const char = content.charAt(i);
-            // switch (char) {
-            //     case "#":
-            //     case "(":
-            //     case ",":
-            //     case " ":
-            //     case ":":
-            //         break;
-            // }
+            switch (char) {
+                case "#":
+                case "(":
+                case ",":
+                case " ":
+                case ":":
+                    break;
+            }
             if (char === "#") {
                 // find the index of the first non valid function character
                 let endOfFunction = content.substring(i + 1).search(/[^a-zA-Z0-9_$]/);
@@ -403,7 +412,7 @@ export class CommandMap {
                             placeholder_type: placeholder_type,
                             options: [{
                                 name: "BREAK",
-                                value: token
+                                value: "HELLO WORLD"
                             }]
                         };
                     }
@@ -416,7 +425,7 @@ export class CommandMap {
                             placeholder_type: placeholder_type,
                             options: [{
                                 name: "END-BRACKET",
-                                value: token
+                                value: "HELLO WORLD"
                             }]
                         };
                         // is end bracket
@@ -424,25 +433,13 @@ export class CommandMap {
                         // get command
                         const command = this.getPlaceholderCommand(placeholder_type, functionString);
                         if (command) {
-                            // 1: typing an argument name
-                            // 2: typing an argument value
-                            // 3: space or comma (and optional space) and about to type an argument name
-                            const keys = Object.keys(command.arguments);
-                            // anything starting with `key:` and then the text after it
-                            // TODO get the arg at the caret position
-                            return {
-                                placeholder_type: placeholder_type,
-                                options: [{
-                                    name: "ARGS " + functionContent,
-                                    value: token
-                                }]
-                            };
+                            return getCurrentlyTypingArg(command, functionContent, caretPosition - i, placeholder_type);
                         } else {
                             return {
                                 placeholder_type: placeholder_type,
                                 options: [{
                                     name: "ARGS, UNKNOWN COMMAND " + functionString,
-                                    value: token
+                                    value: "HELLO WORLD"
                                 }]
                             };
                         }
@@ -452,7 +449,7 @@ export class CommandMap {
                             placeholder_type: placeholder_type,
                             options: [{
                                 name: "START-BRACKET",
-                                value: token
+                                value: "HELLO WORLD"
                             }]
                         };
                     } else {
@@ -461,7 +458,7 @@ export class CommandMap {
                             placeholder_type: placeholder_type,
                             options: [{
                                 name: "MID-FUNC-HAS-ARGS",
-                                value: token
+                                value: "HELLO WORLD"
                             }]
                         };
                     }
@@ -495,7 +492,7 @@ export class CommandMap {
                             command: command,
                             options: [{
                                 name: "COMPLETE-MATCH",
-                                value: token
+                                value: "HELLO WORLD"
                             }]
                         };
                     } else if (Object.keys(startsWith).length > 0) {
@@ -513,7 +510,7 @@ export class CommandMap {
                             placeholder_type: placeholder_type,
                             options: [{
                                 name: "END-FUNC-NO-ARGS-NO-MATCH",
-                                value: token
+                                value: "HELLO WORLD"
                             }]
                         };
                     }
@@ -524,7 +521,7 @@ export class CommandMap {
                         placeholder_type: placeholder_type,
                         options: [{
                             name: "MID-FUNC-NO_ARGS",
-                            value: token
+                            value: "HELLO WORLD"
                         }]
                     };
                 }
@@ -534,14 +531,41 @@ export class CommandMap {
             placeholder_type: placeholder_type,
             options: [{
                 name: "NO-RESULT",
-                value: token
+                value: "HELLO WORLD"
             }]
         };
     }
-
-
 }
 
+function getCurrentlyTypingArg(command: ICommand, functionContent: string, caretPosition: number, placeholder_type: string): Completion {
+    // 1: typing an argument name
+    // 2: typing an argument value
+    // 3: space or comma (and optional space) and about to type an argument name
+    const keys = Object.keys(command.arguments);
+    // functionContent
+    const iRel = caretPosition - i;
+    for (let j = 0; j < functionString.length; j++) {
+        const char = functionString.charAt(j);
+        if (isQuoteOrBracket(char)) {
+            j = findMatchingQuoteOrBracket(functionString, j);
+            continue;
+        }
+        if (char == ":") {
+            // check if preceeding characters are a key
+        }
+
+    }
+    
+    // anything starting with `key:` and then the text after it
+    // TODO get the arg at the caret position
+    return {
+        placeholder_type: placeholder_type,
+        options: [{
+            name: "ARGS1 " + functionContent,
+            value: "HELLO WORLD"
+        }]
+    };
+}
 
 export class CommandBuilder {
     command: ICommand;

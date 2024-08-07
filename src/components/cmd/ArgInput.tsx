@@ -22,7 +22,7 @@ interface ArgProps {
     setOutputValue: (key: string, value: string) => void
 }
 
-export default function ArgComponent({ argName, breakdown, min, max, initialValue, setOutputValue }: ArgProps) {
+export default function ArgInput({ argName, breakdown, min, max, initialValue, setOutputValue }: ArgProps) {
     const options = breakdown.getOptionData();
     if (options.options) {
         const labelled: {label: string, value: string}[] = options.options.map((o) => ({label: o, value: o}));

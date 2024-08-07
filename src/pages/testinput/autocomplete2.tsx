@@ -37,6 +37,7 @@ export default function AutoComplete2() {
 
     let [options, setOptions] = useState<ItemType[]>([]);
     let [cmdMap, setCmdMap] = useState<CommandMap | null>(null);
+    let [outputInfo, setOutputInfo] = useState<string>("");
     
 
     const type = "DBNation";
@@ -89,6 +90,11 @@ export default function AutoComplete2() {
   
     const onCaretPositionChange = (position: number) => {
         // console.log(`Caret position is equal to ${position}`);
+        const content = textAreaRef.current?.value as string;
+        const token = "";
+        const info = cmdMap?.getCurrentlyTypingFunction(content, token, position, type);
+        // 
+        setOutputInfo(JSON.stringify(info));
     };
   
     const resetCaretPosition = () => {
@@ -103,6 +109,7 @@ export default function AutoComplete2() {
     };
   
     return (
+        <>
       <div className="app">
         <div className="controls">
           <Button variant="outline" size="sm" onClick={resetCaretPosition}>Reset caret position</Button>
@@ -114,17 +121,21 @@ export default function AutoComplete2() {
           minChar={0}
           movePopupAsYouType={true}
           trigger={{
-            "#": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
-            "(": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
-            ":": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
-            ",": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
-            " ": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
+            // "#": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
+            // "(": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
+            // ":": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
+            // ",": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
+            // " ": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
           }}
           ref={rtaRef}
           innerRef={setTextAreaRef}
           onCaretPositionChange={onCaretPositionChange}
         />
       </div>
+      <div>
+          {outputInfo}
+      </div>
+      </>
     );
 }
 

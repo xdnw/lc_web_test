@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { withCommands } from '../../utils/StateUtil';
-import { Command, CommandMap } from '../../utils/Command';
+import { Argument, Command, CommandMap } from '../../utils/Command';
 import { CommandWeights, cosineSimilarity, loadWeights, toVector } from '../../utils/Embedding';
 import ListComponent from '@/components/cmd/ListComponent';
 import TriStateInput from '@/components/cmd/TriStateInput';
@@ -145,9 +145,9 @@ export default function CommandsPage() {
 
     return (
         <div>
-        <div className="flex w-max max-w-sm items-center space-x-2 pb-1">
-          <Input type="search" placeholder="Description" onKeyUp={handleKeyUp} />
-          <Button type="submit" size={'sm'} variant='outline' onClick={semanticSearch}>Search</Button>
+        <div className="flex w-full items-center pb-1">
+          <Input type="search" placeholder="Description" onKeyUp={handleKeyUp} className="flex-grow" />
+          <Button type="submit" size={'sm'} variant='outline' onClick={semanticSearch} aria-label='search' className='me-1'>🔍</Button>
           <Button type="button" size={'sm'} variant='outline' onClick={() => setShowFilters(!showFilters)}>Filter {showFilters ? "▲" : "▼"}</Button>
         </div>
         {roles.length > 0 && cmdArgs.length > 0 && (<div className={`bg-secondary ${showFilters ? 'mb-1 p-1 pt-0' : 'invisible w-0 h-0 p-0 m-0'}`}>
@@ -237,18 +237,30 @@ export default function CommandsPage() {
             }
           }/>
         </div>)}
-        {filteredCommands && filteredCommands.map((cmd) => (
-          <Card key={cmd.name} className=''>
-            <CardHeader>
-              <CardTitle><a href={`#command?${cmd.name}`} className="font-bold no-underline hover:underline text-blue-600 dark:text-blue-500">/{cmd.name}</a></CardTitle>
-              <CardDescription className="break-words">
-              <MarkupRenderer content={cmd.command.desc} highlight={false} />
-              <br />annotations: {JSON.stringify(cmd.command.annotations)}
-              <br />arguments: {cmd.command.arguments ? Object.keys(cmd.command.arguments) : ""}
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        ))}
+        {filteredCommands && filteredCommands.length > 0 && (
+          <table className="table-auto w-full">
+            <thead>
+              <tr className='bg-card'>
+                <th className="px-4 py-2">Command</th>
+                <th className="px-4 py-2">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCommands.map((cmd) => (
+                <tr key={cmd.name}>
+                  <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
+                    <a href={`#command?${cmd.name}`} className="font-bold no-underline hover:underline text-blue-600 dark:text-blue-500">
+                      /{cmd.name}
+                    </a>
+                  </td>
+                  <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
+                    <MarkupRenderer content={cmd.getDescShort()} highlight={false} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
       );
 }

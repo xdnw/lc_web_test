@@ -139,6 +139,26 @@ function getMatchingBracket(c: string): string {
   }
 }
 
+export function isQuoteOrBracket(c: string): boolean {
+  return isQuote(c) || isBracketForwards(c);
+}
+
+export function findMatchingQuoteOrBracket(sequence: string, index: number): number {
+  const startC = sequence.charAt(index);
+  if (isBracketForwards(startC)) {
+    return findMatchingBracket(sequence, index);
+  }
+  const endC = isQuote(startC) ? startC : null;
+  if (endC === null) return -1;
+  for (let i = index + 1; i < sequence.length; i++) {
+    const c = sequence.charAt(i);
+    if (c === endC) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 export function getCharFrequency(str: string): { [key: string]: number } {
   return [...str].reduce((freq, char) => {
     freq[char] = (freq[char] || 0) + 1;

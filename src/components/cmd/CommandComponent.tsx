@@ -1,4 +1,4 @@
-import ArgComponent from "./ArgComponent";
+import ArgInput from "./ArgInput";
 import { Argument, Command } from "../../utils/Command";
 import { Label } from "../ui/label";
 import { CommandStoreType } from "@/utils/StateUtil";
@@ -58,7 +58,7 @@ export default function CommandComponent({ command, filterArguments, initialValu
                             filterArguments(arg) &&
                             <div className="w-full" key={index + "-" + argIndex + "m"}>
                                 <ArgDescComponent arg={arg} />
-                                <ArgComponent argName={arg.name} breakdown={arg.getTypeBreakdown()} min={arg.arg.min} max={arg.arg.max} initialValue={initialValues[arg.name]} setOutputValue={commandStore((state) => state.setOutput)} />
+                                <ArgInput argName={arg.name} breakdown={arg.getTypeBreakdown()} min={arg.arg.min} max={arg.arg.max} initialValue={initialValues[arg.name]} setOutputValue={commandStore((state) => state.setOutput)} />
                             </div>
                         ))}
                     </div>
