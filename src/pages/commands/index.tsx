@@ -8,46 +8,7 @@ import { CommandWeights, cosineSimilarity, loadWeights, toVector } from '../../u
 import ListComponent from '@/components/cmd/ListComponent';
 import TriStateInput from '@/components/cmd/TriStateInput';
 import MarkupRenderer from '@/components/ui/MarkupRenderer';
-import { getCharFrequency } from '@/utils/StringUtil';
-
-function simpleSimilarity(input: string, 
-  inputFreq: { [key: string]: number },
-  inputWordFreq: Set<string>,
-  cmd: Command): number {
-  const command = cmd.name.toLowerCase();
-  if (command.includes(input)) {
-    if (command.startsWith(input)) {
-      return 5;
-    }
-    return 4;
-  }
-  let inputIndex = 0;
-  for (let i = 0; i < command.length; i++) {
-    if (command[i] === input[inputIndex]) {
-      inputIndex++;
-      if (inputIndex === input.length) {
-        return 2;
-      }
-    }
-  }
-  const commandFreq = cmd.getCharFrequency();
-  let freqMatchScore = 0;
-  for ( const [char, freq] of Object.entries(inputFreq)) {
-    const foundAmt = commandFreq[char] || 0;
-    if (foundAmt >= freq) {
-      freqMatchScore += Math.min(freq, foundAmt);
-    } else {
-      const wordFreq = cmd.getWordFrequency();
-      for (const word of inputWordFreq) {
-        if (!wordFreq.has(word)) {
-          return 0;
-        }
-      }
-      return 3;
-    }
-  }
-  return freqMatchScore / input.length;
-}
+import {getCharFrequency, simpleSimilarity} from '@/utils/StringUtil';
 
 export default function CommandsPage() {
     const [commands, setCommands] = useState<CommandMap | null>(() => (null));
@@ -58,7 +19,6 @@ export default function CommandsPage() {
     const [customFilters, setCustomFilters] = useState<{[key: string]: (cmd: Command) => boolean}>(() => ({}));
     const [cmdArgs, setCmdArguments] = useState<{label: string, value: string}[]>([]);
     const [roles, setRoles] = useState<{label: string, value: string}[]>([]);
-
 
     useEffect(() => {
         withCommands().then(async f => {

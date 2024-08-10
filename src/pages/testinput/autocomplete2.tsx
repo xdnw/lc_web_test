@@ -35,9 +35,9 @@ export default function AutoComplete2() {
         textAreaRef.current = element;
     };
 
-    let [options, setOptions] = useState<ItemType[]>([]);
-    let [cmdMap, setCmdMap] = useState<CommandMap | null>(null);
-    let [outputInfo, setOutputInfo] = useState<string>("");
+    const [options, setOptions] = useState<ItemType[]>([]);
+    const [cmdMap, setCmdMap] = useState<CommandMap | null>(null);
+    const [outputInfo, setOutputInfo] = useState<string>("");
     
 
     const type = "DBNation";
@@ -108,32 +108,33 @@ export default function AutoComplete2() {
   
     return (
         <>
-      <div className="app">
-        <div className="controls">
-          <Button variant="outline" size="sm" onClick={resetCaretPosition}>Reset caret position</Button>
-          <Button variant="outline" size="sm" onClick={printCurrentCaretPosition}>Print current caret position to the console</Button>
-        </div>
-        <ReactTextareaAutocomplete
-          className="my-textarea"
-          loadingComponent={() => <span>Loading</span>}
-          minChar={0}
-          movePopupAsYouType={true}
-          trigger={{
-            // "#": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
-            // "(": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
-            // ":": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
-            // ",": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
-            // " ": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
-          }}
-          ref={rtaRef}
-          innerRef={setTextAreaRef}
-          onCaretPositionChange={onCaretPositionChange}
-        />
-      </div>
-      <div>
-          {outputInfo}
-      </div>
-      </>
+            <div className="app">
+                <div className="controls">
+                    <Button variant="outline" size="sm" onClick={resetCaretPosition}>Reset caret position</Button>
+                    <Button variant="outline" size="sm" onClick={printCurrentCaretPosition}>Print current caret position
+                        to the console</Button>
+                </div>
+                <div className="h-64">
+                    {outputInfo}
+                </div>
+                <ReactTextareaAutocomplete
+                    className="my-textarea h-64"
+                    loadingComponent={() => <span>Loading</span>}
+                    minChar={0}
+                    movePopupAsYouType={true}
+                    trigger={{
+                        // "#": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
+                        // "(": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
+                        // ":": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
+                        // ",": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
+                        // " ": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
+                    }}
+                    ref={rtaRef}
+                    innerRef={setTextAreaRef}
+                    onCaretPositionChange={onCaretPositionChange}
+                />
+            </div>
+        </>
     );
 }
 

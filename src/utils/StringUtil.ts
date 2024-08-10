@@ -1,20 +1,108 @@
-export function splitIgnoringBrackets(s: string, delimiter: string): string[] {
-    const result: string[] = [];
-    let current: string = '';
-    let depth: number = 0;
-    for (let i = 0; i < s.length; i++) {
-      const char = s[i];
-      if (char === delimiter && depth === 0) {
-        result.push(current);
-        current = '';
+import {Command} from "@/utils/Command.ts";
+
+export function split(input: string, delimiter: string): string[] {
+  return splitCustom(input, (input, index) => {
+    if (input.charAt(index) === delimiter) return 1;
+    return null;
+  }, Number.MAX_SAFE_INTEGER).map(s => s.content);
+}
+
+export type SplitStr = {
+    delimiter: string;
+    offset: number; // the extra amt of characters skipped in addition to the delimiter (e.g. brackets or quotes)
+    content: string;
+}
+
+export function splitCustom(input: string, startsWith: ((input: string, index: number) => number | null) | null, limit: number): SplitStr[] {
+  const result: SplitStr[] = [];
+  let start = 0;
+  let bracket = 0;
+  let inQuotes = false;
+  let quoteChar: string | null = null;
+  let lastDelim = ""
+
+  for (let current = 0; current < input.length; current++) {
+    let currentChar = input.charAt(current);
+    if (currentChar === '\u201C') currentChar = '\u201D';
+    const atLastChar = current === input.length - 1;
+
+    switch (currentChar) {
+      case '[':
+      case '(':
+      case '{':
+        bracket++;
+        break;
+      case '}':
+      case ')':
+      case ']':
+        bracket--;
+        break;
+    }
+
+    if (!atLastChar && bracket > 0) {
+      continue;
+    }
+
+    if (atLastChar) {
+      let toAdd: SplitStr;
+      if (inQuotes) {
+        toAdd = {
+          delimiter: lastDelim,
+          offset: 1,
+          content: input.substring(start + 1, input.length - 1)
+        };
       } else {
-        current += char;
-        if (char === '[' || char === '{' || char === '<') depth++;
-        if (char === ']' || char === '}' || char === '>') depth--;
+        toAdd = {
+            delimiter: lastDelim,
+            offset: 0,
+            content: input.substring(start)
+        };
+      }
+      if (toAdd) result.push(toAdd);
+      continue;
+    }
+
+    if (isQuote(currentChar)) {
+      if (!quoteChar || (isQuote(quoteChar) && isQuote(currentChar) && currentChar === quoteChar)) {
+        inQuotes = !inQuotes;
+        quoteChar = inQuotes ? currentChar : null;
       }
     }
-    if (current !== '') result.push(current);
-    return result;
+
+    if (!inQuotes && startsWith) {
+      const foundLen = startsWith(input, current);
+
+      if (foundLen !== null && foundLen !== -1) {
+        let toAdd = input.substring(start, current);
+        let offset = 0;
+        if (toAdd) {
+          switch (toAdd.charAt(0)) {
+            case '\'':
+            case '"':
+            case '\u201C':
+            case '\u201D':
+              toAdd = toAdd.substring(1, toAdd.length - 1);
+              offset++;
+          }
+          if (toAdd.trim()) {
+            result.push({
+              delimiter: lastDelim,
+              offset: offset,
+              content: toAdd
+            });
+            lastDelim = input.substring(current, current + foundLen);
+          }
+        }
+        start = current + foundLen;
+        current = start - 1;
+        if (--limit <= 1) {
+          startsWith = null;
+        }
+      }
+    }
+  }
+
+  return result;
 }
 
 export function parseArguments(params: Set<string>, input: string, checkUnbound: boolean): Map<string, string> {
@@ -164,4 +252,43 @@ export function getCharFrequency(str: string): { [key: string]: number } {
     freq[char] = (freq[char] || 0) + 1;
     return freq;
   }, {} as { [key: string]: number });
+}
+
+export function simpleSimilarity(input: string,
+                          inputFreq: { [key: string]: number },
+                          inputWordFreq: Set<string>,
+                          cmd: Command): number {
+  const command = cmd.name.toLowerCase();
+  if (command.includes(input)) {
+    if (command.startsWith(input)) {
+      return 5;
+    }
+    return 4;
+  }
+  let inputIndex = 0;
+  for (let i = 0; i < command.length; i++) {
+    if (command[i] === input[inputIndex]) {
+      inputIndex++;
+      if (inputIndex === input.length) {
+        return 2;
+      }
+    }
+  }
+  const commandFreq = cmd.getCharFrequency();
+  let freqMatchScore = 0;
+  for ( const [char, freq] of Object.entries(inputFreq)) {
+    const foundAmt = commandFreq[char] || 0;
+    if (foundAmt >= freq) {
+      freqMatchScore += Math.min(freq, foundAmt);
+    } else {
+      const wordFreq = cmd.getWordFrequency();
+      for (const word of inputWordFreq) {
+        if (!wordFreq.has(word)) {
+          return 0;
+        }
+      }
+      return 3;
+    }
+  }
+  return freqMatchScore / input.length;
 }
