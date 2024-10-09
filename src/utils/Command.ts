@@ -48,11 +48,19 @@ export type IOptionData = {
     guild: boolean | null;
     nation: boolean | null;
     user: boolean | null;
-  }
+}
+
+export type ISelector = [string, string, string];
+
+export type IPlaceholder = {
+    commands: ICommandGroup;
+    selectors: ISelector[];
+    columns?: string[];
+}
   
 export type ICommandMap = {
     commands: ICommandGroup;
-    placeholders: { [name: string]: ICommandGroup };
+    placeholders: { [name: string]: IPlaceholder };
     keys: { [name: string]: IKeyData };
     options: { [name: string]: IOptionData };
 }
@@ -243,29 +251,39 @@ export const STRIP_PREFIXES = ["get", "is", "can", "has"];
 export class CommandMap {
     data: ICommandMap;
     flat: { [key: string]: Command } | null = null;
+    ph_flat: {[key: string]: {[key: string]: Command}} = {};
 
     constructor(commands: ICommandMap) {
         this.data = commands;
     }
 
-    getCommands(): {[key: string]: Command} {
-        if (this.flat !== null) return this.flat;
-        const flatCommands: { [key: string]: Command } = {};
-        const flattenCommands = (commandGroup: ICommandGroup, prefix: string) => {
-            Object.keys(commandGroup).forEach(key => {
-                const value = commandGroup[key];
+    private flattenCommands(group: ICommandGroup) {
+        const result: { [key: string]: Command } = {};
+        const recurse = (sub: ICommandGroup, prefix: string) => {
+            Object.keys(sub).forEach(key => {
+                const value = sub[key];
                 const newKey: string = prefix ? `${prefix} ${key}` : key;
                 if (isCommand(value)) {
-                    const cmd = new Command(newKey, value as ICommand, this);
-                    flatCommands[newKey] = cmd;
+                    result[newKey] = new Command(newKey, value as ICommand, this);
                 } else {
-                    flattenCommands(value, newKey);
+                    recurse(value, newKey);
                 }
             });
         };
-        flattenCommands(this.data.commands, "");
-        this.flat = flatCommands;
-        return flatCommands;
+        recurse(group, "");
+        return result;
+    }
+
+    getPlaceholderCommands(placeholder_type: string): {[key: string]: Command} {
+        if (this.ph_flat[placeholder_type] == null && this.data.placeholders[placeholder_type]) {
+            this.ph_flat[placeholder_type] = this.flattenCommands(this.data.placeholders[placeholder_type]);
+        }
+        return this.ph_flat[placeholder_type];
+    }
+
+    getCommands(): {[key: string]: Command} {
+        if (this.flat == null) this.flat = this.flattenCommands(this.data.commands);
+        return this.flat;
     }
 
     getPlaceholderTypes(toSimpleName: boolean): string[] {

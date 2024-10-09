@@ -23,7 +23,7 @@ export default function AutoComplete() {
     <TextInput matchAny={true} className="bg-background w-full h-6" requestOnlyIfNoOptions={true} options={options} trigger="#" maxOptions={0} spacer={""} onRequestOptions={() => {
         withCommands().then(async f => {
             const stripPrefixes = ["get", "is", "can", "has"];
-            const obj = f.data.placeholders[type];
+            const obj = f.data.placeholders[type].commands;
             // value -> ICommand -> arguments -> iterate and check if `optional` exists and is true
             const options: string[] = [];
             // loop key and value of obj

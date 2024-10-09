@@ -1,5 +1,5 @@
 import "./App.css"
-import { HashRouter as Router, Route, Routes } from 'react-router-dom';
+import {HashRouter as Router, Route, Routes} from 'react-router-dom';
 import Home from './pages/home';
 import CommandsPage from './pages/commands';
 import Blah from "./unused";
@@ -9,6 +9,7 @@ import PageView from "./components/layout/page-view";
 import TestInput from "./pages/testinput";
 import AutoComplete from "./pages/testinput/autocomplete";
 import AutoComplete2 from "./pages/testinput/autocomplete2";
+import PlaceholdersList from "@/pages/ph_list";
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
             <Route path="/testinput" element={<TestInput />} />
             <Route path="/autocomplete" element={<AutoComplete />} />
             <Route path="/auto2" element={<AutoComplete2 />} />
+            <Route path="/placeholders/:placeholder" element={<PlaceholdersList />} />
         </Routes>
         </PageView>} />
     </Routes>

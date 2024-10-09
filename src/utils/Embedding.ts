@@ -52,11 +52,13 @@ export async function compareSentences(sentences: Sentence[], compareTo: string)
     return result;
 }
 
+export type WeightMap = {
+    [key: string]: number;
+}
+
 export type CommandWeights = {
-    [key: string]: {
-        vector: number[];
-        hash: string;
-    }
+    commands: WeightMap
+    placeholders: { [key: string]: WeightMap }
 }
 
 export async function loadWeights(): Promise<CommandWeights> {
@@ -65,6 +67,13 @@ export async function loadWeights(): Promise<CommandWeights> {
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const weights = await response.json();
+    let weights = await response.json();
+    if (!weights["commands"]) {
+        const parent = weights;
+        weights = {
+            commands: parent,
+            placeholders: {}
+        }
+    }
     return weights;
 }

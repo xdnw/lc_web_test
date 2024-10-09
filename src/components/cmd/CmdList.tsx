@@ -1,22 +1,25 @@
-import React, { useEffect, useState, } from 'react';
+import React, { useState, } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { withCommands } from '../../utils/StateUtil';
-import { Argument, Command, CommandMap } from '../../utils/Command';
 import { CommandWeights, cosineSimilarity, loadWeights, toVector } from '../../utils/Embedding';
 import ListComponent from '@/components/cmd/ListComponent';
 import TriStateInput from '@/components/cmd/TriStateInput';
 import MarkupRenderer from '@/components/ui/MarkupRenderer';
 import {getCharFrequency, simpleSimilarity} from '@/utils/StringUtil';
+import {Command, CommandMap} from "@/utils/Command.ts";
 
-export default function CommandsPage(map: CommandMap, commands: Command[]) {
+type CmdListProps = {
+    map: CommandMap;
+    commands: Command[];
+};
+
+export default function CmdList({ map, commands, prefix }: {map: CommandMap, commands: Command[], prefix: string}) {
     const [weights, setWeights] = useState<CommandWeights | null>(() => (null));
     const [filter, setFilter] = useState('');
     const [filteredCommands, setFilteredCommands] = useState<Command[]>(commands);
     const [showFilters, setShowFilters] = useState(false);
     const [customFilters, setCustomFilters] = useState<{[key: string]: (cmd: Command) => boolean}>(() => ({}));
-    const [cmdArgs, setCmdArguments] = useState<{label: string, value: string}[]>({
+    const [cmdArgs, setCmdArguments] = useState<{label: string, value: string}[]>(() => {
         const argsUnique = new Map<string, number>();
         for (const cmd of commands) {
             const args = cmd.getArguments();
@@ -32,7 +35,7 @@ export default function CommandsPage(map: CommandMap, commands: Command[]) {
         }
         return Array.from(argsUnique.entries()).sort().map(([arg, count]) => ({ label: `${arg} (${count})`, value: arg }));
     });
-    const [roles, setRoles] = useState<{label: string, value: string}[]>({
+    const [roles, setRoles] = useState<{label: string, value: string}[]>(() => {
         const rolesUnique = new Map<string, number>();
         for (const cmd of commands) {
             if (cmd.command.annotations) {
@@ -46,45 +49,11 @@ export default function CommandsPage(map: CommandMap, commands: Command[]) {
         return Array.from(rolesUnique.entries()).sort().map(([role, count]) => ({ label: `${role} (${count})`, value: role }));
     });
 
-    useEffect(() => {
-        withCommands().then(async f => {
-            setCommands(f);
-            const allCmds = Object.values(f.getCommands());
-            setFilteredCommands(allCmds);
-            const argsUnique = new Map<string, number>();
-            const rolesUnique = new Map<string, number>();
-
-            for (const cmd of allCmds) {
-                if (cmd.command.annotations) {
-                    if (cmd.command.annotations["role"]) {
-                        for (const role of (cmd.command.annotations["role"] as { value: string[] })["value"]) {
-                            rolesUnique.set(role, (rolesUnique.get(role) || 0) + 1);
-                        }
-                    }
-                }
-
-                const args = cmd.getArguments();
-                const uniqueArgs: Set<string> = new Set();
-                for (const arg of args) {
-                    for (const child of arg.getTypeBreakdown().getAllChildren()) {
-                        uniqueArgs.add(child);
-                    }
-                }
-                for (const arg of uniqueArgs) {
-                    argsUnique.set(arg, (argsUnique.get(arg) || 0) + 1);
-                }
-            }
-
-            setCmdArguments(Array.from(argsUnique.entries()).sort().map(([arg, count]) => ({ label: `${arg} (${count})`, value: arg })));
-            setRoles(Array.from(rolesUnique.entries()).sort().map(([role, count]) => ({ label: `${role} (${count})`, value: role })));
-        });
-    }, []);
-
     const updateFilteredCommands = (filterValue: string, customFilters: {[key: string]: (cmd: Command) => boolean}) => {
         const inputLower = filterValue.toLowerCase();
         const inputFreq = getCharFrequency(inputLower);
         const inputWordFreq = new Set(inputLower.split(" "));
-        const newFilteredCommands = commands && Object.values(commands.getCommands())
+        const newFilteredCommands = commands
             .map((cmd) => ({
                 cmd,
                 similarityScore: simpleSimilarity(inputLower, inputFreq, inputWordFreq, cmd)
@@ -116,16 +85,15 @@ export default function CommandsPage(map: CommandMap, commands: Command[]) {
             return;
         }
         const myVector = await toVector(filter);
-        const similarityMap: {[key: string]: number} = {};
-        for (const [key, cmd] of Object.entries(commands.getCommands())) {
+        const similarityMap: [Command, number][] = [];
+        for (const cmd of commands) {
             const sentence = cmd.toSentence(loaded!);
             if (sentence) {
-                similarityMap[key] = cosineSimilarity(sentence.vector,myVector);
+                console.log("Sentence vector", sentence.vector);
+                similarityMap.push([cmd, cosineSimilarity(sentence.vector, myVector)]);
             }
         }
-        const similarityArray = Object.entries(similarityMap);
-        similarityArray.sort((a, b) => b[1] - a[1]);
-        const sortedCommands = similarityArray.map(([key]) => commands.get(key));
+        const sortedCommands= similarityMap.sort((a, b) => b[1] - a[1]).map(([cmd, similarity]) => cmd);
         setFilteredCommands(sortedCommands);
     }
 
@@ -236,7 +204,7 @@ export default function CommandsPage(map: CommandMap, commands: Command[]) {
                         <tr key={cmd.name}>
                             <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
                                 <a href={`#command?${cmd.name}`} className="font-bold no-underline hover:underline text-blue-600 dark:text-blue-500">
-                                    /{cmd.name}
+                                    {prefix}{cmd.name}
                                 </a>
                             </td>
                             <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">

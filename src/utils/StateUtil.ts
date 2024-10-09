@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { getCommands } from './CommandUtil';
 import { CommandMap } from './Command';
-import { useEffect, useState } from 'react';
+import {ComponentType, useEffect, useState} from 'react';
 
 type State = {
   commands: CommandMap | null;

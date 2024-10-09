@@ -48,7 +48,7 @@ export default function AutoComplete2() {
             setCmdMap(f);
 
             const stripPrefixes = ["get", "is", "can", "has"];
-            const obj = f.data.placeholders[type];
+            const obj = f.data.placeholders[type].commands;
             // value -> ICommand -> arguments -> iterate and check if `optional` exists and is true
             const options: ItemType[] = [];
             // loop key and value of obj
