@@ -10,6 +10,7 @@ import TestInput from "./pages/testinput";
 import AutoComplete from "./pages/testinput/autocomplete";
 import AutoComplete2 from "./pages/testinput/autocomplete2";
 import PlaceholdersList from "@/pages/ph_list";
+import TableTest from "@/pages/tabletest";
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
             <Route path="/admin" element={<Admin />} />
             <Route path="/blah" element={<Blah />} />
             <Route path="/testinput" element={<TestInput />} />
+            <Route path="/tabletest" element={<TableTest />} />
             <Route path="/autocomplete" element={<AutoComplete />} />
             <Route path="/auto2" element={<AutoComplete2 />} />
             <Route path="/placeholders/:placeholder" element={<PlaceholdersList />} />
