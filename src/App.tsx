@@ -14,6 +14,7 @@ import Home from "./pages/home";
 import OAuth2 from "./pages/oauth2";
 import LoginPage from "./pages/login";
 import LogoutPage from "./pages/logout";
+import TableTest from "@/pages/tabletest";
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="/logout" element={<LogoutPage />} />
 
             {/* testing pages */}
+            <Route path="/tabletest" element={<TableTest />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/autocomplete" element={<AutoComplete />} />
             <Route path="/auto2" element={<AutoComplete2 />} />
