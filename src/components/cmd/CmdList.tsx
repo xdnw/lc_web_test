@@ -203,7 +203,7 @@ export default function CmdList({ map, commands, prefix }: {map: CommandMap, com
                     {filteredCommands.map((cmd) => (
                         <tr key={cmd.name}>
                             <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
-                                <a href={`#command?${cmd.name}`} className="font-bold no-underline hover:underline text-blue-600 dark:text-blue-500">
+                                <a href={`#command/${cmd.name}`} className="font-bold no-underline hover:underline text-blue-600 dark:text-blue-500">
                                     {prefix}{cmd.name}
                                 </a>
                             </td>

@@ -12,6 +12,7 @@ import CityRanges from "./CityRanges";
 import ColorInput from "./ColorInput";
 import MapInput from "./MapInput";
 import TriStateInput from "./TriStateInput";
+import QueryComponent from "./QueryComponent";
 
 interface ArgProps {
     argName: string,
@@ -117,7 +118,10 @@ export default function ArgInput({ argName, breakdown, min, max, initialValue, s
             return <TaxRateInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
         }
         default: {
-            return breakdown.element + " UNKNOWN TYPE " + JSON.stringify(breakdown) + "`" + breakdown.element.toLowerCase() + "`";
+            if (options.query) {
+                return <QueryComponent element={breakdown.element} multi={options.multi} argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
+            }
+            return breakdown.element + " UNKNOWN TYPE " + JSON.stringify(breakdown) + " `" + breakdown.element.toLowerCase() + "` | " + options.query + " | " + options.completions;
         }
     }
     /* eslint-enable no-fallthrough */

@@ -20,9 +20,14 @@ export async function withCommands(): Promise<CommandMap> {
       commands = await getCommands();
       cmdStore.getState().setCommands(commands);
     }
-  
     return commands;
 }
+
+/**
+ * Set a value only if it has changed
+ * @param initialValue 
+ * @returns 
+ */
 export function useSyncedState<T>(initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [value, setValue] = useState<T>(initialValue);
   const [lastInitial, setLastInitial] = useState<T>(initialValue);

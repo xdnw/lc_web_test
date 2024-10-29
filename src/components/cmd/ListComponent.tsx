@@ -4,7 +4,7 @@ import Clusterize from 'clusterize.js';
 import 'clusterize.js/clusterize.css';
 import CreatableSelect from 'react-select/creatable';
 import './list.css';
-import Select from "node_modules/react-select/dist/declarations/src/Select";
+import Select from 'react-select';
 import { useSyncedStateFunc } from "@/utils/StateUtil";
 
 export default function ListComponent(

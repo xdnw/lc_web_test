@@ -3,6 +3,7 @@ import { Argument, Command } from "../../utils/Command";
 import { Label } from "../ui/label";
 import { CommandStoreType } from "@/utils/StateUtil";
 import { useCallback } from "react";
+import { DataProvider } from "./DataContext";
 
 interface CommandProps {
     command: Command,
@@ -33,7 +34,7 @@ export default function CommandComponent({ command, filterArguments, initialValu
     }
 
     return (
-    <>
+    <DataProvider endpoint="query">
         <h2 className="text-2xl">Command: {command.name}</h2>
         {
             groupedArgs.map((group, index) => {
@@ -66,7 +67,7 @@ export default function CommandComponent({ command, filterArguments, initialValu
                 );
             })
         }
-        </>
+    </DataProvider>
     );
 }
 

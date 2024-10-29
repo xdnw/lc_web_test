@@ -2,9 +2,11 @@ import React, { createContext, memo, useCallback, useContext, useEffect, useMemo
 import CommandComponent from '../../components/cmd/CommandComponent'; // Import CommandComponent
 import { CommandStoreType, createCommandStore, withCommands } from '../../utils/StateUtil';
 import { Argument, Command } from '../../utils/Command';
+import {useParams} from "react-router-dom";
 
 export default function CommandPage() {
-    const [command, setCommand] = useState<Command | null>(null);
+    const { command } = useParams();
+    const [cmdObj, setCmdObj] = useState<Command | null>(null);
     const [initialValues, setInitialValues] = useState<{ [key: string]: string }>({});
     const commandStore = useRef(createCommandStore());
 
@@ -14,21 +16,31 @@ export default function CommandPage() {
             console.log(Object.keys(cmdMap.data.options))
             console.log(cmdMap.data.keys)
             // const commandName: string = "announcement watermark";
-            // const fetchedCommand = cmdMap.get(commandName);
-            const fetchedCommand = cmdMap.buildTest();
-            setCommand(fetchedCommand);
+            let fetchedCommand;
+            if (command) {
+                fetchedCommand = cmdMap.get(command);
+                if (!fetchedCommand) {
+                    alert("Command not found: " + command);
+                    return;
+                }
+            } else {
+                fetchedCommand = cmdMap.buildTest();
+            }
+            // const fetchedCommand = cmdMap.buildTest();
+
+            setCmdObj(fetchedCommand);
         })();
     }, []);
 
-    if (!command) {
+    if (!cmdObj) {
         console.log("Not command");
         return <div>Loading...</div>; // or some loading spinner
     }
 
     return (
         <>
-            <CommandComponent key={command.name} command={command} filterArguments={() => true} initialValues={initialValues} commandStore={commandStore.current} />
-            <OutputValuesDisplay command={command} store={commandStore.current} />
+            <CommandComponent key={cmdObj.name} command={cmdObj} filterArguments={() => true} initialValues={initialValues} commandStore={commandStore.current} />
+            <OutputValuesDisplay command={cmdObj} store={commandStore.current} />
         </>
     );
 }
