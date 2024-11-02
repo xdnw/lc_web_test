@@ -15,6 +15,10 @@ import OAuth2 from "./pages/oauth2";
 import LoginPage from "./pages/login";
 import LogoutPage from "./pages/logout";
 import TableTest from "@/pages/tabletest";
+import NationPicker from "@/pages/nation_picker";
+import GuildPicker from "@/pages/guild_picker";
+import LoginPickerPage from "@/pages/login_picker";
+import React from "react";
 
 export default function App() {
   return (
@@ -25,13 +29,16 @@ export default function App() {
         <Routes>
         <Route path="/home" element={<Home />} />
             <Route path="/commands" element={<CommandsPage />} />
-
+            <Route path="/command" element={<CommandsPage />} />
             <Route path="/command/:command" element={<CommandPage />} />
             <Route path="/placeholders/:placeholder" element={<PlaceholdersList />} />
 
+            <Route path="/login" element={<LoginPickerPage />} />
             <Route path="/login/:token" element={<LoginPage />} />
             <Route path="/oauth2" element={<OAuth2 />} />
             <Route path="/logout" element={<LogoutPage />} />
+            <Route path="/nation_picker" element={<NationPicker />} />
+            <Route path="/guild_select" element={<GuildPicker />} />
 
             {/* testing pages */}
             <Route path="/tabletest" element={<TableTest />} />

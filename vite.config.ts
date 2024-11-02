@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
     define: {
       'global': 'window', // Map global to window
       'process.env.API_URL': JSON.stringify('http://localhost/api/'),
+      'process.env.EXTERNAL_URL': JSON.stringify('http://localhost:5173/'),
     },
     base: mode === 'development' ? '/' : '/lc_cmd_react/',
     resolve: {

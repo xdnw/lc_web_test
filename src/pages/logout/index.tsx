@@ -13,9 +13,14 @@ import { useEffect, useRef, useState } from "react";
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { BlockCopyButton } from '@/components/ui/block-copy-button';
 
+interface LogoutData {
+    success: boolean;
+    message?: string;
+}
+
 export function LogoutComponent() {
-    const { data, loading, error } = useData<{ logout: {success: boolean, message?: string} }>();
-    useRegisterQuery("logout", {});
+    const { data, loading, error } = useData<LogoutData>();
+    const queryId = useRegisterQuery("logout", {});
     const [showDialog, setShowDialog] = useState(true);
     const textareaRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
 
@@ -33,10 +38,11 @@ export function LogoutComponent() {
 
     return (
         <LoadingWrapper
+                index={queryId}
                 loading={loading}
-                error={data?.logout?.message ?? data?.message ?? error}
-                data={data?.logout?.success ?? null}
-                render={(success) => (
+                error={error}
+                data={data}
+                render={(logout) => (
                     <>Logged out Successfully!</>
                 )}
                 renderError={(error) => 

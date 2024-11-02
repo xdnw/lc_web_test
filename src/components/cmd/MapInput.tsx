@@ -62,13 +62,13 @@ export default function MapInput(
           <div className="flex items-center space-x-2">
             <div>
               <p>Key: </p>
-              <ArgInput argName={"key"} breakdown={children[0]} min={null} max={null} initialValue={addKey} setOutputValue={(key, value) => {
+              <ArgInput argName="key" breakdown={children[0]} min={null} max={null} initialValue={addKey} setOutputValue={(key, value) => {
                 setAddKey(value);
               }} />
             </div>
             <div>
               <p>Value: </p>
-              <ArgInput argName={"value"} breakdown={children[1]} min={null} max={null} initialValue={addValue} setOutputValue={(key, value) => {
+              <ArgInput argName="value" breakdown={children[1]} min={null} max={null} initialValue={addValue} setOutputValue={(key, value) => {
                 setAddValue(value);
               }} />
             </div>

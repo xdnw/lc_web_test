@@ -1,22 +1,27 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useData, useRegisterQuery } from "../cmd/DataContext";
-import LoadingWrapper from "./loadingwrapper";
+import LoadingWrapper, {CacheType} from "./loadingwrapper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import CopyToClipboard from '../ui/copytoclipboard';
-import { getDiscordAuthUrl, hasToken } from '@/utils/Auth';
+import { getDiscordAuthUrl } from '@/utils/Auth';
 import { Button } from '../ui/button';
 import { Link } from 'react-router-dom';
 import { Mail, ExternalLink, KeyRound } from 'lucide-react';
 
 interface SessionData {
     user: string | null;
+    user_name?: string;
+    user_icon?: string;
     user_valid: boolean | null;
     nation: string | null;
+    nation_name?: string;
+    alliance?: number | null;
+    alliance_name?: string;
     nation_valid: boolean | null;
     expires: string | null;
     guild: string | null;
-    success?: boolean;
-    message?: string;
+    guild_name?: string;
+    guild_icon?: string;
 }
 
 export function LoginPicker() {
@@ -45,7 +50,7 @@ export function LoginPicker() {
                 </TabsContent>
                 <TabsContent value="mail">
                     <div>
-                        <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link className='' to="YOUR_MAIL_LOGIN_LINK"><Mail size={16}/>&nbsp;Send In-Game Mail</Link></Button>
+                        <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link className='' to={`${import.meta.env.BASE_URL}nation_picker`}><Mail size={16}/>&nbsp;Send In-Game Mail</Link></Button>
                         <hr className="my-2" />
                         <h2 className='text-lg font-extrabold'>Here's what you need to do:</h2>
                         <ol className="list-decimal list-inside bg-secondary p-3 rounded">
@@ -61,48 +66,67 @@ export function LoginPicker() {
 }
 
 export default function SessionInfo() {
-    useRegisterQuery("session", {});
-    const { data, loading, error } = useData<{ session: SessionData }>();
-
+    const queryId = useRegisterQuery("session", {});
+    const { data, loading, error } = useData<SessionData>();
     return (
         <LoadingWrapper
+            cache={{ cache_type: CacheType.Cookie, cookie_id: "lc_session", duration: 2592000 }}
+            index={queryId}
             loading={loading}
-            error={data?.session?.message ?? data?.message ?? error}
-            data={data?.session?.expires ? data?.session ?? null : null}
+            error={error}
+            data={data}
             render={(session) => (
-                <table>
+                <div className="p-2">
+                <table className="table-auto w-full">
                     <tbody>
-                        <tr>
-                            <td>User</td>
-                            <td>{session.user ? session.user : "N/A"}</td>
-                        </tr>
-                        <tr>
-                            <td>User Valid</td>
-                            <td>{session.user_valid ? session.user_valid.toString() : "N/A"}</td>
-                        </tr>
-                        <tr>
-                            <td>Nation</td>
-                            <td>{session.nation ? session.nation : "N/A"}</td>
-                        </tr>
-                        <tr>
-                            <td>Nation Valid</td>
-                            <td>{session.nation_valid ? session.nation_valid.toString() : "N/A"}</td>
-                        </tr>
-                        <tr>
-                            <td>Expires</td>
-                            <td>{session.expires}</td>
-                        </tr>
-                        <tr>
-                            <td>Guild</td>
-                            <td>{session.guild ? session.guild : "N/A"}</td>
-                        </tr>
+                    <tr className='bg-card'>
+                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">User</td>
+                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
+                            {session.user_icon && <img src={session.user_icon} alt={session.user_name}
+                                                       className="w-4 h-4 inline-block mr-1"/>}
+                            {session.user_name ? session.user_name + " | " : ""}
+                            {session.user ? session.user : "N/A"}
+                        </td>
+                    </tr>
+                    <tr className='bg-card'>
+                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">Nation</td>
+                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
+                            {session.nation ? <Link className="text-blue-600 hover:text-blue-800 underline" to={`https://politicsandwar.com/nation/id=${session.nation}`}>
+                                {session.nation_name ? session.nation_name : session.nation}
+                            </Link> : "N/A"}
+                            {session.alliance && " | "}
+                            {session.alliance ? <Link className="text-blue-600 hover:text-blue-800 underline" to={`https://politicsandwar.com/alliance/id=${session.alliance}`}>
+                                {session.alliance_name ? session.alliance_name : session.alliance}
+                            </Link> : ""}
+                        </td>
+                    </tr>
+                    <tr className='bg-card'>
+                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">Expires</td>
+                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">{session.expires}</td>
+                    </tr>
+                    <tr className='bg-card'>
+                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">Guild</td>
+                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
+                            {session.guild_icon && <img src={session.guild_icon} alt={session.guild_name}
+                                                        className="w-4 h-4 inline-block mr-1"/>}
+                            {session.guild_name ? session.guild_name + " | " : ""}
+                            {session.guild ? session.guild : "N/A"}
+                            &nbsp;
+                            <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link
+                                to={`${import.meta.env.BASE_URL}guild_select`}>{session.guild ? "Switch" : "Select"}</Link></Button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
-            )}
-            renderError={(error) =>  <>
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <strong class="font-bold">Error:&nbsp;</strong>
-                    <span class="block sm:inline">Could not fetch login data. {error}</span>
+                    <hr className="my-2" />
+                    <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link
+                        to={`${import.meta.env.BASE_URL}logout`}>Logout</Link></Button>
+                </div>
+                )}
+            renderError={(error) => <>
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong className="font-bold">Error:&nbsp;</strong>
+                <span className="block sm:inline">Could not fetch login data. {error}</span>
                 </div>
                 <LoginPicker /> 
             </>

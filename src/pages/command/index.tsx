@@ -1,7 +1,7 @@
-import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import CommandComponent from '../../components/cmd/CommandComponent'; // Import CommandComponent
 import { CommandStoreType, createCommandStore, withCommands } from '../../utils/StateUtil';
-import { Argument, Command } from '../../utils/Command';
+import { Command } from '../../utils/Command';
 import {useParams} from "react-router-dom";
 
 export default function CommandPage() {
@@ -40,15 +40,15 @@ export default function CommandPage() {
     return (
         <>
             <CommandComponent key={cmdObj.name} command={cmdObj} filterArguments={() => true} initialValues={initialValues} commandStore={commandStore.current} />
-            <OutputValuesDisplay command={cmdObj} store={commandStore.current} />
+            <OutputValuesDisplay name={cmdObj?.name} store={commandStore.current} />
         </>
     );
 }
 
-export function OutputValuesDisplay({command, store}: {command: Command, store: CommandStoreType}) {
+export function OutputValuesDisplay({name, store}: {name: string, store: CommandStoreType}) {
     const output = store((state) => state.output);
     return (
-        <p className="bg-blue-500">/{command?.name}&nbsp;
+        <p className="bg-blue-500">/{name}&nbsp;
             {
                 Object.entries(output).map(([name, value]) => (
                     <span key={name} className="me-1">

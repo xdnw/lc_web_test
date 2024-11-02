@@ -120,7 +120,7 @@ export default function CmdList({ map, commands, prefix }: {map: CommandMap, com
                 Roles
                 <CustomTriInput annotation="role" filter={filter} map={customFilters} set={setCustomFilters} update={updateFilteredCommands}/>
                 Require Roles (Any)
-                <ListComponent options={roles} isMulti={true} initialValue={""} setOutputValue={
+                <ListComponent argName="hasrole" options={roles} isMulti={true} initialValue={""} setOutputValue={
                     (name: string, value: string) => {
                         const optionsSplit = new Set(value.split(","));
                         const newCustomFilters = { ...customFilters };
@@ -162,7 +162,7 @@ export default function CmdList({ map, commands, prefix }: {map: CommandMap, com
                     }
                 }/>
                 Require Arguments (All):
-                <ListComponent options={cmdArgs} isMulti={true} initialValue={""} setOutputValue={
+                <ListComponent argName="reqarg" options={cmdArgs} isMulti={true} initialValue={""} setOutputValue={
                     (name: string, value: string) => {
                         const optionsSplit = new Set(value.split(","));
                         const newCustomFilters = { ...customFilters };

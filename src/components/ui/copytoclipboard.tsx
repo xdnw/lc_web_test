@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import { 
-    AlertDialog, 
-    AlertDialogContent, 
-    AlertDialogHeader, 
-    AlertDialogTitle, 
-    AlertDialogDescription, 
-    AlertDialogFooter, 
-    AlertDialogCancel 
-} from '@/components/ui/alert-dialog';
+import SimpleDialog from "@/components/ui/simple-dialog.tsx";
 
 const CopyToClipboard: React.FC<{ text: string }> = ({ text }) => {
     const [showDialog, setShowDialog] = useState(false);
@@ -28,21 +20,7 @@ const CopyToClipboard: React.FC<{ text: string }> = ({ text }) => {
             >
                 {text}
             </button>
-            {showDialog && (
-                <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Copied to Clipboard</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                The text <kbd className='bg-secondary rounded px-0.5'>{text}</kbd> has been copied to your clipboard.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel onClick={() => setShowDialog(false)}>Dismiss</AlertDialogCancel>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            )}
+            <SimpleDialog title={"Copied to Clipboard"} quote={false} message={<>The text <kbd className='bg-secondary rounded px-0.5'>{text}</kbd> has been copied to your clipboard.</>} showDialog={showDialog} setShowDialog={setShowDialog} />
         </>
     );
 };

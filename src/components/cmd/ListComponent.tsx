@@ -8,9 +8,10 @@ import Select from 'react-select';
 import { useSyncedStateFunc } from "@/utils/StateUtil";
 
 export default function ListComponent(
-    {options, isMulti, initialValue, setOutputValue}: 
+    {argName, options, isMulti, initialValue, setOutputValue}:
     {
-        options: {label: string, subtext?: string, value: string}[], 
+        argName: string,
+        options: {label: string, subtext?: string, value: string}[],
         isMulti: boolean, 
         initialValue: string,
         setOutputValue: (name: string, value: string) => void
@@ -39,11 +40,11 @@ export default function ListComponent(
                     const copy = [...value];
                     copy.push(option);
                     const valueStr = copy.map((v) => v.value).join(',');
-                    setOutputValue('value', valueStr);
+                    setOutputValue(argName, valueStr);
                     setValue(copy);
                 } else {
                     setValue([option]);
-                    setOutputValue('value', option.value);
+                    setOutputValue(argName, option.value);
                 }
                 setInputValue('');
             } else {
@@ -137,7 +138,7 @@ export default function ListComponent(
         onChange={(newValue) => {
                 setValue(newValue as {label: string, value: string}[]);
                 const valueStr = (newValue as {label: string, value: string}[]).map((v) => v.value).join(',');
-                setOutputValue('value', valueStr);
+                setOutputValue(argName, valueStr);
             }
         }
         onInputChange={(newValue, actionMeta) => {
@@ -164,7 +165,7 @@ export default function ListComponent(
                             const newValue = value.filter((v) => v.value !== option.value);
                             setValue(newValue);
                             const valueStr = (newValue as {label: string, value: string}[]).map((v) => v.value).join(',');
-                            setOutputValue('value', valueStr);
+                            setOutputValue(argName, valueStr);
                         } else {
                             addValue(option, option.label);
                         }

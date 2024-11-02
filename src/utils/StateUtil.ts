@@ -3,12 +3,12 @@ import { getCommands } from './CommandUtil';
 import { CommandMap } from './Command';
 import {ComponentType, useEffect, useState} from 'react';
 
-type State = {
+type CmdState = {
   commands: CommandMap | null;
   setCommands: (commands: CommandMap) => void;
 };
 
-export const cmdStore = create<State>((set) => ({
+export const cmdStore = create<CmdState>((set) => ({
   commands: null,
   setCommands: (commands) => set({ commands }),
 }));
@@ -23,6 +23,10 @@ export async function withCommands(): Promise<CommandMap> {
     return commands;
 }
 
+
+type ComponentState = {
+
+}
 /**
  * Set a value only if it has changed
  * @param initialValue 

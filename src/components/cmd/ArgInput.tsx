@@ -27,7 +27,7 @@ export default function ArgInput({ argName, breakdown, min, max, initialValue, s
     const options = breakdown.getOptionData();
     if (options.options) {
         const labelled: {label: string, value: string}[] = options.options.map((o) => ({label: o, value: o}));
-        return <ListComponent options={labelled} isMulti={options.multi} initialValue={initialValue} setOutputValue={setOutputValue}/>
+        return <ListComponent argName={argName} options={labelled} isMulti={options.multi} initialValue={initialValue} setOutputValue={setOutputValue}/>
     }
 
     const placeholder = breakdown.getPlaceholder();
@@ -44,7 +44,7 @@ export default function ArgInput({ argName, breakdown, min, max, initialValue, s
     if (breakdown.element === 'Class' && breakdown.annotations && breakdown.annotations.includes("PlaceholderType")) {
         const types = breakdown.map.getPlaceholderTypes(true);
         const labelled = types.map((o) => ({label: o, value: o}));
-        return <ListComponent options={labelled} isMulti={false} initialValue={initialValue} setOutputValue={setOutputValue}/>
+        return <ListComponent argName={argName} options={labelled} isMulti={false} initialValue={initialValue} setOutputValue={setOutputValue}/>
     }
     /* eslint-disable no-fallthrough */
     switch (breakdown.element.toLowerCase()) {
@@ -121,8 +121,17 @@ export default function ArgInput({ argName, breakdown, min, max, initialValue, s
             if (options.query) {
                 return <QueryComponent element={breakdown.element} multi={options.multi} argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
             }
-            return breakdown.element + " UNKNOWN TYPE " + JSON.stringify(breakdown) + " `" + breakdown.element.toLowerCase() + "` | " + options.query + " | " + options.completions;
+            return <UnknownType breakdown={breakdown} argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
         }
     }
     /* eslint-enable no-fallthrough */
+}
+
+export function UnknownType({ breakdown, argName, initialValue, setOutputValue }: { breakdown: TypeBreakdown, argName: string, initialValue: string, setOutputValue: (key: string, value: string) => void }) {
+    return (
+        <>
+            {breakdown.element} UNKNOWN TYPE {JSON.stringify(breakdown)} `{breakdown.element.toLowerCase()}`
+        <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
+        </>
+    );
 }

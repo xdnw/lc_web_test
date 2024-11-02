@@ -14,13 +14,18 @@ import Cookies from 'js-cookie';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { BlockCopyButton } from '@/components/ui/block-copy-button';
 
+interface OAuth2Data {
+    success: boolean;
+    message?: string;
+}
+
 export function OAuth2Component() {
-    const { data, loading, error } = useData<{ set_oauth_code: {success: boolean, message?: string} }>();
+    const { data, loading, error } = useData<OAuth2Data>();
     const fullUrl = window.location.href;
     const queryString = fullUrl.split('#')[0].split('?')[1] || '';
     const params = new URLSearchParams(queryString);
     const code = params.get("code");
-    useRegisterQuery("set_oauth_code", {"code": code ?? ""});
+    const queryId = useRegisterQuery("set_oauth_code", {"code": code ?? ""});
     const [showDialog, setShowDialog] = useState(true);
     const textareaRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
 
@@ -28,11 +33,13 @@ export function OAuth2Component() {
 
     return (
         <LoadingWrapper
+                index={queryId}
                 loading={loading}
-                error={data?.set_oauth_code?.message ?? data?.message ?? error}
-                data={data?.set_oauth_code?.success ?? null}
-                render={(success) => {
+                error={error}
+                data={data}
+                render={(oauth2) => {
                     Cookies.set('lc_token_exists', '1');
+                    Cookies.remove('lc_session');
                     return <>Logged in Successfully via OAuth2!</>
                 }}
                 renderError={(error) => 

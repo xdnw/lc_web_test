@@ -15,20 +15,27 @@ import Cookies from 'js-cookie';
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BlockCopyButton } from "@/components/ui/block-copy-button";
 
+interface LoginData {
+    success: boolean;
+    message?: string;
+}
+
 export function LoginComponent() {
-    const { data, loading, error } = useData<{ set_token: {success: boolean, message?: string} }>();
+    const { data, loading, error } = useData<LoginData>();
     const { token } = useParams<{ token: string }>();
-    useRegisterQuery("set_token", {"token": token ?? ""});
+    const queryId = useRegisterQuery("set_token", {"token": token ?? ""});
     const [showDialog, setShowDialog] = useState(true);
     const textareaRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
 
     return (
         <LoadingWrapper
+                index={queryId}
                 loading={loading}
-                error={data?.set_token?.message ?? data?.message ?? error}
-                data={data?.set_token?.success ?? null}
-                render={(success) => {
+                error={error}
+                data={data}
+                render={(login) => {
                     Cookies.set('lc_token_exists', '1');
+                    Cookies.remove('lc_session');
                     return <>Logged in Successfully!</>
                 }}
                 renderError={(error) => 
