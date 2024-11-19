@@ -1,32 +1,6 @@
 import { create } from 'zustand';
-import { getCommands } from './CommandUtil';
-import { CommandMap } from './Command';
-import {ComponentType, useEffect, useState} from 'react';
+import { useEffect, useState} from 'react';
 
-type CmdState = {
-  commands: CommandMap | null;
-  setCommands: (commands: CommandMap) => void;
-};
-
-export const cmdStore = create<CmdState>((set) => ({
-  commands: null,
-  setCommands: (commands) => set({ commands }),
-}));
-
-export async function withCommands(): Promise<CommandMap> {
-    let commands = cmdStore.getState().commands;
-  
-    if (!commands) {
-      commands = await getCommands();
-      cmdStore.getState().setCommands(commands);
-    }
-    return commands;
-}
-
-
-type ComponentState = {
-
-}
 /**
  * Set a value only if it has changed
  * @param initialValue 
@@ -63,6 +37,18 @@ export function useSyncedStateFunc<T>(initialValue: string, parseValue: (value: 
 export function createCommandStore() {
     return create<{ output: { [key: string]: string }; setOutput: (key: string, value: string) => void; }>((set) => ({
       output: {},
+      setOutput: (key, value) => set((state) => {
+            const copy = { ...state.output };
+            if (value) copy[key] = value;
+            else delete copy[key];
+            return { output: copy };
+        }),
+    }));
+}
+
+export function createCommandStoreWithDef(default_values: { [key: string]: string }) {
+    return create<{ output: { [key: string]: string }; setOutput: (key: string, value: string) => void; }>((set) => ({
+      output: default_values,
       setOutput: (key, value) => set((state) => {
             const copy = { ...state.output };
             if (value) copy[key] = value;

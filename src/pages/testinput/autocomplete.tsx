@@ -1,10 +1,7 @@
-import { ICommand } from '@/utils/Command';
-import { getCommands } from '@/utils/CommandUtil';
-import { withCommands } from '@/utils/StateUtil';
-import { useEffect, useState } from 'react';
+import {COMMAND_MAP, ICommand} from '@/utils/Command';
+import { useState } from 'react';
 import TextInput from 'react-autocomplete-input';
 import 'react-autocomplete-input/dist/bundle.css';
-
 
 export default function AutoComplete() {
     const type = "DBNation";
@@ -21,43 +18,41 @@ export default function AutoComplete() {
 
     return <>
     <TextInput matchAny={true} className="bg-background w-full h-6" requestOnlyIfNoOptions={true} options={options} trigger="#" maxOptions={0} spacer={""} onRequestOptions={() => {
-        withCommands().then(async f => {
-            const stripPrefixes = ["get", "is", "can", "has"];
-            const obj = f.data.placeholders[type].commands;
-            // value -> ICommand -> arguments -> iterate and check if `optional` exists and is true
-            const options: string[] = [];
-            // loop key and value of obj
-            for (const [id, command] of Object.entries(obj)) {
-                // strip prefixes from id
-                let modifiedId = id;
-                for (const prefix of stripPrefixes) {
-                    if (modifiedId.startsWith(prefix)) {
-                        modifiedId = modifiedId.slice(prefix.length);
-                        break;
-                    }
-                }
-                let hasArguments = false; // Changed to let for mutability
-                const requiredArguments: string[] = [];
-                if (command.arguments) { // Ensure command.arguments exists
-                    for (const arg of Object.values(command.arguments)) { // Correctly iterate over values
-                        hasArguments = true;
-                        if (!arg.optional) {
-                            requiredArguments.push(arg.name);
-                        }
-                    }
-                }
-                if (hasArguments) {
-                    if (requiredArguments.length > 0) {
-                        options.push(modifiedId + "(" + requiredArguments.join(": ") + ": )");
-                    } else {
-                        options.push(modifiedId + "()");
-                    }
-                } else {
-                    options.push(modifiedId);
+        const stripPrefixes = ["get", "is", "can", "has"];
+        const obj = COMMAND_MAP.data.placeholders[type].commands;
+        // value -> ICommand -> arguments -> iterate and check if `optional` exists and is true
+        const options: string[] = [];
+        // loop key and value of obj
+        for (const [id, command] of Object.entries(obj)) {
+            // strip prefixes from id
+            let modifiedId = id;
+            for (const prefix of stripPrefixes) {
+                if (modifiedId.startsWith(prefix)) {
+                    modifiedId = modifiedId.slice(prefix.length);
+                    break;
                 }
             }
-            setOptions(options);
-        });
+            let hasArguments = false; // Changed to let for mutability
+            const requiredArguments: string[] = [];
+            if (command.arguments) { // Ensure command.arguments exists
+                for (const arg of Object.values(command.arguments)) { // Correctly iterate over values
+                    hasArguments = true;
+                    if (!arg.optional) {
+                        requiredArguments.push(arg.name);
+                    }
+                }
+            }
+            if (hasArguments) {
+                if (requiredArguments.length > 0) {
+                    options.push(modifiedId + "(" + requiredArguments.join(": ") + ": )");
+                } else {
+                    options.push(modifiedId + "()");
+                }
+            } else {
+                options.push(modifiedId);
+            }
+        }
+        setOptions(options);
     }}/>
     </>
 }

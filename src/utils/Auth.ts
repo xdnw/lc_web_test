@@ -11,6 +11,12 @@ export function hasToken(): boolean {
     return Cookies.get('lc_token_exists') === '1';
 }
 
+export function clearStorage(cookieId: string) {
+    Cookies.remove(cookieId);
+    localStorage.removeItem(cookieId);
+    sessionStorage.removeItem(cookieId);
+}
+
 export function getDiscordAuthUrl(): string {
     const params = new URLSearchParams();
     params.append("client_id", APPLICATION_ID);

@@ -7,20 +7,14 @@ import {
     AlertDialogFooter, 
     AlertDialogCancel 
 } from '@/components/ui/alert-dialog';
-import LoadingWrapper from "@/components/api/loadingwrapper";
-import { DataProvider, useData, useRegisterQuery } from "@/components/cmd/DataContext";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { BlockCopyButton } from '@/components/ui/block-copy-button';
-
-interface LogoutData {
-    success: boolean;
-    message?: string;
-}
+import {Button} from "@/components/ui/button.tsx";
+import {Link} from "react-router-dom";
+import {LOGOUT} from "@/components/api/endpoints.tsx";
 
 export function LogoutComponent() {
-    const { data, loading, error } = useData<LogoutData>();
-    const queryId = useRegisterQuery("logout", {});
     const [showDialog, setShowDialog] = useState(true);
     const textareaRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
 
@@ -36,52 +30,48 @@ export function LogoutComponent() {
         });
     }, []);
 
-    return (
-        <LoadingWrapper
-                index={queryId}
-                loading={loading}
-                error={error}
-                data={data}
-                render={(logout) => (
-                    <>Logged out Successfully!</>
-                )}
-                renderError={(error) => 
-                    <>
-                    Login failed!
-                    {showDialog && (
-                            <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader className='overflow-auto'>
-                                        <AlertDialogTitle>Error</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            Failed to logout. Please try again, try a different login method, or contact support.
-                                        </AlertDialogDescription>
-                                        <hr className="my-2" />
-                                        <div className="relative overflow-auto">
-                                        <code ref={textareaRef} className="text-sm bg-secondary p-1">
+    return LOGOUT.useDisplay({
+        args: {},
+        render: (logout) => (
+            <>Logged out Successfully!<br/>
+                <Button variant="outline" size="sm" className='border-slate-600' asChild>
+                    <Link to={`${import.meta.env.BASE_URL}home`}>Return Home</Link></Button></>
+        ),
+        renderError: (error) =>
+            <>
+                Logout failed!
+                {showDialog && (
+                    <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
+                        <AlertDialogContent>
+                            <AlertDialogHeader className='overflow-auto'>
+                                <AlertDialogTitle>Error</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Failed to logout. Please try again, try a different login method, or contact
+                                    support.
+                                </AlertDialogDescription>
+                                <hr className="my-2"/>
+                                <div className="relative overflow-auto">
+                                    <code ref={textareaRef} className="text-sm bg-secondary p-1">
                                         {error}
-                                        </code>
-                                        <TooltipProvider>
-                                            <BlockCopyButton getText={() => textareaRef.current ? textareaRef.current.textContent ?? "" : ''} />
-                                        </TooltipProvider>
-                                        </div>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel onClick={() => setShowDialog(false)}>Dismiss</AlertDialogCancel>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        )}
-                    </>
-                }
-            />
-    )
+                                    </code>
+                                    <TooltipProvider>
+                                        <BlockCopyButton
+                                            getText={() => textareaRef.current ? textareaRef.current.textContent ?? "" : ''}/>
+                                    </TooltipProvider>
+                                </div>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => setShowDialog(false)}>Dismiss</AlertDialogCancel>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )}
+            </>
+    });
 }
 
 export default function LogoutPage() {
     return (
-        <DataProvider endpoint="query">
-            <LogoutComponent />
-        </DataProvider>
+        <LogoutComponent />
     );
 }

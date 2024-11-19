@@ -11,7 +11,7 @@ export default function ListComponent(
     {argName, options, isMulti, initialValue, setOutputValue}:
     {
         argName: string,
-        options: {label: string, subtext?: string, value: string}[],
+        options: {label: string, value: string, subtext?: string, color?: string}[],
         isMulti: boolean, 
         initialValue: string,
         setOutputValue: (name: string, value: string) => void

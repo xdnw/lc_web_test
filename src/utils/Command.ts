@@ -7,19 +7,21 @@ import {
     isQuoteOrBracket,
     split, splitCustom
 } from "./StringUtil";
+import {COMMANDS} from "@/lib/commands.ts";
+import React from "react";
 
 export type IArgument = {
     name: string;
-    optional: boolean | null;
-    flag: string | null;
-    desc: string;
-    group: number | null;
+    optional?: boolean;
+    flag?: string;
+    desc?: string;
+    group?: number;
     type: string;
-    default: string | null;
-    choices: string[] | null;
-    min: number | null;
-    max: number | null;
-    filter: string | null;
+    def?: string;
+    choices?: string[];
+    min?: number;
+    max?: number;
+    filter?: string;
 }
   
 export type ICommand = {
@@ -68,26 +70,24 @@ export type ICommandMap = {
 export class Argument {
     name: string;
     arg: IArgument;
-    command: Command;
     breakdown: TypeBreakdown | null = null;
     
-    constructor(name: string, arg: IArgument, command: Command) {
+    constructor(name: string, arg: IArgument) {
         this.name = name;
         this.arg = arg;
-        this.command = command;
     }
 
     getMap(): CommandMap {
-        return this.command.ref;
+        return COMMAND_MAP;
     }
 
     clone(): Argument {
         const clonedArg = Object.assign(Object.create(Object.getPrototypeOf(this.arg)), this.arg);
-        return new Argument(this.name, clonedArg, this.command);
+        return new Argument(this.name, clonedArg);
     }
 
     getKeyData(): IKeyData {
-        const result = this.command.ref.data.keys[this.arg.type];
+        const result = COMMAND_MAP.data.keys[this.arg.type];
         if (result == null) {
             return {desc: "", examples: null};
         }
@@ -113,14 +113,14 @@ export class Argument {
             options = breakdown.getOptionData();
         }
         if (options != null) {
-            return new OptionData(this.command.ref, options, multi);
+            return new OptionData(COMMAND_MAP, options, multi);
         }
-        return new OptionData(this.command.ref, {options: null, query: false, completions: false, guild: false, nation: false, user: false}, false);
+        return new OptionData(COMMAND_MAP, {options: null, query: false, completions: false, guild: false, nation: false, user: false}, false);
     }
 
     getTypeBreakdown(): TypeBreakdown {
         if (this.breakdown != null) return this.breakdown;
-        return this.breakdown = getTypeBreakdown(this.command.ref, this.arg.type);
+        return this.breakdown = getTypeBreakdown(COMMAND_MAP, this.arg.type);
     }
 }
 
@@ -227,7 +227,7 @@ export class Command {
     getArguments(): Argument[] {
         if (this.arguments == null) {
             if (this.command.arguments) {
-                this.arguments = Object.entries(this.command.arguments).map(([name, arg]) => new Argument(name, arg, this));
+                this.arguments = Object.entries(this.command.arguments).map(([name, arg]) => new Argument(name, arg));
             } else {
                 this.arguments = [];
             }
@@ -254,6 +254,7 @@ export class CommandMap {
     ph_flat: {[key: string]: {[key: string]: Command}} = {};
 
     constructor(commands: ICommandMap) {
+        console.log("NEW COMMAND MAP");
         this.data = commands;
     }
 
@@ -322,7 +323,7 @@ export class CommandMap {
 
         // add all the arguments to the command
         Object.entries(allArgs).forEach(([key, arg]) => {
-            builder.argument(key, arg.optional == null ? false : arg.optional, arg.desc, arg.type, arg.default, arg.choices, arg.filter);
+            builder.argument(key, arg.optional == null ? false : arg.optional, arg.desc, arg.type, arg.def, arg.choices, arg.filter);
         });
         return builder.build();
     }
@@ -828,7 +829,7 @@ export class TypeBreakdown {
         if (this.child == null || this.element === "Map") return null;
         // const phName = this.getPlaceholderTypeName();
         // console.log("phName" + phName);
-        return this.map.data.placeholders[this.child[0].element];
+        return this.map.data.placeholders[this.child[0].element] as ICommandGroup;
     }
 
     getOptionData(): OptionData {
@@ -850,3 +851,6 @@ export class TypeBreakdown {
 function toPlaceholderName(type: string): string {
     return type.replace("DB", "").replace("Wrapper", "").replace(/[0-9]/g, "");
 }
+
+// Constants
+export const COMMAND_MAP = new CommandMap(COMMANDS);

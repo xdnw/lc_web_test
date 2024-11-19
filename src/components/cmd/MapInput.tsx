@@ -3,7 +3,7 @@ import NumberInput from "./NumberInput";
 import { TypeBreakdown } from "@/utils/Command";
 import ArgInput from "./ArgInput";
 import { useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "../ui/button.tsx";
 
 function toMapString(value: {[key: string]: string}[]) {
     return value.map((v) => Object.keys(v)[0] + ":" + Object.values(v)[0]).join('\n');

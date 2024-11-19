@@ -1,11 +1,38 @@
 import { BlockCopyButton } from '@/components/ui/block-copy-button';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button.tsx';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { getCommands } from '@/utils/CommandUtil';
 import { hashWithMD5, loadWeights, toVector } from '@/utils/Embedding';
 import React, { useRef } from 'react';
+import {COMMAND_MAP} from "@/utils/Command.ts";
+import msgpack from 'msgpack-lite';
+
+async function testDeserialization() {
+    const url = `${process.env.API_URL}test`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/octet-stream',
+            },
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const serializedData = await response.arrayBuffer();
+        const data = new Uint8Array(serializedData);
+        const deserializedData = msgpack.decode(data);
+
+        console.log(deserializedData);
+    } catch (error) {
+        console.error('Error fetching or deserializing data:', error);
+    }
+}
 
 export default function Admin() {
     const textareaRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
@@ -23,11 +50,11 @@ export default function Admin() {
             setProgressText("Loading weights...");
             const weights = await loadWeights();
             textareaRef.current!.value = JSON.stringify(weights);
-    
-            const commands = (await getCommands()).getCommands();
+
+            const commands = COMMAND_MAP;
             const cmdLen = Object.keys(commands).length;
             console.log("Commands: ", cmdLen);
-    
+
             const funcs = Object.entries(commands).map(([name, group], i) => async () => {
                 const fullText = name + " " + group.command.desc;
                 const hash = hashWithMD5(fullText);
@@ -44,7 +71,7 @@ export default function Admin() {
                 await new Promise(r => setTimeout(r, 10));
                 return { name, percent: Math.floor((i / cmdLen) * 100) };
             });
-    
+
             for (const func of funcs) {
                 const result = await func();
                 if (result) {
@@ -93,6 +120,9 @@ export default function Admin() {
                     <span>{progress}%&nbsp;{progressText}</span>
                 </div>
             </div>
+            <hr className="my-2"/>
+            <h1 className="text-2xl font-bold">Test Deserialization</h1>
+            <Button type="submit" className="w-full" variant="outline" size='sm' onClick={async () => {testDeserialization();}}>Test Deserialization</Button>
         </>
     );
 }

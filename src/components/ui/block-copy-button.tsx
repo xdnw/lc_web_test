@@ -2,7 +2,7 @@ import * as React from "react"
 import { CheckIcon, ClipboardIcon } from "lucide-react"
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip"
-import { Button, ButtonProps } from "./button"
+import { Button, ButtonProps } from "./button.tsx"
 
 export function BlockCopyButton({
     getText,

@@ -7,9 +7,7 @@ export default function LoginPickerPage() {
         return <LoginPicker />;
     }
     return (
-        <DataProvider endpoint="query">
-            <SessionInfo />
-        </DataProvider>
+        <SessionInfo />
     );
 
 }

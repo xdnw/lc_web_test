@@ -25,7 +25,11 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+
+    /* Performance improvements */
+    "removeComments": true,
+    "downlevelIteration": true
   },
   "typeRoots": [
     "./node_modules/@types",

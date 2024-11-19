@@ -1,36 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CommandComponent from '../../components/cmd/CommandComponent'; // Import CommandComponent
-import { CommandStoreType, createCommandStore, withCommands } from '../../utils/StateUtil';
-import { Command } from '../../utils/Command';
+import { CommandStoreType, createCommandStore } from '@/utils/StateUtil.ts';
+import {Command, COMMAND_MAP} from '@/utils/Command.ts';
 import {useParams} from "react-router-dom";
+import {BlockCopyButton} from "@/components/ui/block-copy-button.tsx";
+import {TooltipProvider} from "@/components/ui/tooltip.tsx";
 
 export default function CommandPage() {
     const { command } = useParams();
-    const [cmdObj, setCmdObj] = useState<Command | null>(null);
+    const [cmdObj, setCmdObj] = useState<Command | null>(command ? COMMAND_MAP.get(command) : null);
+    // COMMAND_MAP.cmdBuildTest()
+
     const [initialValues, setInitialValues] = useState<{ [key: string]: string }>({});
     const commandStore = useRef(createCommandStore());
-
-    useEffect(() => {
-        (async () => {
-            const cmdMap = (await withCommands());
-            console.log(Object.keys(cmdMap.data.options))
-            console.log(cmdMap.data.keys)
-            // const commandName: string = "announcement watermark";
-            let fetchedCommand;
-            if (command) {
-                fetchedCommand = cmdMap.get(command);
-                if (!fetchedCommand) {
-                    alert("Command not found: " + command);
-                    return;
-                }
-            } else {
-                fetchedCommand = cmdMap.buildTest();
-            }
-            // const fetchedCommand = cmdMap.buildTest();
-
-            setCmdObj(fetchedCommand);
-        })();
-    }, []);
 
     if (!cmdObj) {
         console.log("Not command");
@@ -47,8 +29,13 @@ export default function CommandPage() {
 
 export function OutputValuesDisplay({name, store}: {name: string, store: CommandStoreType}) {
     const output = store((state) => state.output);
+    const textRef: React.RefObject<HTMLParagraphElement> = useRef(null);
     return (
-        <p className="bg-blue-500">/{name}&nbsp;
+        <div className="relative">
+        <TooltipProvider>
+            <BlockCopyButton getText={() => textRef.current ? textRef.current.textContent ?? "" : ''} />
+        </TooltipProvider>
+        <p className="bg-accent p-2" ref={textRef}>/{name}&nbsp;
             {
                 Object.entries(output).map(([name, value]) => (
                     <span key={name} className="me-1">
@@ -57,5 +44,6 @@ export function OutputValuesDisplay({name, store}: {name: string, store: Command
                 ))
             }
         </p>
+        </div>
     );
 }

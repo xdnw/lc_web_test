@@ -1,5 +1,5 @@
 import React, { useState, } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input';
 import { CommandWeights, cosineSimilarity, loadWeights, toVector } from '../../utils/Embedding';
 import ListComponent from '@/components/cmd/ListComponent';

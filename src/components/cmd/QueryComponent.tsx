@@ -1,16 +1,6 @@
-import React, {useEffect} from "react";
-import { useData, useRegisterQuery } from "./DataContext";
-import LoadingWrapper from "../api/loadingwrapper";
+import React from "react";
 import ListComponent from "./ListComponent";
-
-interface InputOptions {
-    key: string[];
-    text?: string[];
-    subtext?: string[];
-    color?: string[];
-    success?: string;
-    message?: string;
-}
+import {INPUT_OPTIONS} from "@/components/api/endpoints.tsx";
 
 export default function QueryComponent(
     {element, multi, argName, initialValue, setOutputValue}:
@@ -22,24 +12,17 @@ export default function QueryComponent(
         setOutputValue: (name: string, value: string) => void
     }
 ) {
-        const queryId = useRegisterQuery("input_options", {type: element});
-        const { data, loading, error } = useData<InputOptions>();
-
-        return (
-            <LoadingWrapper
-            index={queryId}
-            loading={loading}
-            error={error}
-            data={data}
-            render={(options) => {
-                const labelled: {label: string, value: string, subtext?: string, color?: string}[] = options.key.map((o, i) => ({
-                    label: options.text ? options.text[i] : o,
-                    value: o,
-                    subtext: options.subtext ? options.subtext[i] : undefined,
-                    color: options.color ? options.color[i] : undefined
-                }));
-                return <ListComponent argName={argName} options={labelled} isMulti={multi} initialValue={initialValue} setOutputValue={setOutputValue}/>
-            }}
-        />
-        );
+    return INPUT_OPTIONS.useDisplay({
+        args: {type: element},
+        render: (options) => {
+            const key = options.key_numeric ?? options.key_string ?? [];
+            const labelled = key.map((o, i) => ({
+                label: options.text ? options.text[i] : o + "",
+                value: o + "",
+                subtext: options.subtext ? options.subtext[i] : undefined,
+                color: options.color ? options.color[i] : undefined
+            }));
+            return <ListComponent argName={argName} options={labelled} isMulti={multi} initialValue={initialValue}
+                                  setOutputValue={setOutputValue}/>
+        }});
 }

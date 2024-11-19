@@ -17,8 +17,8 @@ import QueryComponent from "./QueryComponent";
 interface ArgProps {
     argName: string,
     breakdown: TypeBreakdown,
-    min: number | null,
-    max: number | null,
+    min?: number,
+    max?: number,
     initialValue: string,
     setOutputValue: (key: string, value: string) => void
 }

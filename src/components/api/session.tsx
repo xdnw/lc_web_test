@@ -1,28 +1,11 @@
 import React from 'react';
-import { useData, useRegisterQuery } from "../cmd/DataContext";
-import LoadingWrapper, {CacheType} from "./loadingwrapper";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import CopyToClipboard from '../ui/copytoclipboard';
 import { getDiscordAuthUrl } from '@/utils/Auth';
-import { Button } from '../ui/button';
+import { Button } from '../ui/button.tsx';
 import { Link } from 'react-router-dom';
-import { Mail, ExternalLink, KeyRound } from 'lucide-react';
-
-interface SessionData {
-    user: string | null;
-    user_name?: string;
-    user_icon?: string;
-    user_valid: boolean | null;
-    nation: string | null;
-    nation_name?: string;
-    alliance?: number | null;
-    alliance_name?: string;
-    nation_valid: boolean | null;
-    expires: string | null;
-    guild: string | null;
-    guild_name?: string;
-    guild_icon?: string;
-}
+import {Mail, ExternalLink, KeyRound, ChevronRight} from 'lucide-react';
+import {SESSION} from "@/components/api/endpoints.tsx";
 
 export function LoginPicker() {
     return (
@@ -66,17 +49,10 @@ export function LoginPicker() {
 }
 
 export default function SessionInfo() {
-    const queryId = useRegisterQuery("session", {});
-    const { data, loading, error } = useData<SessionData>();
-    return (
-        <LoadingWrapper
-            cache={{ cache_type: CacheType.Cookie, cookie_id: "lc_session", duration: 2592000 }}
-            index={queryId}
-            loading={loading}
-            error={error}
-            data={data}
-            render={(session) => (
-                <div className="p-2">
+    return SESSION.useDisplay({
+        args: {},
+        render: (session) => <>
+            <div className="p-2">
                 <table className="table-auto w-full">
                     <tbody>
                     <tr className='bg-card'>
@@ -91,46 +67,71 @@ export default function SessionInfo() {
                     <tr className='bg-card'>
                         <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">Nation</td>
                         <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
-                            {session.nation ? <Link className="text-blue-600 hover:text-blue-800 underline" to={`https://politicsandwar.com/nation/id=${session.nation}`}>
-                                {session.nation_name ? session.nation_name : session.nation}
-                            </Link> : "N/A"}
-                            {session.alliance && " | "}
-                            {session.alliance ? <Link className="text-blue-600 hover:text-blue-800 underline" to={`https://politicsandwar.com/alliance/id=${session.alliance}`}>
-                                {session.alliance_name ? session.alliance_name : session.alliance}
-                            </Link> : ""}
+                            <div className="relative">
+                                {session.nation ? <Link className="text-blue-600 hover:text-blue-800 underline"
+                                                        to={`https://politicsandwar.com/nation/id=${session.nation}`}>
+                                    {session.nation_name ? session.nation_name : session.nation}
+                                </Link> : "N/A"}
+                                {session.alliance && " | "}
+                                {session.alliance ? <Link className="text-blue-600 hover:text-blue-800 underline"
+                                                          to={`https://politicsandwar.com/alliance/id=${session.alliance}`}>
+                                    {session.alliance_name ? session.alliance_name : session.alliance}
+                                </Link> : ""}
+                                {(session.nation && session.user) &&
+
+                                    <Button variant="outline" size="sm"
+                                            className='border-slate-600 absolute top-0 right-0'
+                                            asChild>
+                                        <Link to={`${import.meta.env.BASE_URL}unregister`}>
+                                            {session.registered ? session.registered_nation == session.nation ? "Unlink" : "!! Fix Invalid Registration !!" : "Link to Discord"}
+                                        </Link>
+                                    </Button>
+                                }
+                            </div>
                         </td>
                     </tr>
                     <tr className='bg-card'>
                         <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">Expires</td>
-                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">{session.expires}</td>
+                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
+                            <div className="relative">
+                                {session.expires}
+                                <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
+                                        asChild>
+                                    <Link to={`${import.meta.env.BASE_URL}logout`}>Logout</Link></Button>
+                            </div>
+                        </td>
                     </tr>
                     <tr className='bg-card'>
                         <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">Guild</td>
                         <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
-                            {session.guild_icon && <img src={session.guild_icon} alt={session.guild_name}
-                                                        className="w-4 h-4 inline-block mr-1"/>}
-                            {session.guild_name ? session.guild_name + " | " : ""}
-                            {session.guild ? session.guild : "N/A"}
-                            &nbsp;
-                            <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link
-                                to={`${import.meta.env.BASE_URL}guild_select`}>{session.guild ? "Switch" : "Select"}</Link></Button>
+                            <div className="relative">
+                                {session.guild_icon && <img src={session.guild_icon} alt={session.guild_name}
+                                                            className="w-4 h-4 inline-block mr-1"/>}
+                                {session.guild_name ? session.guild_name + " | " : ""}
+                                {session.guild ? session.guild : "N/A"}
+                                <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
+                                        asChild>
+                                    <Link
+                                        to={`${import.meta.env.BASE_URL}guild_select`}>{session.guild ? "Switch" : "Select"}</Link></Button>
+                            </div>
                         </td>
                     </tr>
                     </tbody>
                 </table>
-                    <hr className="my-2" />
-                    <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link
-                        to={`${import.meta.env.BASE_URL}logout`}>Logout</Link></Button>
-                </div>
-                )}
-            renderError={(error) => <>
+                {session.guild && true &&
+                    <Button variant="link" className='hover:text-blue-500 underline text-lg'
+                            asChild>
+                        <Link
+                            to={`${import.meta.env.BASE_URL}guild_member`}>View Guild Member Homepage<ChevronRight /></Link></Button>
+                }
+            </div>
+        </>,
+        renderError: (error) => <>
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                 <strong className="font-bold">Error:&nbsp;</strong>
                 <span className="block sm:inline">Could not fetch login data. {error}</span>
-                </div>
-                <LoginPicker /> 
-            </>
-        }
-        />
-    );
+            </div>
+            <LoginPicker/>
+        </>
+    });
 }

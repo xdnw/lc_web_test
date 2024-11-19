@@ -34,7 +34,7 @@ export default function CommandComponent({ command, filterArguments, initialValu
     }
 
     return (
-    <DataProvider endpoint="query">
+    <>
         <h2 className="text-2xl">Command: {command.name}</h2>
         {
             groupedArgs.map((group, index) => {
@@ -67,7 +67,7 @@ export default function CommandComponent({ command, filterArguments, initialValu
                 );
             })
         }
-    </DataProvider>
+    </>
     );
 }
 

@@ -1,65 +1,25 @@
 import React, { ReactElement, ReactNode } from 'react';
-import { ModeToggle } from '../ui/mode-toggle';
+import { DataProvider } from '@/components/cmd/DataContext';
 import { ThemeProvider } from '../ui/theme-provider';
-import { GitPullRequest, Github, BookOpenText, Infinity, Joystick, CircleUserRound, MessageSquareText, AtSign, ListX, ListChecks,Bug, EyeOff } from 'lucide-react';
 import Navbar from "@/components/layout/navbar.tsx";
+import Footer from "@/components/layout/footer.tsx";
 
 export default function PageView({ children }: {children: ReactNode}): ReactElement {
     return (
         <>
-            <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-                <div className="min-h-screen themeBody">
-                    <Navbar />
-                    <div className="flex flex-col" style={{minHeight: 'calc(100vh - 245.5px)'}}>
-                        <div className="themeDiv bg-opacity-10 container mt-1 p-1 flex-grow">
-                            {children}
-                        </div>
-                    </div>
-                    <footer className="border-t border-top border-card mt-0 pt-3 bg-secondary">
-                        <div className="container mx-auto">
-                            <div className="flex flex-wrap mx-4">
-                                <div className="w-full md:w-1/3 px-4">
-                                    <img
-                                        src="https://cdn.discordapp.com/avatars/672237266940198960/0d78b819d401a8f983ab16242de195da.webp"
-                                        className="absolute" alt="Logo" width="18" height="18"/>
-                                    <h5 className="font-medium ml-4">Locutus</h5>
-                                    <hr className="my-2"/>
-                                    <ul className="list-none">
-                                        <li className="mb-2"><a href="https://github.com/xdnw/locutus/" className="text-blue-600 hover:text-blue-800 underline flex"><GitPullRequest size={22}/>Source Code</a></li>
-                                        <li className="mb-2"><a href="https://github.com/xdnw/locutus/wiki" className="text-blue-600 hover:text-blue-800 underline flex"><BookOpenText size={22}/>Wiki</a></li>
-                                        <li className="mb-2"><a href="https://locutus.link:8443/job/locutus/" className="text-blue-600 hover:text-blue-800 underline flex"><Infinity size={22}/>Jenkins</a></li>
-                                    </ul>
-                                </div>
-                                <div className="w-full md:w-1/3 px-4">
-                                    <h5 className="font-medium m-0">Get in Touch</h5>
-                                    <hr className="my-2"/>
-                                    <ul className="list-none">
-                                        <li className="mb-2"><a href="https://github.com/xdnw/locutus/issues"className="text-blue-600 hover:text-blue-800 underline flex"><Github size={22}/>Issue Tracker</a></li>
-                                        <li className="mb-2"><a href="https://discord.gg/cUuskPDrB7" className="text-blue-600 hover:text-blue-800 underline flex"><MessageSquareText size={22}/>Discord Server</a></li>
-                                        <li className="mb-2"><a href="discord://discord.com/users/664156861033086987" className="text-blue-600 hover:text-blue-800 underline flex"><CircleUserRound size={22}/>Discord User</a></li>
-                                        <li className="mb-2"><a href="https://politicsandwar.com/nation/id=189573" className="text-blue-600 hover:text-blue-800 underline flex"><Joystick size={22}/>In-Game</a></li>
-                                        <li className="mb-2"><a href="mailto:jessepaleg@gmail.com" className="text-blue-600 hover:text-blue-800 underline flex"><AtSign size={22}/>Email</a></li>
-                                    </ul>
-                                </div>
-                                <div className="w-full md:w-1/3 px-4">
-                                    <h5 className="font-medium m-0">Legal</h5>
-                                    <hr className="my-2"/>
-                                    <ul className="list-none">
-                                        <li className="mb-2"><a
-                                            href="https://github.com/xdnw/locutus/blob/master/LICENSE" className="text-blue-600 hover:text-blue-800 underline flex"><ListX size={22}/>License</a></li>
-                                        <li className="mb-2"><a
-                                            href="https://github.com/xdnw/locutus/blob/master/ToS.MD" className="text-blue-600 hover:text-blue-800 underline flex"><ListChecks size={22}/>Terms Of Service</a></li>
-                                        <li className="mb-2"><a
-                                            href="https://github.com/xdnw/locutus/blob/master/PRIVACY.MD" className="text-blue-600 hover:text-blue-800 underline flex"><EyeOff size={22}/>Privacy Policy</a></li>
-                                        <li className="mb-2"><a
-                                            href="https://github.com/xdnw/locutus/blob/master/SECURITY.md" className="text-blue-600 hover:text-blue-800 underline flex"><Bug size={22}/>Vulnerability Disclosure</a></li>
-                                    </ul>
-                                </div>
+            <DataProvider endpoint="query">
+                <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+                    <div className="min-h-screen themeBody">
+                        <Navbar />
+                        <div className="flex flex-col" style={{minHeight: 'calc(100vh - 245.5px)'}}>
+                            <div className="themeDiv bg-opacity-10 container mt-1 p-1 flex-grow">
+                                {children}
                             </div>
                         </div>
-                    </footer>
-                </div>
-            </ThemeProvider>
+                        <Footer />
+                    </div>
+                </ThemeProvider>
+            </DataProvider>
         </>
     );
 }

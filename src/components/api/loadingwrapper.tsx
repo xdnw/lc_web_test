@@ -1,5 +1,5 @@
 import React from 'react';
-import Cookies from 'js-cookie'
+import Loading from "@/components/ui/loading.tsx";
 
 interface LoadingWrapperProps<T> {
     index: number;
@@ -11,32 +11,33 @@ interface LoadingWrapperProps<T> {
     renderError?: (error: string) => React.ReactNode;
 }
 
-export default function LoadingWrapper<T>({ index, loading, error, data, render, renderLoading, renderError, cache }: LoadingWrapperProps<T>) {
+export default function LoadingWrapper<T>({ index, loading, error, data, render, renderLoading, renderError }: LoadingWrapperProps<T>) {
     if (loading) {
         if (renderLoading) {
             return <>{renderLoading()}</>;
         }
-        return <div>Loading...</div>;
+        return <Loading />;
     }
     if (error) {
         if (renderError) {
             return <>{renderError(error)}</>;
         }
-        return <div>An error occurred: {error}</div>;
+        return <div>An error occurred (1): {error}</div>;
     }
     const elem = data ? data[index] : null;
     if (!elem) {
         if (renderError) {
             return <>{renderError(error ?? "Null")}</>;
         }
-        return <div>An error occurred: {error ?? "Null"}</div>;
+        return <></>;
     }
     if (elem?.success === false) {
         if (renderError) {
             return <>{renderError(elem?.message ?? "Null")}</>;
         }
-        return <div>An error occurred: {elem?.message ?? "Null"}</div>;
+        return <div>An error occurred (3): {elem?.message ?? "Null"}</div>;
     }
+    console.log("Not error", elem);
 
     return <>{render(elem)}</>;
 }

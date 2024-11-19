@@ -18,7 +18,14 @@ import TableTest from "@/pages/tabletest";
 import NationPicker from "@/pages/nation_picker";
 import GuildPicker from "@/pages/guild_picker";
 import LoginPickerPage from "@/pages/login_picker";
-import React from "react";
+import React, {ReactNode} from "react";
+import Unregister from "@/pages/unregister";
+import GuildMember from "@/pages/guild_member";
+import {hasToken} from "@/utils/Auth.ts";
+import Announcements from "@/pages/announcements";
+import {Announcement} from "@/pages/announcement";
+import BalancePage from "@/pages/balance";
+import Records from "@/pages/records";
 
 export default function App() {
   return (
@@ -28,17 +35,31 @@ export default function App() {
       <Route path="*" element={<PageView>
         <Routes>
         <Route path="/home" element={<Home />} />
+            <Route path="/guild_member" element={<LoggedInRoute><GuildMember /></LoggedInRoute>} />
+            <Route path="/unregister" element={<LoggedInRoute><Unregister /></LoggedInRoute>} />
+            <Route path="/guild_select" element={<LoggedInRoute><GuildPicker /></LoggedInRoute>} />
+
+            <Route path="/announcements" element={<LoggedInRoute><Announcements /></LoggedInRoute>} />
+            <Route path="/announcement/:id" element={<LoggedInRoute><Announcement /></LoggedInRoute>} />
+            <Route path="/announcement" element={<LoggedInRoute><Announcements /></LoggedInRoute>} />
+
             <Route path="/commands" element={<CommandsPage />} />
             <Route path="/command" element={<CommandsPage />} />
             <Route path="/command/:command" element={<CommandPage />} />
             <Route path="/placeholders/:placeholder" element={<PlaceholdersList />} />
+
+            <Route path="/balance" element={<BalancePage />} />
+            <Route path="/balance/:category" element={<BalancePage />} />
+            <Route path="/records" element={<Records />} />
 
             <Route path="/login" element={<LoginPickerPage />} />
             <Route path="/login/:token" element={<LoginPage />} />
             <Route path="/oauth2" element={<OAuth2 />} />
             <Route path="/logout" element={<LogoutPage />} />
             <Route path="/nation_picker" element={<NationPicker />} />
-            <Route path="/guild_select" element={<GuildPicker />} />
+            <Route path="/register" element={<Unregister />} />
+
+
 
             {/* testing pages */}
             <Route path="/tabletest" element={<TableTest />} />
@@ -48,10 +69,16 @@ export default function App() {
 
             <Route path="/blah" element={<Blah />} />
             <Route path="/testinput" element={<TestInput />} />
-            
+
+
+
         </Routes>
         </PageView>} />
     </Routes>
   </Router>
   );
 }
+
+const LoggedInRoute = ({ children }: { children: ReactNode }) => {
+    return hasToken() ? children : <LoginPickerPage />;
+};

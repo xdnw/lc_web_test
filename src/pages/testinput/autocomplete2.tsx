@@ -2,16 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 // @ts-ignore
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 import "@webscopeio/react-textarea-autocomplete/style.css";
-import { Button } from "@/components/ui/button";
-import { withCommands } from "@/utils/StateUtil";
-import { CommandMap } from "@/utils/Command";
+import { Button } from "@/components/ui/button.tsx";
+import {COMMAND_MAP, CommandMap} from "@/utils/Command";
 
 type ItemType = {
     name: string;
     nameLower: string;
     value: string;
 }
-  
+
 function Item({ entity: { name } }: { entity: ItemType }) {
     return <div>{name}</div>;
 }
@@ -36,62 +35,57 @@ export default function AutoComplete2() {
     };
 
     const [options, setOptions] = useState<ItemType[]>([]);
-    const [cmdMap, setCmdMap] = useState<CommandMap | null>(null);
     const [outputInfo, setOutputInfo] = useState<string>("");
     
 
     const type = "DBNation";
 
-    // effect set options to withCommands()
+    // effect set options
     useEffect(() => {
-        withCommands().then(async f => {
-            setCmdMap(f);
-
-            const stripPrefixes = ["get", "is", "can", "has"];
-            const obj = f.data.placeholders[type].commands;
-            // value -> ICommand -> arguments -> iterate and check if `optional` exists and is true
-            const options: ItemType[] = [];
-            // loop key and value of obj
-            for (const [id, command] of Object.entries(obj)) {
-                // strip prefixes from id
-                let modifiedId = id;
-                for (const prefix of stripPrefixes) {
-                    if (modifiedId.startsWith(prefix)) {
-                        modifiedId = modifiedId.slice(prefix.length);
-                        break;
-                    }
+        const stripPrefixes = ["get", "is", "can", "has"];
+        const obj = COMMAND_MAP.data.placeholders[type].commands;
+        // value -> ICommand -> arguments -> iterate and check if `optional` exists and is true
+        const options: ItemType[] = [];
+        // loop key and value of obj
+        for (const [id, command] of Object.entries(obj)) {
+            // strip prefixes from id
+            let modifiedId = id;
+            for (const prefix of stripPrefixes) {
+                if (modifiedId.startsWith(prefix)) {
+                    modifiedId = modifiedId.slice(prefix.length);
+                    break;
                 }
-                let hasArguments = false; // Changed to let for mutability
-                const requiredArguments: string[] = [];
-                if (command.arguments) { // Ensure command.arguments exists
-                    for (const arg of Object.values(command.arguments)) { // Correctly iterate over values
-                        hasArguments = true;
-                        if (!arg.optional) {
-                            requiredArguments.push(arg.name);
-                        }
-                    }
-                }
-
-                let value;
-                if (hasArguments) {
-                    if (requiredArguments.length > 0) {
-                        value = "#" + (modifiedId + "(" + requiredArguments.join(": ") + ": )");
-                    } else {
-                        value = "#" + (modifiedId + "()");
-                    }
-                } else {
-                    value = "#" + (modifiedId);
-                }
-                options.push({ name: modifiedId, nameLower: id.toLowerCase(), value });
             }
-            setOptions(options);
-        });
+            let hasArguments = false; // Changed to let for mutability
+            const requiredArguments: string[] = [];
+            if (command.arguments) { // Ensure command.arguments exists
+                for (const arg of Object.values(command.arguments)) { // Correctly iterate over values
+                    hasArguments = true;
+                    if (!arg.optional) {
+                        requiredArguments.push(arg.name);
+                    }
+                }
+            }
+
+            let value;
+            if (hasArguments) {
+                if (requiredArguments.length > 0) {
+                    value = "#" + (modifiedId + "(" + requiredArguments.join(": ") + ": )");
+                } else {
+                    value = "#" + (modifiedId + "()");
+                }
+            } else {
+                value = "#" + (modifiedId);
+            }
+            options.push({ name: modifiedId, nameLower: id.toLowerCase(), value });
+        }
+        setOptions(options);
     }, []);
   
     const onCaretPositionChange = (position: number) => {
         const content = textAreaRef.current?.value as string;
         const token = "";
-        const info = cmdMap?.getCurrentlyTypingFunction(content, token, position, type);
+        const info = COMMAND_MAP?.getCurrentlyTypingFunction(content, token, position, type);
         setOutputInfo(JSON.stringify(info));
     };
   

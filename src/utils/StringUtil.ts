@@ -13,6 +13,57 @@ export type SplitStr = {
     content: string;
 }
 
+export function commafy(num: number): string {
+  const parts = (''+(num<0?-num:num)).split(".");
+  const s=parts[0];
+  let L, i= L = s.length, o='';
+  while(i--){ o = (i===0?'':((L-i)%3?'':','))
+      +s.charAt(i) +o }
+  return (num<0?'-':'') + o + (parts[1] ? '.' + (parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1]) : '');
+}
+
+const si = [
+  { value: 1E18, symbol: "E" },
+  { value: 1E15, symbol: "P" },
+  { value: 1E12, symbol: "T" },
+  { value: 1E9, symbol: "G" },
+  { value: 1E6, symbol: "M" },
+  { value: 1E3, symbol: "k" }
+];
+
+export function formatDuration(x: number, maxWords: number): string {
+  const units = [
+    { label: 'y', value: 31536000 },
+    { label: 'w', value: 604800 },
+    { label: 'd', value: 86400 },
+    { label: 'h', value: 3600 },
+    { label: 'm', value: 60 },
+    { label: 's', value: 1 }
+  ];
+
+  let result = '';
+  for (const unit of units) {
+    const amount = Math.floor(x / unit.value);
+    if (amount > 0) {
+      result += amount + "" + unit.label;
+      x -= amount * unit.value;
+    }
+    if (result.length >= maxWords * 2) break; // each unit is 2 characters long
+  }
+
+  return result;
+}
+
+export function formatSi(num: number): string {
+  for (let i = 0; i < si.length; i++) {
+    if (num >= si[i].value) {
+      const formattedNum = num / si[i].value;
+      return (formattedNum % 1 === 0 ? formattedNum.toString() : formattedNum.toFixed(2)) + si[i].symbol;
+    }
+  }
+  return (num % 1 === 0 ? num.toString() : num.toFixed(2));
+}
+
 export function splitCustom(input: string, startsWith: ((input: string, index: number) => number | null) | null, limit: number): SplitStr[] {
   const result: SplitStr[] = [];
   let start = 0;

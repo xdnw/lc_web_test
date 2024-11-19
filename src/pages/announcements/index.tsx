@@ -1,0 +1,87 @@
+import {Link, useParams} from "react-router-dom";
+import {
+    ANNOUNCEMENT_TITLES,
+    READ_ANNOUNCEMENT,
+    UNREAD_ANNOUNCEMENT,
+    WebAnnouncement
+} from "@/components/api/endpoints.tsx";
+import {PaginatedList} from "@/components/ui/pagination.tsx";
+import React, {useRef, useState} from "react";
+import {ChevronLeft} from "lucide-react";
+import {Button} from "@/components/ui/button.tsx";
+
+export default function Announcements() {
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const entries = useRef<WebAnnouncement[] | null>(null);
+    const [rerender, setRerender] = useState(false);
+
+    return (
+        <>
+            <Button variant="outline" size="sm" asChild><Link to={`${import.meta.env.BASE_URL}guild_member`}><ChevronLeft className="h-4 w-4" />Back</Link></Button>
+            {ANNOUNCEMENT_TITLES.useDisplay({
+                args: {read: "true"},
+                render: (announcements) => {
+                    if (entries.current === null) {
+                        entries.current = announcements.values;
+                    }
+                    if (entries.current.length === 0) return (<div>No announcements</div>);
+                    return (
+                        <PaginatedList items={entries.current ?? []} render={(announcement) =>
+                            <tr>
+                                <td className={`h-6 relative px-1 break-normal text-sm text-gray-900 dark:text-gray-200 ${announcement.active ? "font-bold" : "text-black"}`}>
+                                    <Link className="underline-offset-4 hover:underline active:text-primary/80" to={`${import.meta.env.BASE_URL}announcement/${announcement.id}`}>
+                                    {announcement.title}
+                                    </Link>
+                                    {announcement.active ?
+                                        <Read announcement={announcement} rerender={() => setRerender(!rerender)} /> :
+                                        <Unread announcement={announcement} rerender={() => setRerender(!rerender)} />}
+                                </td>
+                            </tr>
+                        }
+                        parent={({children}) => <table className="min-w-full divide-y">
+                            <thead className="bg-gray-50 dark:bg-gray-800">
+                            <tr>
+                                <th className="px-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Title</th>
+                            </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-solid dark:bg-gray-900">
+                            {children}
+                            </tbody>
+                        </table>}
+                        perPage={4} currentPage={currentPage} onPageChange={setCurrentPage}/>
+                    )
+                }
+            })}
+        </>
+    )
+}
+
+export function Read({announcement, rerender}: {announcement: WebAnnouncement, rerender: () => void}) {
+    return READ_ANNOUNCEMENT.useForm({
+        default_values: {ann_id: announcement.id + ""},
+        label: "Mark Read",
+        handle_response: (data, setMessage, setShowDialog, setTitle) => {
+            setMessage(`Marked ${announcement.title} as read`);
+            setShowDialog(true);
+            setTitle("Marked as read");
+            announcement.active = false;
+            rerender();
+        },
+        classes: "absolute top-0 right-0 h-5 mt-0.5 border-0"
+    });
+}
+
+export function Unread({announcement, rerender}: {announcement: WebAnnouncement, rerender: () => void}) {
+    return UNREAD_ANNOUNCEMENT.useForm({
+        default_values: {ann_id: announcement.id + ""},
+        label: "Unread",
+        handle_response: (data, setMessage, setShowDialog, setTitle) => {
+            setMessage(`Marked ${announcement.title} as unread`);
+            setShowDialog(true);
+            setTitle("Unread");
+            announcement.active = true;
+            rerender();
+        },
+        classes: "absolute top-0 right-0 h-5 mt-0.5 border-0"
+    });
+}
