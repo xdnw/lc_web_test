@@ -42,7 +42,7 @@ const GuildPicker = () => {
             {hasGuild && <MemoizedGuildInfo hasGuild={hasGuild} guildData={guildData} setHasGuild={setHasGuild} />}
             <GuildForm handleResponse={handleResponse} />
             <hr className="my-2" />
-            <div className="bg-accent p-2">
+            <div className="bg-accent p-2 rounded relative">
                 <h1 className="text-lg font-bold">Don't see your server here? </h1>
                 <Link className="text-blue-600 hover:text-blue-800 underline" to={`${process.env.BOT_INVITE}`}>Invite {process.env.APPLICATION}</Link> to your server,
                 then see the <Link className="text-blue-600 hover:text-blue-800 underline" to={`${process.env.WIKI_URL}/initial_setup`}>Wiki</Link> for installation instructions.
@@ -115,7 +115,7 @@ const GuildCard = memo(({ id, name, icon, setHasGuild }: { id: string | null, na
     return (
         <>
             {id && (
-                <div className="bg-accent p-2 relative">
+                <div className="bg-accent p-2 relative rounded">
                     <h1 className="text-lg font-bold">Currently Selected</h1>
                     <p className="pb-1">
                         {icon && <img src={icon} alt={name} className="w-4 h-4 inline-block mr-1" />}

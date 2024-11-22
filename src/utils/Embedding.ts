@@ -1,16 +1,15 @@
-// import { FeatureExtractionPipeline, Tensor, pipeline } from '@xenova/transformers';
+import { FeatureExtractionPipeline, Tensor, pipeline } from '@xenova/transformers';
 import CryptoJS from 'crypto-js';
-// let extractorPromise: Promise<FeatureExtractionPipeline> | null = null;
+let extractorPromise: Promise<FeatureExtractionPipeline> | null = null;
 
 
 async function load() {
-    // if (extractorPromise === null) {
-    //     console.log("Loading model...");
-    //     extractorPromise = pipeline('feature-extraction', 'Snowflake/snowflake-arctic-embed-xs');
-    //     console.log("Model loaded.");
-    // }
-    // return extractorPromise;
-    return null;
+    if (extractorPromise === null) {
+        console.log("Loading model...");
+        extractorPromise = pipeline('feature-extraction', 'Snowflake/snowflake-arctic-embed-xs');
+        console.log("Model loaded.");
+    }
+    return extractorPromise;
 }
 
 export function hashWithMD5(data: string) {

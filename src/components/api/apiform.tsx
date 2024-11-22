@@ -5,8 +5,7 @@ import {Link} from "react-router-dom";
 import DOMPurify from "dompurify";
 import SimpleDialog from "@/components/ui/simple-dialog.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import Loading from "@/components/ui/loading.tsx";
-import msgpack from 'msgpack-lite';
+import {UNPACKR} from "@/lib/utils.ts";
 
 interface FormInputsProps {
     setOutputValue: (name: string, value: string) => void;
@@ -89,7 +88,7 @@ export function ApiFormHandler<T, A extends {[key: string]: string}>({store, end
             fetch(url, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/msgpack',
                 },
                 credentials: 'include',
                 body: formBody,
@@ -100,7 +99,7 @@ export function ApiFormHandler<T, A extends {[key: string]: string}>({store, end
                 }
                 const serializedData = await response.arrayBuffer();
                 const data = new Uint8Array(serializedData);
-                const result = msgpack.decode(data);
+                const result = UNPACKR.unpack(data);
                 return result ?? {};
             })
             .then(data => {

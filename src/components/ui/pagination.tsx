@@ -1,9 +1,8 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 import { useMemo } from "react"
-
-import { cn } from "@/lib/utils"
-import { ButtonProps, buttonVariants } from "@/components/ui/button"
+import {cn} from "../../lib/utils"
+import {ButtonProps, buttonVariants} from "./button";
 
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
     <nav
@@ -161,12 +160,12 @@ export function PaginatedList<T>({ items, render, parent, perPage, currentPage, 
             <Pagination>
                 <PaginationContent>
                     <PaginationItem>
-                        <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
+                        <PaginationPrevious size="sm" onClick={() => handlePageChange(currentPage - 1)} />
                     </PaginationItem>
                     {pageNumbers.map(page => (
                         <PaginationItem key={page}>
-                            <PaginationLink
-                                isActive={page === currentPage}
+                            <PaginationLink size="sm"
+                                            isActive={page === currentPage}
                                 onClick={() => handlePageChange(page)}
                             >
                                 {page}
@@ -179,7 +178,7 @@ export function PaginatedList<T>({ items, render, parent, perPage, currentPage, 
                         </PaginationItem>
                     )}
                     <PaginationItem>
-                        <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+                        <PaginationNext size="sm" onClick={() => handlePageChange(currentPage + 1)} />
                     </PaginationItem>
                 </PaginationContent>
             </Pagination>
@@ -195,4 +194,4 @@ const RenderItems = <T,>({ items, render, parent: Parent }: { items: T[], render
     return <>{items.map((item, index) => <React.Fragment key={index}>{render(item)}</React.Fragment>)}</>;
 };
 
-const MemoizedRenderItems = React.memo(RenderItems);
+const MemoizedRenderItems = React.memo(RenderItems) as <T>(props: { items: T[], render: (item: T) => React.ReactNode, parent?: React.ComponentType<{ children: React.ReactNode }>}) => JSX.Element;

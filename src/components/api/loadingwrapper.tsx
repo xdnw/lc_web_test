@@ -1,5 +1,6 @@
 import React from 'react';
 import Loading from "@/components/ui/loading.tsx";
+import {WebSuccess} from "@/components/api/apitypes";
 
 interface LoadingWrapperProps<T> {
     index: number;
@@ -24,7 +25,7 @@ export default function LoadingWrapper<T>({ index, loading, error, data, render,
         }
         return <div>An error occurred (1): {error}</div>;
     }
-    const elem = data ? data[index] : null;
+    const elem = data ? data[index] as WebSuccess : null;
     if (!elem) {
         if (renderError) {
             return <>{renderError(error ?? "Null")}</>;
@@ -39,5 +40,5 @@ export default function LoadingWrapper<T>({ index, loading, error, data, render,
     }
     console.log("Not error", elem);
 
-    return <>{render(elem)}</>;
+    return <>{render(elem as T)}</>;
 }

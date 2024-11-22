@@ -9,7 +9,7 @@ import {SESSION, UNREGISTER, WebSession} from "@/components/api/endpoints.tsx";
 export default function Unregister() {
     return (
         <>
-            <div className="p-2 bg-accent">
+            <div className="p-2 bg-accent relative rounded">
             {SESSION.useDisplay({
                 args: {},
                 render: (session) => (<UnregisterComponent session={session} />

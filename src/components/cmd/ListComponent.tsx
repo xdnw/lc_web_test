@@ -4,8 +4,8 @@ import Clusterize from 'clusterize.js';
 import 'clusterize.js/clusterize.css';
 import CreatableSelect from 'react-select/creatable';
 import './list.css';
-import Select from 'react-select';
 import { useSyncedStateFunc } from "@/utils/StateUtil";
+import Select from "react-select/base";
 
 export default function ListComponent(
     {argName, options, isMulti, initialValue, setOutputValue}:
@@ -107,6 +107,7 @@ export default function ListComponent(
             if (scrollRef.current && (scrollRef.current === activeElement || scrollRef.current.contains(activeElement))) {
                 return;
             }
+            console.log("REF ", selectRef.current?.controlRef);
             const selectControlElement = selectRef.current?.controlRef;
             if (selectControlElement && (selectControlElement === activeElement || selectControlElement.contains(activeElement))) {
                 return;

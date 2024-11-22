@@ -6,7 +6,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { hashWithMD5, loadWeights, toVector } from '@/utils/Embedding';
 import React, { useRef } from 'react';
 import {COMMAND_MAP} from "@/utils/Command.ts";
-import msgpack from 'msgpack-lite';
+import {UNPACKR} from "@/lib/utils.ts";
 
 async function testDeserialization() {
     const url = `${process.env.API_URL}test`;
@@ -15,7 +15,7 @@ async function testDeserialization() {
         const response = await fetch(url, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/octet-stream',
+                'Content-Type': 'application/msgpack',
             },
             credentials: 'include',
         });
@@ -26,9 +26,10 @@ async function testDeserialization() {
 
         const serializedData = await response.arrayBuffer();
         const data = new Uint8Array(serializedData);
-        const deserializedData = msgpack.decode(data);
+        const deserializedData = UNPACKR.unpack(data);
 
         console.log(deserializedData);
+        alert(deserializedData);
     } catch (error) {
         console.error('Error fetching or deserializing data:', error);
     }

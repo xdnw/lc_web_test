@@ -1,4 +1,4 @@
-import {BALANCE, WebBalance, WebTransferResult, WITHDRAW} from "@/components/api/endpoints.tsx";
+import {BALANCE, WebBalance, WITHDRAW} from "@/components/api/endpoints.tsx";
 import {Link, useParams} from "react-router-dom";
 import {COMMANDS} from "@/lib/commands.ts";
 import React, {ReactNode, useRef, useState} from "react";
@@ -20,7 +20,7 @@ export default function BalancePage() {
     })
 }
 
-const rssTypes: string[] = COMMANDS.options["ResourceType"].options;
+const rssTypes: string[] = COMMANDS.options["ResourceType"]?.options ?? [];
 
 function toResourceString(arr: number[]) {
     const filtered = Object.fromEntries(
@@ -94,29 +94,29 @@ function RenderBalance({ balance }: {balance: WebBalance}) {
                     {showBreakdown ? <>Hide<ChevronUp/></> : <>Breakdown<ChevronDown/></>}
                 </Button>
             </div>
-            {showBreakdown && (
-                <table className="table-auto divide-y w-full bg-background">
-                    <thead className="bg-gray-50 dark:bg-gray-800">
-                    <tr>
-                        <th className="border border-gray-200">Category</th>
-                        {rssTypes.map((type) => (
-                            <th key={type} className="border border-gray-200">{type}</th>
+            <div className={`transition-all duration-200 ease-in-out ${showBreakdown ? 'p-1 max-h-screen opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+            <table className="table-auto divide-y w-full bg-background">
+                <thead className="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                    <th className="border border-gray-200">Category</th>
+                    {rssTypes.map((type) => (
+                        <th key={type} className="border border-gray-200">{type}</th>
+                    ))}
+                </tr>
+                </thead>
+                <tbody>
+                {Object.keys(balance.breakdown).map((category) => (
+                    <tr key={category}>
+                        <td className="border border-gray-200 px-1">{category}</td>
+                        {balance.breakdown[category].map((value, index) => (
+                            <td key={`${category}-${index}`}
+                                className="border border-gray-200 px-1">{commafy(value)}</td>
                         ))}
                     </tr>
-                    </thead>
-                    <tbody>
-                    {Object.keys(balance.breakdown).map((category) => (
-                        <tr key={category}>
-                            <td className="border border-gray-200 px-1">{category}</td>
-                            {balance.breakdown[category].map((value, index) => (
-                                <td key={`${category}-${index}`}
-                                    className="border border-gray-200 px-1">{commafy(value)}</td>
-                            ))}
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-            )}
+                ))}
+                </tbody>
+            </table>
+            </div>
         </div>
         {canWithdraw && !isEmpty(amount) && <div className="p-1 bg-accent relative">
             <h4 className="text-lg font-bold">Discord Withdraw Command</h4>

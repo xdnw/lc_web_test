@@ -8,7 +8,8 @@ import {Button} from "@/components/ui/button.tsx";
 import {Settings} from "lucide-react";
 import React from "react";
 import {Link} from "react-router-dom";
-import {SESSION, WebSession} from "@/components/api/endpoints.tsx";
+import {SESSION} from "@/components/api/endpoints.tsx";
+import {WebSession} from "@/components/api/apitypes";
 
 export default function LoggedInDropdown() {
     return (

@@ -1,116 +1,8 @@
-import {Argument, IArgument} from "@/utils/Command.ts";
-import {CacheType, useData, useRegisterQuery} from "@/components/cmd/DataContext.tsx";
+import {CacheType} from "@/components/cmd/DataContext.tsx";
 import React, {ReactNode} from "react";
-import LoadingWrapper from "@/components/api/loadingwrapper.tsx";
-import ApiForm from "@/components/api/apiform.tsx";
-import ArgInput from "@/components/cmd/ArgInput.tsx";
-import * as ApiTypes from "@/components/api/apitypes.tsx";
-
-interface PlaceholderData {
-    type: string;
-    fields: {
-        [key: string]: boolean | { [key: string]: string };
-    };
-}
-
-export class AbstractBuilder {
-    protected data: PlaceholderData = {
-        type: "",
-        fields: {}
-    };
-
-    set(field: string, value: boolean | { [key: string]: string }): this {
-        this.data.fields[field] = value;
-        return this;
-    }
-
-    build(): PlaceholderData {
-        return this.data;
-    }
-}
-
-export class ApiEndpoint<T> {
-    name: string;
-    url: string;
-    args: { [name: string]: Argument };
-    cast: (data: unknown) => T;
-    cache: { cache_type: CacheType, duration?: number, cookie_id: string };
-
-    constructor(name: string, url: string, args: { [name: string]: IArgument }, cast: (data: unknown) => T, cache: { type?: CacheType, duration?: number }) {
-        this.name = name;
-        this.url = url;
-        this.args = {};
-        for (const [key, value] of Object.entries(args)) {
-            this.args[key] = new Argument(key, value);
-        }
-        this.cast = cast;
-        this.cache = { cache_type: cache.type ?? CacheType.None, duration: cache.duration ?? 0, cookie_id: `lc_${name}` };
-    }
-}
-
-export function useDisplay<T>(
-    name: string,
-    cache: { cache_type: CacheType, duration?: number, cookie_id: string },
-                        args: {[key: string]: string}, render: (data: T) => React.ReactNode,
-                        renderLoading?: () => React.ReactNode,
-                        renderError?: (error: string) => React.ReactNode): React.ReactNode {
-    const [queryId] = useRegisterQuery(name, args, cache);
-    const { data, loading, error } = useData<T>();
-    return <LoadingWrapper<T>
-        index={queryId}
-        loading={loading}
-        error={error}
-        data={data}
-        render={render}
-        renderLoading={renderLoading}
-        renderError={renderError}
-    />
-}
-
-export function useForm<T, A extends { [key: string]: string }>(
-    url: string,
-    args: { [name: string]: Argument },
-    message?: React.ReactNode,
-    default_values?: { [key: string]: string },
-    label?: ReactNode,
-    handle_response?: (data: T, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-    handle_submit?: (args: A, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-    handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-    handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-    classes?: string): React.ReactNode {
-    const required: string[] = [];
-    for (const [key, value] of Object.entries(args)) {
-        if (!value.arg.optional && (!default_values || !Object.prototype.hasOwnProperty.call(default_values, key))) {
-            required.push(key);
-        }
-    }
-    return <ApiForm
-        requireLogin={false}
-        required={required}
-        message={message}
-        endpoint={url}
-        label={label}
-        default_values={default_values}
-        form_inputs={(props) => <>
-            {Object.values(args).filter(arg => !default_values || !Object.prototype.hasOwnProperty.call(default_values, arg.name)).map((arg, index) => {
-                return <ArgInput key={index} argName={arg.name} breakdown={arg.getTypeBreakdown()} min={arg.arg.min} max={arg.arg.max} initialValue={""} setOutputValue={props.setOutputValue} />
-            })}
-        </>}
-        handle_response={handle_response}
-        handle_loading={handle_loading}
-        handle_error={handle_error}
-        handle_submit={handle_submit}
-        classes={classes}
-    />
-}
-
-function combine(cache: { cache_type: CacheType, duration?: number, cookie_id: string }, args: {[key: string]: string}) {
-    const argsString = JSON.stringify(args);
-    const encodedArgs = encodeURIComponent(argsString);
-    return { cache_type: cache.cache_type, duration: cache.duration, cookie_id: `${cache.cookie_id}_${encodedArgs}` };
-}
-
-export const LOGIN_MAIL = {
+import type * as ApiTypes from "@/components/api/apitypes.d.ts";
+import {useForm, useDisplay, ApiEndpoint, combine, CommonEndpoint} from "@/components/api/endpoint.tsx";
+export const LOGIN_MAIL: CommonEndpoint<ApiTypes.WebUrl, {nation: string}, {nation?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebUrl>(
         "login_mail",
         "login_mail",
@@ -119,7 +11,7 @@ export const LOGIN_MAIL = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {nation: string}, render: (data: ApiTypes.WebUrl) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {nation: string}, render: (data: ApiTypes.WebUrl) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(LOGIN_MAIL.endpoint.name, combine(LOGIN_MAIL.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -134,7 +26,33 @@ export const LOGIN_MAIL = {
         return useForm(LOGIN_MAIL.endpoint.url, LOGIN_MAIL.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const MY_AUDITS = {
+
+export const MY_WARS: CommonEndpoint<ApiTypes.WebMyWars, Record<string, never>, Record<string, never>> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebMyWars>(
+        "my_wars",
+        "my_wars",
+        {},
+        (data: unknown) => data as ApiTypes.WebMyWars,
+        {}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: Record<string, never>, render: (data: ApiTypes.WebMyWars) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(MY_WARS.endpoint.name, MY_WARS.endpoint.cache, args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: Record<string, never>,
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebMyWars, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
+        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(MY_WARS.endpoint.url, MY_WARS.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const MY_AUDITS: CommonEndpoint<ApiTypes.WebAudits, Record<string, never>, Record<string, never>> = {
     endpoint: new ApiEndpoint<ApiTypes.WebAudits>(
         "my_audits",
         "my_audits",
@@ -143,7 +61,7 @@ export const MY_AUDITS = {
         {type: CacheType.SessionStorage, duration: 30}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: Record<string, never>, render: (data: ApiTypes.WebAudits) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: Record<string, never>, render: (data: ApiTypes.WebAudits) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(MY_AUDITS.endpoint.name, MY_AUDITS.endpoint.cache, args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -158,7 +76,8 @@ export const MY_AUDITS = {
         return useForm(MY_AUDITS.endpoint.url, MY_AUDITS.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const RECORDS = {
+
+export const RECORDS: CommonEndpoint<ApiTypes.WebTable, {nation?: string}, {nation?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebTable>(
         "records",
         "records",
@@ -167,7 +86,7 @@ export const RECORDS = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {nation?: string}, render: (data: ApiTypes.WebTable) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {nation?: string}, render: (data: ApiTypes.WebTable) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(RECORDS.endpoint.name, combine(RECORDS.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -182,7 +101,8 @@ export const RECORDS = {
         return useForm(RECORDS.endpoint.url, RECORDS.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const LOGOUT = {
+
+export const LOGOUT: CommonEndpoint<ApiTypes.WebSuccess, Record<string, never>, Record<string, never>> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "logout",
         "logout",
@@ -191,7 +111,7 @@ export const LOGOUT = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: Record<string, never>, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: Record<string, never>, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(LOGOUT.endpoint.name, LOGOUT.endpoint.cache, args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -206,23 +126,24 @@ export const LOGOUT = {
         return useForm(LOGOUT.endpoint.url, LOGOUT.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const UNREAD_COUNT = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSuccessInt>(
+
+export const UNREAD_COUNT: CommonEndpoint<ApiTypes.WebInt, Record<string, never>, Record<string, never>> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebInt>(
         "unread_count",
         "unread_count",
         {},
-        (data: unknown) => data as ApiTypes.WebSuccessInt,
+        (data: unknown) => data as ApiTypes.WebInt,
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: Record<string, never>, render: (data: ApiTypes.WebSuccessInt) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: Record<string, never>, render: (data: ApiTypes.WebInt) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(UNREAD_COUNT.endpoint.name, UNREAD_COUNT.endpoint.cache, args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
         default_values?: Record<string, never>,
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccessInt, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebInt, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
         handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
         handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
         handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
@@ -230,7 +151,8 @@ export const UNREAD_COUNT = {
         return useForm(UNREAD_COUNT.endpoint.url, UNREAD_COUNT.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const MARK_ALL_READ = {
+
+export const MARK_ALL_READ: CommonEndpoint<ApiTypes.WebSuccess, Record<string, never>, Record<string, never>> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "mark_all_read",
         "mark_all_read",
@@ -239,7 +161,7 @@ export const MARK_ALL_READ = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: Record<string, never>, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: Record<string, never>, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(MARK_ALL_READ.endpoint.name, MARK_ALL_READ.endpoint.cache, args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -254,55 +176,8 @@ export const MARK_ALL_READ = {
         return useForm(MARK_ALL_READ.endpoint.url, MARK_ALL_READ.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const SESSION = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSession>(
-        "session",
-        "session",
-        {},
-        (data: unknown) => data as ApiTypes.WebSession,
-        {type: CacheType.LocalStorage, duration: 2592000}
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: Record<string, never>, render: (data: ApiTypes.WebSession) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(SESSION.endpoint.name, SESSION.endpoint.cache, args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: Record<string, never>,
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSession, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(SESSION.endpoint.url, SESSION.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-export const SET_TOKEN = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
-        "set_token",
-        "set_token",
-        {"token":{"name":"token","type":"UUID"}},
-        (data: unknown) => data as ApiTypes.WebSuccess,
-        {}
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {token: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(SET_TOKEN.endpoint.name, combine(SET_TOKEN.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {token?: string},
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccess, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {token: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(SET_TOKEN.endpoint.url, SET_TOKEN.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-export const SET_OAUTH_CODE = {
+
+export const SET_OAUTH_CODE: CommonEndpoint<ApiTypes.WebSuccess, {code: string}, {code?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "set_oauth_code",
         "set_oauth_code",
@@ -311,7 +186,7 @@ export const SET_OAUTH_CODE = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {code: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {code: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(SET_OAUTH_CODE.endpoint.name, combine(SET_OAUTH_CODE.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -326,7 +201,58 @@ export const SET_OAUTH_CODE = {
         return useForm(SET_OAUTH_CODE.endpoint.url, SET_OAUTH_CODE.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const BALANCE = {
+
+export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token: string}, {token?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
+        "set_token",
+        "set_token",
+        {"token":{"name":"token","type":"UUID"}},
+        (data: unknown) => data as ApiTypes.WebSuccess,
+        {}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {token: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(SET_TOKEN.endpoint.name, combine(SET_TOKEN.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {token?: string},
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebSuccess, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_submit?: (args: {token: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
+        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(SET_TOKEN.endpoint.url, SET_TOKEN.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>, Record<string, never>> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSession>(
+        "session",
+        "session",
+        {},
+        (data: unknown) => data as ApiTypes.WebSession,
+        {type: CacheType.LocalStorage, duration: 2592000}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: Record<string, never>, render: (data: ApiTypes.WebSession) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(SESSION.endpoint.name, SESSION.endpoint.cache, args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: Record<string, never>,
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebSession, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
+        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(SESSION.endpoint.url, SESSION.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const BALANCE: CommonEndpoint<ApiTypes.WebBalance, {nation?: string}, {nation?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebBalance>(
         "balance",
         "balance",
@@ -335,7 +261,7 @@ export const BALANCE = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {nation?: string}, render: (data: ApiTypes.WebBalance) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {nation?: string}, render: (data: ApiTypes.WebBalance) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(BALANCE.endpoint.name, combine(BALANCE.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -350,7 +276,8 @@ export const BALANCE = {
         return useForm(BALANCE.endpoint.url, BALANCE.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const ANNOUNCEMENT_TITLES = {
+
+export const ANNOUNCEMENT_TITLES: CommonEndpoint<ApiTypes.WebAnnouncements, {read?: string}, {read?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebAnnouncements>(
         "announcement_titles",
         "announcement_titles",
@@ -359,7 +286,7 @@ export const ANNOUNCEMENT_TITLES = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {read?: string}, render: (data: ApiTypes.WebAnnouncements) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {read?: string}, render: (data: ApiTypes.WebAnnouncements) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(ANNOUNCEMENT_TITLES.endpoint.name, combine(ANNOUNCEMENT_TITLES.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -374,7 +301,8 @@ export const ANNOUNCEMENT_TITLES = {
         return useForm(ANNOUNCEMENT_TITLES.endpoint.url, ANNOUNCEMENT_TITLES.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const UNREAD_ANNOUNCEMENT = {
+
+export const UNREAD_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: string}, {ann_id?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "unread_announcement",
         "unread_announcement",
@@ -383,7 +311,7 @@ export const UNREAD_ANNOUNCEMENT = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {ann_id: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {ann_id: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(UNREAD_ANNOUNCEMENT.endpoint.name, combine(UNREAD_ANNOUNCEMENT.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -398,7 +326,8 @@ export const UNREAD_ANNOUNCEMENT = {
         return useForm(UNREAD_ANNOUNCEMENT.endpoint.url, UNREAD_ANNOUNCEMENT.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const REGISTER = {
+
+export const REGISTER: CommonEndpoint<ApiTypes.WebSuccess, {confirm: string}, {confirm?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "register",
         "register",
@@ -407,7 +336,7 @@ export const REGISTER = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {confirm: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {confirm: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(REGISTER.endpoint.name, combine(REGISTER.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -422,7 +351,8 @@ export const REGISTER = {
         return useForm(REGISTER.endpoint.url, REGISTER.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const VIEW_ANNOUNCEMENT = {
+
+export const VIEW_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebAnnouncement, {ann_id: string}, {ann_id?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebAnnouncement>(
         "view_announcement",
         "view_announcement",
@@ -431,7 +361,7 @@ export const VIEW_ANNOUNCEMENT = {
         {type: CacheType.SessionStorage, duration: 2592000}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {ann_id: string}, render: (data: ApiTypes.WebAnnouncement) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {ann_id: string}, render: (data: ApiTypes.WebAnnouncement) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(VIEW_ANNOUNCEMENT.endpoint.name, combine(VIEW_ANNOUNCEMENT.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -446,7 +376,8 @@ export const VIEW_ANNOUNCEMENT = {
         return useForm(VIEW_ANNOUNCEMENT.endpoint.url, VIEW_ANNOUNCEMENT.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const SET_GUILD = {
+
+export const SET_GUILD: CommonEndpoint<ApiTypes.SetGuild, {guild: string}, {guild?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.SetGuild>(
         "set_guild",
         "set_guild",
@@ -455,7 +386,7 @@ export const SET_GUILD = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {guild: string}, render: (data: ApiTypes.SetGuild) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {guild: string}, render: (data: ApiTypes.SetGuild) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(SET_GUILD.endpoint.name, combine(SET_GUILD.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -470,7 +401,8 @@ export const SET_GUILD = {
         return useForm(SET_GUILD.endpoint.url, SET_GUILD.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const UNPROTECTED = {
+
+export const UNPROTECTED: CommonEndpoint<ApiTypes.WebTargets, {nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}, {nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebTargets>(
         "unprotected",
         "unprotected",
@@ -479,7 +411,7 @@ export const UNPROTECTED = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}, render: (data: ApiTypes.WebTargets) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}, render: (data: ApiTypes.WebTargets) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(UNPROTECTED.endpoint.name, combine(UNPROTECTED.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -494,7 +426,8 @@ export const UNPROTECTED = {
         return useForm(UNPROTECTED.endpoint.url, UNPROTECTED.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const BANK_ACCESS = {
+
+export const BANK_ACCESS: CommonEndpoint<ApiTypes.WebBankAccess, Record<string, never>, Record<string, never>> = {
     endpoint: new ApiEndpoint<ApiTypes.WebBankAccess>(
         "bank_access",
         "bank_access",
@@ -503,7 +436,7 @@ export const BANK_ACCESS = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: Record<string, never>, render: (data: ApiTypes.WebBankAccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: Record<string, never>, render: (data: ApiTypes.WebBankAccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(BANK_ACCESS.endpoint.name, BANK_ACCESS.endpoint.cache, args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -518,7 +451,8 @@ export const BANK_ACCESS = {
         return useForm(BANK_ACCESS.endpoint.url, BANK_ACCESS.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const TRADEPRICEBYDAYJSON = {
+
+export const TRADEPRICEBYDAYJSON: CommonEndpoint<ApiTypes.TradePriceByDayJson, {resources: string, days: string}, {resources?: string, days?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.TradePriceByDayJson>(
         "tradepricebydayjson",
         "tradePriceByDayJson",
@@ -527,7 +461,7 @@ export const TRADEPRICEBYDAYJSON = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {resources: string, days: string}, render: (data: ApiTypes.TradePriceByDayJson) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {resources: string, days: string}, render: (data: ApiTypes.TradePriceByDayJson) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(TRADEPRICEBYDAYJSON.endpoint.name, combine(TRADEPRICEBYDAYJSON.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -542,7 +476,8 @@ export const TRADEPRICEBYDAYJSON = {
         return useForm(TRADEPRICEBYDAYJSON.endpoint.url, TRADEPRICEBYDAYJSON.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const ANNOUNCEMENTS = {
+
+export const ANNOUNCEMENTS: CommonEndpoint<ApiTypes.WebAnnouncements, Record<string, never>, Record<string, never>> = {
     endpoint: new ApiEndpoint<ApiTypes.WebAnnouncements>(
         "announcements",
         "announcements",
@@ -551,7 +486,7 @@ export const ANNOUNCEMENTS = {
         {type: CacheType.SessionStorage, duration: 30}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: Record<string, never>, render: (data: ApiTypes.WebAnnouncements) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: Record<string, never>, render: (data: ApiTypes.WebAnnouncements) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(ANNOUNCEMENTS.endpoint.name, ANNOUNCEMENTS.endpoint.cache, args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -566,7 +501,8 @@ export const ANNOUNCEMENTS = {
         return useForm(ANNOUNCEMENTS.endpoint.url, ANNOUNCEMENTS.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const UNREGISTER = {
+
+export const UNREGISTER: CommonEndpoint<ApiTypes.WebValue, {confirm: string}, {confirm?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebValue>(
         "unregister",
         "unregister",
@@ -575,7 +511,7 @@ export const UNREGISTER = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {confirm: string}, render: (data: ApiTypes.WebValue) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {confirm: string}, render: (data: ApiTypes.WebValue) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(UNREGISTER.endpoint.name, combine(UNREGISTER.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -590,55 +526,8 @@ export const UNREGISTER = {
         return useForm(UNREGISTER.endpoint.url, UNREGISTER.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const RAID = {
-    endpoint: new ApiEndpoint<ApiTypes.WebTargets>(
-        "raid",
-        "raid",
-        {"nations":{"name":"nations","optional":true,"type":"Set\u003cDBNation\u003e","def":"*,#position\u003c\u003d1"},"weak_ground":{"name":"weak_ground","optional":true,"type":"boolean","def":"false"},"vm_turns":{"name":"vm_turns","optional":true,"type":"int","def":"0"},"beige_turns":{"name":"beige_turns","optional":true,"type":"int","def":"0"},"ignore_dnr":{"name":"ignore_dnr","optional":true,"type":"boolean","def":"false"},"time_inactive":{"name":"time_inactive","optional":true,"type":"long[Timediff]","def":"7d"},"min_loot":{"name":"min_loot","optional":true,"type":"double","def":"-1"},"num_results":{"name":"num_results","optional":true,"type":"int","def":"8"}},
-        (data: unknown) => data as ApiTypes.WebTargets,
-        {}
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, render: (data: ApiTypes.WebTargets) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(RAID.endpoint.name, combine(RAID.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string},
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebTargets, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(RAID.endpoint.url, RAID.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-export const WITHDRAW = {
-    endpoint: new ApiEndpoint<ApiTypes.WebTransferResult>(
-        "withdraw",
-        "withdraw",
-        {"receiver":{"name":"receiver","type":"NationOrAlliance"},"amount":{"name":"amount","type":"Map\u003cResourceType, Double\u003e"},"note":{"name":"note","type":"DepositType"}},
-        (data: unknown) => data as ApiTypes.WebTransferResult,
-        {}
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {receiver: string, amount: string, note: string}, render: (data: ApiTypes.WebTransferResult) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(WITHDRAW.endpoint.name, combine(WITHDRAW.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {receiver?: string, amount?: string, note?: string},
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebTransferResult, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {receiver: string, amount: string, note: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(WITHDRAW.endpoint.url, WITHDRAW.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-export const READ_ANNOUNCEMENT = {
+
+export const READ_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: string}, {ann_id?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "read_announcement",
         "read_announcement",
@@ -647,7 +536,7 @@ export const READ_ANNOUNCEMENT = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {ann_id: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {ann_id: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(READ_ANNOUNCEMENT.endpoint.name, combine(READ_ANNOUNCEMENT.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -662,7 +551,83 @@ export const READ_ANNOUNCEMENT = {
         return useForm(READ_ANNOUNCEMENT.endpoint.url, READ_ANNOUNCEMENT.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const QUERY = {
+
+export const RAID: CommonEndpoint<ApiTypes.WebTargets, {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebTargets>(
+        "raid",
+        "raid",
+        {"nations":{"name":"nations","optional":true,"type":"Set\u003cDBNation\u003e","def":"*,#position\u003c\u003d1"},"weak_ground":{"name":"weak_ground","optional":true,"type":"boolean","def":"false"},"vm_turns":{"name":"vm_turns","optional":true,"type":"int","def":"0"},"beige_turns":{"name":"beige_turns","optional":true,"type":"int","def":"0"},"ignore_dnr":{"name":"ignore_dnr","optional":true,"type":"boolean","def":"false"},"time_inactive":{"name":"time_inactive","optional":true,"type":"long[Timediff]","def":"7d"},"min_loot":{"name":"min_loot","optional":true,"type":"double","def":"-1"},"num_results":{"name":"num_results","optional":true,"type":"int","def":"8"}},
+        (data: unknown) => data as ApiTypes.WebTargets,
+        {}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, render: (data: ApiTypes.WebTargets) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(RAID.endpoint.name, combine(RAID.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string},
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebTargets, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_submit?: (args: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
+        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(RAID.endpoint.url, RAID.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const WITHDRAW: CommonEndpoint<ApiTypes.WebTransferResult, {receiver: string, amount: string, note: string}, {receiver?: string, amount?: string, note?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebTransferResult>(
+        "withdraw",
+        "withdraw",
+        {"receiver":{"name":"receiver","type":"NationOrAlliance"},"amount":{"name":"amount","type":"Map\u003cResourceType, Double\u003e"},"note":{"name":"note","type":"DepositType"}},
+        (data: unknown) => data as ApiTypes.WebTransferResult,
+        {}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {receiver: string, amount: string, note: string}, render: (data: ApiTypes.WebTransferResult) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(WITHDRAW.endpoint.name, combine(WITHDRAW.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {receiver?: string, amount?: string, note?: string},
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebTransferResult, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_submit?: (args: {receiver: string, amount: string, note: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
+        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(WITHDRAW.endpoint.url, WITHDRAW.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const TEST: CommonEndpoint<ApiTypes.WebValue, Record<string, never>, Record<string, never>> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebValue>(
+        "test",
+        "test",
+        {},
+        (data: unknown) => data as ApiTypes.WebValue,
+        {type: CacheType.LocalStorage, duration: 2592000}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: Record<string, never>, render: (data: ApiTypes.WebValue) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(TEST.endpoint.name, TEST.endpoint.cache, args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: Record<string, never>,
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebValue, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
+        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(TEST.endpoint.url, TEST.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries: string}, {queries?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebBulkQuery>(
         "query",
         "query",
@@ -671,7 +636,7 @@ export const QUERY = {
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {queries: string}, render: (data: ApiTypes.WebBulkQuery) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {queries: string}, render: (data: ApiTypes.WebBulkQuery) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(QUERY.endpoint.name, combine(QUERY.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -686,7 +651,8 @@ export const QUERY = {
         return useForm(QUERY.endpoint.url, QUERY.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
-export const INPUT_OPTIONS = {
+
+export const INPUT_OPTIONS: CommonEndpoint<ApiTypes.WebOptions, {type: string}, {type?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebOptions>(
         "input_options",
         "input_options",
@@ -695,7 +661,7 @@ export const INPUT_OPTIONS = {
         {type: CacheType.LocalStorage, duration: 30}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-                 {args: {type: string}, render: (data: ApiTypes.WebOptions) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {type: string}, render: (data: ApiTypes.WebOptions) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(INPUT_OPTIONS.endpoint.name, combine(INPUT_OPTIONS.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -710,3 +676,4 @@ export const INPUT_OPTIONS = {
         return useForm(INPUT_OPTIONS.endpoint.url, INPUT_OPTIONS.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
+

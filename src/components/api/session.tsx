@@ -52,21 +52,21 @@ export default function SessionInfo() {
     return SESSION.useDisplay({
         args: {},
         render: (session) => <>
-            <div className="p-2">
-                <table className="table-auto w-full">
+            <div className="rounded-lg relative">
+                <table className="table-auto w-full border-separate border-spacing-y-1">
                     <tbody>
-                    <tr className='bg-card'>
-                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">User</td>
-                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
+                    <tr className="bg-secondary">
+                        <td className="px-1 py-1 bg-secondary">User</td>
+                        <td className="px-1 py-1 bg-secondary">
                             {session.user_icon && <img src={session.user_icon} alt={session.user_name}
                                                        className="w-4 h-4 inline-block mr-1"/>}
                             {session.user_name ? session.user_name + " | " : ""}
                             {session.user ? session.user : "N/A"}
                         </td>
                     </tr>
-                    <tr className='bg-card'>
-                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">Nation</td>
-                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
+                    <tr className="bg-secondary">
+                        <td className="p-1">Nation</td>
+                        <td className="p-1">
                             <div className="relative">
                                 {session.nation ? <Link className="text-blue-600 hover:text-blue-800 underline"
                                                         to={`https://politicsandwar.com/nation/id=${session.nation}`}>
@@ -90,9 +90,9 @@ export default function SessionInfo() {
                             </div>
                         </td>
                     </tr>
-                    <tr className='bg-card'>
-                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">Expires</td>
-                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
+                    <tr className="bg-secondary">
+                        <td className="p-1">Expires</td>
+                        <td className="p-1">
                             <div className="relative">
                                 {session.expires}
                                 <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
@@ -101,9 +101,9 @@ export default function SessionInfo() {
                             </div>
                         </td>
                     </tr>
-                    <tr className='bg-card'>
-                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">Guild</td>
-                        <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
+                    <tr className="bg-secondary">
+                        <td className="p-1">Guild</td>
+                        <td className="p-1">
                             <div className="relative">
                                 {session.guild_icon && <img src={session.guild_icon} alt={session.guild_name}
                                                             className="w-4 h-4 inline-block mr-1"/>}

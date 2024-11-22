@@ -1,7 +1,7 @@
 .dark .react-select-container .react-select__control {
-background-color: #2A2A2A;
-color: white;
-border-color: #666;
+    background-color: #2A2A2A;
+    color: white;
+    border-color: #666;
 }
 
 .dark .react-select-container .react-select__menu {
@@ -48,7 +48,4 @@ color: #ccc;
 
 .dark .react-select-container .react-select__single-value {
 color: white;
-}
-.react-select__control {
-    border-radius: 0!important;
 }

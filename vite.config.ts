@@ -1,10 +1,15 @@
 import path from "path";
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig(({ mode }) => {
+  const tsconfigPath = mode === 'development' ? './tsconfig.dev.json' : './tsconfig.prod.json';
   return {
-    plugins: [react()],
+    plugins: [
+      react(),
+      tsconfigPaths({ projects: [tsconfigPath] })
+    ],
     define: {
       'global': 'window',
       'process.env.API_URL': JSON.stringify('http://localhost/api/'),
@@ -25,7 +30,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      minify: 'esbuild',
+      minify: false,
       rollupOptions: {
         output: {
           manualChunks: {
@@ -33,6 +38,12 @@ export default defineConfig(({ mode }) => {
           },
         },
       },
+    },
+    esbuild: {
+      target: 'es2020',
+    },
+    server: {
+      hmr: true,
     },
   }
 });

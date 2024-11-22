@@ -55,7 +55,7 @@ const _cardTemplates: {
 };
 
 export default function Home() {
-    return <>
+    return <div className="p-2">
         <LoginPickerPage/>
         <hr className="my-2"/>
         <h1 className="text-2xl font-bold">External Content</h1>
@@ -63,14 +63,14 @@ export default function Home() {
             {Object.keys(_cardTemplates).map((key) => {
                 const template = _cardTemplates[key];
                 return (
-                    <div key={key} className="flex items-center p-1">
-                        <Card className="mx-auto" style={{width: '18rem'}}>
+                    <div key={key} className="flex items-center me-1 mb-1">
+                        <Card className="mx-auto relative rounded-lg" style={{width: '18rem'}}>
                             <CardHeader className="card-header">
                                 <div className="relative">
                                 <img
                                     src={template.img}
                                     style={{background: template.bg}}
-                                    className="h-36 w-72 object-contain block mx-auto"
+                                    className="h-36 w-72 object-contain block mx-auto rounded"
                                     alt="..."
                                 />
                                 {template.ad && <kbd className="bg-blue-400/50 text-sm rounded-lg px-2 py-0.5 absolute top-1 right-1">Ad</kbd>}
@@ -91,5 +91,5 @@ export default function Home() {
                 );
             })}
         </div>
-    </>
+    </div>
 }

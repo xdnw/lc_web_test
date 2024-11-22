@@ -765,18 +765,18 @@ export class CommandBuilder {
         return this;
     }
 
-    argument(name: string, optional: boolean = false, desc: string, type: string, def: string | null, choices: string[] | null, filter: string | null): CommandBuilder {
+    argument(name: string, optional: boolean = false, desc: string, type: string, def?: string, choices?: string[], filter?: string): CommandBuilder {
         const arg: IArgument = {
             name,
             optional,
-            flag: null,
+            flag: undefined,
             desc,
-            group: null,
+            group: undefined,
             type,
             default: def,
             choices,
-            min: null,
-            max: null,
+            min: undefined,
+            max: undefined,
             filter
         };
         this.command.arguments[name] = arg;
@@ -825,11 +825,11 @@ export class TypeBreakdown {
         };
     }
 
-    getPlaceholder(): ICommandGroup | null {
+    getPlaceholder(): IPlaceholder | null {
         if (this.child == null || this.element === "Map") return null;
         // const phName = this.getPlaceholderTypeName();
         // console.log("phName" + phName);
-        return this.map.data.placeholders[this.child[0].element] as ICommandGroup;
+        return this.map.data.placeholders[this.child[0].element] as IPlaceholder;
     }
 
     getOptionData(): OptionData {

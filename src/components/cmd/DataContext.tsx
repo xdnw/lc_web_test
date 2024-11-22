@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react';
 import Cookies from "js-cookie";
-import msgpack from 'msgpack-lite';
+import {UNPACKR} from "@/lib/utils.ts";
 type DataProviderProps = {
     children: ReactNode;
     endpoint: string;
@@ -89,8 +89,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
             console.log("Run Queries", queries.current.length);
             const cachedResults: ({ [key: string]: JSONValue } | null)[] = [];
             const indexes: number[] = [];
-            // iterate queries, if cache exists, add to cachedResults, else put null and add index to indexes
             for (let i = 0; i < queries.current.length; i++) {
+                if (data && data.length >= i) {
+                    const dataI = data[i];
+                    if (data[i] && data[i].success !== false) {
+                        cachedResults.push(dataI);
+                        continue;
+                    }
+                }
                 const query = queries.current[i];
                 const cache = query[1].cache;
                 if (cache) {
@@ -130,7 +136,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
             }
             if (indexes.length > 0) {
                 const headers: { 'Content-Type': string } = {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/msgpack',
                 };
 
                 const url = `${process.env.API_URL}${endpoint}`;
@@ -151,13 +157,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
                         if (response.ok) {
                             const serializedData = await response.arrayBuffer();
                             const data = new Uint8Array(serializedData);
-                            return msgpack.decode(data);
+                            return UNPACKR.unpack(data);
                         } else {
                             throw new Error('Network response was not ok.');
                         }
                     })
                     .then(fetchedData => {
-                        console.log("Fetched data", JSON.stringify(fetchedData));
                         const arr = fetchedData.results;
                         if (Array.isArray(arr)) {
                             for (let i = 0; i < indexes.length; i++) {
