@@ -6,6 +6,7 @@ import DOMPurify from "dompurify";
 import SimpleDialog from "@/components/ui/simple-dialog.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {UNPACKR} from "@/lib/utils.ts";
+import {useDialog} from "../layout/DialogContext";
 
 interface FormInputsProps {
     setOutputValue: (name: string, value: string) => void;
@@ -20,10 +21,10 @@ export default function ApiForm<T, A extends { [key: string]: string }>({require
     required?: string[],
     default_values?: {[key: string]: string},
     form_inputs: React.ComponentType<FormInputsProps>
-    handle_response?: (data: T, setMessage: (message: ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-    handle_submit?: (data: A, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-    handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-    handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+    handle_response?: (data: T) => void,
+    handle_submit?: (data: A) => boolean,
+    handle_loading?: () => void,
+    handle_error?: (error: string) => void,
     classes?: string,
 }) {
     const commandStore = useRef(default_values && Object.keys(default_values).length ? createCommandStoreWithDef(default_values) : createCommandStore());
@@ -60,30 +61,36 @@ export function ApiFormHandler<T, A extends {[key: string]: string}>({store, end
     endpoint: string,
     label: ReactNode,
     required?: string[],
-    handle_response?: (data: T, setMessage: (message: ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void
-    handle_submit?: (data: A, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-    handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-    handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+    handle_response?: (data: T) => void
+    handle_submit?: (data: A) => boolean,
+    handle_loading?: () => void,
+    handle_error?: (error: string) => void,
     classes?: string,
 }) {
     const output = store((state) => state.output);
-    const [message, setMessage] = useState<ReactNode | null>(output["message"] || null);
     const [submit, setSubmit] = useState(false);
-    const [showDialog, setShowDialog] = useState(false);
-    const [title, setTitle] = useState("Failed to submit form");
+    const { showDialog } = useDialog();
     const missing = required ? required.filter(field => !output[field]) : [];
 
     useEffect(() => {
         if (submit && missing.length === 0) {
             if (handle_submit) {
-                if (!handle_submit(output as A, setMessage, setShowDialog, setTitle)) {
+                if (!handle_submit(output as A)) {
+                    setSubmit(false);
                     return;
                 }
             }
             if (handle_loading) {
-                handle_loading(setMessage, setShowDialog, setTitle);
+                handle_loading();
             }
-            const formBody = new URLSearchParams(output).toString();
+            const formBody = new URLSearchParams();
+            Object.entries(output).forEach(([key, value]) => {
+                if (Array.isArray(value)) {
+                    value.forEach(val => formBody.append(key, val));
+                } else {
+                    formBody.append(key, value);
+                }
+            });
             const url = `${process.env.API_URL}${endpoint}`;
             fetch(url, {
                 method: 'POST',
@@ -91,7 +98,7 @@ export function ApiFormHandler<T, A extends {[key: string]: string}>({store, end
                     'Content-Type': 'application/msgpack',
                 },
                 credentials: 'include',
-                body: formBody,
+                body: formBody.toString()   ,
             })
             .then(async response => {
                 if (!response.ok) {
@@ -108,9 +115,7 @@ export function ApiFormHandler<T, A extends {[key: string]: string}>({store, end
                     if (data?.url) {
                         console.log("URL", data.url);
                         if (!data.url.startsWith("https://politicsandwar.com/") && !data.url.startsWith(`${process.env.EXTERNAL_URL}`)) {
-                            setTitle("Invalid URL");
-                            setMessage(`Invalid URL returned: <kbd>${DOMPurify.sanitize(data.url)}</kbd>`);
-                            setShowDialog(true);
+                            showDialog("Invalid URL returned", `${DOMPurify.sanitize(data.url)}`, true);
                         } else {
                             window.location.href = data.url;
                         }
@@ -118,34 +123,26 @@ export function ApiFormHandler<T, A extends {[key: string]: string}>({store, end
                     if (handle_response) {
                         console.log("HANDLING RESPONSE", data);
                         if (data != null) {
-                            handle_response(data, setMessage, setShowDialog, setTitle);
+                            handle_response(data);
                         } else if (handle_error) {
-                            handle_error("No response data", setMessage, setShowDialog, setTitle);
+                            handle_error("No response data");
                         } else {
-                            setTitle("Success");
-                            setMessage("Success (no response)");
-                            setShowDialog(true);
+                            showDialog("Success", "Success (no response)", false);
                         }
                     } else {
-                        setTitle("Success");
-                        setMessage("Success (no response)");
-                        setShowDialog(true);
+                        showDialog("Success", "Success (no response)", false);
                     }
                 } else if (handle_error) {
-                    handle_error(data.message || "An error occurred", setMessage, setShowDialog, setTitle);
+                    handle_error(data.message || "An error occurred");
                 } else {
-                    setTitle(data.title ?? "Failed to handle form submission");
-                    setMessage(data.message || "An error occurred");
-                    setShowDialog(true);
+                    showDialog(data.title ?? "Failed to handle form submission", data.message || "An error occurred", true);
                 }
             })
             .catch(error => {
                 if (handle_error) {
-                    handle_error(error.message, setMessage, setShowDialog, setTitle);
+                    handle_error(error.message);
                 } else {
-                    setTitle("Failed to submit form");
-                    setMessage(`Fetch error: ${error.message}`);
-                    setShowDialog(true);
+                    showDialog("Failed to submit form: Fetch error", `${error.message}`, true);
                 }
             })
             .finally(() => setSubmit(false));
@@ -154,18 +151,12 @@ export function ApiFormHandler<T, A extends {[key: string]: string}>({store, end
 
     if (missing.length) {
         return <>
-            <SimpleDialog showDialog={showDialog} setShowDialog={setShowDialog}
-                          title={title}
-                          message={message ?? ""} />
             <p>Please provide a value for <kbd>{missing.join(", ")}</kbd></p>
         </>
     }
 
     return (
         <>
-            <SimpleDialog showDialog={showDialog} setShowDialog={setShowDialog}
-                          title={title}
-                          message={message ?? ""} />
             <Button variant="outline" size="sm" className={`border-red-800/70 me-1 ${submit && "disabled cursor-wait"} ${classes ? classes : ""}`} onClick={() => setSubmit(true)}>{label}</Button>
         </>
     );

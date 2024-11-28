@@ -173,6 +173,15 @@ export class Command {
     descWordFreq: Set<string> | null = null;
     descShort: string | null = null;
 
+    hasRequiredArgument() {
+        if (this.command.arguments) {
+            for (const arg of Object.values(this.command.arguments)) {
+                if (arg.optional !== true) return true;
+            }
+        }
+        return false;
+    }
+
     getDescShort(): string {
         if (this.descShort == null) {
             this.descShort = this.command.desc.split("\n")[0];
@@ -260,24 +269,25 @@ export class CommandMap {
 
     private flattenCommands(group: ICommandGroup) {
         const result: { [key: string]: Command } = {};
-        const recurse = (sub: ICommandGroup, prefix: string) => {
+        const maxDepth = 5;
+        const recurse = (sub: ICommandGroup, prefix: string, depth: number) => {
             Object.keys(sub).forEach(key => {
                 const value = sub[key];
                 const newKey: string = prefix ? `${prefix} ${key}` : key;
                 if (isCommand(value)) {
                     result[newKey] = new Command(newKey, value as ICommand, this);
-                } else {
-                    recurse(value, newKey);
+                } else if (depth < maxDepth) {
+                    recurse(value, newKey, depth + 1);
                 }
             });
         };
-        recurse(group, "");
+        recurse(group, "", 0);
         return result;
     }
 
     getPlaceholderCommands(placeholder_type: string): {[key: string]: Command} {
         if (this.ph_flat[placeholder_type] == null && this.data.placeholders[placeholder_type]) {
-            this.ph_flat[placeholder_type] = this.flattenCommands(this.data.placeholders[placeholder_type]);
+            this.ph_flat[placeholder_type] = this.flattenCommands(this.data.placeholders[placeholder_type].commands);
         }
         return this.ph_flat[placeholder_type];
     }
@@ -848,7 +858,7 @@ export class TypeBreakdown {
     }
 }
 
-function toPlaceholderName(type: string): string {
+export function toPlaceholderName(type: string): string {
     return type.replace("DB", "").replace("Wrapper", "").replace(/[0-9]/g, "");
 }
 

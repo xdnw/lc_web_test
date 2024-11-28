@@ -1,28 +1,46 @@
-import React, { useState } from 'react';
+import React, {ReactNode, useEffect, useRef, useState} from 'react';
 import SimpleDialog from "@/components/ui/simple-dialog.tsx";
+import {TooltipProvider} from "./tooltip";
+import {BlockCopyButton} from "./block-copy-button";
+import {useDialog} from "../layout/DialogContext";
 
-const CopyToClipboard: React.FC<{ text: string }> = ({ text }) => {
-    const [showDialog, setShowDialog] = useState(false);
+export default function CopyToClipboard({ text, className}: { text: string, className?: string }) {
+    const { showDialog } = useDialog();
 
     const handleCopy = () => {
         navigator.clipboard.writeText(text).then(() => {
-            setShowDialog(true);
+            showDialog("Copied to Clipboard", <>The text <kbd className='bg-secondary rounded px-0.5'>{text}</kbd> has been copied to your clipboard.</>);
         });
     };
 
     return (
         <>
-            <button 
-                className='bg-secondary rounded px-0.5' 
+            <button
+                className={`bg-secondary rounded px-0.5 ${className}`}
                 style={{ cursor: 'pointer' }}
                 aria-label={`Copy ${text} to clipboard`}
                 onClick={handleCopy}
             >
                 {text}
             </button>
-            <SimpleDialog title={"Copied to Clipboard"} quote={false} message={<>The text <kbd className='bg-secondary rounded px-0.5'>{text}</kbd> has been copied to your clipboard.</>} showDialog={showDialog} setShowDialog={setShowDialog} />
+
         </>
     );
-};
+}
 
-export default CopyToClipboard;
+export function CopoToClipboardTextArea({ text, className }: { text: ReactNode, className?: string }) {
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    return (
+        <>
+            <div className="relative overflow-auto">
+                <code ref={textareaRef} className={`text-sm bg-secondary p-1 ${className}`}>
+                    {text}
+                </code>
+                <TooltipProvider>
+                    <BlockCopyButton
+                        getText={() => textareaRef.current ? textareaRef.current.textContent ?? "" : ''}/>
+                </TooltipProvider>
+            </div>
+        </>
+    );
+}

@@ -31,7 +31,7 @@ export function BlockCopyButton({
           }}
           {...props}
         >
-          <span className="sr-only">Copy</span>
+          <span className="sr-only hidden">Copy</span>&#8203;
           {hasCopied ? <CheckIcon /> : <ClipboardIcon className=""/>}
         </Button>
       </TooltipTrigger>

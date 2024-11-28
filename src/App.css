@@ -54,3 +54,28 @@ body, html {
     height: 300px; /* adjust this value as needed */
     overflow: auto;
 }
+
+::-webkit-scrollbar-track {
+    background: transparent; /* Make the track transparent */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.5); /* Customize the thumb color */
+    border-radius: 10px; /* Round the corners */
+    border: 3px solid transparent; /* Add space around the thumb */
+    background-clip: content-box; /* Clip the background to the content box */
+}
+
+/* For Firefox */
+.light * {
+    scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+}
+
+/* Dark mode */
+.dark ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.5); /* Customize the thumb color for dark mode */
+}
+
+.dark * {
+    scrollbar-color: rgba(255, 255, 255, 0.5) transparent; /* Customize the thumb color for dark mode */
+}

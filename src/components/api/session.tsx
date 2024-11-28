@@ -9,7 +9,7 @@ import {SESSION} from "@/components/api/endpoints.tsx";
 
 export function LoginPicker() {
     return (
-        <div className="p-4">
+        <div className="themeDiv bg-opacity-10 p-2 ">
             <Tabs defaultValue="discord">
                 <TabsList className='w-full'>
                     <TabsTrigger value="discord" className='w-full'>
@@ -52,7 +52,7 @@ export default function SessionInfo() {
     return SESSION.useDisplay({
         args: {},
         render: (session) => <>
-            <div className="rounded-lg relative">
+            <div className="themeDiv bg-opacity-10 p-2 rounded relative">
                 <table className="table-auto w-full border-separate border-spacing-y-1">
                     <tbody>
                     <tr className="bg-secondary">

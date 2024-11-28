@@ -1,5 +1,25 @@
 import {Command} from "@/utils/Command.ts";
 
+export function formatDate(data: number | null): string {
+  if (data == null || data == -1) return "N/A";
+  const date = new Date(data as number);
+  const formattedDate = date.toISOString().slice(0, 16).replace("T", " ");
+  return formattedDate.endsWith("00:00") ? formattedDate.slice(0, 10) : formattedDate;
+}
+
+export function formatDaysToDate(value: number) {
+  return formatTurnsToDate(value * 12);
+}
+
+// Convert the slider (turns) to a time string
+export function formatTurnsToDate(value: number) {
+  const timeMillis = (value / 12) * 60 * 60 * 24 * 1000;
+  const date = new Date();
+  date.setTime(timeMillis);
+  const formattedDate = date.toISOString().slice(0, 16).replace("T", " ");
+  return formattedDate.endsWith("00:00") ? formattedDate.slice(0, 10) : formattedDate;
+}
+
 export function split(input: string, delimiter: string): string[] {
   return splitCustom(input, (input, index) => {
     if (input.charAt(index) === delimiter) return 1;

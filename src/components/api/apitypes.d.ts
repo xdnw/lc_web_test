@@ -124,8 +124,16 @@ export interface WebSuccess {
     message?: string;
 }
 
+export interface WebTableError {
+    col?: number;
+    row?: number;
+    msg: string;
+}
+
 export interface WebTable {
     cells: any[][];
+    renderers?: string[];
+    errors?: WebTableError[];
 }
 
 export interface WebTarget {

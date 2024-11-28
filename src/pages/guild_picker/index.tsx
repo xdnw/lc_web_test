@@ -3,27 +3,26 @@ import Cookies from 'js-cookie';
 import { clearStorage } from "@/utils/Auth.ts";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button.tsx";
-import {SESSION, SET_GUILD, SetGuild} from "@/components/api/endpoints.tsx";
+import {SESSION, SET_GUILD} from "@/components/api/endpoints.tsx";
 import {ChevronLeft} from "lucide-react";
 import {useData} from "@/components/cmd/DataContext.tsx";
+import {useDialog} from "../../components/layout/DialogContext";
+import {SetGuild} from "../../components/api/apitypes";
 
 
 const GuildPicker = () => {
     const [hasGuild, setHasGuild] = useState<boolean>(Cookies.get('lc_guild') != null);
     const [guildData, setGuildData] = useState<{ id: string, name: string, icon: string } | null>(null);
+    const { showDialog } = useDialog();
     const { refetch } = useData();
 
-    const handleResponse = useCallback((data: SetGuild, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => {
+    const handleResponse = useCallback((data: SetGuild) => {
         clearStorage('lc_session');
         Cookies.set('lc_guild', data.id);
-        setTitle("Guild Set");
-        setMessage(
-            <div className="flex items-center">
-                <img src={data.icon} alt="Guild Icon" className="w-8 h-8 mr-2" />
-                <span>Selected guild with id {data.id} and name {data.name}</span>
-            </div>
-        );
-        setShowDialog(true);
+        showDialog("Guild Set", <div className="flex items-center">
+            <img src={data.icon} alt="Guild Icon" className="w-8 h-8 mr-2" />
+            <span>Selected guild with id {data.id} and name {data.name}</span>
+        </div>, false);
 
         refetch();
 
@@ -38,7 +37,7 @@ const GuildPicker = () => {
                 <ChevronLeft className="h-4 w-4" />Home
             </Link>
         </Button>
-        <div className="p-4 m-0">
+        <div className="themeDiv bg-opacity-10 p-2 m-0 mt-2">
             {hasGuild && <MemoizedGuildInfo hasGuild={hasGuild} guildData={guildData} setHasGuild={setHasGuild} />}
             <GuildForm handleResponse={handleResponse} />
             <hr className="my-2" />
@@ -67,7 +66,7 @@ const GuildInfo = ({ hasGuild, guildData, setHasGuild }: { hasGuild: boolean, gu
 
 const MemoizedGuildInfo = memo(GuildInfo);
 
-const GuildForm = memo(({ handleResponse }: { handleResponse: (data: SetGuild, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void }) => {
+const GuildForm = memo(({ handleResponse }: { handleResponse: (data: SetGuild) => void }) => {
     return SET_GUILD.useForm({
         message: <>
             <h2 className="text-lg font-extrabold">Guild Select:</h2>
@@ -132,7 +131,6 @@ const GuildCard = memo(({ id, name, icon, setHasGuild }: { id: string | null, na
                     </Button>
                 </div>
             )}
-            <hr className="my-2" />
         </>
     );
 });

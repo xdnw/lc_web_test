@@ -9,6 +9,7 @@ import {PaginatedList} from "@/components/ui/pagination.tsx";
 import React, {useRef, useState} from "react";
 import {ChevronLeft} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
+import {useDialog} from "../../components/layout/DialogContext";
 
 export default function Announcements() {
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -57,13 +58,12 @@ export default function Announcements() {
 }
 
 export function Read({announcement, rerender}: {announcement: WebAnnouncement, rerender: () => void}) {
+    const { showDialog } = useDialog();
     return READ_ANNOUNCEMENT.useForm({
         default_values: {ann_id: announcement.id + ""},
         label: "Mark Read",
-        handle_response: (data, setMessage, setShowDialog, setTitle) => {
-            setMessage(`Marked ${announcement.title} as read`);
-            setShowDialog(true);
-            setTitle("Marked as read");
+        handle_response: (data) => {
+            showDialog("Marked as read", <>Marked {announcement.title} as read</>);
             announcement.active = false;
             rerender();
         },
@@ -72,13 +72,12 @@ export function Read({announcement, rerender}: {announcement: WebAnnouncement, r
 }
 
 export function Unread({announcement, rerender}: {announcement: WebAnnouncement, rerender: () => void}) {
+    const { showDialog } = useDialog();
     return UNREAD_ANNOUNCEMENT.useForm({
         default_values: {ann_id: announcement.id + ""},
         label: "Unread",
-        handle_response: (data, setMessage, setShowDialog, setTitle) => {
-            setMessage(`Marked ${announcement.title} as unread`);
-            setShowDialog(true);
-            setTitle("Unread");
+        handle_response: (data) => {
+            showDialog("Marked as unread", <>Marked {announcement.title} as unread</>);
             announcement.active = true;
             rerender();
         },

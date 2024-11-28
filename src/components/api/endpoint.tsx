@@ -59,10 +59,10 @@ export type CommonEndpoint<T, U extends {[key: string]: string}, V extends {[key
         default_values?: V;
         label?: ReactNode;
         message?: ReactNode;
-        handle_response?: (data: T, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void;
-        handle_submit?: (args: U, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean;
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void;
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void;
+        handle_response?: (data: T) => void;
+        handle_submit?: (args: U) => boolean;
+        handle_loading?: () => void;
+        handle_error?: (error: string) => void;
         classes?: string;
     }) => React.ReactNode;
 };
@@ -92,10 +92,10 @@ export function useForm<T, A extends { [key: string]: string }>(
     message?: React.ReactNode,
     default_values?: { [key: string]: string },
     label?: ReactNode,
-    handle_response?: (data: T, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-    handle_submit?: (args: A, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-    handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-    handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+    handle_response?: (data: T) => void,
+    handle_submit?: (args: A) => boolean,
+    handle_loading?: () => void,
+    handle_error?: (error: string) => void,
     classes?: string): React.ReactNode {
     const required: string[] = [];
     for (const [key, value] of Object.entries(args)) {

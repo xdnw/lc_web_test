@@ -3,6 +3,7 @@ import { TypeBreakdown } from "@/utils/Command";
 import ArgInput from "./ArgInput";
 import { useState } from "react";
 import { Button } from "../ui/button.tsx";
+import {useDialog} from "../layout/DialogContext";
 
 function toMapString(value: {[key: string]: string}[]) {
     return value.map((v) => Object.keys(v)[0] + ":" + Object.values(v)[0]).join('\n');
@@ -17,6 +18,7 @@ export default function MapInput(
         setOutputValue: (name: string, value: string) => void
     }
 ) {
+    const { showDialog } = useDialog();
     const [value, setValue] = useSyncedStateFunc<{[key: string]: string}[]>(initialValue, (initial) => {
         // split by newline, have empty string be empty map
         const result: {[key: string]: string}[] = [];
@@ -75,11 +77,11 @@ export default function MapInput(
                 const keyCopy = addKey;
                 const valueCopy = addValue;
                 if (keyCopy === "") {
-                    alert("Key cannot be empty");
+                    showDialog("Key cannot be empty", <></>);
                     return;
                 }
                 if (valueCopy === "") {
-                    alert("Value cannot be empty");
+                    showDialog("Value cannot be empty", <></>);
                     return;
                 }
                 const newValue = [...value, {[keyCopy]: valueCopy}];

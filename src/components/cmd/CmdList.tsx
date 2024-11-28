@@ -7,6 +7,7 @@ import TriStateInput from '@/components/cmd/TriStateInput';
 import MarkupRenderer from '@/components/ui/MarkupRenderer';
 import {getCharFrequency, simpleSimilarity} from '@/utils/StringUtil';
 import {Command, CommandMap} from "@/utils/Command.ts";
+import {useDialog} from "../layout/DialogContext";
 
 type CmdListProps = {
     map: CommandMap;
@@ -75,13 +76,14 @@ export default function CmdList({ map, commands, prefix }: {map: CommandMap, com
     };
 
     async function semanticSearch() {
+        const { showDialog } = useDialog();
         let loaded = weights;
         if (!loaded) {
             loaded = await loadWeights();
             setWeights(loaded);
         }
         if (!loaded || !commands) {
-            alert("Could not load text weights.");
+            showDialog("Error", "Could not load text weights.");
             return;
         }
         const myVector = await toVector(filter);

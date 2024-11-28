@@ -16,14 +16,15 @@ import {clearStorage} from "@/utils/Auth.ts";
 import {Link} from "react-router-dom";
 import {Button} from "@/components/ui/button.tsx";
 import {SET_OAUTH_CODE} from "@/components/api/endpoints.tsx";
+import {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
+import {useDialog} from "../../components/layout/DialogContext";
 
 export function OAuth2Component() {
     const fullUrl = window.location.href;
     const queryString = fullUrl.split('#')[0].split('?')[1] || '';
     const params = new URLSearchParams(queryString);
     const code = params.get("code");
-    const [showDialog, setShowDialog] = useState(true);
-    const textareaRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
+    const { showDialog } = useDialog();
 
     return SET_OAUTH_CODE.useDisplay({
         args: {"code": code ?? ""},
@@ -35,36 +36,17 @@ export function OAuth2Component() {
                     <Link to={`${import.meta.env.BASE_URL}home`}>Return Home</Link></Button>
             </>
         },
-        renderError: (error) =>
-            <>
+        renderError: (error) => {
+            showDialog("Login Failed", <>
+                Failed to set login OAuth2 Code. Please try again, try a different login method, or contact support.
+                <div className="relative overflow-auto">
+                    <CopoToClipboardTextArea text={error}/>
+                </div>
+            </>, false);
+            return (<>
                 Login failed!
-                {showDialog && (
-                    <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
-                        <AlertDialogContent>
-                            <AlertDialogHeader className='overflow-auto'>
-                                <AlertDialogTitle>Error</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Failed to set login OAuth2 Code. Please try again, try a different login method, or
-                                    contact support.
-                                </AlertDialogDescription>
-                                <hr className="my-2"/>
-                                <div className="relative overflow-auto">
-                                    <code ref={textareaRef} className="text-sm bg-secondary p-1">
-                                        {error}
-                                    </code>
-                                    <TooltipProvider>
-                                        <BlockCopyButton
-                                            getText={() => textareaRef.current ? textareaRef.current.textContent ?? "" : ''}/>
-                                    </TooltipProvider>
-                                </div>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel onClick={() => setShowDialog(false)}>Dismiss</AlertDialogCancel>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                )}
-            </>
+            </>);
+        }
     });
 }
 

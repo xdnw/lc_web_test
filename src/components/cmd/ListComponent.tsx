@@ -6,6 +6,7 @@ import CreatableSelect from 'react-select/creatable';
 import './list.css';
 import { useSyncedStateFunc } from "@/utils/StateUtil";
 import Select from "react-select/base";
+import {useDialog} from "../layout/DialogContext";
 
 export default function ListComponent(
     {argName, options, isMulti, initialValue, setOutputValue}:
@@ -19,6 +20,7 @@ export default function ListComponent(
 ) {
     const [inputValue, setInputValue] = React.useState('');
     const [value, setValue] = useSyncedStateFunc(initialValue || '', (v) => v ? v.split(',').map((v) => ({label: v, value: v})) : []);
+    const { showDialog } = useDialog();
   
     const handleKeyDown: KeyboardEventHandler = (event) => {
       if (!inputValue) return;
@@ -48,10 +50,10 @@ export default function ListComponent(
                 }
                 setInputValue('');
             } else {
-                alert('Value already exists: ' + option.value);
+                showDialog("Value already exists", <>The value <kbd className='bg-secondary rounded px-0.5'>{option.value}</kbd> already exists in the list.</>);
             }
         } else {
-            alert('Invalid value: ' + input);
+            showDialog("Invalid value", <>The value <kbd className='bg-secondary rounded px-0.5'>{input}</kbd> is not a valid option.</>);
         }
     }
 

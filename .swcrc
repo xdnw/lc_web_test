@@ -10,10 +10,14 @@
       }
     },
     "target": "es2020",
-    "loose": true
+    "loose": true,
+    "minify": {
+      "compress": true,
+      "mangle": true
+    }
   },
   "module": {
     "type": "es6"
   },
-  "minify": false
+  "minify": true
 }

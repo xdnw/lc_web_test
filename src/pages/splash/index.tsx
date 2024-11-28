@@ -10,8 +10,8 @@ function setupAnimation(): void {
     stars: Star[] = [],
     maxStars = 1400;
   
-    let w: number = canvas.width = document.documentElement.clientWidth;
-    let h: number = canvas.height = document.documentElement.clientHeight;
+    const w: number = canvas.width = document.documentElement.clientWidth;
+    const h: number = canvas.height = document.documentElement.clientHeight;
   
     console.log("Setup animation ", w, h);
     ctx.globalCompositeOperation = 'source-over';
@@ -127,13 +127,15 @@ function setupAnimation(): void {
         offscreenCtx.globalCompositeOperation = 'lighter';
         for (let i = 1, l = stars.length; i < l; i++) {
           stars[i].draw();
-        };
+        }
     
         // Draw the off-screen canvas onto the main canvas
         ctx.drawImage(offscreenCanvas, 0, 0);
       }
-    
-      window.requestAnimationFrame(animation);
+
+        if (document.getElementById('starcanvas')) {
+            window.requestAnimationFrame(animation);
+        }
     }
     animation();
   }
@@ -146,7 +148,7 @@ export default function Splash() {
         },[]);
     return (
       <div className={classes.mycontainer}>
-      <canvas className={classes.mycanvas}></canvas>
+      <canvas id="starcanvas" className={classes.mycanvas}></canvas>
         <div className={classes.hero}>
             <div className={classes.overlay}></div>
         </div>
@@ -154,7 +156,7 @@ export default function Splash() {
             <div className={classes.typedContainer}>
                 <p className={classes.typed}>LOCUTUS</p>
             </div>
-            <Link to={`${import.meta.env.BASE_URL}home`} className={`${buttonVariants({ variant: "outline" })} rounded-none opacity-25 border-white border-4 ${classes.mybutton}`}>&gt;START</Link>
+            <Link style={{borderRadius: "0"}} to={`${import.meta.env.BASE_URL}home`} className={`${buttonVariants({ variant: "outline" })} rounded-none opacity-25 border-white border-4 ${classes.mybutton}`}>&gt;START</Link>
         </div>
         </div>
     );

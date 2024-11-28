@@ -4,18 +4,19 @@ import {Link} from "react-router-dom";
 import {clearStorage, getDiscordAuthUrl} from "@/utils/Auth.ts";
 import {Button} from "@/components/ui/button.tsx";
 import CopyToClipboard from "@/components/ui/copytoclipboard.tsx";
-import {SESSION, UNREGISTER, WebSession} from "@/components/api/endpoints.tsx";
+import {SESSION, UNREGISTER} from "@/components/api/endpoints.tsx";
+import {useDialog} from "../../components/layout/DialogContext";
+import {WebSession} from "../../components/api/apitypes";
 
 export default function Unregister() {
     return (
         <>
-            <div className="p-2 bg-accent relative rounded">
+            <div className="themeDiv bg-opacity-10 p-2 relative rounded mb-4">
             {SESSION.useDisplay({
                 args: {},
                 render: (session) => (<UnregisterComponent session={session} />
             )})}
             </div>
-            <hr className="my-2"/>
             <SessionInfo />
     </>);
 }
@@ -45,6 +46,7 @@ export function UnregisterComponent({session}: {session: WebSession}) {
 }
 
 export function RegisterComponent() {
+    const { showDialog } = useDialog();
     return <div>
         {UNREGISTER.useForm({
             label: "Link Accounts",
@@ -54,17 +56,16 @@ export function RegisterComponent() {
                     Your discord and nation accounts are not linked. Would you like to register them?
                 </p>
             </>,
-            handle_response: (data, setMessage, setShowDialog, setTitle) => {
+            handle_response: (data) => {
                 clearStorage('lc_session');
-                setTitle("Registered");
-                setMessage("Successfully registered your discord and nation.");
-                setShowDialog(true);
+                showDialog("Registered", "Successfully registered your discord and nation.", false);
             },
         })}
     </div>
 }
 
 export function UnregisterValid() {
+    const { showDialog } = useDialog();
     return <div>
         {UNREGISTER.useForm({
             label: "Unlink Accounts",
@@ -74,17 +75,16 @@ export function UnregisterValid() {
                 register a
                 new user or nation.
             </>,
-            handle_response: (data, setMessage, setShowDialog, setTitle) => {
+            handle_response: (data) => {
                 clearStorage('lc_session');
-                setTitle("Unregistered");
-                setMessage("Successfully unlinked your discord and nation. It is recommended to logout and log back in to register a new user or nation.");
-                setShowDialog(true);
+                showDialog("Unregistered", "Successfully unlinked your discord and nation. It is recommended to logout and log back in to register a new user or nation.", false);
             },
         })}
     </div>
 }
 
 export function UnregisterInvalid({session}: {session: WebSession}) {
+    const { showDialog } = useDialog();
     return <div>
         {UNREGISTER.useForm({
             label: "Unlink Accounts",
@@ -99,11 +99,9 @@ export function UnregisterInvalid({session}: {session: WebSession}) {
                     correct accounts.
                 </p>
             </>,
-            handle_response: (data, setMessage, setShowDialog, setTitle) => {
+            handle_response: (data) => {
                 clearStorage('lc_session');
-                setTitle("Unregistered");
-                setMessage("Successfully unlinked your discord and nation. It is recommended to logout and log back in to register a new user or nation.");
-                setShowDialog(true);
+                showDialog("Unregistered", "Successfully unlinked your discord and nation. It is recommended to logout and log back in to register a new user or nation.", false);
             },
         })}
         <Button variant="outline" size="sm" className='border-slate-600' asChild>

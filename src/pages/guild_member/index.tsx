@@ -16,17 +16,18 @@ import {clamp} from "@/lib/utils.ts";
 import {ChevronDown, ChevronUp, ExternalLink, Plane, Sailboat, Settings, Shield} from "lucide-react";
 import {WebAudits, WebBankAccess, WebTarget, WebTargets} from "@/components/api/apitypes";
 import {ApiEndpoint, CommonEndpoint} from "@/components/api/endpoint.tsx";
+import {useDialog} from "../../components/layout/DialogContext";
 
 export default function GuildMember() {
     return (
-        <div className="p-2">
+        <>
             <AnnouncementSection />
             <AuditSection />
             <BankSection />
             <MyWarsSection />
             <RaidSection />
             <GrantSection />
-        </div>
+        </>
     );
 }
 
@@ -41,35 +42,35 @@ export function AuditComponent({ audits }: { audits: WebAudits }) {
     const [showDescription, setShowDescription] = useState<boolean>(false);
 
     if (Object.keys(audits.values).length === 0) {
-        return <div className="text-green-500 mb-1 p-1 border-2 border-green-500/25 bg-accent relative rounded">You have passed all audits...</div>;
+        return <div className="text-green-500 mb-1 p-1 border-green-500/25 bg-accent relative rounded-sm">You have passed all audits...</div>;
     }
 
     const getSeverityColor = (severity: number) => {
         switch (severity) {
             case 0:
-                return "bg-yellow-600/20 border-yellow-500/50 border-2 text-yellow-700 dark:text-yellow-100 rounded";
+                return "bg-yellow-600/20 border-yellow-500/50 text-yellow-700 dark:text-yellow-100 rounded-sm";
             case 1:
-                return "bg-orange-600/20 border-orange-500/50 border-2 text-orange-600 dark:text-orange-100 rounded";
+                return "bg-orange-600/20 border-orange-500/50 text-orange-600 dark:text-orange-100 rounded-sm";
             case 2:
-                return "bg-red-600/20 border-red-500/50 border-2 text-red-600 dark:text-red-100 rounded";
+                return "bg-red-600/20 border-red-500/50 text-red-600 dark:text-red-100 rounded-sm";
             default:
                 return "";
         }
     };
 
     return (
-        <>
+        <div className="themeDiv bg-opacity-10 p-2 mt-2 rounded">
         <div className="relative">
-                <h1 className="text-2xl font-bold mt-2">Audits</h1>
+                <h1 className="text-2xl font-bold">Audits</h1>
                 <Button
                     variant="outline" size="sm"
-                    className="bg-primary/25 absolute border-primary/20 top-1 right-1"
+                    className="absolute border-primary/20 top-1 right-1"
                     onClick={() => setShowDescription(!showDescription)}
                 >
                     {showDescription ? "Show Less" : "Show More"}
                 </Button>
         </div>
-        <div className="bg-accent p-1 relative rounded">
+        <div className="p-1 relative rounded">
         {audits.values.map((audit, key) => (
                 <div key={key} className={`p-0.5 mb-0.5 border ${getSeverityColor(audit.severity)} break-all`}>
                     <div className="flex justify-between items-center">
@@ -81,7 +82,7 @@ export function AuditComponent({ audits }: { audits: WebAudits }) {
                 </div>
                 ))}
         </div>
-        </>
+        </div>
     );
 }
 
@@ -96,8 +97,8 @@ export function AnnouncementSection() {
                 countRef.current = count.value;
             }
             return (
-                <div className={`${countRef.current === 0 ? "text-primary/80 border-secondary" : "text-red-500 border-red-500/25"} border-2 w-full mb-1 p-1 relative bg-accent rounded`}>
-                    <Button variant="outline" size="sm" className="mr-1 bg-primary/25 border-primary/20" asChild>
+                <div className={`${countRef.current === 0 ? "text-primary/80 border-secondary" : "text-red-500 border-red-500/25"} border w-full mb-1 p-1 relative bg-accent rounded`}>
+                    <Button variant="outline" size="sm" className="mr-1 border-primary/20" asChild>
                         <Link to={`${import.meta.env.BASE_URL}announcements`}>View</Link>
                     </Button>
                     {countRef.current === 0 ? "No new announcements" : `You have ${countRef.current} unread announcements...`}
@@ -112,22 +113,21 @@ export function AnnouncementSection() {
 }
 
 export function DismissAnnouncements({ setUnreadCount }: { setUnreadCount: (value: number) => void }) {
+    const { showDialog } = useDialog();
     return MARK_ALL_READ.useForm({
         default_values: {},
         label: "Dismiss All",
-        handle_response: (data, setMessage, setShowDialog, setTitle) => {
+        handle_response: (data) => {
             setUnreadCount(0);
-            setMessage("Marked all announcements as read");
-            setShowDialog(true);
-            setTitle("Dismissed All");
+            showDialog("Dismissed All", <>Marked all announcements as read</>);
         },
         classes: "absolute top-1 right-1"
     });
 }
 
 export function BankSection() {
-    return <div className="">
-        <h1 className="text-2xl font-bold mt-2">Banking</h1>
+    return <div className="themeDiv bg-opacity-10 p-2 rounded mt-2">
+        <h1 className="text-2xl font-bold">Banking</h1>
         {BANK_ACCESS.useDisplay({
             args: {},
             render: (access) => (<BankAccess access={access} />),
@@ -163,7 +163,7 @@ export function BankAccess({ access }: { access: WebBankAccess }) {
                         <Button
                             key={key}
                             variant="outline" size="sm"
-                            className="bg-primary/25 border-primary/20 mr-1"
+                            className="border-primary/20 mr-1"
                             asChild
                         >
                             <Link to={`${import.meta.env.BASE_URL}${action[1]}`}>{action[0]}</Link>
@@ -251,9 +251,9 @@ export function RaidSection() {
     const [raidOutput, setRaidOutput] = useState<WebTargets | boolean | string | null>(null);
     const [desc, setDesc] = useState<string | null>(null);
 
-    return <>
+    return <div className="themeDiv bg-opacity-10 p-2 rounded mt-2">
         <h1 className="text-2xl mt-2 font-bold">War / Raiding</h1>
-        <div className="p-2 my-1 bg-accent relative">
+        <div className="p-2 my-1 relative">
             {/*<FetchEnemies setEnemies={setEnemies} />*/}
             {/*{enemies && <DisplayEnemies />}*/}
             Raiding: {Object.keys(raiding).map((key, index) => (
@@ -269,48 +269,46 @@ export function RaidSection() {
                 setDesc("")
             }}/>
         </div>
-    </>;
+    </div>;
 }
 
 export function RaidButton({optionKey, options, setRaidOutput, loading, setDesc }: { optionKey: string; options: Record<string, { endpoint: CommonEndpoint<unknown, {[key: string]: string}, {[key: string]: string}>, description: string, default_values: {[key: string]: string} }>, setRaidOutput: (value: WebTargets | boolean | string | null) => void, loading: boolean, setDesc: (value: string) => void }) {
+    const { showDialog } = useDialog();
     return options[optionKey].endpoint.useForm({
         default_values: options[optionKey].default_values,
         label: optionKey,
-        handle_response: (data, setMessage, setShowDialog, setTitle) => {
+        handle_response: (data) => {
             setRaidOutput(data as WebTargets);
         },
         handle_loading: () => {
             setDesc(options[optionKey].description);
             setRaidOutput(true);
         },
-        handle_error: (error, setMessage, setShowDialog, setTitle) => {
+        handle_error: (error) => {
             setRaidOutput(null);
-            setMessage(error);
-            setTitle("Error");
-            setShowDialog(true);
+            showDialog("Error", error, true);
         },
-        classes: `mb-1 bg-primary/25 border-primary/20 ${loading ? "cursor-wait disabled" : ""}`
+        classes: `mb-1 border-primary/20 ${loading ? "cursor-wait disabled" : ""}`
     });
 }
 
 export function UnprotectedButton({options, setRaidOutput, loading, desc, setDesc }: { options: {[key: string]: string}, setRaidOutput: (value: WebTargets | boolean | string | null) => void, loading: boolean, desc: string, setDesc: (value: string) => void }) {
+    const { showDialog } = useDialog();
     return UNPROTECTED.useForm({
         default_values: options,
         label: "unprotected",
-        handle_response: (data, setMessage, setShowDialog, setTitle) => {
+        handle_response: (data) => {
             setRaidOutput(data);
         },
         handle_loading: () => {
             setDesc(desc);
             setRaidOutput(true);
         },
-        handle_error: (error, setMessage, setShowDialog, setTitle) => {
+        handle_error: (error) => {
             setRaidOutput(null);
-            setMessage(error);
-            setTitle("Error");
-            setShowDialog(true);
+            showDialog("Error", error, true);
         },
-        classes: `mb-1 bg-primary/25 border-primary/20 ${loading ? "cursor-wait disabled" : ""}`
+        classes: `mb-1 border-primary/20 ${loading ? "cursor-wait disabled" : ""}`
     });
 }
 
@@ -348,7 +346,7 @@ export function RaidOutput({ output, dismiss }: { output: WebTargets | boolean |
             <tbody>
             {[targets.self, ...targets.targets].map((target, index) => (
                 <WebTargetRow key={index} includeStrength={targets.include_strength} now={now_ms} self={targets.self} target={target}
-                              classes={target.id === targets.self.id ? "border border-2 border-primary/50 bg-blue-500/20" : ""}/>
+                              classes={`even:bg-black/10 even:dark:bg-white/5 ${target.id === targets.self.id ? "border border-2 border-blue-500/50 bg-blue-500/20" : ""}`}/>
             ))}
             </tbody>
         </table>
@@ -360,12 +358,12 @@ export function RaidOutput({ output, dismiss }: { output: WebTargets | boolean |
 export function WebTargetRow({includeStrength, self, target, classes, now }: { includeStrength: boolean, self: WebTarget, target: WebTarget, classes: string, now: number }) {
     return (
         <tr className={classes}>
-            <td className="border border-gray-500 p-1">{target.id == self.id ? "Your Nation" : <Link className="text-blue-600 hover:text-blue-800 underline"
+            <td className="border border-gray-500/25 p-1">{target.id == self.id ? "Your Nation" : <Link className="text-blue-600 hover:text-blue-800 underline"
                                                               to={`https://politicsandwar.com/nation/id=${target.id}`}>{target.nation}</Link>}</td>
-            <td className="border border-gray-500 p-1">{target.id == self.id ? "" : target.alliance_id === 0 ? "None" :
+            <td className="border border-gray-500/25 p-1">{target.id == self.id ? "" : target.alliance_id === 0 ? "None" :
                 <Link className="text-blue-600 hover:text-blue-800 underline"
                       to={`https://politicsandwar.com/nation/id=${target.alliance_id}`}>{target.alliance}</Link>}</td>
-            <td className="border border-gray-500">
+            <td className="border border-gray-500/25">
                 <div className="flex justify-center items-center text-center">
                     <div
                         className="w-5 h-5 border border-2 border-black flex items-center justify-center"
@@ -379,19 +377,19 @@ export function WebTargetRow({includeStrength, self, target, classes, now }: { i
                 </div>
             </td>
             {includeStrength &&
-                <td className="border border-gray-500 p-1">{target.id != self.id ? `${formatSi(target.strength)}%` : ""}</td>}
-            <td className="border border-gray-500 p-1">{target.id == self.id ? "" : `$${target.expected != 0 && target.expected != target.actual ? formatSi(target.expected) + "-" : ""}${formatSi(target.actual)}`}</td>
-            <td className="border border-gray-500 p-1">{ranks[target.position]}</td>
-            <td className="border border-gray-500 p-1">{formatDuration(Math.round((now - target.active_ms) / 1000), 2)}</td>
-            <td className="border border-gray-500 p-1">{commafy(target.soldier)}</td>
-            <td className="border border-gray-500 p-1">{commafy(target.tank)}</td>
-            <td className="border border-gray-500 p-1">{commafy(target.aircraft)}</td>
-            <td className="border border-gray-500 p-1">{commafy(target.ship)}</td>
-            <td className="border border-gray-500 p-1">{commafy(target.spies)}</td>
-            <td className="border border-gray-500 p-1">{commafy(target.missile)}</td>
-            <td className="border border-gray-500 p-1">{commafy(target.nuke)}</td>
-            <td className="border border-gray-500 p-1">{commafy(Math.round(target.avg_infra))}</td>
-            <td className="border border-gray-500 p-1">{commafy(target.score)}</td>
+                <td className="border-0.5border border-gray-500/25 p-1">{target.id != self.id ? `${formatSi(target.strength)}%` : ""}</td>}
+            <td className="border border-gray-500/25 p-1">{target.id == self.id ? "" : `$${target.expected != 0 && target.expected != target.actual ? formatSi(target.expected) + "-" : ""}${formatSi(target.actual)}`}</td>
+            <td className="border border-gray-500/25 p-1">{ranks[target.position]}</td>
+            <td className="border border-gray-500/25 p-1">{formatDuration(Math.round((now - target.active_ms) / 1000), 2)}</td>
+            <td className="border border-gray-500/25 p-1">{commafy(target.soldier)}</td>
+            <td className="border border-gray-500/25 p-1">{commafy(target.tank)}</td>
+            <td className="border border-gray-500/25 p-1">{commafy(target.aircraft)}</td>
+            <td className="border border-gray-500/25 p-1">{commafy(target.ship)}</td>
+            <td className="border border-gray-500/25 p-1">{commafy(target.spies)}</td>
+            <td className="border border-gray-500/25 p-1">{commafy(target.missile)}</td>
+            <td className="border border-gray-500/25 p-1">{commafy(target.nuke)}</td>
+            <td className="border border-gray-500/25 p-1">{commafy(Math.round(target.avg_infra))}</td>
+            <td className="border border-gray-500/25 p-1">{commafy(target.score)}</td>
         </tr>
     );
 }
@@ -418,7 +416,7 @@ export function WarsComponent({ wars }: { wars: ApiTypes.WebMyWars }) {
     }
 
     return (
-        <>
+        <div className="themeDiv bg-opacity-10 p-2 rounded mt-2">
             <div className="w-full">
                 <a href="https://politicsandwar.com/nation/war/"
                    className="text-2xl mt-2 font-bold underline hover:no-underline">
@@ -464,7 +462,7 @@ export function WarsComponent({ wars }: { wars: ApiTypes.WebMyWars }) {
                     )}
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 
@@ -544,7 +542,7 @@ export function WarComponent({me, war, isAttacker}: { me: ApiTypes.WebTarget, wa
             </thead>
             <tbody className="divide-solid">
             <tr>
-                <td className="border border-gray-500 p-1"><a className="text-blue-500 hover:text-blue-600 active:text-blue-400 underline" href={`https://politicsandwar.com/nation/id=${war.target.id}`}>{war.target.nation}</a>
+                <td className="border border-gray-500/25 p-1"><a className="text-blue-500 hover:text-blue-600 active:text-blue-400 underline" href={`https://politicsandwar.com/nation/id=${war.target.id}`}>{war.target.nation}</a>
                     {war.target.active_ms > 2440 * 1000 * 60 && <span
                         className="badge bg-secondary ms-1">inactive {formatDuration(Math.round((now_ms - war.target.active_ms) / 1000), 2)}</span>}
                     {(isAttacker ? war.def_fortified : war.att_fortified) && <span className="badge bg-secondary ms-1" title="Fortified"><Shield className="h-4 inline"/></span>}
@@ -554,15 +552,15 @@ export function WarComponent({me, war, isAttacker}: { me: ApiTypes.WebTarget, wa
                     {war.iron_dome && <span className="badge bg-secondary ms-1" title="Iron Dome (30% chance to block missile)">ID</span>}
                     {war.vds && <span className="badge bg-secondary ms-1" title="Vital Defense System (25% chance to thwart nukes)">VDS</span>}
                 </td>
-                <td className="border border-gray-500 p-1"><a className="text-blue-500 hover:text-blue-600 active:text-blue-400 underline" href={`https://politicsandwar.com/nation/id=${war.target.alliance_id}`}>{war.target.alliance}</a></td>
-                <td className="border border-gray-500 p-1">{war.target.cities}</td>
-                <td className="border border-gray-500 p-1" style={{color:`rgb(${Math.min(255, Math.max(0, 255 * war.ground_str / (4 * me.strength)))}, 0, 0)`}}>{war.target.soldier}</td>
-                <td className="border border-gray-500 p-1" style={{color:`rgb(${Math.min(255, Math.max(0, 255 * war.ground_str / (4 * me.strength)))}, 0, 0)`}}>{war.target.tank}</td>
-                <td className="border border-gray-500 p-1" style={{color:`rgb(${Math.min(255, Math.max(0, 255 * war.target.aircraft / (5 * me.aircraft)))}, 0, 0)`}}>{war.target.aircraft}</td>
-                <td className="border border-gray-500 p-1" style={{color:`rgb(${Math.min(255, Math.max(0, 255 * war.target.ship / (5 * me.ship)))}, 0, 0)`}}>{war.target.ship}</td>
-                <td className="border border-gray-500 p-1">{war.target.missile}/{war.target.nuke}</td>
-                <td className="border border-gray-500 p-1">{war.target.off}/{war.target.def}</td>
-                <td className="border border-gray-500 p-1">
+                <td className="border border-gray-500/25 p-1"><a className="text-blue-500 hover:text-blue-600 active:text-blue-400 underline" href={`https://politicsandwar.com/nation/id=${war.target.alliance_id}`}>{war.target.alliance}</a></td>
+                <td className="border border-gray-500/25 p-1">{war.target.cities}</td>
+                <td className="border border-gray-500/25 p-1" style={{color:`rgb(${Math.min(255, Math.max(0, 255 * war.ground_str / (4 * me.strength)))}, 0, 0)`}}>{war.target.soldier}</td>
+                <td className="border border-gray-500/25 p-1" style={{color:`rgb(${Math.min(255, Math.max(0, 255 * war.ground_str / (4 * me.strength)))}, 0, 0)`}}>{war.target.tank}</td>
+                <td className="border border-gray-500/25 p-1" style={{color:`rgb(${Math.min(255, Math.max(0, 255 * war.target.aircraft / (5 * me.aircraft)))}, 0, 0)`}}>{war.target.aircraft}</td>
+                <td className="border border-gray-500/25 p-1" style={{color:`rgb(${Math.min(255, Math.max(0, 255 * war.target.ship / (5 * me.ship)))}, 0, 0)`}}>{war.target.ship}</td>
+                <td className="border border-gray-500/25 p-1">{war.target.missile}/{war.target.nuke}</td>
+                <td className="border border-gray-500/25 p-1">{war.target.off}/{war.target.def}</td>
+                <td className="border border-gray-500/25 p-1">
                     <div className="px-1 text-secondary font-bold text-center"
                          style={{
                              width: `${Math.max(10, (isAttacker ? war.def_map : war.att_map) / 0.12)}%`,
@@ -571,7 +569,7 @@ export function WarComponent({me, war, isAttacker}: { me: ApiTypes.WebTarget, wa
                         {isAttacker ? war.def_map : war.att_map}
                     </div>
                 </td>
-                <td className="border border-gray-500 p-1">
+                <td className="border border-gray-500/25 p-1">
                     <div className="px-1 text-secondary font-bold text-center"
                          aria-valuenow={(isAttacker ? war.def_res : war.att_res)}
                          aria-valuemin={0} aria-valuemax={100}
@@ -582,27 +580,27 @@ export function WarComponent({me, war, isAttacker}: { me: ApiTypes.WebTarget, wa
                 </td>
             </tr>
             <tr className="border-top border-1 border-secondary">
-                <td className="border border-gray-500 p-1"><a className="text-blue-500 hover:text-blue-600 active:text-blue-400 underline" href={`https://www.politicsandwar.com/nation/id=${me.id}`}>{me.nation}</a>
+                <td className="border border-gray-500/25 p-1"><a className="text-blue-500 hover:text-blue-600 active:text-blue-400 underline" href={`https://www.politicsandwar.com/nation/id=${me.id}`}>{me.nation}</a>
                     {(!isAttacker ? war.def_fortified : war.att_fortified) && <span className="badge bg-secondary ms-1" title="Fortified"><Shield className="h-4 inline"/></span>}
                     {(war.blockade == -1) && <span className="badge bg-secondary ms-1" title="Blockaded"><Sailboat className="h-4 inline"/></span>}
                     {(war.ac == 1) && <span className="badge bg-secondary ms-1" title="Air Control"><Plane className="h-4 inline"/></span>}
                     {(war.gc == 1) && <span className="badge bg-secondary ms-1" title="Ground Control"><Settings className="h-4 inline"/></span>}
                 </td>
-                <td className="border border-gray-500 p-1"><a className="text-blue-500 hover:text-blue-600 active:text-blue-400 underline" href={`https://www.politicsandwar.com/alliance/id=${me.alliance_id}`}>{me.alliance}</a></td>
-                <td className="border border-gray-500 p-1">{me.cities}</td>
-                <td className="border border-gray-500 p-1" style={{color:`rgb(0, ${Math.min(255, Math.max(0, 255 * me.strength / (4 * war.ground_str)))}, 0)`}}>{me.soldier}</td>
-                <td className="border border-gray-500 p-1" style={{color:`rgb(0, ${Math.min(255, Math.max(0, 255 * me.strength / (4 * war.ground_str)))}, 0)`}}>{me.tank}</td>
-                <td className="border border-gray-500 p-1" style={{color:`rgb(0, ${Math.min(255, Math.max(0, 255 * me.aircraft / (5 * war.target.aircraft)))}, 0)`}}>{me.aircraft}</td>
-                <td className="border border-gray-500 p-1" style={{color:`rgb(0, ${Math.min(255, Math.max(0, 255 * me.ship / (5 * war.target.ship)))}, 0)`}}>{me.ship}</td>
-                <td className="border border-gray-500 p-1">{me.missile}/{me.nuke}</td>
-                <td className="border border-gray-500 p-1">{me.off}/{me.def}</td>
-                <td className="border border-gray-500 p-1">
+                <td className="border border-gray-500/25 p-1"><a className="text-blue-500 hover:text-blue-600 active:text-blue-400 underline" href={`https://www.politicsandwar.com/alliance/id=${me.alliance_id}`}>{me.alliance}</a></td>
+                <td className="border border-gray-500/25 p-1">{me.cities}</td>
+                <td className="border border-gray-500/25 p-1" style={{color:`rgb(0, ${Math.min(255, Math.max(0, 255 * me.strength / (4 * war.ground_str)))}, 0)`}}>{me.soldier}</td>
+                <td className="border border-gray-500/25 p-1" style={{color:`rgb(0, ${Math.min(255, Math.max(0, 255 * me.strength / (4 * war.ground_str)))}, 0)`}}>{me.tank}</td>
+                <td className="border border-gray-500/25 p-1" style={{color:`rgb(0, ${Math.min(255, Math.max(0, 255 * me.aircraft / (5 * war.target.aircraft)))}, 0)`}}>{me.aircraft}</td>
+                <td className="border border-gray-500/25 p-1" style={{color:`rgb(0, ${Math.min(255, Math.max(0, 255 * me.ship / (5 * war.target.ship)))}, 0)`}}>{me.ship}</td>
+                <td className="border border-gray-500/25 p-1">{me.missile}/{me.nuke}</td>
+                <td className="border border-gray-500/25 p-1">{me.off}/{me.def}</td>
+                <td className="border border-gray-500/25 p-1">
                     <div className="px-1 text-secondary font-bold text-center"
                          style={{width:`${Math.max(10,(!isAttacker?war.def_map:war.att_map)/0.12)}%`, backgroundColor:`rgb(${clamp(255 - (!isAttacker?war.def_map:war.att_map) * 255/0.12, 0, 255)}, ${clamp((!isAttacker?war.def_map:war.att_map) * 255/0.12, 0, 255)}, 0)`}}>
                         {!isAttacker ? war.def_map : war.att_map}
                     </div>
                 </td>
-                <td className="border border-gray-500 p-1">
+                <td className="border border-gray-500/25 p-1">
                     <div className="px-1 text-secondary font-bold text-center"
                          aria-valuenow={(!isAttacker?war.def_res:war.att_res)}
                          aria-valuemin={0} aria-valuemax={100}
@@ -663,8 +661,8 @@ export function WarComponent({me, war, isAttacker}: { me: ApiTypes.WebTarget, wa
                                     <table>
                                         {allBeigeReasons.map((reason, index) => (
                                             <tr key={index}>
-                                                <td className="border border-gray-500 p-1"><u>{reason}</u></td>
-                                                <td className="border border-gray-500 p-1">TODO</td>
+                                                <td className="border border-gray-500/25 p-1"><u>{reason}</u></td>
+                                                <td className="border border-gray-500/25 p-1">TODO</td>
                                             </tr>
                                         ))}
                                     </table>

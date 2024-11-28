@@ -13,10 +13,11 @@ import { BlockCopyButton } from '@/components/ui/block-copy-button';
 import {Button} from "@/components/ui/button.tsx";
 import {Link} from "react-router-dom";
 import {LOGOUT} from "@/components/api/endpoints.tsx";
+import {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
+import {useDialog} from "../../components/layout/DialogContext";
 
 export function LogoutComponent() {
-    const [showDialog, setShowDialog] = useState(true);
-    const textareaRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
+    const { showDialog } = useDialog();
 
     useEffect(() => {
         // Clear localStorage
@@ -37,36 +38,17 @@ export function LogoutComponent() {
                 <Button variant="outline" size="sm" className='border-slate-600' asChild>
                     <Link to={`${import.meta.env.BASE_URL}home`}>Return Home</Link></Button></>
         ),
-        renderError: (error) =>
-            <>
+        renderError: (error) => {
+            showDialog("Logout Failed", <>
+                Failed to logout. Please try again, try a different login method, or contact support.
+                <div className="relative overflow-auto">
+                    <CopoToClipboardTextArea text={error}/>
+                </div>
+            </>, false);
+            return (<>
                 Logout failed!
-                {showDialog && (
-                    <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
-                        <AlertDialogContent>
-                            <AlertDialogHeader className='overflow-auto'>
-                                <AlertDialogTitle>Error</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Failed to logout. Please try again, try a different login method, or contact
-                                    support.
-                                </AlertDialogDescription>
-                                <hr className="my-2"/>
-                                <div className="relative overflow-auto">
-                                    <code ref={textareaRef} className="text-sm bg-secondary p-1">
-                                        {error}
-                                    </code>
-                                    <TooltipProvider>
-                                        <BlockCopyButton
-                                            getText={() => textareaRef.current ? textareaRef.current.textContent ?? "" : ''}/>
-                                    </TooltipProvider>
-                                </div>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel onClick={() => setShowDialog(false)}>Dismiss</AlertDialogCancel>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                )}
-            </>
+            </>);
+        }
     });
 }
 

@@ -18,10 +18,10 @@ export const LOGIN_MAIL: CommonEndpoint<ApiTypes.WebUrl, {nation: string}, {nati
         default_values?: {nation?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebUrl, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {nation: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebUrl) => void,
+        handle_submit?: (args: {nation: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(LOGIN_MAIL.endpoint.url, LOGIN_MAIL.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -43,10 +43,10 @@ export const MY_WARS: CommonEndpoint<ApiTypes.WebMyWars, Record<string, never>, 
         default_values?: Record<string, never>,
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebMyWars, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebMyWars) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(MY_WARS.endpoint.url, MY_WARS.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -68,12 +68,37 @@ export const MY_AUDITS: CommonEndpoint<ApiTypes.WebAudits, Record<string, never>
         default_values?: Record<string, never>,
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebAudits, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebAudits) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(MY_AUDITS.endpoint.url, MY_AUDITS.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const TABLE: CommonEndpoint<ApiTypes.WebTable, {type: string, selection_str: string, columns: string}, {type?: string, selection_str?: string, columns?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebTable>(
+        "table",
+        "table",
+        {"type":{"name":"type","type":"Class[PlaceholderType]"},"selection_str":{"name":"selection_str","type":"String"},"columns":{"name":"columns","type":"List\u003cString\u003e[TextArea]"}},
+        (data: unknown) => data as ApiTypes.WebTable,
+        {}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {type: string, selection_str: string, columns: string}, render: (data: ApiTypes.WebTable) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(TABLE.endpoint.name, combine(TABLE.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {type?: string, selection_str?: string, columns?: string},
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebTable) => void,
+        handle_submit?: (args: {type: string, selection_str: string, columns: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(TABLE.endpoint.url, TABLE.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 
@@ -93,10 +118,10 @@ export const RECORDS: CommonEndpoint<ApiTypes.WebTable, {nation?: string}, {nati
         default_values?: {nation?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebTable, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {nation?: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebTable) => void,
+        handle_submit?: (args: {nation?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(RECORDS.endpoint.url, RECORDS.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -118,10 +143,10 @@ export const LOGOUT: CommonEndpoint<ApiTypes.WebSuccess, Record<string, never>, 
         default_values?: Record<string, never>,
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccess, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebSuccess) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(LOGOUT.endpoint.url, LOGOUT.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -143,10 +168,10 @@ export const UNREAD_COUNT: CommonEndpoint<ApiTypes.WebInt, Record<string, never>
         default_values?: Record<string, never>,
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebInt, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebInt) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(UNREAD_COUNT.endpoint.url, UNREAD_COUNT.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -168,62 +193,12 @@ export const MARK_ALL_READ: CommonEndpoint<ApiTypes.WebSuccess, Record<string, n
         default_values?: Record<string, never>,
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccess, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebSuccess) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(MARK_ALL_READ.endpoint.url, MARK_ALL_READ.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
-export const SET_OAUTH_CODE: CommonEndpoint<ApiTypes.WebSuccess, {code: string}, {code?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
-        "set_oauth_code",
-        "set_oauth_code",
-        {"code":{"name":"code","type":"String"}},
-        (data: unknown) => data as ApiTypes.WebSuccess,
-        {}
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {code: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(SET_OAUTH_CODE.endpoint.name, combine(SET_OAUTH_CODE.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {code?: string},
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccess, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {code: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(SET_OAUTH_CODE.endpoint.url, SET_OAUTH_CODE.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
-export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token: string}, {token?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
-        "set_token",
-        "set_token",
-        {"token":{"name":"token","type":"UUID"}},
-        (data: unknown) => data as ApiTypes.WebSuccess,
-        {}
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {token: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(SET_TOKEN.endpoint.name, combine(SET_TOKEN.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {token?: string},
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccess, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {token: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(SET_TOKEN.endpoint.url, SET_TOKEN.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 
@@ -243,12 +218,62 @@ export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>,
         default_values?: Record<string, never>,
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSession, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebSession) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(SESSION.endpoint.url, SESSION.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token: string}, {token?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
+        "set_token",
+        "set_token",
+        {"token":{"name":"token","type":"UUID"}},
+        (data: unknown) => data as ApiTypes.WebSuccess,
+        {}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {token: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(SET_TOKEN.endpoint.name, combine(SET_TOKEN.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {token?: string},
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebSuccess) => void,
+        handle_submit?: (args: {token: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(SET_TOKEN.endpoint.url, SET_TOKEN.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const SET_OAUTH_CODE: CommonEndpoint<ApiTypes.WebSuccess, {code: string}, {code?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
+        "set_oauth_code",
+        "set_oauth_code",
+        {"code":{"name":"code","type":"String"}},
+        (data: unknown) => data as ApiTypes.WebSuccess,
+        {}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {code: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(SET_OAUTH_CODE.endpoint.name, combine(SET_OAUTH_CODE.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {code?: string},
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebSuccess) => void,
+        handle_submit?: (args: {code: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(SET_OAUTH_CODE.endpoint.url, SET_OAUTH_CODE.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 
@@ -268,10 +293,10 @@ export const BALANCE: CommonEndpoint<ApiTypes.WebBalance, {nation?: string}, {na
         default_values?: {nation?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebBalance, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {nation?: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebBalance) => void,
+        handle_submit?: (args: {nation?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(BALANCE.endpoint.url, BALANCE.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -293,10 +318,10 @@ export const ANNOUNCEMENT_TITLES: CommonEndpoint<ApiTypes.WebAnnouncements, {rea
         default_values?: {read?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebAnnouncements, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {read?: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebAnnouncements) => void,
+        handle_submit?: (args: {read?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(ANNOUNCEMENT_TITLES.endpoint.url, ANNOUNCEMENT_TITLES.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -318,10 +343,10 @@ export const UNREAD_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: s
         default_values?: {ann_id?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccess, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {ann_id: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebSuccess) => void,
+        handle_submit?: (args: {ann_id: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(UNREAD_ANNOUNCEMENT.endpoint.url, UNREAD_ANNOUNCEMENT.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -343,10 +368,10 @@ export const REGISTER: CommonEndpoint<ApiTypes.WebSuccess, {confirm: string}, {c
         default_values?: {confirm?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccess, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {confirm: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebSuccess) => void,
+        handle_submit?: (args: {confirm: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(REGISTER.endpoint.url, REGISTER.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -368,10 +393,10 @@ export const VIEW_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebAnnouncement, {ann_id
         default_values?: {ann_id?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebAnnouncement, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {ann_id: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebAnnouncement) => void,
+        handle_submit?: (args: {ann_id: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(VIEW_ANNOUNCEMENT.endpoint.url, VIEW_ANNOUNCEMENT.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -393,10 +418,10 @@ export const SET_GUILD: CommonEndpoint<ApiTypes.SetGuild, {guild: string}, {guil
         default_values?: {guild?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.SetGuild, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {guild: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.SetGuild) => void,
+        handle_submit?: (args: {guild: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(SET_GUILD.endpoint.url, SET_GUILD.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -418,10 +443,10 @@ export const UNPROTECTED: CommonEndpoint<ApiTypes.WebTargets, {nations?: string,
         default_values?: {nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebTargets, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebTargets) => void,
+        handle_submit?: (args: {nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(UNPROTECTED.endpoint.url, UNPROTECTED.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -443,10 +468,10 @@ export const BANK_ACCESS: CommonEndpoint<ApiTypes.WebBankAccess, Record<string, 
         default_values?: Record<string, never>,
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebBankAccess, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebBankAccess) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(BANK_ACCESS.endpoint.url, BANK_ACCESS.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -468,10 +493,10 @@ export const TRADEPRICEBYDAYJSON: CommonEndpoint<ApiTypes.TradePriceByDayJson, {
         default_values?: {resources?: string, days?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.TradePriceByDayJson, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {resources: string, days: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.TradePriceByDayJson) => void,
+        handle_submit?: (args: {resources: string, days: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(TRADEPRICEBYDAYJSON.endpoint.url, TRADEPRICEBYDAYJSON.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -493,10 +518,10 @@ export const ANNOUNCEMENTS: CommonEndpoint<ApiTypes.WebAnnouncements, Record<str
         default_values?: Record<string, never>,
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebAnnouncements, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebAnnouncements) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(ANNOUNCEMENTS.endpoint.url, ANNOUNCEMENTS.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -518,37 +543,12 @@ export const UNREGISTER: CommonEndpoint<ApiTypes.WebValue, {confirm: string}, {c
         default_values?: {confirm?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebValue, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {confirm: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebValue) => void,
+        handle_submit?: (args: {confirm: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(UNREGISTER.endpoint.url, UNREGISTER.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
-export const READ_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: string}, {ann_id?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
-        "read_announcement",
-        "read_announcement",
-        {"ann_id":{"name":"ann_id","type":"int"}},
-        (data: unknown) => data as ApiTypes.WebSuccess,
-        {}
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {ann_id: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(READ_ANNOUNCEMENT.endpoint.name, combine(READ_ANNOUNCEMENT.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {ann_id?: string},
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccess, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {ann_id: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(READ_ANNOUNCEMENT.endpoint.url, READ_ANNOUNCEMENT.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 
@@ -568,10 +568,10 @@ export const RAID: CommonEndpoint<ApiTypes.WebTargets, {nations?: string, weak_g
         default_values?: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebTargets, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebTargets) => void,
+        handle_submit?: (args: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(RAID.endpoint.url, RAID.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -593,12 +593,37 @@ export const WITHDRAW: CommonEndpoint<ApiTypes.WebTransferResult, {receiver: str
         default_values?: {receiver?: string, amount?: string, note?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebTransferResult, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {receiver: string, amount: string, note: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebTransferResult) => void,
+        handle_submit?: (args: {receiver: string, amount: string, note: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(WITHDRAW.endpoint.url, WITHDRAW.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const READ_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: string}, {ann_id?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
+        "read_announcement",
+        "read_announcement",
+        {"ann_id":{"name":"ann_id","type":"int"}},
+        (data: unknown) => data as ApiTypes.WebSuccess,
+        {}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {ann_id: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(READ_ANNOUNCEMENT.endpoint.name, combine(READ_ANNOUNCEMENT.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {ann_id?: string},
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebSuccess) => void,
+        handle_submit?: (args: {ann_id: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(READ_ANNOUNCEMENT.endpoint.url, READ_ANNOUNCEMENT.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 
@@ -618,10 +643,10 @@ export const TEST: CommonEndpoint<ApiTypes.WebValue, Record<string, never>, Reco
         default_values?: Record<string, never>,
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebValue, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: Record<string, never>, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebValue) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(TEST.endpoint.url, TEST.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -643,10 +668,10 @@ export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries: string}, {qu
         default_values?: {queries?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebBulkQuery, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {queries: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebBulkQuery) => void,
+        handle_submit?: (args: {queries: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(QUERY.endpoint.url, QUERY.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
@@ -668,10 +693,10 @@ export const INPUT_OPTIONS: CommonEndpoint<ApiTypes.WebOptions, {type: string}, 
         default_values?: {type?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebOptions, setMessage: (message: React.ReactNode) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_submit?: (args: {type: string}, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => boolean,
-        handle_loading?: (setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
-        handle_error?: (error: string, setMessage: (message: string) => void, setShowDialog: (showDialog: boolean) => void, setTitle: (title: string) => void) => void,
+        handle_response?: (data: ApiTypes.WebOptions) => void,
+        handle_submit?: (args: {type: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(INPUT_OPTIONS.endpoint.url, INPUT_OPTIONS.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
