@@ -33,7 +33,7 @@ export function OAuth2Component() {
             clearStorage('lc_session');
             return <>Logged in Successfully via OAuth2!<br/>
                 <Button variant="outline" size="sm" className='border-slate-600' asChild>
-                    <Link to={`${import.meta.env.BASE_URL}home`}>Return Home</Link></Button>
+                    <Link to={`${process.env.BASE_PATH}home`}>Return Home</Link></Button>
             </>
         },
         renderError: (error) => {

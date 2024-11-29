@@ -25,7 +25,7 @@ const Records = () => {
     return (
         <>
             <Button variant="outline" size="sm" asChild>
-                <Link to={`${import.meta.env.BASE_URL}balance`}>
+                <Link to={`${process.env.BASE_PATH}balance`}>
                     <ChevronLeft className="h-4 w-4" />Back
                 </Link>
             </Button>

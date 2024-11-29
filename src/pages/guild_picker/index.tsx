@@ -33,7 +33,7 @@ const GuildPicker = () => {
     return (
         <>
         <Button variant="outline" size="sm" asChild>
-            <Link to={`${import.meta.env.BASE_URL}home`}>
+            <Link to={`${process.env.BASE_PATH}home`}>
                 <ChevronLeft className="h-4 w-4" />Home
             </Link>
         </Button>

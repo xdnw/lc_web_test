@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie';
 
 export const API_URL = `${import.meta.env.api_url}`;
-export const DOMAIN = `${window.location.protocol}//${window.location.host}${import.meta.env.BASE_URL}`;
+export const DOMAIN = `${window.location.protocol}//${window.location.host}${process.env.BASE_PATH}`;
 export const APPLICATION_ID = "949151508702826496";
 
 export const AUTHORIZE_URL = "https://discord.com/api/oauth2/authorize";

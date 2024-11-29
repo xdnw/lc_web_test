@@ -18,7 +18,7 @@ export default function Announcements() {
 
     return (
         <>
-            <Button variant="outline" size="sm" asChild><Link to={`${import.meta.env.BASE_URL}guild_member`}><ChevronLeft className="h-4 w-4" />Back</Link></Button>
+            <Button variant="outline" size="sm" asChild><Link to={`${process.env.BASE_PATH}guild_member`}><ChevronLeft className="h-4 w-4" />Back</Link></Button>
             {ANNOUNCEMENT_TITLES.useDisplay({
                 args: {read: "true"},
                 render: (announcements) => {
@@ -30,7 +30,7 @@ export default function Announcements() {
                         <PaginatedList items={entries.current ?? []} render={(announcement) =>
                             <tr>
                                 <td className={`h-6 relative px-1 break-normal text-sm text-gray-900 dark:text-gray-200 ${announcement.active ? "font-bold" : "text-black"}`}>
-                                    <Link className="underline-offset-4 hover:underline active:text-primary/80" to={`${import.meta.env.BASE_URL}announcement/${announcement.id}`}>
+                                    <Link className="underline-offset-4 hover:underline active:text-primary/80" to={`${process.env.BASE_PATH}announcement/${announcement.id}`}>
                                     {announcement.title}
                                     </Link>
                                     {announcement.active ?

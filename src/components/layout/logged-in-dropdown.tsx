@@ -25,7 +25,7 @@ export default function LoggedInDropdown() {
             args: {},
             render: (session) => (<>
                 <DropdownMenuItem>
-                    <Link className="w-full" to={`${import.meta.env.BASE_URL}guild_select`}>{session.guild ?
+                    <Link className="w-full" to={`${process.env.BASE_PATH}guild_select`}>{session.guild ?
                         <SwitchGuild session={session}/> : "Select Guild"}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>

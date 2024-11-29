@@ -33,7 +33,7 @@ export default function ApiForm<T, A extends { [key: string]: string }>({require
         return <>
             Please login first
             <br />
-            <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link to={`${import.meta.env.BASE_URL}home`}>Login</Link></Button>
+            <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link to={`${process.env.BASE_PATH}home`}>Login</Link></Button>
         </>
     }
 

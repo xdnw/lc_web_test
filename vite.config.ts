@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
       // prod values
       // 'process.env.API_URL': JSON.stringify('https://api.locutus.link'),
       // 'process.env.EXTERNAL_URL': JSON.stringify('https://www.locutus.link/'),
-      'process.env.API_URL': mode === 'development' ? JSON.stringify('http://localhost/api/') : JSON.stringify('https://api.locutus.link'),
+      'process.env.API_URL': mode === 'development' ? JSON.stringify('http://localhost/api/') : JSON.stringify('https://api.locutus.link/api/'),
       'process.env.EXTERNAL_URL': mode === 'development' ? JSON.stringify('http://localhost:5173/') : JSON.stringify('https://www.locutus.link/'),
       'process.env.APPLICATION': JSON.stringify('Locutus'),
       'process.env.ADMIN_ID': JSON.stringify("664156861033086987"),
@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
       'process.env.REPOSITORY_URL': JSON.stringify("https://github.com/xdnw/locutus"),
       'process.env.WIKI_URL': JSON.stringify("https://github.com/xdnw/locutus/wiki"),
       'process.env.BOT_INVITE': JSON.stringify("https://discord.com/api/oauth2/authorize?client_id=672237266940198960&permissions=395606879321&scope=bot"),
+      'process.env.BASE_PATH': JSON.stringify('/'),
     },
     base: mode === 'development' ? '/' : '/lc_cmd_react/',
     resolve: {

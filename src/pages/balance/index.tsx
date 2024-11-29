@@ -52,7 +52,7 @@ function RenderBalance({ balance }: {balance: WebBalance}) {
     return <>
         <div className="mb-1">
             <Button variant="outline" size="sm" asChild><Link
-                to={`${import.meta.env.BASE_URL}guild_member`}><ChevronLeft className="h-4 w-4"/>Back</Link></Button>
+                to={`${process.env.BASE_PATH}guild_member`}><ChevronLeft className="h-4 w-4"/>Back</Link></Button>
             <h1 className="text-2xl font-bold">Balance</h1>
             <div className="inline-block">
                 <div className="inline-block flex">
@@ -88,7 +88,7 @@ function RenderBalance({ balance }: {balance: WebBalance}) {
                     {canWithdraw && <WithdrawForm setReactMessage={setReactMessage} setLoading={setLoading} balance={balance} amount={amount} />}
                 </div>
                 <Button variant="secondary" size="sm" className="w-full mb-1" asChild>
-                    <Link to={`${import.meta.env.BASE_URL}records`}>View Transaction Records</Link>
+                    <Link to={`${process.env.BASE_PATH}records`}>View Transaction Records</Link>
                 </Button>
                 <Button variant="secondary" size="sm" onClick={toggleBreakdown} className="w-full">
                     {showBreakdown ? <>Hide<ChevronUp/></> : <>Breakdown<ChevronDown/></>}
@@ -162,7 +162,7 @@ export function TransferSuccess({ message }: { message: WebTransferResult }) {
     return (
         <>
             <Button variant="outline" size="sm" asChild>
-                <Link to={`${import.meta.env.BASE_URL}guild_member`}>
+                <Link to={`${process.env.BASE_PATH}guild_member`}>
                     <ChevronLeft className="h-4 w-4" />Back
                 </Link>
             </Button>
@@ -196,7 +196,7 @@ export function TransferError({ message }: { message: string }) {
     return (
         <>
             <Button variant="outline" size="sm" asChild><Link
-                to={`${import.meta.env.BASE_URL}guild_member`}><ChevronLeft className="h-4 w-4"/>Back</Link></Button>
+                to={`${process.env.BASE_PATH}guild_member`}><ChevronLeft className="h-4 w-4"/>Back</Link></Button>
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
             <strong className="font-bold">Error!</strong>
             <span className="block sm:inline"> {message}</span>

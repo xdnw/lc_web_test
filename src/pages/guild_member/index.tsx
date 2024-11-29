@@ -17,6 +17,7 @@ import {ChevronDown, ChevronUp, ExternalLink, Plane, Sailboat, Settings, Shield}
 import {WebAudits, WebBankAccess, WebTarget, WebTargets} from "@/components/api/apitypes";
 import {ApiEndpoint, CommonEndpoint} from "@/components/api/endpoint.tsx";
 import {useDialog} from "../../components/layout/DialogContext";
+import {Color} from "../../components/ui/renderers";
 
 export default function GuildMember() {
     return (
@@ -99,7 +100,7 @@ export function AnnouncementSection() {
             return (
                 <div className={`${countRef.current === 0 ? "text-primary/80 border-secondary" : "text-red-500 border-red-500/25"} border w-full mb-1 p-1 relative bg-accent rounded`}>
                     <Button variant="outline" size="sm" className="mr-1 border-primary/20" asChild>
-                        <Link to={`${import.meta.env.BASE_URL}announcements`}>View</Link>
+                        <Link to={`${process.env.BASE_PATH}announcements`}>View</Link>
                     </Button>
                     {countRef.current === 0 ? "No new announcements" : `You have ${countRef.current} unread announcements...`}
                     {countRef.current !== 0 && <DismissAnnouncements setUnreadCount={(value) => {
@@ -166,7 +167,7 @@ export function BankAccess({ access }: { access: WebBankAccess }) {
                             className="border-primary/20 mr-1"
                             asChild
                         >
-                            <Link to={`${import.meta.env.BASE_URL}${action[1]}`}>{action[0]}</Link>
+                            <Link to={`${process.env.BASE_PATH}${action[1]}`}>{action[0]}</Link>
                         </Button>
                     ))}
                 </div>
@@ -312,7 +313,6 @@ export function UnprotectedButton({options, setRaidOutput, loading, desc, setDes
     });
 }
 
-const colors: string[] = COMMANDS.options["NationColor"]?.options ?? [];
 const ranks: string[] = ((COMMANDS.options["Rank"]?.options ?? []) as string[]).map((o) => o === "REMOVE" ? "" : o);
 
 export function RaidOutput({ output, dismiss }: { output: WebTargets | boolean | string | null, dismiss: () => void }) {
@@ -365,15 +365,7 @@ export function WebTargetRow({includeStrength, self, target, classes, now }: { i
                       to={`https://politicsandwar.com/nation/id=${target.alliance_id}`}>{target.alliance}</Link>}</td>
             <td className="border border-gray-500/25">
                 <div className="flex justify-center items-center text-center">
-                    <div
-                        className="w-5 h-5 border border-2 border-black flex items-center justify-center"
-                        style={{backgroundColor: `${colors[target.color_id].replace("BEIGE", "TAN")}`}}
-                        title={`${colors[target.color_id]}`}
-                    >
-                        {target.beige_turns > 0 && (
-                            <span className="text-xs text-black">{target.beige_turns}</span>
-                        )}
-                    </div>
+                    <Color colorId={target.color_id} beigeTurns={target.beige_turns}/>
                 </div>
             </td>
             {includeStrength &&

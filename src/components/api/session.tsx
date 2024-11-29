@@ -33,7 +33,7 @@ export function LoginPicker() {
                 </TabsContent>
                 <TabsContent value="mail">
                     <div>
-                        <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link className='' to={`${import.meta.env.BASE_URL}nation_picker`}><Mail size={16}/>&nbsp;Send In-Game Mail</Link></Button>
+                        <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link className='' to={`${process.env.BASE_PATH}nation_picker`}><Mail size={16}/>&nbsp;Send In-Game Mail</Link></Button>
                         <hr className="my-2" />
                         <h2 className='text-lg font-extrabold'>Here's what you need to do:</h2>
                         <ol className="list-decimal list-inside bg-secondary p-3 rounded">
@@ -82,7 +82,7 @@ export default function SessionInfo() {
                                     <Button variant="outline" size="sm"
                                             className='border-slate-600 absolute top-0 right-0'
                                             asChild>
-                                        <Link to={`${import.meta.env.BASE_URL}unregister`}>
+                                        <Link to={`${process.env.BASE_PATH}unregister`}>
                                             {session.registered ? session.registered_nation == session.nation ? "Unlink" : "!! Fix Invalid Registration !!" : "Link to Discord"}
                                         </Link>
                                     </Button>
@@ -97,7 +97,7 @@ export default function SessionInfo() {
                                 {session.expires}
                                 <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
                                         asChild>
-                                    <Link to={`${import.meta.env.BASE_URL}logout`}>Logout</Link></Button>
+                                    <Link to={`${process.env.BASE_PATH}logout`}>Logout</Link></Button>
                             </div>
                         </td>
                     </tr>
@@ -112,7 +112,7 @@ export default function SessionInfo() {
                                 <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
                                         asChild>
                                     <Link
-                                        to={`${import.meta.env.BASE_URL}guild_select`}>{session.guild ? "Switch" : "Select"}</Link></Button>
+                                        to={`${process.env.BASE_PATH}guild_select`}>{session.guild ? "Switch" : "Select"}</Link></Button>
                             </div>
                         </td>
                     </tr>
@@ -122,7 +122,7 @@ export default function SessionInfo() {
                     <Button variant="link" className='hover:text-blue-500 underline text-lg'
                             asChild>
                         <Link
-                            to={`${import.meta.env.BASE_URL}guild_member`}>View Guild Member Homepage<ChevronRight /></Link></Button>
+                            to={`${process.env.BASE_PATH}guild_member`}>View Guild Member Homepage<ChevronRight /></Link></Button>
                 }
             </div>
         </>,

@@ -18,6 +18,7 @@ import {WebTable, WebTableError} from "../../components/api/apitypes";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {useDialog} from "../../components/layout/DialogContext";
 import { Link } from "react-router-dom";
+import { RENDERERS } from "@/components/ui/renderers";
 
 DataTable.use(DT);
 
@@ -32,6 +33,24 @@ interface TabDefault {
 }
 
 const DEFAULT_TABS: {[key: string]: TabDefault} = {
+    DBAlliance: {
+        selections: {
+            "Top 10": "*,#rank<10",
+        },
+        columns: {
+            "General": {
+                value: [
+                    "{id}",
+                    "{name}",
+                    "{score}",
+                    "{cities}",
+                    "{color}",
+                    "{countNations(#position>1)};members"
+                ],
+                sort: {idx: 0, dir: 'asc'}
+            }
+        }
+    },
     ResourceType: {
         selections: {
             "All": "*",
@@ -112,18 +131,6 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
 
         }
     }
-}
-
-// commafy = (number: number): string;
-const RENDERERS: {[key: string]: ObjectColumnRender} = {
-    money: {display: f => "$" + commafy(f)},
-    comma: {display: commafy},
-
-    // TODO other renderers
-    // url
-    // color
-    // graph
-    // time
 }
 
 interface ExportType {
@@ -421,7 +428,7 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
                 onClick={() => {
                     let url;
                     if (load) {
-                        url = (`${import.meta.env.BASE_URL}custom_table?${getQueryString({
+                        url = (`${process.env.BASE_PATH}custom_table?${getQueryString({
                             type: type.current,
                             sel: selection.current,
                             columns: columns.current,
@@ -486,7 +493,6 @@ function setTableVars(
     const header: string[] = columns.current.size > 0 ? Array.from(columns.current).map(([key, value]) => value ?? key) : newData.cells[0];
     const body = newData.cells.slice(1);
     const renderFuncNames = newData.renderers;
-    // Set datatable columns
     const newColumnsInfo: ConfigColumns[]  = header.map((col: string, index: number) => ({
         title: col.replace("{", "").replace("}", ""),
         data: index,
@@ -537,13 +543,13 @@ function LoadTable(
     }
 ) {
     const { showDialog } = useDialog();
-    const url = useRef(`${import.meta.env.BASE_URL}custom_table?${getQueryString({
+    const url = useRef(`${process.env.BASE_PATH}custom_table?${getQueryString({
         type: type.current,
         sel: selection.current,
         columns: columns.current,
         sort: sort.current
     })}`);
-    console.log("PARSMS2 " + `${import.meta.env.BASE_URL}` + " | " + "custom_table | " + url.current);
+    console.log("PARSMS2 " + `${process.env.BASE_PATH}` + " | " + "custom_table | " + url.current);
     return <>
         {TABLE.useDisplay({
             args: {

@@ -37,7 +37,7 @@ export function UnregisterComponent({session}: {session: WebSession}) {
             <h1 className="text-2xl font-bold">You are not registered</h1>
             <Button variant="outline" size="sm" className="border-slate-600" asChild>
                 <Link
-                    to={(session.nation ? getDiscordAuthUrl() : import.meta.env.BASE_URL + "nation_picker")}>
+                    to={(session.nation ? getDiscordAuthUrl() : process.env.BASE_PATH + "nation_picker")}>
                     {session.nation ? "Add Discord" : "Add Nation"}
                 </Link>
             </Button>
@@ -105,6 +105,6 @@ export function UnregisterInvalid({session}: {session: WebSession}) {
             },
         })}
         <Button variant="outline" size="sm" className='border-slate-600' asChild>
-            <Link to={`${import.meta.env.BASE_URL}logout`}>Logout</Link></Button>
+            <Link to={`${process.env.BASE_PATH}logout`}>Logout</Link></Button>
     </div>
 }
