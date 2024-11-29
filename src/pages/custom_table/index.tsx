@@ -45,7 +45,7 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
                     "{score}",
                     "{cities}",
                     "{color}",
-                    "{countNations(#position>1)};members"
+                    ["{countNations(#position>1)}", "members"]
                 ],
                 sort: {idx: 0, dir: 'asc'}
             }

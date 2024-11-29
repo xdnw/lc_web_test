@@ -71,6 +71,7 @@
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
     "vite-plugin-checker": "^0.8.0",
+    "vite-plugin-static-copy": "^2.2.0",
     "vite-tsconfig-paths": "^5.1.3"
   }
 }

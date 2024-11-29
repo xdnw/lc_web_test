@@ -61,7 +61,7 @@ export type CommandWeights = {
 }
 
 export async function loadWeights(): Promise<CommandWeights> {
-    const url = `${process.env.BASE_PATH}assets/weights.json`;
+    const url = `${import.meta.env.BASE_URL}assets/weights.json`;
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

@@ -2,6 +2,7 @@ import path from "path";
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 // import legacy from '@vitejs/plugin-legacy';
 
 export default defineConfig(({ mode }) => {
@@ -10,6 +11,14 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tsconfigPaths({ projects: [tsconfigPath] }),
+      viteStaticCopy({
+        targets: [
+          {
+            src: 'CNAME',
+            dest: '.'
+          }
+        ]
+      }),
       // legacy({
       //   targets: ['defaults', 'not IE 11'],
       //   polyfills: ['es/object/has-own'],
@@ -36,7 +45,7 @@ export default defineConfig(({ mode }) => {
       'process.env.BOT_INVITE': JSON.stringify("https://discord.com/api/oauth2/authorize?client_id=672237266940198960&permissions=395606879321&scope=bot"),
       'process.env.BASE_PATH': JSON.stringify('/'),
     },
-    base: mode === 'development' ? '/' : '/lc_cmd_react/',
+    base: '/', // mode === 'development' ? '/' : '/lc_cmd_react/',
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
@@ -60,3 +69,4 @@ export default defineConfig(({ mode }) => {
     }
   }
 });
+
