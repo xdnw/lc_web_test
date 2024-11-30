@@ -1,5 +1,4 @@
 import SessionInfo from "@/components/api/session.tsx";
-import React from "react";
 import {Link} from "react-router-dom";
 import {clearStorage, getDiscordAuthUrl} from "@/utils/Auth.ts";
 import {Button} from "@/components/ui/button.tsx";

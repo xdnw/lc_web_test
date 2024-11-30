@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import { DataProvider } from '@/components/cmd/DataContext';
 import { ThemeProvider } from '../ui/theme-provider';
 import Navbar from "@/components/layout/navbar.tsx";

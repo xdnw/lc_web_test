@@ -1,4 +1,3 @@
-import React from "react";
 import {LOGIN_MAIL} from "@/components/api/endpoints.tsx";
 
 export default function NationPicker() {

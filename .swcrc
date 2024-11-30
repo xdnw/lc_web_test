@@ -17,7 +17,15 @@
     }
   },
   "module": {
-    "type": "es6"
+    "type": "es6",
+    "strict": true,
+    "lazy": true
   },
-  "minify": true
+  "sourceMaps": false,
+  "minify": true,
+  "env": {
+    "targets": {
+      "browsers": ["> 0.25%", "not dead"]
+    }
+  }
 }

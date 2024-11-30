@@ -1,6 +1,4 @@
-import { Argument } from "@/utils/Command";
-import { useSyncedState, useSyncedStateFunc } from "@/utils/StateUtil";
-import { useState } from "react";
+import { useSyncedStateFunc } from "@/utils/StateUtil";
 import NumberInput from "./NumberInput";
 import React from "react";
 

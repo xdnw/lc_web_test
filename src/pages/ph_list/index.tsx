@@ -1,5 +1,4 @@
-import {COMMAND_MAP, CommandMap} from "@/utils/Command.ts";
-import {useEffect, useState} from "react";
+import {COMMAND_MAP} from "@/utils/Command.ts";
 import CmdList from "@/components/cmd/CmdList.tsx";
 import {useParams} from "react-router-dom";
 

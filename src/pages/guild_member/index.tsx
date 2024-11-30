@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import {useRef, useState} from "react";
 import MarkupRenderer from "@/components/ui/MarkupRenderer.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {
@@ -15,7 +15,7 @@ import * as ApiTypes from "@/components/api/apitypes";
 import {clamp} from "@/lib/utils.ts";
 import {ChevronDown, ChevronUp, ExternalLink, Plane, Sailboat, Settings, Shield} from "lucide-react";
 import {WebAudits, WebBankAccess, WebTarget, WebTargets} from "@/components/api/apitypes";
-import {ApiEndpoint, CommonEndpoint} from "@/components/api/endpoint.tsx";
+import { CommonEndpoint} from "@/components/api/endpoint.tsx";
 import {useDialog} from "../../components/layout/DialogContext";
 import {Color} from "../../components/ui/renderers";
 
@@ -313,7 +313,7 @@ export function UnprotectedButton({options, setRaidOutput, loading, desc, setDes
     });
 }
 
-const ranks: string[] = ((COMMANDS.options["Rank"]?.options ?? []) as string[]).map((o) => o === "REMOVE" ? "" : o);
+const ranks: string[] = ((COMMANDS.options["Rank"]?.options ?? [])).map((o) => o === "REMOVE" ? "" : o);
 
 export function RaidOutput({ output, dismiss }: { output: WebTargets | boolean | string | null, dismiss: () => void }) {
     if (!output) return <></>

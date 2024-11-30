@@ -32,13 +32,13 @@ body, html {
     pointer-events: none;
 }
 .dark .themeBody::before {
-    opacity: 0.4;
+    opacity: 0.3;
 }
 .light .themeBody::before {
-    filter: invert(1);
+    filter: invert(1) opacity(0.3);
 }
 .light .themeBody {
-    background-image: linear-gradient(135deg, #6d8fc4 0%, #a1c4fd 25%, #6d8fc4 100%);
+    background-image: linear-gradient(135deg, #ecf7ff 0%, #c6e6ff 25%, #e5f1ff 100%);
     background-size: 100% 100vh;
     background-attachment: fixed;
 }

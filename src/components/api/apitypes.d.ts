@@ -8,12 +8,16 @@ export interface SetGuild {
     icon: string;
 }
 
-export interface TradePriceByDayJson {
+export interface WebGraph {
+    time_format?: TimeFormat;
+    number_format?: TableNumberFormat;
+    origin?: number;
+    title?: string;
+
     x: string;
     y: string;
     labels: string[];
-    timestamps: number[];
-    prices: number[][];
+    data: (number | string)[][];
 }
 
 export interface WebAnnouncement {
@@ -191,3 +195,7 @@ export interface WebValue {
 export type CacheType = "None" | "Cookie" | "LocalStorage" | "SessionStorage";
 
 export type TransactionType = "INTERNAL" | "TAX" | "BANK";
+
+export type TimeFormat = "NUMERIC" | "DECIMAL_ROUNDED" | "SI_UNIT" | "TURN_TO_DATE" | "DAYS_TO_DATE" | "MILLIS_TO_DATE";
+
+export type TableNumberFormat = "SI_UNIT" | "PERCENTAGE_ONE" | "PERCENTAGE_100" | "DECIMAL_ROUNDED";

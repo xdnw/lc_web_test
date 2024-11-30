@@ -1,4 +1,3 @@
-import React from "react";
 import ListComponent from "./ListComponent";
 import {INPUT_OPTIONS} from "@/components/api/endpoints.tsx";
 

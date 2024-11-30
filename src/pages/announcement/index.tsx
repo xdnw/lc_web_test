@@ -2,7 +2,6 @@ import {Link, useParams} from "react-router-dom";
 import {VIEW_ANNOUNCEMENT} from "@/components/api/endpoints.tsx";
 import MarkupRenderer from "@/components/ui/MarkupRenderer.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import React from "react";
 import {ChevronLeft} from "lucide-react";
 
 export function Announcement() {

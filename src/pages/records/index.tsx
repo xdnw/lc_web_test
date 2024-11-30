@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState, useEffect } from "react";
+import { memo, useRef, useState, useEffect } from "react";
 import { RECORDS } from "@/components/api/endpoints.tsx";
 import Loading from "@/components/ui/loading.tsx";
 import { PaginatedList } from "@/components/ui/pagination.tsx";

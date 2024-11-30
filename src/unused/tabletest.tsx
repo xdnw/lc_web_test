@@ -1,7 +1,4 @@
-import React, {useMemo} from 'react';
-import { useRef} from "react";
-import {getQueryString, StaticTable, TableWithButtons} from "../pages/custom_table";
-import {OrderIdx} from "datatables.net";
+import { StaticTable} from "../pages/custom_table";
 
 export default function TableTest() {
     return (<>

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import {
     AlertDialog, AlertDialogCancel,
     AlertDialogContent,
@@ -6,8 +6,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle
 } from "@/components/ui/alert-dialog.tsx";
-import { TooltipProvider } from "@/components/ui/tooltip.tsx";
-import { BlockCopyButton } from "@/components/ui/block-copy-button.tsx";
 import {CopoToClipboardTextArea} from "./copytoclipboard";
 
 export default function SimpleDialog({ title, message, quote, showDialog, setShowDialog }: { title: string, message: React.ReactNode, quote?: boolean, showDialog: boolean, setShowDialog: (show: boolean) => void }) {

@@ -2,7 +2,6 @@ import LoginPickerPage from "@/pages/login_picker";
 import { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import {Link} from "react-router-dom";
 import {Button} from "@/components/ui/button.tsx";
-import React from "react";
 
 
 const _cardTemplates: {

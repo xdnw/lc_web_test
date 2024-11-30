@@ -8,7 +8,6 @@ import {
     Joystick, ListChecks, ListX,
     MessageSquareText
 } from "lucide-react";
-import React from "react";
 
 export default function Footer() {
     return (

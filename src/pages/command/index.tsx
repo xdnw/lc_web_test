@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import CommandComponent from '../../components/cmd/CommandComponent'; // Import CommandComponent
 import { CommandStoreType, createCommandStore } from '@/utils/StateUtil.ts';
 import {Command, COMMAND_MAP} from '@/utils/Command.ts';

@@ -7,7 +7,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from "@/components/ui/theme-provider"
-import React from "react";
 import {Button} from "@/components/ui/button.tsx";
 
 export function ModeToggle() {

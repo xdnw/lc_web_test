@@ -46,7 +46,6 @@
           typing 7s steps(7, end),
           blink-caret 1s step-end infinite;
   font-weight: 900;
-  font-smooth: never;
   -webkit-font-smoothing: none;
   font-family: 'Chakra Petch', system-ui;
   font-size: 10vw;
@@ -84,7 +83,6 @@
 }
  .overlay{
   position:fixed;
-  display: fixed;
   top: 0;
   left: 0;
   z-index: -1;
@@ -97,7 +95,6 @@
 }
 .hero{
   position:fixed;
-  display: fixed;
   top: 0;
   left: 0;
   justify-content:center;
@@ -109,7 +106,6 @@
 
 .hero:after{
   position:fixed;
-  display: fixed;
   top: 0;
   left: 0;
   z-index: -1;

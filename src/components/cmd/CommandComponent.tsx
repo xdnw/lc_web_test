@@ -2,8 +2,6 @@ import ArgInput from "./ArgInput";
 import { Argument, Command } from "../../utils/Command";
 import { Label } from "../ui/label";
 import { CommandStoreType } from "@/utils/StateUtil";
-import { useCallback } from "react";
-import { DataProvider } from "./DataContext";
 
 interface CommandProps {
     command: Command,

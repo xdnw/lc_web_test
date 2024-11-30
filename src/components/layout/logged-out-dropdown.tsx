@@ -7,7 +7,6 @@ import {
 import {Button} from "@/components/ui/button.tsx";
 import {Settings} from "lucide-react";
 import {Link} from "react-router-dom";
-import React from "react";
 
 export default function LoggedOutDropdown() {
     return (

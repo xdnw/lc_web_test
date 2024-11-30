@@ -1,4 +1,4 @@
-import {Link, useParams} from "react-router-dom";
+import {Link} from "react-router-dom";
 import {
     ANNOUNCEMENT_TITLES,
     READ_ANNOUNCEMENT,
@@ -6,7 +6,7 @@ import {
     WebAnnouncement
 } from "@/components/api/endpoints.tsx";
 import {PaginatedList} from "@/components/ui/pagination.tsx";
-import React, {useRef, useState} from "react";
+import {useRef, useState} from "react";
 import {ChevronLeft} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {useDialog} from "../../components/layout/DialogContext";

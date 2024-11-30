@@ -3,7 +3,6 @@ import {CommandStoreType, createCommandStore, createCommandStoreWithDef} from "@
 import {hasToken} from "@/utils/Auth.ts";
 import {Link} from "react-router-dom";
 import DOMPurify from "dompurify";
-import SimpleDialog from "@/components/ui/simple-dialog.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {UNPACKR} from "@/lib/utils.ts";
 import {useDialog} from "../layout/DialogContext";
@@ -86,7 +85,7 @@ export function ApiFormHandler<T, A extends {[key: string]: string}>({store, end
             const formBody = new URLSearchParams();
             Object.entries(output).forEach(([key, value]) => {
                 if (Array.isArray(value)) {
-                    value.forEach(val => formBody.append(key, val));
+                    value.forEach(val => formBody.append(key, val as string));
                 } else {
                     formBody.append(key, value);
                 }

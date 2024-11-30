@@ -59,7 +59,7 @@ export default function Admin() {
             const funcs = Object.entries(commands).map(([name, group], i) => async () => {
                 const fullText = name + " " + group.command.desc;
                 const hash = hashWithMD5(fullText);
-                const existing = weights[name];
+                const existing = weights[name]
                 if (existing && existing.hash === hash) {
                     console.log("Skipping: ", name);
                     return;

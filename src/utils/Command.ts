@@ -8,7 +8,6 @@ import {
     split, splitCustom
 } from "./StringUtil";
 import {COMMANDS} from "@/lib/commands.ts";
-import React from "react";
 
 export type IArgument = {
     name: string;
@@ -275,7 +274,7 @@ export class CommandMap {
                 const value = sub[key];
                 const newKey: string = prefix ? `${prefix} ${key}` : key;
                 if (isCommand(value)) {
-                    result[newKey] = new Command(newKey, value as ICommand, this);
+                    result[newKey] = new Command(newKey, value, this);
                 } else if (depth < maxDepth) {
                     recurse(value, newKey, depth + 1);
                 }
@@ -839,7 +838,7 @@ export class TypeBreakdown {
         if (this.child == null || this.element === "Map") return null;
         // const phName = this.getPlaceholderTypeName();
         // console.log("phName" + phName);
-        return this.map.data.placeholders[this.child[0].element] as IPlaceholder;
+        return this.map.data.placeholders[this.child[0].element];
     }
 
     getOptionData(): OptionData {

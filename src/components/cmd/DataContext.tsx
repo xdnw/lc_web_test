@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react';
 import Cookies from "js-cookie";
 import {UNPACKR} from "@/lib/utils.ts";
 type DataProviderProps = {

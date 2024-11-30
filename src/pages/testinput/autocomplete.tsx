@@ -1,11 +1,11 @@
-import {COMMAND_MAP, ICommand} from '@/utils/Command';
+import {COMMAND_MAP} from '@/utils/Command';
 import { useState } from 'react';
 import TextInput from 'react-autocomplete-input';
 import 'react-autocomplete-input/dist/bundle.css';
 
 export default function AutoComplete() {
     const type = "DBNation";
-    let [options, setOptions] = useState<string[]>([]);
+    const [options, setOptions] = useState<string[]>([]);
 
     // TODO both { and # not just the latter
     // TODO cursor move event

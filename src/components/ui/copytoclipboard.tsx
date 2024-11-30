@@ -1,5 +1,4 @@
-import React, {ReactNode, useEffect, useRef, useState} from 'react';
-import SimpleDialog from "@/components/ui/simple-dialog.tsx";
+import {ReactNode, useRef} from 'react';
 import {TooltipProvider} from "./tooltip";
 import {BlockCopyButton} from "./block-copy-button";
 import {useDialog} from "../layout/DialogContext";

@@ -89,7 +89,7 @@ export default function CmdList({ map, commands, prefix }: {map: CommandMap, com
         const myVector = await toVector(filter);
         const similarityMap: [Command, number][] = [];
         for (const cmd of commands) {
-            const sentence = cmd.toSentence(loaded!);
+            const sentence = cmd.toSentence(loaded);
             if (sentence) {
                 console.log("Sentence vector", sentence.vector);
                 similarityMap.push([cmd, cosineSimilarity(sentence.vector, myVector)]);
@@ -131,7 +131,7 @@ export default function CmdList({ map, commands, prefix }: {map: CommandMap, com
                                 if (!cmd.command.annotations || !cmd.command.annotations["role"]) return false;
                                 const roleAnn: {value: string[], any?: boolean, root?: boolean} = cmd.command.annotations["role"] as {value: string[], any?: boolean, root?: boolean};
                                 if (roleAnn.root) return false;
-                                for (const role of roleAnn.value as string[]) {
+                                for (const role of roleAnn.value) {
                                     if (optionsSplit.has(role)) {
                                         return true;
                                     }

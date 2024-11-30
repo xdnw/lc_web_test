@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import classes from './home.module.css';
 
 function setupAnimation(): void {
-    const canvas = document.getElementsByTagName('canvas')[0] as HTMLCanvasElement,
+    const canvas = document.getElementsByTagName('canvas')[0],
     ctx = canvas.getContext('2d') as CanvasRenderingContext2D,
     hue = 217,
     stars: Star[] = [],
@@ -156,7 +156,7 @@ export default function Splash() {
             <div className={classes.typedContainer}>
                 <p className={classes.typed}>LOCUTUS</p>
             </div>
-            <Link style={{borderRadius: "0"}} to={`${process.env.BASE_PATH}home`} className={`${buttonVariants({ variant: "outline" })} rounded-none opacity-25 border-white border-4 ${classes.mybutton}`}>&gt;START</Link>
+            <Link style={{borderRadius: "0"}} to={`${process.env.BASE_PATH}home`} className={`${buttonVariants({ variant: "default" })} rounded-none opacity-25 border border-white border-4 ${classes.mybutton}`}>&gt;START</Link>
         </div>
         </div>
     );

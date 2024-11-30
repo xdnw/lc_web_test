@@ -227,31 +227,6 @@ export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>,
     }
 };
 
-export const SET_OAUTH_CODE: CommonEndpoint<ApiTypes.WebSuccess, {code: string}, {code?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
-        "set_oauth_code",
-        "set_oauth_code",
-        {"code":{"name":"code","type":"String"}},
-        (data: unknown) => data as ApiTypes.WebSuccess,
-        {}
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {code: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(SET_OAUTH_CODE.endpoint.name, combine(SET_OAUTH_CODE.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {code?: string},
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccess) => void,
-        handle_submit?: (args: {code: string}) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(SET_OAUTH_CODE.endpoint.url, SET_OAUTH_CODE.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
 export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token: string}, {token?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "set_token",
@@ -274,6 +249,31 @@ export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token: string}, {to
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(SET_TOKEN.endpoint.url, SET_TOKEN.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const SET_OAUTH_CODE: CommonEndpoint<ApiTypes.WebSuccess, {code: string}, {code?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
+        "set_oauth_code",
+        "set_oauth_code",
+        {"code":{"name":"code","type":"String"}},
+        (data: unknown) => data as ApiTypes.WebSuccess,
+        {}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {code: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(SET_OAUTH_CODE.endpoint.name, combine(SET_OAUTH_CODE.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {code?: string},
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebSuccess) => void,
+        handle_submit?: (args: {code: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(SET_OAUTH_CODE.endpoint.url, SET_OAUTH_CODE.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 
@@ -477,23 +477,23 @@ export const BANK_ACCESS: CommonEndpoint<ApiTypes.WebBankAccess, Record<string, 
     }
 };
 
-export const TRADEPRICEBYDAYJSON: CommonEndpoint<ApiTypes.TradePriceByDayJson, {resources: string, days: string}, {resources?: string, days?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.TradePriceByDayJson>(
+export const TRADEPRICEBYDAYJSON: CommonEndpoint<ApiTypes.WebGraph, {resources: string, days: string}, {resources?: string, days?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "tradepricebydayjson",
         "tradePriceByDayJson",
         {"resources":{"name":"resources","type":"Set\u003cResourceType\u003e"},"days":{"name":"days","type":"int","min":1.0}},
-        (data: unknown) => data as ApiTypes.TradePriceByDayJson,
+        (data: unknown) => data as ApiTypes.WebGraph,
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {resources: string, days: string}, render: (data: ApiTypes.TradePriceByDayJson) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {resources: string, days: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(TRADEPRICEBYDAYJSON.endpoint.name, combine(TRADEPRICEBYDAYJSON.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
         default_values?: {resources?: string, days?: string},
         label?: ReactNode,
         message?: ReactNode,
-        handle_response?: (data: ApiTypes.TradePriceByDayJson) => void,
+        handle_response?: (data: ApiTypes.WebGraph) => void,
         handle_submit?: (args: {resources: string, days: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,

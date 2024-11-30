@@ -2,8 +2,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import DataTable, { DataTableRef } from 'datatables.net-react';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
 import 'datatables.net-colreorder-dt';
-import DT, {Api, ConfigColumns, ObjectColumnRender, OrderIdx} from 'datatables.net';
-import {commafy} from "../../utils/StringUtil";
+import DT, {Api, ConfigColumns, OrderIdx} from 'datatables.net';
 import {TABLE} from "../../components/api/endpoints";
 import {Button} from "../../components/ui/button";
 import CopyToClipboard, {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
@@ -13,12 +12,11 @@ import {Tabs, TabsList, TabsTrigger} from "../../components/ui/tabs";
 import {ArrowRightToLine, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ClipboardIcon, Download, Sheet} from "lucide-react";
 import {BlockCopyButton} from "../../components/ui/block-copy-button";
 import {TooltipProvider} from "../../components/ui/tooltip";
-import SimpleDialog from "@/components/ui/simple-dialog";
 import {WebTable, WebTableError} from "../../components/api/apitypes";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {useDialog} from "../../components/layout/DialogContext";
 import { Link } from "react-router-dom";
-import { RENDERERS } from "@/components/ui/renderers";
+import {getRenderer} from "../../components/ui/renderers";
 
 DataTable.use(DT);
 
@@ -152,7 +150,7 @@ const ExportTypes = {
     }
 }
 
-function downloadCells(data: undefined[][], useClipboard: boolean, type: ExportType): [string, string] {
+function downloadCells(data: (string | number)[][], useClipboard: boolean, type: ExportType): [string, string] {
     const csvContent = (useClipboard ? '' : 'sep=' + type.delimiter + '\n') + data.map(e => e.join(type.delimiter)).join("\n");
 
     if (useClipboard) {
@@ -185,10 +183,10 @@ function downloadCells(data: undefined[][], useClipboard: boolean, type: ExportT
 
 function downloadTable(api: Api, useClipboard: boolean, type: ExportType): [string, string] {
     // Get the header
-    const header = api.columns().header().toArray().map((headerCell: HTMLElement) => headerCell.innerText);
+    const header = api.columns().header().toArray().slice(1).map((headerCell: HTMLElement) => headerCell.innerText);
 
     // Get the rows
-    const rows = api.rows().data().toArray().map((row: any) => {
+    const rows = api.rows().data().toArray().map((row: (string | number)[]) => {
         return header.map((_, index) => row[index]);
     });
 
@@ -487,8 +485,6 @@ function setTableVars(
     const api = table.current!.dt() as Api;
     const elem = api.table().container() as HTMLElement;
     // add 'hidden' class
-    elem.classList.add('hidden');
-
     // const header = newData.cells[0];
     const header: string[] = columns.current.size > 0 ? Array.from(columns.current).map(([key, value]) => value ?? key) : newData.cells[0];
     const body = newData.cells.slice(1);
@@ -496,7 +492,7 @@ function setTableVars(
     const newColumnsInfo: ConfigColumns[]  = header.map((col: string, index: number) => ({
         title: col.replace("{", "").replace("}", ""),
         data: index,
-        render: renderFuncNames ? RENDERERS[renderFuncNames[index]] : undefined
+        render: renderFuncNames ? getRenderer(renderFuncNames[index]) : undefined
     }));
     // columns
     columnsInfo.current = newColumnsInfo;
@@ -515,15 +511,13 @@ function setTableVars(
         api.destroy(false);
         setRerender(prevRerender => prevRerender + 1);
     } else {
-        api.clear();
-        api.rows.add(body);
+        // Update the header
         api.columns().header().each((elem: HTMLElement, index: number) => {
             elem.innerText = index == 0 ? '#' : header[index - 1];
         });
-        api.draw();
+        // Add new rows
+        api.clear().rows.add(body).draw();
     }
-    // remove hidden
-    elem.classList.remove('hidden');
 }
 
 function LoadTable(
@@ -831,41 +825,20 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
             const id = element?.id?.startsWith("btn-") ? element.id.split("-")[1] : "";
             if (!id) return;
             // get the span inside the button
-            const span = element.querySelector("span");
+            const span = element.querySelector("span") as HTMLElement;
             const key = event.key;
             const currentValue = columnsRef.current.get(id) || "";
             if (key === "Backspace") {
                 const newValue = currentValue.slice(0, -1);
-                if (newValue) {
-                    columnsRef.current.set(id, newValue);
-                    if (!span) {
-                        const newSpan = document.createElement("span");
-                        newSpan.className = "text-xs opacity-50";
-                        newSpan.textContent = ` as ${newValue}`;
-                        element.appendChild(newSpan);
-                    } else {
-                        span.textContent = ` as ${newValue}`;
-                    }
-                } else {
-                    if (span) {
-                        span.remove();
-                    }
-                    columnsRef.current.set(id, null);
-                }
+                columnsRef.current.set(id, newValue || null);
+                span.firstChild!.textContent = newValue.trim() ? `\u00A0as ${newValue}` : "​";
             } else {
                 if (event.key === " ") {
                     event.preventDefault();
                 }
-                const newValue = currentValue + key;
+                const newValue = currentValue.trim() + key;
                 columnsRef.current.set(id, newValue);
-                if (!span) {
-                    const newSpan = document.createElement("span");
-                    newSpan.className = "text-xs opacity-50";
-                    newSpan.textContent = ` as ${newValue}`;
-                    element.appendChild(newSpan);
-                } else {
-                    span.textContent = ` as ${newValue}`;
-                }
+                span.firstChild!.textContent = `\u00A0as ${newValue}`;
             }
             setQueryParam();
         }
@@ -978,7 +951,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                             id={"btn-" + colInfo[0]}
                             variant="outline"
                             size="sm"
-                            className="rounded-none border-none inline-block"
+                            className="rounded-none border-r-input/50 border-l-input/50 inline-block"
                             onContextMenu={(e) => {
                                 e.preventDefault();
                                 e.currentTarget.focus();
@@ -1045,8 +1018,8 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                                 }
                             }}
                         >
-                            {colInfo[0]}{colInfo[1] && colInfo[1] !== colInfo[0] ?
-                            <span key={`colspan-${index}`} className="text-xs opacity-50">&nbsp;as {colInfo[1]}</span> : ""}
+                            {colInfo[0]}
+                            <span key={`colspan-${index}`} className="text-xs opacity-50">{colInfo[1] && colInfo[1] !== colInfo[0] ? `\u00A0as ${colInfo[1]}` : "​"}</span>
                             {Array.isArray(sortRef.current) ? (
                                 sortRef.current.map((sortItem, sortIndex) => (
                                     sortItem.idx === index + 1 && (
@@ -1145,7 +1118,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                        className="text-xs text-blue-800 dark:text-blue-400 underline hover:no-underline active:underline"
                        target="_blank" rel="noreferrer"
                     >View All {typeRef.current} Placeholders</a>
-                    <div className="bg-accent rounded">
+                    <div className="bg-secondary rounded">
                         <Button variant="ghost" size="sm"
                                 className="text-lg w-full border-b border-secondary px-2 bg-primary/10 rounded justify-start"
                                 onClick={() => setCollapseColOptions(!collapseColOptions)}>
@@ -1169,7 +1142,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                                         key={option[0]}
                                         variant="outline"
                                         size="sm"
-                                        className={`me-1 ${columnsRef.current.has("{" + option[0] + "}") ? "hidden" : ""}`}
+                                        className={`me-1 mb-1 ${columnsRef.current.has("{" + option[0] + "}") ? "hidden" : ""}`}
                                         onClick={() => {
                                             columnsRef.current.set("{" + option[0] + "}", null);
                                             setQueryParam();

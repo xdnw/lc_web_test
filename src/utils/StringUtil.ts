@@ -2,7 +2,7 @@ import {Command} from "@/utils/Command.ts";
 
 export function formatDate(data: number | null): string {
   if (data == null || data == -1) return "N/A";
-  const date = new Date(data as number);
+  const date = new Date(data);
   const formattedDate = date.toISOString().slice(0, 16).replace("T", " ");
   return formattedDate.endsWith("00:00") ? formattedDate.slice(0, 10) : formattedDate;
 }
@@ -195,14 +195,14 @@ export function parseArguments(params: Set<string>, input: string, checkUnbound:
 
   for (const match of matches) {
     const argName = match[2].toLowerCase();
-    const index = match.index! + match[0].length;
+    const index = match.index + match[0].length;
     if (argStart.has(argName)) {
       throw new Error(`Duplicate argument \`${argName}\` in \`${input}\``);
     }
     argStart.set(argName, index);
 
     if (lastArg !== null) {
-      argEnd.set(lastArg, match.index!);
+      argEnd.set(lastArg, match.index);
     }
     lastArg = argName;
   }
