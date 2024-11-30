@@ -22,14 +22,24 @@ export type IArgument = {
     max?: number;
     filter?: string;
 }
-  
+
+
+const test: ICommand = {
+    "help":"",
+    "desc":"Run the militarization alerts task",
+    "annotations":{"role":{
+        "value":["ADMIN"],
+            "root":true}
+    }
+}
+
 export type ICommand = {
     help: string;
     desc: string;
-    groups: string[];
-    group_descs: string[];
-    annotations: { [key: string]: object };
-    arguments: { [name: string]: IArgument };
+    groups?: string[];
+    group_descs?: string[];
+    annotations?: { [key: string]: (object | number | boolean | string) };
+    arguments?: { [name: string]: IArgument };
     return_type?: string;
 }
 
@@ -39,19 +49,20 @@ export type ICommandGroup = {
 
 export type IKeyData = {
     desc: string;
-    examples: string[] | null;
+    examples?: string[] | null;
 }
   
 export type IOptionData = {
-    options: string[] | null;
-    query: boolean | null;
-    completions: boolean | null;
-    guild: boolean | null;
-    nation: boolean | null;
-    user: boolean | null;
+    options?: string[] | null;
+    query?: boolean | null;
+    completions?: boolean | null;
+    guild?: boolean | null;
+    nation?: boolean | null;
+    user?: boolean | null;
+    composite?: string[];
 }
 
-export type ISelector = [string, string, string];
+export type ISelector = [string, string | null, string];
 
 export type IPlaceholder = {
     commands: ICommandGroup;
@@ -63,7 +74,7 @@ export type ICommandMap = {
     commands: ICommandGroup;
     placeholders: { [name: string]: IPlaceholder };
     keys: { [name: string]: IKeyData };
-    options: { [name: string]: IOptionData };
+    options: { [name: string]: IOptionData | string };
 }
 
 export class Argument {
