@@ -16,7 +16,6 @@ function Item({ entity: { name } }: { entity: ItemType }) {
 }
 
 
-// const stripPrefixes = ["get", "is", "can", "has"];
 // TODO both { and # not just the latter
 // TODO cursor move event
 // TODO get the current function

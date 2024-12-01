@@ -202,31 +202,6 @@ export const MARK_ALL_READ: CommonEndpoint<ApiTypes.WebSuccess, Record<string, n
     }
 };
 
-export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>, Record<string, never>> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSession>(
-        "session",
-        "session",
-        {},
-        (data: unknown) => data as ApiTypes.WebSession,
-        {type: CacheType.LocalStorage, duration: 2592000}
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: Record<string, never>, render: (data: ApiTypes.WebSession) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(SESSION.endpoint.name, SESSION.endpoint.cache, args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: Record<string, never>,
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSession) => void,
-        handle_submit?: (args: Record<string, never>) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(SESSION.endpoint.url, SESSION.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
 export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token: string}, {token?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "set_token",
@@ -274,6 +249,31 @@ export const SET_OAUTH_CODE: CommonEndpoint<ApiTypes.WebSuccess, {code: string},
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(SET_OAUTH_CODE.endpoint.url, SET_OAUTH_CODE.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>, Record<string, never>> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSession>(
+        "session",
+        "session",
+        {},
+        (data: unknown) => data as ApiTypes.WebSession,
+        {type: CacheType.LocalStorage, duration: 2592000}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: Record<string, never>, render: (data: ApiTypes.WebSession) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(SESSION.endpoint.name, SESSION.endpoint.cache, args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: Record<string, never>,
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebSession) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(SESSION.endpoint.url, SESSION.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 

@@ -10,3 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 export function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
+
+export function getQueryParams(): URLSearchParams {
+  return new URLSearchParams(window.location.hash.split('?')[1]);
+}

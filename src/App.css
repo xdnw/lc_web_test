@@ -47,7 +47,7 @@ body, html {
     border: 1px solid rgb(255 255 255 / var(--tw-bg-opacity));
 }
 .light .themeDiv {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.5);
     border: 1px solid rgb(0 0 0 / var(--tw-bg-opacity));
 }
 .clusterize-scroll {

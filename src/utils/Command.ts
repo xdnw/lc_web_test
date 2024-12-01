@@ -856,16 +856,24 @@ export class TypeBreakdown {
         let options: IOptionData | null = null;
         let multi = false;
         if ((this.element === "Set" || this.element === "TypedFunction" || this.element === "Predicate") && this.child !== null) {
-            options = this.map.data.options[this.child[0].element];
+            options = resolveOptionData(this.child[0].element);
             multi = true;
         } else {
-            options = this.map.data.options[this.element];
+            options = resolveOptionData(this.element);
         }
         if (options != null) {
             return new OptionData(this.map, options, multi);
         }
         return new OptionData(this.map, {options: null, query: false, completions: false, guild: false, nation: false, user: false}, false);
     }
+}
+
+function resolveOptionData(type: string) {
+    const options = COMMAND_MAP.data.options[type];
+    if (typeof options === "string") {
+        return resolveOptionData(options);
+    }
+    return options;
 }
 
 export function toPlaceholderName(type: string): string {

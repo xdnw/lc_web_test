@@ -7,7 +7,7 @@ import {TABLE} from "../../components/api/endpoints";
 import {Button} from "../../components/ui/button";
 import CopyToClipboard, {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
 import {COMMANDS} from "../../lib/commands";
-import {Command, COMMAND_MAP, toPlaceholderName} from "../../utils/Command";
+import {Command, COMMAND_MAP, STRIP_PREFIXES, toPlaceholderName} from "../../utils/Command";
 import {Tabs, TabsList, TabsTrigger} from "../../components/ui/tabs";
 import {ArrowRightToLine, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ClipboardIcon, Download, Sheet} from "lucide-react";
 import {BlockCopyButton} from "../../components/ui/block-copy-button";
@@ -17,6 +17,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import {useDialog} from "../../components/layout/DialogContext";
 import { Link } from "react-router-dom";
 import {getRenderer} from "../../components/ui/renderers";
+import {getQueryParams} from "../../lib/utils";
 
 DataTable.use(DT);
 
@@ -33,7 +34,12 @@ interface TabDefault {
 const DEFAULT_TABS: {[key: string]: TabDefault} = {
     DBAlliance: {
         selections: {
-            "Top 10": "*,#rank<10",
+            "All": "*",
+            "Top 10": "*,#rank<=10",
+            "Top 15": "*,#rank<=15",
+            "Top 25": "*,#rank<=25",
+            "Top 50": "*,#rank<=50",
+            "Guild Alliances": "%guild_alliances%",
         },
         columns: {
             "General": {
@@ -197,27 +203,39 @@ function downloadTable(api: Api, useClipboard: boolean, type: ExportType): [stri
     return downloadCells(data, useClipboard, type);
 }
 
-export default function CustomTable() {
-    const params = new URLSearchParams(window.location.hash.split('?')[1]);
+export function getTypeFromUrl(params: URLSearchParams): string | undefined {
+    return params.get('type') ?? undefined;
+}
 
-    const urlType = params.get('type');
-    const urlSel = params.get('sel');
-    const urlSort = params.getAll('sort').map(sortParam => {
-        const [idx, dir] = sortParam.split(';');
-        return { idx: parseInt(idx, 10), dir: dir as 'asc' | 'desc' };
-    });
+export function getSelectionFromUrl(params: URLSearchParams): string | undefined {
+    return params.get('sel') ?? undefined;
+}
+
+export function getColumnsFromUrl(params: URLSearchParams): Map<string, string | null> | undefined {
     const urlCols: {[key: string]: string | null} = Object.fromEntries(
         params.getAll('col').map(colParam => {
             const [key, value] = colParam.split(';');
             return [key, value || null];
         })
     );
+    return Object.keys(urlCols).length > 0 ? new Map(Object.entries(urlCols)) : undefined;
+}
 
+export function getSortFromUrl(params: URLSearchParams): OrderIdx | OrderIdx[] | undefined {
+    const urlSort = params.getAll('sort').map(sortParam => {
+        const [idx, dir] = sortParam.split(';');
+        return { idx: parseInt(idx, 10), dir: dir as 'asc' | 'desc' };
+    });
+    return urlSort.length > 0 ? urlSort : undefined;
+}
+
+export default function CustomTable() {
+    const params = getQueryParams();
     // Placeholder data
-    const type = useRef<string>(urlType ?? "DBNation");
-    const selection = useRef<string>(urlSel ?? DEFAULT_TABS[type.current].selections.All ?? "*");
-    const columns = useRef<Map<string, string | null>>(new Map(
-        Object.entries(urlCols).length > 0 ? Object.entries(urlCols) : (DEFAULT_TABS[type.current]?.columns[Object.keys(DEFAULT_TABS[type.current]?.columns)[0]]?.value || ["{id}"]).map(col => {
+    const type = useRef<string>(getTypeFromUrl(params) ?? "DBNation");
+    const selection = useRef<string>(getSelectionFromUrl(params) ?? DEFAULT_TABS[type.current].selections.All ?? "*");
+    const columns = useRef<Map<string, string | null>>(getColumnsFromUrl(params) ?? new Map(
+        (DEFAULT_TABS[type.current]?.columns[Object.keys(DEFAULT_TABS[type.current]?.columns)[0]]?.value || ["{id}"]).map(col => {
             if (Array.isArray(col)) {
                 return [col[0], col[1]];
             } else {
@@ -225,7 +243,7 @@ export default function CustomTable() {
             }
         })
     ));
-    const sort = useRef<OrderIdx | OrderIdx[]>(urlSort.length > 0 ? urlSort : DEFAULT_TABS[type.current]?.columns[Object.keys(DEFAULT_TABS[type.current]?.columns)[0]]?.sort || { idx: 0, dir: 'asc' });
+    const sort = useRef<OrderIdx | OrderIdx[]>(getSortFromUrl(params) ?? (DEFAULT_TABS[type.current]?.columns[Object.keys(DEFAULT_TABS[type.current]?.columns)[0]]?.sort || { idx: 0, dir: 'asc' }));
 
     return (
         <>
@@ -424,19 +442,17 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
                 size="sm"
                 className=""
                 onClick={() => {
-                    let url;
-                    if (load) {
-                        url = (`${process.env.BASE_PATH}custom_table?${getQueryString({
-                            type: type.current,
-                            sel: selection.current,
-                            columns: columns.current,
-                            sort: sort.current
-                        })}`);
-                    } else {
-                        url = window.location.href;
-                    }
+                    const baseUrlWithoutPath = window.location.protocol + "//" + window.location.host;
+                    const url = (`${baseUrlWithoutPath}${process.env.BASE_PATH}#/view_table?${getQueryString({
+                        type: type.current,
+                        sel: selection.current,
+                        columns: columns.current,
+                        sort: sort.current
+                    })}`);
                     navigator.clipboard.writeText(url).then(() => {
                         showDialog("URL copied to clipboard", url, true);
+                    }).catch((err) => {
+                        showDialog("Failed to copy URL to clipboard", err + "", true);
                     });
                 }}
             >
@@ -469,6 +485,19 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
     );
 }
 
+function formatColName(str: string): string {
+    if (str.includes("{")) {
+        for (const prefix of STRIP_PREFIXES) {
+            if (str.includes("{" + prefix)) {
+                str = str.replace("{" + prefix, "{");
+            }
+        }
+        return str.replace("{", "").replace("}", "");
+    } else {
+        return str;
+    }
+}
+
 function setTableVars(
     newData: WebTable,
     errors: React.MutableRefObject<WebTableError[]>,
@@ -483,14 +512,12 @@ function setTableVars(
 ) {
     errors.current = newData.errors ?? [];
     const api = table.current!.dt() as Api;
-    const elem = api.table().container() as HTMLElement;
-    // add 'hidden' class
-    // const header = newData.cells[0];
-    const header: string[] = columns.current.size > 0 ? Array.from(columns.current).map(([key, value]) => value ?? key) : newData.cells[0];
+    // const elem = api.table().container() as HTMLElement;
+    const header: string[] = columns.current.size > 0 ? Array.from(columns.current).map(([key, value]) => value ?? key) : newData.cells[0] as string[];
     const body = newData.cells.slice(1);
     const renderFuncNames = newData.renderers;
     const newColumnsInfo: ConfigColumns[]  = header.map((col: string, index: number) => ({
-        title: col.replace("{", "").replace("}", ""),
+        title: formatColName(col),
         data: index,
         render: renderFuncNames ? getRenderer(renderFuncNames[index]) : undefined
     }));
@@ -513,7 +540,7 @@ function setTableVars(
     } else {
         // Update the header
         api.columns().header().each((elem: HTMLElement, index: number) => {
-            elem.innerText = index == 0 ? '#' : header[index - 1];
+            elem.innerText = index == 0 ? '#' : formatColName(header[index - 1]);
         });
         // Add new rows
         api.clear().rows.add(body).draw();
@@ -543,7 +570,6 @@ function LoadTable(
         columns: columns.current,
         sort: sort.current
     })}`);
-    console.log("PARSMS2 " + `${process.env.BASE_PATH}` + " | " + "custom_table | " + url.current);
     return <>
         {TABLE.useDisplay({
             args: {
@@ -945,7 +971,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                     <div className="inline-flex flex-wrap">
                     {Array.from(columnsRef.current).map((colInfo, index) => (
                     <span key={`spw-${index}`} className="inline-flex items-center bg-background rounded me-1 mb-1">
-                        <ChevronLeft className="w-4 h-6 rounded-s hover:bg-accent" onClick={() => moveColumn(index, -1)} />
+                        <ChevronLeft className="cursor-pointer w-4 h-6 rounded-s hover:bg-accent" onClick={() => moveColumn(index, -1)} />
                         <Button
                             key={colInfo[0]}
                             id={"btn-" + colInfo[0]}
@@ -1036,7 +1062,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                                 )
                             )}
                         </Button>
-                            <ChevronRight className="inline-block w-4 rounded-e hover:bg-accent align-middle" onClick={() => moveColumn(index, 1)} />
+                            <ChevronRight className="cursor-pointer inline-block w-4 rounded-e hover:bg-accent align-middle" onClick={() => moveColumn(index, 1)} />
                             </span>
                     ))}
                             <TooltipProvider>

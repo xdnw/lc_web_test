@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Loading from "@/components/ui/loading.tsx";
-import {WebSuccess} from "@/components/api/apitypes";
+import { WebSuccess } from "@/components/api/apitypes";
 
 interface LoadingWrapperProps<T> {
     index: number;
@@ -12,33 +12,64 @@ interface LoadingWrapperProps<T> {
     renderError?: (error: string) => React.ReactNode;
 }
 
-export default function LoadingWrapper<T>({ index, loading, error, data, render, renderLoading, renderError }: LoadingWrapperProps<T>) {
-    if (loading) {
-        if (renderLoading) {
-            return <>{renderLoading()}</>;
-        }
-        return <Loading />;
-    }
-    if (error) {
-        if (renderError) {
-            return <>{renderError(error)}</>;
-        }
-        return <div>An error occurred (1): {error}</div>;
-    }
-    const elem = data ? data[index] as WebSuccess : null;
-    if (!elem) {
-        if (renderError) {
-            return <>{renderError(error ?? "Null")}</>;
-        }
-        return <></>;
-    }
-    if (elem?.success === false) {
-        if (renderError) {
-            return <>{renderError(elem?.message ?? "Null")}</>;
-        }
-        return <div>An error occurred (3): {elem?.message ?? "Null"}</div>;
-    }
-    console.log("Not error", elem);
-
-    return <>{render(elem as T)}</>;
+interface LoadingWrapperState<T> {
+    data: T[] | null;
 }
+
+class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapperState<T>> {
+    constructor(props: LoadingWrapperProps<T>) {
+        super(props);
+        this.state = {
+            data: props.data,
+        };
+    }
+
+    static getDerivedStateFromProps<T>(nextProps: LoadingWrapperProps<T>, prevState: LoadingWrapperState<T>) {
+        if (nextProps.data !== prevState.data) {
+            return {
+                data: nextProps.data,
+            };
+        }
+        return null;
+    }
+
+    shouldComponentUpdate(nextProps: LoadingWrapperProps<T>, nextState: LoadingWrapperState<T>) {
+        return nextProps.data !== this.state.data || nextProps.loading !== this.props.loading || nextProps.error !== this.props.error;
+    }
+
+    render() {
+        const { index, loading, error, render, renderLoading, renderError } = this.props;
+        const { data } = this.state;
+
+        if (loading) {
+
+            if (renderLoading) {
+                return <>{renderLoading()}</>;
+            }
+            return <Loading />;
+        }
+        if (error) {
+            if (renderError) {
+                return <>{renderError(error)}</>;
+            }
+            return <div>An error occurred (1): {error}</div>;
+        }
+        const elem = data ? data[index] as WebSuccess : null;
+        if (!elem) {
+            if (renderError) {
+                return <>{renderError(error ?? "Null")}</>;
+            }
+            return <></>;
+        }
+        if (elem?.success === false) {
+            if (renderError) {
+                return <>{renderError(elem?.message ?? "Null")}</>;
+            }
+            return <div>An error occurred (3): {elem?.message ?? "Null"}</div>;
+        }
+        console.log("Not error", elem);
+        return <>{render(elem as T)}</>;
+    }
+}
+
+export default LoadingWrapper;

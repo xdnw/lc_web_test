@@ -2,7 +2,6 @@ import "./App.css"
 import {HashRouter as Router, Route, Routes} from 'react-router-dom';
 import Splash from './pages/splash';
 import CommandsPage from './pages/commands';
-import Blah from "./unused";
 import Admin from "./pages/admin";
 import CommandPage from "./pages/command";
 import PageView from "./components/layout/page-view";
@@ -26,7 +25,7 @@ import Announcements from "@/pages/announcements";
 import {Announcement} from "@/pages/announcement";
 import BalancePage from "@/pages/balance";
 import Records from "@/pages/records";
-import TableTest from "./unused/tabletest";
+import ViewTable from "@/pages/view_table";
 
 export default function App() {
   return (
@@ -59,18 +58,15 @@ export default function App() {
         <Route path="/logout" element={<LogoutPage />} />
         <Route path="/nation_picker" element={<NationPicker />} />
         <Route path="/register" element={<Unregister />} />
-
         <Route path="/custom_table" element={<CustomTable />} />
-
+        <Route path="/view_table" element={<ViewTable />} />
 
 
         {/* testing pages */}
-          <Route path="/tabletest" element={<TableTest />} />
+
         <Route path="/admin" element={<Admin />} />
         <Route path="/autocomplete" element={<AutoComplete />} />
         <Route path="/auto2" element={<AutoComplete2 />} />
-
-        <Route path="/blah" element={<Blah />} />
         <Route path="/testinput" element={<TestInput />} />
         </Routes>
         </PageView>} />
