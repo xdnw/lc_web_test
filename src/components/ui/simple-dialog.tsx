@@ -12,10 +12,9 @@ export default function SimpleDialog({ title, message, quote, showDialog, setSho
     return (
         <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
             <AlertDialogContent>
-                <AlertDialogHeader className='overflow-x-auto'>
+                <AlertDialogHeader className='overflow-x-auto overflow-y-auto'  style={{maxHeight:"75vh"}}>
                     <AlertDialogTitle>{title}</AlertDialogTitle>
                     <AlertDialogDescription></AlertDialogDescription>
-                    <hr className="my-2" />
                     <div className="relative overflow-x-auto">
                         {quote ? (
                             <>
