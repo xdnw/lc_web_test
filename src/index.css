@@ -15,6 +15,15 @@
 @tailwind components;
 @tailwind utilities;
 
+.dark a {
+  @apply text-blue-400 visited:text-indigo-400 hover:text-blue-500 active:text-blue-600  underline  active:no-underline;
+}
+
+.light a {
+  @apply text-blue-700 visited:text-indigo-500 hover:text-blue-500 active:text-blue-600  underline  active:no-underline;
+}
+
+
 @layer base {
   :root {
     --background: 0 0% 100%;

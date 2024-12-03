@@ -7,7 +7,7 @@ import {TABLE} from "../../components/api/endpoints";
 import {Button} from "../../components/ui/button";
 import CopyToClipboard, {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
 import {COMMANDS} from "../../lib/commands";
-import {Command, COMMAND_MAP, STRIP_PREFIXES, toPlaceholderName} from "../../utils/Command";
+import {Command, COMMAND_MAP, IOptionData, STRIP_PREFIXES, toPlaceholderName} from "../../utils/Command";
 import {Tabs, TabsList, TabsTrigger} from "../../components/ui/tabs";
 import {ArrowRightToLine, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ClipboardIcon, Download, Sheet} from "lucide-react";
 import {BlockCopyButton} from "../../components/ui/block-copy-button";
@@ -44,14 +44,93 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
         columns: {
             "General": {
                 value: [
-                    "{id}",
-                    "{name}",
+                    ["{markdownUrl}", "Alliance"],
                     "{score}",
                     "{cities}",
                     "{color}",
                     ["{countNations(#position>1)}", "members"]
                 ],
-                sort: {idx: 0, dir: 'asc'}
+                sort: {idx: 3, dir: 'desc'}
+            },
+            "Revenue": {
+                value: [
+                    ["{markdownUrl}", "Alliance"],
+                    ["{revenueConverted}", "Total"],
+                    ...(((COMMANDS.options["ResourceType"] as IOptionData).options ?? [])).filter(f => f !== "CREDITS").map((type) => [`{revenue.${type}}`, type] as [string, string])
+                ],
+                sort: {idx: 2, dir: 'desc'}
+            },
+            "City Growth (30d)": {
+                value: [
+                    ["{markdownUrl}", "Alliance"],
+                    ["{countMembers}", "Members"],
+                    "{cities}",
+                    ["{joins(30d,0d)}", "Joined"],
+                    ["{left(30d,0d)}", "Left"],
+                    ["{NetMembersAcquired(30d,0d)}", "Net"],
+
+                    ["{poachedAssetCount(cities,30d,0d)}", "Poached City"],
+                    ["{poachedCostValue(cities,30d,0d)}", "Poached City $"],
+
+                    ["{recruitedAssetCount(cities,30d,0d)}", "Recruited City"],
+                    ["{leftAssetCount(cities,30d,0d)}", "Left City"],
+                    ["{vm_EndedAssetCount(cities,30d,0d)}", "VM Ended City"],
+                    ["{vm_EnteredAssetCount(cities,30d,0d)}", "VM City"],
+                    ["{leftAssetCount(cities,30d,0d)}", "Deleted City"],
+
+                    ["{getBoughtAssetCount(cities,30d,0d)}", "City Buy"],
+                    ["{getEffectiveBoughtAssetCount(cities,30d,0d)}", "City Buy (remain)"],
+
+                    ["{getSpendingValue(cities,30d,0d)}", "City Buy $"],
+                    ["{getEffectiveSpendingValue(cities,30d,0d)}", "City Buy $ (remain)"],
+
+                    ["{getNetAsset(cities,30d,0d)}", "Net City"],
+                    ["{getNetAssetValue(cities,30d,0d)}", "Net City $"],
+                ],
+                sort: {idx: 18, dir: 'desc'}
+            },
+            "Growth (30d)": {
+                value: [
+                    ["{markdownUrl}", "Alliance"],
+                    ["{countMembers}", "Members"],
+                    "{score}",
+                    ["{NetMembersAcquired(30d,0d)}", "Net Member"],
+
+                    ["{getNetAsset(cities,30d,0d)}", "Net City"],
+
+                    ["{getNetAssetValue(cities,30d,0d)}", "Net City $"],
+                    ["{getNetAssetValue(projects,30d,0d)}", "Net Project $"],
+                    ["{getNetAssetValue(land,30d,0d)}", "Net Land $"],
+                    ["{getNetAssetValue(infra,30d,0d)}", "Net Infra $"],
+                    ["{getNetAssetValue(*,30d,0d)}", "Net Asset $"],
+
+                    ["{getEffectiveSpendingValue(cities,30d,0d)}", "City Buy $"],
+                    ["{getEffectiveSpendingValue(projects,30d,0d)}", "Project Buy $"],
+                    ["{getEffectiveSpendingValue(land,30d,0d)}", "Land Buy $"],
+                    ["{getEffectiveSpendingValue(infra,30d,0d)}", "Infra Buy-Loss $"],
+
+                    ["{getCumulativeRevenueValue(30d,0d)}", "Cumulative Revenue"],
+                ],
+                sort: {idx: 10, dir: 'desc'}
+            },
+            "Cumulative Revenue (30d)": {
+                value: [
+                    ["{markdownUrl}", "Alliance"],
+                    ["{getCumulativeRevenueValue(30d,0d)}", "Value"],
+                    ...(((COMMANDS.options["ResourceType"] as IOptionData).options ?? [])).filter(f => f !== "CREDITS").map((type) => [`{getCumulativeRevenue(30d,0d).${type}}`, type] as [string, string])
+                ],
+                sort: {idx: 2, dir: 'desc'}
+            },
+            "City Exponent": {
+                value: [
+                    ["{markdownUrl}", "Alliance"],
+                    ["{countMembers}", "Members"],
+                    ["{cities}", "Cities"],
+                    ["{score}", "Score"],
+                    ["{exponentialCityStrength}", "city^3"],
+                    ["{exponentialCityStrength(2.5)}", "city^2.5"],
+                ],
+                sort: {idx: 6, dir: 'desc'}
             }
         }
     },
@@ -60,11 +139,16 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
             "All": "*",
             "Raws": "raws",
             "Manufactured": "manu",
-            ...Object.fromEntries((COMMANDS.options["ResourceType"]?.options ?? []).map((type) => [type, type]))
+            ...Object.fromEntries(((COMMANDS.options["ResourceType"] as IOptionData).options ?? []).map((type) => [type, type]))
         },
         columns: {
             "Price": {
-                value: ["{name}", "test", "{low}", "{high}", "{margin}"],
+                value: [
+                    "{name}",
+                    "test",
+                    "{low}",
+                    "{high}",
+                    "{margin}"],
                 sort: {idx: 1, dir: 'asc'}
             },
         }
@@ -90,13 +174,19 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
         },
         columns: {
             "General": {
-                value: [["{nation}", "TESTING"], "{alliance}", "{agedays}", "{color}", "{cities}", "{score}"],
+                value: [
+                    ["{markdownUrl}", "name"],
+                    ["{allianceUrlMarkup}", "AA"],
+                    "{agedays}",
+                    "{color}",
+                    "{cities}",
+                    "{score}"],
                 sort: [{idx: 2, dir: 'desc'}, {idx: 5, dir: 'desc'}]
             },
             "MMR": {
                 value: [
-                    "{nation}",
-                    ["{alliance}", "AA"],
+                    ["{markdownUrl}", "name"],
+                    ["{allianceUrlMarkup}", "AA"],
                     "{cities}",
                     ["{avg_infra}", "infra"],
                     ["{score}", "ns"],
@@ -516,6 +606,12 @@ function setTableVars(
     const header: string[] = columns.current.size > 0 ? Array.from(columns.current).map(([key, value]) => value ?? key) : newData.cells[0] as string[];
     const body = newData.cells.slice(1);
     const renderFuncNames = newData.renderers;
+
+    // // iterate columns and print their name / renderFuncNames
+    // for (let i = 0; i < header.length; i++) {
+    //     console.log(`Column ${i}: ${header[i]} - ${renderFuncNames ? renderFuncNames[i] : "no render func"}`);
+    // }
+
     const newColumnsInfo: ConfigColumns[]  = header.map((col: string, index: number) => ({
         title: formatColName(col),
         data: index,

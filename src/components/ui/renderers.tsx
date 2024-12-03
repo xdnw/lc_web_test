@@ -1,21 +1,40 @@
 import {COMMANDS} from "../../lib/commands";
 import {ObjectColumnRender} from "datatables.net";
-import {commafy} from "../../utils/StringUtil";
+import {commafy, formatSi} from "../../utils/StringUtil";
 import ReactDOMServer from 'react-dom/server';
+import {IOptionData} from "../../utils/Command";
 
-const colors: string[] = COMMANDS.options["NationColor"]?.options ?? [];
+const colors: string[] = (COMMANDS.options["NationColor"] as IOptionData).options ?? [];
 
 export const RENDERERS: {[key: string]: ObjectColumnRender} = {
     money: {display: money},
-    comma: {display: commafy},
+    comma: {display: formatSi},
     color: {display: color},
     time: {display: time},
-    normal: {},
+    normal: {display: autoMarkdown},
     json: {display: json}
     // TODO other renderers
-    // url
     // graph
-    // time
+}
+
+export function autoMarkdown(value: string): string {
+    const openBracketIndex = value.indexOf("[");
+    if (openBracketIndex !== 0) return value;
+
+    const closeBracketIndex = value.indexOf("]", openBracketIndex);
+    if (closeBracketIndex <= openBracketIndex) return value;
+
+    const openParenIndex = value.indexOf("(", closeBracketIndex);
+    if (openParenIndex !== closeBracketIndex + 1) return value;
+
+    const closeParenIndex = value.indexOf(")", openParenIndex);
+    if (closeParenIndex !== value.length - 1) return value;
+
+    let url = value.slice(openParenIndex + 1, closeParenIndex);
+    if (url.startsWith("<") && url.endsWith(">")) {
+        url = url.slice(1, -1);
+    }
+    return '<a href="' + url + '">' + value.slice(openBracketIndex + 1, closeBracketIndex) + '</a>';
 }
 
 export function json(value: {[key: string]: (string | number)} | (string | number)[]): string {

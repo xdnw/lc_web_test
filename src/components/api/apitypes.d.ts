@@ -196,6 +196,8 @@ export type CacheType = "None" | "Cookie" | "LocalStorage" | "SessionStorage";
 
 export type TransactionType = "INTERNAL" | "TAX" | "BANK";
 
-export type TimeFormat = "NUMERIC" | "DECIMAL_ROUNDED" | "SI_UNIT" | "TURN_TO_DATE" | "DAYS_TO_DATE" | "MILLIS_TO_DATE";
+export type TimeFormat = "NUMERIC" | "DECIMAL_ROUNDED" | "SI_UNIT" | "TURN_TO_DATE" | "DAYS_TO_DATE" | "MILLIS_TO_DATE" | "SECONDS_TO_DATE";
 
 export type TableNumberFormat = "SI_UNIT" | "PERCENTAGE_ONE" | "PERCENTAGE_100" | "DECIMAL_ROUNDED";
+
+export type GrahpType = "STACKED_BAR" | "SIDE_BY_SIDE_BAR" | "HORIZONTAL_BAR" | "LINE" | "STACKED_LINE" | "FILLED_LINE" | "SCATTER";

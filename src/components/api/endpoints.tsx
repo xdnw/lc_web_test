@@ -202,6 +202,31 @@ export const MARK_ALL_READ: CommonEndpoint<ApiTypes.WebSuccess, Record<string, n
     }
 };
 
+export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>, Record<string, never>> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSession>(
+        "session",
+        "session",
+        {},
+        (data: unknown) => data as ApiTypes.WebSession,
+        {type: CacheType.LocalStorage, duration: 2592000}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: Record<string, never>, render: (data: ApiTypes.WebSession) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(SESSION.endpoint.name, SESSION.endpoint.cache, args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: Record<string, never>,
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebSession) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(SESSION.endpoint.url, SESSION.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
 export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token: string}, {token?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "set_token",
@@ -249,31 +274,6 @@ export const SET_OAUTH_CODE: CommonEndpoint<ApiTypes.WebSuccess, {code: string},
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(SET_OAUTH_CODE.endpoint.url, SET_OAUTH_CODE.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
-export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>, Record<string, never>> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSession>(
-        "session",
-        "session",
-        {},
-        (data: unknown) => data as ApiTypes.WebSession,
-        {type: CacheType.LocalStorage, duration: 2592000}
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: Record<string, never>, render: (data: ApiTypes.WebSession) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(SESSION.endpoint.name, SESSION.endpoint.cache, args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: Record<string, never>,
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSession) => void,
-        handle_submit?: (args: Record<string, never>) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(SESSION.endpoint.url, SESSION.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 
@@ -552,31 +552,6 @@ export const UNREGISTER: CommonEndpoint<ApiTypes.WebValue, {confirm: string}, {c
     }
 };
 
-export const RAID: CommonEndpoint<ApiTypes.WebTargets, {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebTargets>(
-        "raid",
-        "raid",
-        {"nations":{"name":"nations","optional":true,"type":"Set\u003cDBNation\u003e","def":"*,#position\u003c\u003d1"},"weak_ground":{"name":"weak_ground","optional":true,"type":"boolean","def":"false"},"vm_turns":{"name":"vm_turns","optional":true,"type":"int","def":"0"},"beige_turns":{"name":"beige_turns","optional":true,"type":"int","def":"0"},"ignore_dnr":{"name":"ignore_dnr","optional":true,"type":"boolean","def":"false"},"time_inactive":{"name":"time_inactive","optional":true,"type":"long[Timediff]","def":"7d"},"min_loot":{"name":"min_loot","optional":true,"type":"double","def":"-1"},"num_results":{"name":"num_results","optional":true,"type":"int","def":"8"}},
-        (data: unknown) => data as ApiTypes.WebTargets,
-        {}
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, render: (data: ApiTypes.WebTargets) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(RAID.endpoint.name, combine(RAID.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string},
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebTargets) => void,
-        handle_submit?: (args: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(RAID.endpoint.url, RAID.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
 export const WITHDRAW: CommonEndpoint<ApiTypes.WebTransferResult, {receiver: string, amount: string, note: string}, {receiver?: string, amount?: string, note?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebTransferResult>(
         "withdraw",
@@ -599,6 +574,31 @@ export const WITHDRAW: CommonEndpoint<ApiTypes.WebTransferResult, {receiver: str
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(WITHDRAW.endpoint.url, WITHDRAW.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const RAID: CommonEndpoint<ApiTypes.WebTargets, {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebTargets>(
+        "raid",
+        "raid",
+        {"nations":{"name":"nations","optional":true,"type":"Set\u003cDBNation\u003e","def":"*,#position\u003c\u003d1"},"weak_ground":{"name":"weak_ground","optional":true,"type":"boolean","def":"false"},"vm_turns":{"name":"vm_turns","optional":true,"type":"int","def":"0"},"beige_turns":{"name":"beige_turns","optional":true,"type":"int","def":"0"},"ignore_dnr":{"name":"ignore_dnr","optional":true,"type":"boolean","def":"false"},"time_inactive":{"name":"time_inactive","optional":true,"type":"long[Timediff]","def":"7d"},"min_loot":{"name":"min_loot","optional":true,"type":"double","def":"-1"},"num_results":{"name":"num_results","optional":true,"type":"int","def":"8"}},
+        (data: unknown) => data as ApiTypes.WebTargets,
+        {}
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, render: (data: ApiTypes.WebTargets) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(RAID.endpoint.name, combine(RAID.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string},
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebTargets) => void,
+        handle_submit?: (args: {nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(RAID.endpoint.url, RAID.endpoint.args, message, default_values, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 

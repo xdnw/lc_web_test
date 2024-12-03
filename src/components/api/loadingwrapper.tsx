@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Loading from "@/components/ui/loading.tsx";
 import { WebSuccess } from "@/components/api/apitypes";
+import {deepEqual} from "../../lib/utils";
 
 interface LoadingWrapperProps<T> {
     index: number;
@@ -34,7 +35,19 @@ class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapper
     }
 
     shouldComponentUpdate(nextProps: LoadingWrapperProps<T>, nextState: LoadingWrapperState<T>) {
-        return nextProps.data !== this.state.data || nextProps.loading !== this.props.loading || nextProps.error !== this.props.error;
+        if (nextProps.loading !== this.props.loading) {
+            console.log("RENDER BECAUSE LOADING", this.props.index);
+            return true;
+        }
+        if (nextProps.error !== this.props.error) {
+            console.log("RENDER BECAUSE ERROR", this.props.index);
+            return true;
+        }
+        if (deepEqual(nextProps.data, this.state.data)) {
+            console.log("RENDER BECAUSE DATA ", this.props.index);
+            return true;
+        }
+        return false;
     }
 
     render() {
@@ -42,7 +55,6 @@ class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapper
         const { data } = this.state;
 
         if (loading) {
-
             if (renderLoading) {
                 return <>{renderLoading()}</>;
             }
@@ -67,7 +79,6 @@ class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapper
             }
             return <div>An error occurred (3): {elem?.message ?? "Null"}</div>;
         }
-        console.log("Not error", elem);
         return <>{render(elem as T)}</>;
     }
 }

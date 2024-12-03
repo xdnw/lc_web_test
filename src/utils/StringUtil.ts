@@ -1,4 +1,37 @@
 import {Command} from "@/utils/Command.ts";
+import {TableNumberFormat, TimeFormat} from "../components/api/apitypes";
+
+export function formatNumber(value: number, format: TableNumberFormat): string {
+  switch (format) {
+    case "SI_UNIT":
+      return formatSi(value);
+    case "PERCENTAGE_ONE":
+      return (value * 100).toFixed(2) + "%";
+    case "PERCENTAGE_100":
+      return (value).toFixed(2) + "%";
+    case "DECIMAL_ROUNDED":
+      return commafy(value);
+  }
+}
+
+export function formatTime(time: number, format: TimeFormat): string {
+  switch (format) {
+    case "NUMERIC":
+      return time.toString();
+    case "DECIMAL_ROUNDED":
+      return commafy(time);
+    case "SI_UNIT":
+      return formatSi(time);
+    case "TURN_TO_DATE":
+      return formatTurnsToDate(time);
+    case "DAYS_TO_DATE":
+      return formatDaysToDate(time);
+    case "MILLIS_TO_DATE":
+      return formatDate(time);
+    case "SECONDS_TO_DATE":
+      return formatDate(time * 1000);
+  }
+}
 
 export function formatDate(data: number | null): string {
   if (data == null || data == -1) return "N/A";
@@ -46,7 +79,7 @@ const si = [
   { value: 1E18, symbol: "E" },
   { value: 1E15, symbol: "P" },
   { value: 1E12, symbol: "T" },
-  { value: 1E9, symbol: "G" },
+  { value: 1E9, symbol: "B" },
   { value: 1E6, symbol: "M" },
   { value: 1E3, symbol: "k" }
 ];

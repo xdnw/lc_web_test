@@ -26,6 +26,7 @@ import {Announcement} from "@/pages/announcement";
 import BalancePage from "@/pages/balance";
 import Records from "@/pages/records";
 import ViewTable from "@/pages/view_table";
+import {GraphTest} from "./unused/GraphTest.jsx";
 
 export default function App() {
   return (
@@ -63,7 +64,7 @@ export default function App() {
 
 
         {/* testing pages */}
-
+          <Route path="/graph_test" element={<GraphTest />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/autocomplete" element={<AutoComplete />} />
         <Route path="/auto2" element={<AutoComplete2 />} />
