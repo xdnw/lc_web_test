@@ -65,27 +65,27 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
                     ["{markdownUrl}", "Alliance"],
                     ["{countMembers}", "Members"],
                     "{cities}",
-                    ["{joins(30d,0d)}", "Joined"],
-                    ["{left(30d,0d)}", "Left"],
+                    ["{MembershipChangesByReason(\"recruited,joined\",30d,0d)}", "Joined"],
+                    ["{MembershipChangesByReason(left,30d,0d)}", "Left"],
                     ["{NetMembersAcquired(30d,0d)}", "Net"],
 
-                    ["{poachedAssetCount(cities,30d,0d)}", "Poached City"],
-                    ["{poachedCostValue(cities,30d,0d)}", "Poached City $"],
+                    ["{MembershipChangeAssetCount(joined,cities,30d,0d)}", "Poached City"],
+                    ["{MembershipChangeAssetValue(joined,cities,30d,0d)}", "Poached City $"],
 
-                    ["{recruitedAssetCount(cities,30d,0d)}", "Recruited City"],
-                    ["{leftAssetCount(cities,30d,0d)}", "Left City"],
-                    ["{vm_EndedAssetCount(cities,30d,0d)}", "VM Ended City"],
-                    ["{vm_EnteredAssetCount(cities,30d,0d)}", "VM City"],
-                    ["{leftAssetCount(cities,30d,0d)}", "Deleted City"],
+                    ["{MembershipChangeAssetCount(recruited,cities,30d,0d)}", "Recruited City"],
+                    ["{MembershipChangeAssetCount(left,cities,30d,0d)}", "Left City"],
+                    ["{MembershipChangeAssetCount(vm_returned,cities,30d,0d)}", "VM Ended City"],
+                    ["{MembershipChangeAssetCount(vm_left,cities,30d,0d)}", "VM City"],
+                    ["{MembershipChangeAssetCount(deleted,cities,30d,0d)}", "Deleted City"],
 
-                    ["{getBoughtAssetCount(cities,30d,0d)}", "City Buy"],
-                    ["{getEffectiveBoughtAssetCount(cities,30d,0d)}", "City Buy (remain)"],
+                    ["{BoughtAssetCount(cities,30d,0d)}", "City Buy"],
+                    ["{EffectiveBoughtAssetCount(cities,30d,0d)}", "City Buy (remain)"],
 
-                    ["{getSpendingValue(cities,30d,0d)}", "City Buy $"],
-                    ["{getEffectiveSpendingValue(cities,30d,0d)}", "City Buy $ (remain)"],
+                    ["{SpendingValue(cities,30d,0d)}", "City Buy $"],
+                    ["{EffectiveSpendingValue(cities,30d,0d)}", "City Buy $ (remain)"],
 
-                    ["{getNetAsset(cities,30d,0d)}", "Net City"],
-                    ["{getNetAssetValue(cities,30d,0d)}", "Net City $"],
+                    ["{NetAsset(cities,30d,0d)}", "Net City"],
+                    ["{NetAssetValue(cities,30d,0d)}", "Net City $"],
                 ],
                 sort: {idx: 18, dir: 'desc'}
             },
@@ -96,28 +96,28 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
                     "{score}",
                     ["{NetMembersAcquired(30d,0d)}", "Net Member"],
 
-                    ["{getNetAsset(cities,30d,0d)}", "Net City"],
+                    ["{NetAsset(cities,30d,0d)}", "Net City"],
 
-                    ["{getNetAssetValue(cities,30d,0d)}", "Net City $"],
-                    ["{getNetAssetValue(projects,30d,0d)}", "Net Project $"],
-                    ["{getNetAssetValue(land,30d,0d)}", "Net Land $"],
-                    ["{getNetAssetValue(infra,30d,0d)}", "Net Infra $"],
-                    ["{getNetAssetValue(*,30d,0d)}", "Net Asset $"],
+                    ["{NetAssetValue(cities,30d,0d)}", "Net City $"],
+                    ["{NetAssetValue(projects,30d,0d)}", "Net Project $"],
+                    ["{NetAssetValue(land,30d,0d)}", "Net Land $"],
+                    ["{NetAssetValue(infra,30d,0d)}", "Net Infra $"],
+                    ["{NetAssetValue(*,30d,0d)}", "Net Asset $"],
 
-                    ["{getEffectiveSpendingValue(cities,30d,0d)}", "City Buy $"],
-                    ["{getEffectiveSpendingValue(projects,30d,0d)}", "Project Buy $"],
-                    ["{getEffectiveSpendingValue(land,30d,0d)}", "Land Buy $"],
-                    ["{getEffectiveSpendingValue(infra,30d,0d)}", "Infra Buy-Loss $"],
+                    ["{EffectiveSpendingValue(cities,30d,0d)}", "City Buy $"],
+                    ["{EffectiveSpendingValue(projects,30d,0d)}", "Project Buy $"],
+                    ["{EffectiveSpendingValue(land,30d,0d)}", "Land Buy $"],
+                    ["{EffectiveSpendingValue(infra,30d,0d)}", "Infra Buy-Loss $"],
 
-                    ["{getCumulativeRevenueValue(30d,0d)}", "Cumulative Revenue"],
+                    ["{CumulativeRevenueValue(30d,0d)}", "Cumulative Revenue"],
                 ],
                 sort: {idx: 10, dir: 'desc'}
             },
             "Cumulative Revenue (30d)": {
                 value: [
                     ["{markdownUrl}", "Alliance"],
-                    ["{getCumulativeRevenueValue(30d,0d)}", "Value"],
-                    ...(((COMMANDS.options["ResourceType"] as IOptionData).options ?? [])).filter(f => f !== "CREDITS").map((type) => [`{getCumulativeRevenue(30d,0d).${type}}`, type] as [string, string])
+                    ["{CumulativeRevenueValue(30d,0d)}", "Value"],
+                    ...(((COMMANDS.options["ResourceType"] as IOptionData).options ?? [])).filter(f => f !== "CREDITS").map((type) => [`{CumulativeRevenue(30d,0d).${type}}`, type] as [string, string])
                 ],
                 sort: {idx: 2, dir: 'desc'}
             },
@@ -199,7 +199,7 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
                     ["{spies}", "🔎"],
                     ["{daysSinceLastSpyBuy}", "$🔎days"],
                     ["{spyCap}", "🔎cap"],
-                    ["{getMMRBuildingDecimal}", "MMR[build]"],
+                    ["{MMRBuildingDecimal}", "MMR[build]"],
                     ["{daysSinceLastSoldierBuy}", "$💂days"],
                     ["{daysSinceLastTankBuy}", "$⚙days"],
                     ["{daysSinceLastAircraftBuy}", "$✈days"],
