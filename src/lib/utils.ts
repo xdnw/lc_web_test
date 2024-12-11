@@ -19,10 +19,12 @@ export function deepEqual<T>(a: T, b: T): boolean {
   if (a === b) return true;
 
   if (typeof a !== 'object' || a === null || typeof b !== 'object' || b === null) {
+    console.log("TYPE", typeof a, typeof b);
     return false;
   }
 
   if (Array.isArray(a) !== Array.isArray(b)) {
+    console.log("ARRAY", Array.isArray(a), Array.isArray(b));
     return false;
   }
 
@@ -30,11 +32,13 @@ export function deepEqual<T>(a: T, b: T): boolean {
   const keysB = Object.keys(b) as Array<keyof T>;
 
   if (keysA.length !== keysB.length) {
+    console.log("KEYS LENGTH", keysA, keysB);
     return false;
   }
 
   for (const key of keysA) {
     if (!keysB.includes(key) || !deepEqual(a[key], b[key])) {
+        console.log("KEY", key, a[key], b[key]);
       return false;
     }
   }

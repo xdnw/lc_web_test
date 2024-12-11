@@ -6,36 +6,37 @@ import CreatableSelect from 'react-select/creatable';
 import './list.css';
 import { useSyncedStateFunc } from "@/utils/StateUtil";
 import Select from "react-select/base";
-import {useDialog} from "../layout/DialogContext";
+import { useDialog } from "../layout/DialogContext";
+import {Button} from "../ui/button";
 
 export default function ListComponent(
-    {argName, options, isMulti, initialValue, setOutputValue}:
+    { argName, options, isMulti, initialValue, setOutputValue }:
     {
         argName: string,
-        options: {label: string, value: string, subtext?: string, color?: string}[],
-        isMulti: boolean, 
+        options: { label: string, value: string, subtext?: string, color?: string }[],
+        isMulti: boolean,
         initialValue: string,
         setOutputValue: (name: string, value: string) => void
     }
 ) {
     const [inputValue, setInputValue] = React.useState('');
-    const [value, setValue] = useSyncedStateFunc(initialValue || '', (v) => v ? v.split(',').map((v) => ({label: v, value: v})) : []);
+    const [value, setValue] = useSyncedStateFunc(initialValue || '', (v) => v ? v.split(',').map((v) => ({ label: v, value: v })) : []);
     const { showDialog } = useDialog();
-  
+
     const handleKeyDown: KeyboardEventHandler = (event) => {
-      if (!inputValue) return;
-      switch (event.key) {
-        case 'Enter':
-        case 'Tab': {
-            const option = options.find((o) => o.label === inputValue || o.value === inputValue);
-            addValue(option, inputValue);
-            event.preventDefault();
-            break;
+        if (!inputValue) return;
+        switch (event.key) {
+            case 'Enter':
+            case 'Tab': {
+                const option = options.find((o) => o.label === inputValue || o.value === inputValue);
+                addValue(option, inputValue);
+                event.preventDefault();
+                break;
+            }
         }
-      }
     };
 
-    function addValue(option: {label: string, value: string} | undefined, input: string) {
+    function addValue(option: { label: string, value: string } | undefined, input: string) {
         if (option) {
             if (!value.find((v) => v.value === option.value)) {
                 if (isMulti) {
@@ -92,7 +93,7 @@ export default function ListComponent(
             }
         }
     }, [inputValue, value]);
-  
+
     useEffect(() => {
         return () => {
             if (clusterize) clusterize.destroy(true);
@@ -109,7 +110,6 @@ export default function ListComponent(
             if (scrollRef.current && (scrollRef.current === activeElement || scrollRef.current.contains(activeElement))) {
                 return;
             }
-            console.log("REF ", selectRef.current?.controlRef);
             const selectControlElement = selectRef.current?.controlRef;
             if (selectControlElement && (selectControlElement === activeElement || selectControlElement.contains(activeElement))) {
                 return;
@@ -121,63 +121,73 @@ export default function ListComponent(
         const scrollElement = scrollRef.current;
         scrollElement?.addEventListener('focus', handleFocus, true);
         scrollElement?.addEventListener('blur', handleBlur, true);
-    
+
         return () => {
-          scrollElement?.removeEventListener('focus', handleFocus, true);
-          scrollElement?.removeEventListener('blur', handleBlur, true);
+            scrollElement?.removeEventListener('focus', handleFocus, true);
+            scrollElement?.removeEventListener('blur', handleBlur, true);
         };
-      }, []);
-    
+    }, []);
+
+    const selectAll = () => {
+        setValue(options);
+        const valueStr = options.map((v) => v.value).join(',');
+        setOutputValue(argName, valueStr);
+    };
+
     return (
         <div className="relative">
-         <CreatableSelect
-         ref={selectRef}
-         className="react-select-container"
-         classNamePrefix="react-select"
-        inputValue={inputValue}
-        isClearable={false}
-        isMulti={isMulti}
-        menuIsOpen={false}
-        onChange={(newValue) => {
-                setValue(newValue as {label: string, value: string}[]);
-                const valueStr = (newValue as {label: string, value: string}[]).map((v) => v.value).join(',');
-                setOutputValue(argName, valueStr);
-            }
-        }
-        onInputChange={(newValue, actionMeta) => {
-            if (actionMeta.action !== 'input-blur' && actionMeta.action !== 'set-value' && actionMeta.action !== 'menu-close') {
-                setInputValue(newValue);
-            }
-        }}
-        onKeyDown={handleKeyDown}
-        placeholder="Type something and press enter..."
-        value={value}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-      />
-      <div 
-      className={`absolute z-10 ${isFocused ? '' : 'invisible'} inset-x-0 bg-background drop-shadow-md shadow-2xl border border-input ps-1 clusterize-scroll`}
-      ref={scrollRef}
-      >
-        <ol className="clusterize-content" ref={contentRef} onClick={(e) => {
-                const target = e.target as HTMLElement;
-                if (target.tagName.toLowerCase() === 'li') {
-                    const option = options.find((o) => o.label === target.innerText);
-                    if (option) {
-                        if (value.find((v) => v.value === option.value)) {
-                            const newValue = value.filter((v) => v.value !== option.value);
-                            setValue(newValue);
-                            const valueStr = (newValue as {label: string, value: string}[]).map((v) => v.value).join(',');
-                            setOutputValue(argName, valueStr);
-                        } else {
-                            addValue(option, option.label);
+            <CreatableSelect
+                ref={selectRef}
+                className="react-select-container"
+                classNamePrefix="react-select"
+                inputValue={inputValue}
+                isClearable={false}
+                isMulti={isMulti}
+                menuIsOpen={false}
+                onChange={(newValue) => {
+                    setValue(newValue as { label: string, value: string }[]);
+                    const valueStr = (newValue as { label: string, value: string }[]).map((v) => v.value).join(',');
+                    setOutputValue(argName, valueStr);
+                }}
+                onInputChange={(newValue, actionMeta) => {
+                    if (actionMeta.action !== 'input-blur' && actionMeta.action !== 'set-value' && actionMeta.action !== 'menu-close') {
+                        setInputValue(newValue);
+                    }
+                }}
+                onKeyDown={handleKeyDown}
+                placeholder="Type something and press enter..."
+                value={value}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+            />
+            <div
+                className={`absolute z-10 ${isFocused ? '' : 'invisible'} inset-x-0 bg-background drop-shadow-md shadow-2xl border border-input ps-1 clusterize-scroll`}
+                ref={scrollRef}
+            >
+                <ol className="clusterize-content" ref={contentRef} onClick={(e) => {
+                    const target = e.target as HTMLElement;
+                    if (target.tagName.toLowerCase() === 'li') {
+                        const option = options.find((o) => o.label === target.innerText);
+                        if (option) {
+                            if (value.find((v) => v.value === option.value)) {
+                                const newValue = value.filter((v) => v.value !== option.value);
+                                setValue(newValue);
+                                const valueStr = (newValue as { label: string, value: string }[]).map((v) => v.value).join(',');
+                                setOutputValue(argName, valueStr);
+                            } else {
+                                addValue(option, option.label);
+                            }
                         }
                     }
-                }
-            }}>
-            <li className="clusterize-no-data">Loading data…</li>
-        </ol>
+                }}>
+                    <li className="clusterize-no-data">Loading data…</li>
+                </ol>
+            </div>
+            {isMulti && (
+                <Button variant="outline" className="w-full rounded-t-none" size="sm" onClick={selectAll}>
+                    Select All
+                </Button>
+            )}
         </div>
-    </div>
     );
 }

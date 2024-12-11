@@ -35,6 +35,7 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
     DBAlliance: {
         selections: {
             "All": "*",
+            "All (>0 active member)": "*,#countNations(\"#position>1,#vm_turns=0,#active_m<10080\")>0",
             "Top 10": "*,#rank<=10",
             "Top 15": "*,#rank<=15",
             "Top 25": "*,#rank<=25",
@@ -109,7 +110,17 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
                     ["{EffectiveSpendingValue(land,30d,0d)}", "Land Buy $"],
                     ["{EffectiveSpendingValue(infra,30d,0d)}", "Infra Buy-Loss $"],
 
-                    ["{CumulativeRevenueValue(30d,0d)}", "Cumulative Revenue"],
+                    ["{CumulativeRevenueValue(30d,0d)}", "Total Revenue"],
+                ],
+                sort: {idx: 10, dir: 'desc'}
+            },
+            "Normalized Growth (30d)": {
+                value: [
+                    ["{markdownUrl}", "Alliance"],
+                    ["{countMembers}", "Members"],
+                    ["{EffectiveBoughtAssetCount(\"cities,projects,land\",30d,0d)}/{countMembers}", "Cities/Member"],
+                    ["{EffectiveSpendingValue(\"cities,projects,land\",30d,0d)}/{countMembers}", "Invest/Member"],
+                    ["{EffectiveSpendingValue(\"cities,projects,land\",30d,0d)}/{CumulativeRevenueValue(30d,0d)}", "Invest/Revenue"],
                 ],
                 sort: {idx: 10, dir: 'desc'}
             },
@@ -761,7 +772,7 @@ export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColum
         <DataTable
             ref={table}
             data={data.current}
-            columns={[{data: null, title: "#", orderable: false, searchable: false, className: 'dt-center p-0'},
+            columns={[{data: null, title: "#", orderable: false, searchable: false, className: 'dt-center'},
                 ...columnsInfo.current]}
             options={{
                 paging: true,
@@ -772,6 +783,7 @@ export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColum
                 autoWidth: false,
                 info: false,
                 processing: false,
+                compact: true,
                 stateSave: false,
                 scrollX: false,
                 rowCallback: function (row: Node, data: (string | number)[] | object, index: number, displayIndexFull: number) {
@@ -1024,10 +1036,10 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                                              className="rounded-[6px] [&_svg]:size-3.5 ml-2" size="sm"/>
                         </TooltipProvider>
                     </div>
-                    <a href={`https://github.com/xdnw/locutus/wiki/${typeRef.current}_placeholders`}
+                    <a href={`https://github.com/xdnw/locutus/wiki/${toPlaceholderName(typeRef.current)}_placeholders`}
                        className="text-xs text-blue-800 dark:text-blue-400 underline hover:no-underline active:underline"
                        target="_blank" rel="noreferrer"
-                    >View All {typeRef.current} Filters</a>
+                    >View All {toPlaceholderName(typeRef.current)} Filters</a>
                 </div>
             </div>
             <div className="themeDiv bg-opacity-10 rounded mt-2">

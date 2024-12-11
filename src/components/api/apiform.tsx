@@ -11,21 +11,35 @@ interface FormInputsProps {
     setOutputValue: (name: string, value: string) => void;
 }
 
-export default function ApiForm<T, A extends { [key: string]: string }>({requireLogin = false, message, endpoint, label = "submit", required = [], default_values, form_inputs: FormInputs, handle_response, handle_submit, handle_loading, handle_error, classes}:
-{
-    requireLogin?: boolean,
-    message: ReactNode,
-    endpoint: string,
-    label?: ReactNode,
-    required?: string[],
-    default_values?: {[key: string]: string},
-    form_inputs: React.ComponentType<FormInputsProps>
-    handle_response?: (data: T) => void,
-    handle_submit?: (data: A) => boolean,
-    handle_loading?: () => void,
-    handle_error?: (error: string) => void,
-    classes?: string,
-}) {
+interface ApiFormProps<T, A extends { [key: string]: string }> {
+    requireLogin?: boolean;
+    message: ReactNode;
+    endpoint: string;
+    label?: ReactNode;
+    required?: string[];
+    default_values?: { [key: string]: string };
+    form_inputs: React.ComponentType<FormInputsProps>;
+    handle_response?: (data: T) => void;
+    handle_submit?: (data: A) => boolean;
+    handle_loading?: () => void;
+    handle_error?: (error: string) => void;
+    classes?: string;
+}
+
+function ApiForm<T, A extends { [key: string]: string }>({
+     requireLogin = false,
+     message,
+     endpoint,
+     label = "submit",
+     required = [],
+     default_values,
+     form_inputs: FormInputs,
+     handle_response,
+     handle_submit,
+     handle_loading,
+     handle_error,
+     classes
+ }: ApiFormProps<T, A>) {
     const commandStore = useRef(default_values && Object.keys(default_values).length ? createCommandStoreWithDef(default_values) : createCommandStore());
 
     if (requireLogin && !hasToken()) {
@@ -39,7 +53,7 @@ export default function ApiForm<T, A extends { [key: string]: string }>({require
     return <>
         {message}
         {message && required && required.length > 0 && <hr className="my-2"/> }
-        {required && required.length > 0 && <>
+        {required && required.length > 0 && test() && <>
             <FormInputs setOutputValue={commandStore.current((state) => state.setOutput)} />
             <hr className="my-2"/>
         </>}
@@ -53,6 +67,24 @@ export default function ApiForm<T, A extends { [key: string]: string }>({require
                         handle_error={handle_error}
                         classes={classes}/>
     </>
+}
+
+const areEqual = <T, A extends { [key: string]: string }>(prevProps: ApiFormProps<T, A>, nextProps: ApiFormProps<T, A>) => {
+    const keys = Object.keys(prevProps) as (keyof ApiFormProps<T, A>)[];
+    for (const key of keys) {
+        if (prevProps[key] !== nextProps[key]) {
+            console.log(`Prop '${key}' changed:`, prevProps[key], nextProps[key]);
+            return false;
+        }
+    }
+    return true;
+};
+
+export default React.memo(ApiForm, areEqual) as typeof ApiForm;
+
+export function test() {
+    console.log("RERENDER FORM INPUTS");
+    return true;
 }
 
 export function ApiFormHandler<T, A extends {[key: string]: string}>({store, endpoint, label, required, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -97,7 +129,7 @@ export function ApiFormHandler<T, A extends {[key: string]: string}>({store, end
                     'Content-Type': 'application/msgpack',
                 },
                 credentials: 'include',
-                body: formBody.toString()   ,
+                body: formBody.toString(),
             })
             .then(async response => {
                 if (!response.ok) {

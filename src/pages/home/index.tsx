@@ -2,7 +2,10 @@ import LoginPickerPage from "@/pages/login_picker";
 import { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import {Link} from "react-router-dom";
 import {Button} from "@/components/ui/button.tsx";
-
+import versusImage from '@/assets/versus.jpg';
+import sheetImage from '@/assets/sheet.jpg';
+import graphImage from '@/assets/graph.png';
+import mediaImage from '@/assets/media2.png';
 
 const _cardTemplates: {
     [key: string]: {
@@ -16,25 +19,34 @@ const _cardTemplates: {
     };
 } = {
     "wars": {
-        img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqidXxyUAKKGxZfnYC2q1FUVKXWUaLSVCWRArWqHPsKQ&s",
+        img: versusImage,
         ad: false,
         desc: "Browse a variety of tables and graphs for our featured set of ongoing and historical alliance conflicts. Data is available to download in CSV format.",
-        subtitle: "Featured Conflicts",
+        subtitle: "Alliance Conflicts",
         invite: "https://wars.locutus.link/conflicts",
         label: "View Conflicts",
+        bg: "#BB66CC",
+    },
+    "tables": {
+        img: sheetImage,
+        ad: false,
+        desc: "Browse templates or create your custom table from a variety of game data. Share or export options available.",
+        subtitle: "Table Builder",
+        invite: "/custom_table",
+        label: "Open Editor",
         bg: "#FFC929",
     },
-    // // RON
-    // "446601982564892672": {
-    //     img: "https://static.wikia.nocookie.net/politicsandwar/images/b/be/Royal_Orbis_News.png",
-    //     desc: "Get breaking news about ongoing conflicts and share in their discussions. Available on the Royal Orbis News discord server.",
-    //     subtitle: "Updates & Discussions",
-    //     invite: "https://discord.gg/royal-orbis-news",
-    //     bg: "#235D90",
-    // },
-    // media
+    "charts": {
+        img: graphImage,
+        ad: false,
+        desc: "Browse templates or create your custom chart from a variety of game data. Share or export options available.",
+        subtitle: "Chart Viewer",
+        invite: "#",
+        label: "Coming Soon",
+        bg: "#FFC929",
+    },
     "1244684694956675113": {
-        img: "https://wars.locutus.link/media.png",
+        img: mediaImage,
         ad: true,
         desc: "Get breaking news about ongoing conflicts and share in their discussions. Available on the Media discord server.",
         subtitle: "Updates & Discussions",
@@ -57,7 +69,7 @@ export default function Home() {
     return <>
         <LoginPickerPage/>
         <div className="themeDiv bg-opacity-10 rounded p-2 mt-4">
-            <h1 className="text-2xl font-bold">External Content</h1>
+            <h1 className="text-2xl font-bold">Featured Content</h1>
             <div className="flex flex-wrap">
                 {Object.keys(_cardTemplates).map((key) => {
                     const template = _cardTemplates[key];
@@ -69,7 +81,7 @@ export default function Home() {
                                     <img
                                         src={template.img}
                                         style={{background: template.bg}}
-                                        className="h-36 w-72 object-contain block mx-auto rounded"
+                                        className="h-36 w-72 object-fill block mx-auto rounded"
                                         alt="..."
                                     />
                                     {template.ad && <kbd className="bg-blue-400/50 text-sm rounded-lg px-2 py-0.5 absolute top-1 right-1">Ad</kbd>}

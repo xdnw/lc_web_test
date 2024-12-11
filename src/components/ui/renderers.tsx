@@ -18,6 +18,7 @@ export const RENDERERS: {[key: string]: ObjectColumnRender} = {
 }
 
 export function autoMarkdown(value: string): string {
+    if (value === undefined) return value;
     const openBracketIndex = value.indexOf("[");
     if (openBracketIndex !== 0) return value;
 

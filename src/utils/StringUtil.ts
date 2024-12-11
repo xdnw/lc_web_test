@@ -1,36 +1,55 @@
 import {Command} from "@/utils/Command.ts";
 import {TableNumberFormat, TimeFormat} from "../components/api/apitypes";
 
-export function formatNumber(value: number, format: TableNumberFormat): string {
-  switch (format) {
-    case "SI_UNIT":
-      return formatSi(value);
-    case "PERCENTAGE_ONE":
-      return (value * 100).toFixed(2) + "%";
-    case "PERCENTAGE_100":
-      return (value).toFixed(2) + "%";
-    case "DECIMAL_ROUNDED":
-      return commafy(value);
-  }
+export function getNumberFormatCallback(format: TableNumberFormat): (value: number) => string {
+    switch (format) {
+      case "SI_UNIT":
+        return formatSi;
+      case "PERCENTAGE_ONE":
+        return (value: number) => (value * 100).toFixed(2) + "%";
+      case "PERCENTAGE_100":
+        return (value: number) => (value).toFixed(2) + "%";
+      case "DECIMAL_ROUNDED":
+        return commafy;
+    }
 }
 
-export function formatTime(time: number, format: TimeFormat): string {
-  switch (format) {
-    case "NUMERIC":
-      return time.toString();
-    case "DECIMAL_ROUNDED":
-      return commafy(time);
-    case "SI_UNIT":
-      return formatSi(time);
-    case "TURN_TO_DATE":
-      return formatTurnsToDate(time);
-    case "DAYS_TO_DATE":
-      return formatDaysToDate(time);
-    case "MILLIS_TO_DATE":
-      return formatDate(time);
-    case "SECONDS_TO_DATE":
-      return formatDate(time * 1000);
-  }
+export function isTime(format: TimeFormat) {
+    return format === "TURN_TO_DATE" || format === "DAYS_TO_DATE" || format === "MILLIS_TO_DATE" || format === "SECONDS_TO_DATE";
+}
+
+export function toMillisFunction(format: TimeFormat): (value: number) => number {
+    switch (format) {
+        case "TURN_TO_DATE":
+          return (value: number) => value / 12 * 60 * 60 * 24 * 1000;
+        case "DAYS_TO_DATE":
+          return (value: number) => value * 60 * 60 * 1000;
+        case "MILLIS_TO_DATE":
+          return (value: number) => value;
+        case "SECONDS_TO_DATE":
+          return (value: number) => value * 1000;
+        default:
+            return (value: number) => value;
+    }
+}
+
+export function getTimeFormatCallback(format: TimeFormat): (value: number) => string {
+    switch (format) {
+      case "NUMERIC":
+        return (value: number) => value.toString();
+      case "DECIMAL_ROUNDED":
+        return commafy;
+      case "SI_UNIT":
+        return formatSi;
+      case "TURN_TO_DATE":
+        return formatTurnsToDate;
+      case "DAYS_TO_DATE":
+        return formatDaysToDate;
+      case "MILLIS_TO_DATE":
+        return formatDate;
+      case "SECONDS_TO_DATE":
+        return (value: number) => formatDate(value * 1000);
+    }
 }
 
 export function formatDate(data: number | null): string {
@@ -49,8 +68,14 @@ export function formatTurnsToDate(value: number) {
   const timeMillis = (value / 12) * 60 * 60 * 24 * 1000;
   const date = new Date();
   date.setTime(timeMillis);
+  const currentYear = new Date().getFullYear();
   const formattedDate = date.toISOString().slice(0, 16).replace("T", " ");
-  return formattedDate.endsWith("00:00") ? formattedDate.slice(0, 10) : formattedDate;
+  const year = date.getFullYear();
+  const timeOfDay = formattedDate.slice(11, 16);
+  const dateWithoutYear = formattedDate.slice(5, 10);
+  return year === currentYear
+      ? `${dateWithoutYear}-${year.toString().slice(-2)}${timeOfDay !== "00:00" ? " " + timeOfDay : ""}`
+      : formattedDate.slice(0, 10) + (timeOfDay !== "00:00" ? " " + timeOfDay : "");
 }
 
 export function split(input: string, delimiter: string): string[] {
@@ -108,13 +133,20 @@ export function formatDuration(x: number, maxWords: number): string {
 }
 
 export function formatSi(num: number): string {
+  if (num === undefined) return num;
+  const isNegative = num < 0;
+  num = Math.abs(num);
+
   for (let i = 0; i < si.length; i++) {
     if (num >= si[i].value) {
       const formattedNum = num / si[i].value;
-      return (formattedNum % 1 === 0 ? formattedNum.toString() : formattedNum.toFixed(2)) + si[i].symbol;
+      const result = (formattedNum % 1 === 0 ? formattedNum.toString() : formattedNum.toFixed(2)) + si[i].symbol;
+      return isNegative ? '-' + result : result;
     }
   }
-  return (num % 1 === 0 ? num.toString() : num.toFixed(2));
+
+  const result = (num % 1 === 0 ? num.toString() : num.toFixed(2));
+  return isNegative ? '-' + result : result;
 }
 
 export function splitCustom(input: string, startsWith: ((input: string, index: number) => number | null) | null, limit: number): SplitStr[] {

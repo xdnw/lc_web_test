@@ -156,7 +156,7 @@ export default function Splash() {
             <div className={classes.typedContainer}>
                 <p className={classes.typed}>LOCUTUS</p>
             </div>
-            <Link style={{borderRadius: "0"}} to={`${process.env.BASE_PATH}home`} className={`${buttonVariants({ variant: "default" })} rounded-none opacity-25 border border-white border-4 ${classes.mybutton}`}>&gt;START</Link>
+            <Link style={{borderRadius: "0", textDecoration: "none"}} to={`${process.env.BASE_PATH}home`} className={`${buttonVariants({ variant: "default" })} rounded-none opacity-25 border border-white no-underline border-4 ${classes.mybutton}`}>&gt;START</Link>
         </div>
         </div>
     );

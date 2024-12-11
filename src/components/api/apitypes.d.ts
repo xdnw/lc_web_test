@@ -13,7 +13,7 @@ export interface WebGraph {
     number_format?: TableNumberFormat;
     origin?: number;
     title?: string;
-
+    type?: GraphType;
     x: string;
     y: string;
     labels: string[];
@@ -192,6 +192,24 @@ export interface WebValue {
     value: string;
 }
 
+// public record CoalitionGraph(
+//         String name,
+//         Map<DBAlliance, Integer> alliances,
+//         @Nullable WebGraph overall,
+//         Map<Integer, WebGraph> by_alliance
+// ) {
+
+export interface CoalitionGraph {
+    name: string;
+    alliances: { [index: string]: number };
+    overall?: WebGraph;
+    by_alliance: { [index: string]: WebGraph };
+}
+
+export interface CoalitionGraphs {
+    spheres: CoalitionGraph[];
+}
+
 export type CacheType = "None" | "Cookie" | "LocalStorage" | "SessionStorage";
 
 export type TransactionType = "INTERNAL" | "TAX" | "BANK";
@@ -200,4 +218,4 @@ export type TimeFormat = "NUMERIC" | "DECIMAL_ROUNDED" | "SI_UNIT" | "TURN_TO_DA
 
 export type TableNumberFormat = "SI_UNIT" | "PERCENTAGE_ONE" | "PERCENTAGE_100" | "DECIMAL_ROUNDED";
 
-export type GrahpType = "STACKED_BAR" | "SIDE_BY_SIDE_BAR" | "HORIZONTAL_BAR" | "LINE" | "STACKED_LINE" | "FILLED_LINE" | "SCATTER";
+export type GraphType = "STACKED_BAR" | "SIDE_BY_SIDE_BAR" | "HORIZONTAL_BAR" | "LINE" | "STACKED_LINE" | "FILLED_LINE" | "SCATTER";

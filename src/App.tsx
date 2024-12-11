@@ -17,7 +17,7 @@ import CustomTable from "@/pages/custom_table";
 import NationPicker from "@/pages/nation_picker";
 import GuildPicker from "@/pages/guild_picker";
 import LoginPickerPage from "@/pages/login_picker";
-import {ReactNode} from "react";
+import {ReactNode, useEffect} from "react";
 import Unregister from "@/pages/unregister";
 import GuildMember from "@/pages/guild_member";
 import {hasToken} from "@/utils/Auth.ts";
@@ -27,8 +27,17 @@ import BalancePage from "@/pages/balance";
 import Records from "@/pages/records";
 import ViewTable from "@/pages/view_table";
 import {GraphTest} from "./unused/GraphTest.jsx";
+import TagManager from 'react-gtm-module';
+
+const tagManagerArgs = {
+  gtmId: 'G-4J3KV26E2Z'
+};
 
 export default function App() {
+  useEffect(() => {
+    TagManager.initialize(tagManagerArgs);
+  }, []);
+
   return (
     <Router>
     <Routes>

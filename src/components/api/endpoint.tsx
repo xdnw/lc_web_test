@@ -1,6 +1,6 @@
 import {Argument, IArgument} from "@/utils/Command.ts";
 import {CacheType, useData, useRegisterQuery} from "@/components/cmd/DataContext.tsx";
-import React, {ReactNode} from "react";
+import React, {ReactNode, useCallback, useMemo} from "react";
 import LoadingWrapper from "@/components/api/loadingwrapper.tsx";
 import ApiForm from "@/components/api/apiform.tsx";
 import ArgInput from "@/components/cmd/ArgInput.tsx";
@@ -96,31 +96,54 @@ export function useForm<T, A extends { [key: string]: string }>(
     handle_submit?: (args: A) => boolean,
     handle_loading?: () => void,
     handle_error?: (error: string) => void,
-    classes?: string): React.ReactNode {
-    const required: string[] = [];
-    for (const [key, value] of Object.entries(args)) {
-        if (!value.arg.optional && (!default_values || !Object.prototype.hasOwnProperty.call(default_values, key))) {
-            required.push(key);
+    classes?: string
+): React.ReactNode {
+    const required = useMemo(() => {
+        const req: string[] = [];
+        for (const [key, value] of Object.entries(args)) {
+            if (!value.arg.optional && (!default_values || !Object.prototype.hasOwnProperty.call(default_values, key))) {
+                req.push(key);
+            }
         }
-    }
-    return <ApiForm
-        requireLogin={false}
-    required={required}
-    message={message}
-    endpoint={url}
-    label={label}
-    default_values={default_values}
-    form_inputs={(props) => <>
-        {Object.values(args).filter(arg => !default_values || !Object.prototype.hasOwnProperty.call(default_values, arg.name)).map((arg, index) => {
-                return <ArgInput key={index} argName={arg.name} breakdown={arg.getTypeBreakdown()} min={arg.arg.min} max={arg.arg.max} initialValue={""} setOutputValue={props.setOutputValue} />
-            })}
-    </>}
-    handle_response={handle_response}
-    handle_loading={handle_loading}
-    handle_error={handle_error}
-    handle_submit={handle_submit}
-    classes={classes}
-    />
+        return req;
+    }, [args, default_values]);
+
+    const renderFormInputs = useCallback((props: { setOutputValue: (name: string, value: string) => void }) => {
+        return (
+            <>
+                {Object.values(args)
+                    .filter(arg => !default_values || !Object.prototype.hasOwnProperty.call(default_values, arg.name))
+                    .map((arg, index) => (
+                        <ArgInput
+                            key={index}
+                            argName={arg.name}
+                            breakdown={arg.getTypeBreakdown()}
+                            min={arg.arg.min}
+                            max={arg.arg.max}
+                            initialValue={""}
+                            setOutputValue={props.setOutputValue}
+                        />
+                    ))}
+            </>
+        );
+    }, [args, default_values]);
+
+    return (
+        <ApiForm
+            requireLogin={false}
+            required={required}
+            message={message}
+            endpoint={url}
+            label={label}
+            default_values={default_values}
+            form_inputs={renderFormInputs}
+            handle_response={handle_response}
+            handle_loading={handle_loading}
+            handle_error={handle_error}
+            handle_submit={handle_submit}
+            classes={classes}
+        />
+    );
 }
 
 export function combine(cache: { cache_type: CacheType, duration?: number, cookie_id: string }, args: {[key: string]: string}) {
