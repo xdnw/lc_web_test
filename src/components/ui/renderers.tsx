@@ -80,7 +80,7 @@ export function Color({colorId, beigeTurns}: {colorId: number, beigeTurns?: numb
             style={{backgroundColor: `${color.replace("BEIGE", "TAN")}`}}
             title={`${color}`}
         >
-            {beigeTurns && beigeTurns > 0 && (
+            {beigeTurns !== undefined && beigeTurns > 0 && (
                 <span className="text-xs text-black">{beigeTurns}</span>
             )}
         </div>

@@ -28,6 +28,7 @@ import Records from "@/pages/records";
 import ViewTable from "@/pages/view_table";
 import {GraphTest} from "./unused/GraphTest.jsx";
 import TagManager from 'react-gtm-module';
+import RaidSection from "./pages/raid";
 
 const tagManagerArgs = {
   gtmId: 'G-4J3KV26E2Z'
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="/balance" element={<BalancePage />} />
         <Route path="/balance/:category" element={<BalancePage />} />
         <Route path="/records" element={<Records />} />
+        <Route path="/raid/:nation" element={<RaidSection />} />
 
         <Route path="/login" element={<LoginPickerPage />} />
         <Route path="/login/:token" element={<LoginPage />} />
