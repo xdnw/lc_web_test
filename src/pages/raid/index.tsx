@@ -24,7 +24,7 @@ export default function RaidSection() {
     const { nation } = useParams<{ nation: string }>();
     const nationOverride = useRef<string | undefined>(nation);
     useEffect(() => {
-        if (nation) nationOverride.current = nation;
+        nationOverride.current = nation;
     }, [nation]);
 
     const [raidOutput, setRaidOutput] = useState<WebTargets | boolean | string | null>(null);
