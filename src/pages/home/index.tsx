@@ -5,7 +5,10 @@ import {Button} from "@/components/ui/button.tsx";
 import versusImage from '@/assets/versus.jpg';
 import sheetImage from '@/assets/sheet.jpg';
 import graphImage from '@/assets/graph.png';
+import chestImage from '@/assets/chest.png';
 import mediaImage from '@/assets/media2.png';
+import {useDialog} from "../../components/layout/DialogContext";
+import React from "react";
 
 const _cardTemplates: {
     [key: string]: {
@@ -45,6 +48,15 @@ const _cardTemplates: {
         label: "Coming Soon",
         bg: "#FFC929",
     },
+    "raid": {
+        img: chestImage,
+        ad: false,
+        desc: "Find raidable nations in your score range",
+        subtitle: "Raid Finder",
+        invite: "/raid",
+        label: "Raid Finder",
+        bg: "#FFC929",
+    },
     "1244684694956675113": {
         img: mediaImage,
         ad: true,
@@ -66,6 +78,8 @@ const _cardTemplates: {
 };
 
 export default function Home() {
+    const { showDialog } = useDialog();
+
     return <>
         <LoginPickerPage/>
         <div className="themeDiv bg-opacity-10 rounded p-2 mt-4">

@@ -6,6 +6,6 @@ export default function PlaceholdersList() {
     const { placeholder } = useParams<{ placeholder: string }>();
 
     return (
-        <CmdList map={COMMAND_MAP} commands={Object.values(COMMAND_MAP.getPlaceholderCommands(placeholder as string) || {})} prefix={"#"} />
+        <CmdList commands={Object.values(COMMAND_MAP.getPlaceholderCommands(placeholder as string) || {})} prefix={"#"} />
     );
 }

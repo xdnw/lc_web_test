@@ -9,8 +9,14 @@ import {Settings} from "lucide-react";
 import {Link} from "react-router-dom";
 import {SESSION} from "@/components/api/endpoints.tsx";
 import {WebSession} from "@/components/api/apitypes";
+import {useSession} from "../api/SessionContext";
+import LoggedOutDropdown from "./logged-out-dropdown";
 
 export default function LoggedInDropdown() {
+    const { session, error, setSession, refetchSession } = useSession();
+    if (!session) {
+        return <LoggedOutDropdown/>
+    }
     return (
     <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -20,21 +26,18 @@ export default function LoggedInDropdown() {
             </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-            {SESSION.useDisplay({
-            args: {},
-            render: (session) => (<>
-                <DropdownMenuItem>
-                    <Link className="w-full" to={`${process.env.BASE_PATH}guild_select`}>{session.guild ?
-                        <SwitchGuild session={session}/> : "Select Guild"}</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <Link to={"/logout"} className="w-full">
-                        Logout</Link>
-                </DropdownMenuItem>
-            </>)})}
+            <DropdownMenuItem>
+                <Link className="w-full" to={`${process.env.BASE_PATH}guild_select`}>{session.guild ?
+                    <SwitchGuild session={session}/> : "Select Guild"}</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+                <Link to={"/logout"} className="w-full">
+                    Logout</Link>
+            </DropdownMenuItem>
         </DropdownMenuContent>
     </DropdownMenu>);
 }
+
 export function SwitchGuild({session}: {session: WebSession}) {
     return <>
         {session.guild_icon && <img src={session.guild_icon} alt={session.guild_name} className="w-4 h-4 inline-block mr-1"/>}

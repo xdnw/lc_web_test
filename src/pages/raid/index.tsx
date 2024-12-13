@@ -13,8 +13,9 @@ import {IOptionData} from "../../utils/Command";
 
 export default function RaidSection() {
 
-    // from query
     const { nation } = useParams<{ nation: string }>();
+    const [raidOutput, setRaidOutput] = useState<WebTargets | boolean | string | null>(null);
+    const [desc, setDesc] = useState<string | null>(null);
 
     const raiding = useMemo(() => ({
         app_7d: {
@@ -94,9 +95,6 @@ export default function RaidSection() {
     // const [enemies, setEnemies] = useState<WebEnemyInfo | null>(null);
     // WebEnemyInfo = alliance ids, alliance names
     // war find options
-
-    const [raidOutput, setRaidOutput] = useState<WebTargets | boolean | string | null>(null);
-    const [desc, setDesc] = useState<string | null>(null);
 
     return <div className="themeDiv bg-opacity-10 p-2 rounded mt-2">
         <h1 className="text-2xl mt-2 font-bold">War / Raiding</h1>

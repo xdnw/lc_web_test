@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, KeyboardEventHandler, useState } from "react";
+import React, { useRef, useEffect, KeyboardEventHandler, useState, useMemo } from "react";
 // @ts-expect-error Clusterize is not typed
 import Clusterize from 'clusterize.js';
 import 'clusterize.js/clusterize.css';
@@ -8,6 +8,36 @@ import { useSyncedStateFunc } from "@/utils/StateUtil";
 import Select from "react-select/base";
 import { useDialog } from "../layout/DialogContext";
 import {Button} from "../ui/button";
+import {TypeBreakdown} from "../../utils/Command";
+
+export function ListComponentBreakdown({breakdown, argName, isMulti, initialValue, setOutputValue}: {
+    breakdown: TypeBreakdown,
+    argName: string,
+    isMulti: boolean,
+    initialValue: string,
+    setOutputValue: (name: string, value: string) => void
+}) {
+    const labelled = useMemo(() => {
+        const types = breakdown.map.getPlaceholderTypes(true);
+        return types.map((o) => ({ label: o, value: o }));
+    }, [breakdown]);
+
+    return <ListComponent argName={argName} options={labelled} isMulti={isMulti} initialValue={initialValue} setOutputValue={setOutputValue}/>
+}
+
+export function ListComponentOptions({options, argName, isMulti, initialValue, setOutputValue}: {
+    options: string[],
+    argName: string,
+    isMulti: boolean,
+    initialValue: string,
+    setOutputValue: (name: string, value: string) => void
+}) {
+    const labelled = useMemo(() => {
+        return options.map((o) => ({label: o, value: o}))
+    }, [options]);
+
+    return <ListComponent argName={argName} options={labelled} isMulti={isMulti} initialValue={initialValue} setOutputValue={setOutputValue}/>
+}
 
 export default function ListComponent(
     { argName, options, isMulti, initialValue, setOutputValue }:

@@ -53,7 +53,7 @@ function ApiForm<T, A extends { [key: string]: string }>({
     return <>
         {message}
         {message && required && required.length > 0 && <hr className="my-2"/> }
-        {required && required.length > 0 && test() && <>
+        {required && required.length > 0 && <>
             <FormInputs setOutputValue={commandStore.current((state) => state.setOutput)} />
             <hr className="my-2"/>
         </>}
@@ -81,11 +81,6 @@ const areEqual = <T, A extends { [key: string]: string }>(prevProps: ApiFormProp
 };
 
 export default React.memo(ApiForm, areEqual) as typeof ApiForm;
-
-export function test() {
-    console.log("RERENDER FORM INPUTS");
-    return true;
-}
 
 export function ApiFormHandler<T, A extends {[key: string]: string}>({store, endpoint, label, required, handle_response, handle_submit, handle_loading, handle_error, classes}: {
     store: CommandStoreType,

@@ -31,7 +31,7 @@ export function cosineSimilarity(vecA: number[], vecB: number[]): number {
 function toNumber(tensor: Tensor): number[] {
     const result: number[] = [];
     for (let i = 0; i < tensor.data.length; i++) {
-        result.push(tensor.data[i]);
+        result.push(tensor.data[i] as number);
     }
     return result;
 }
@@ -51,8 +51,13 @@ export async function compareSentences(sentences: Sentence[], compareTo: string)
     return result;
 }
 
+export type Weight = {
+    vector: number[];
+    hash: string;
+}
+
 export type WeightMap = {
-    [key: string]: number;
+    [key: string]: Weight;
 }
 
 export type CommandWeights = {
@@ -66,11 +71,11 @@ export async function loadWeights(): Promise<CommandWeights> {
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
-    let weights = await response.json();
-    if (!weights["commands"]) {
+    let weights = await response.json() as CommandWeights;
+    if (!weights.commands) {
         const parent = weights;
         weights = {
-            commands: parent,
+            commands: parent as unknown as WeightMap,
             placeholders: {}
         }
     }

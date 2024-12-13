@@ -24,15 +24,6 @@ export type IArgument = {
 }
 
 
-const test: ICommand = {
-    "help":"",
-    "desc":"Run the militarization alerts task",
-    "annotations":{"role":{
-        "value":["ADMIN"],
-            "root":true}
-    }
-}
-
 export type ICommand = {
     help: string;
     desc: string;
@@ -135,7 +126,7 @@ export class Argument {
 }
 
 class OptionData {
-    options: string[] | null;
+    options: string[] | undefined;
     query: boolean;
     completions: boolean;
     guild: boolean;
@@ -146,7 +137,7 @@ class OptionData {
 
     constructor(map: CommandMap, data: IOptionData, multi: boolean) {
         this.map = map;
-        this.options = data.options;
+        this.options = data.options || undefined;
         this.query = data.query || false;
         this.completions = data.completions || false;
         this.guild = data.guild || false;
@@ -233,14 +224,6 @@ export class Command {
 
     getFullText(): string {
         return `${this.name} ${this.command.desc}`;
-    }
-
-    toSentence(weights: CommandWeights): Sentence {
-        const weight = weights[this.name];
-        return weight && {
-            text: this.getFullText(),
-            vector: weight.vector
-        };
     }
 
     getArguments(): Argument[] {
@@ -343,13 +326,13 @@ export class CommandMap {
 
         // add all the arguments to the command
         Object.entries(allArgs).forEach(([key, arg]) => {
-            builder.argument(key, arg.optional == null ? false : arg.optional, arg.desc, arg.type, arg.def, arg.choices, arg.filter);
+            builder.argument(key, arg.optional == null ? false : arg.optional, arg.desc ?? "", arg.type, arg.def, arg.choices, arg.filter);
         });
         return builder.build();
     }
 
     searchPlaceholders(placeholder_type: string, functionString: string) {
-        const commands: ICommandGroup = this.data.placeholders[placeholder_type];
+        const commands: ICommandGroup = this.data.placeholders[placeholder_type].commands;
         const startsWith: {[key: string]: ICommand} = {};
         const completeMatch: {[key: string]: ICommand} = {};
         const funcStrLower = functionString.toLowerCase();
@@ -429,7 +412,7 @@ export class CommandMap {
                     return {
                         placeholder_type: placeholder_type,
                         options: [{
-                            name: "HANDLE SUBCOMMAND " + command.return_type + " | " + breakdown.child[0].element,
+                            name: "HANDLE SUBCOMMAND " + command.return_type + " | " + breakdown.child?.[0].element,
                             value: "HELLO WORLD"
                         }]
                     };
@@ -643,13 +626,13 @@ function getCurrentlyTypingArg(command: ICommand, functionContent: string, caret
         }
         switch (char) {
             case ":": {
-                for (const [key, value] of Object.entries(command.arguments)) {
+                for (const [key, value] of Object.entries(command.arguments ?? {})) {
                     if (functionContent.endsWith(key, j)) {
                         if (j >= caretPosition) {
                             if (j - key.length - 1 <= caretPosition) {
                                 return {
                                     placeholder_type: placeholder_type,
-                                    argument: command.arguments[key],
+                                    argument: command.arguments?.[key],
                                     options: [{
                                         name: "ARG KEY " + key + " | " + j + " | " + caretPosition,
                                         value: "HELLO WORLD"
@@ -660,7 +643,7 @@ function getCurrentlyTypingArg(command: ICommand, functionContent: string, caret
                                 if (lastArg) {
                                     return {
                                         placeholder_type: placeholder_type,
-                                        argument: command.arguments[key],
+                                        argument: command.arguments?.[key],
                                         options: [{
                                             name: "Arg value, new arg specified " + lastArg.name + " | " + argContent,
                                             value: "HELLO WORLD"
@@ -669,7 +652,7 @@ function getCurrentlyTypingArg(command: ICommand, functionContent: string, caret
                                 } else {
                                     return {
                                         placeholder_type: placeholder_type,
-                                        argument: command.arguments[key],
+                                        argument: command.arguments?.[key],
                                         options: [{
                                             name: "Arg value, new arg specified, previous arg invalid " + " | " + argContent,
                                             value: "HELLO WORLD"
@@ -680,7 +663,7 @@ function getCurrentlyTypingArg(command: ICommand, functionContent: string, caret
                         } else if (j + 1 == caretPosition) {
                             return {
                                 placeholder_type: placeholder_type,
-                                argument: command.arguments[key],
+                                argument: command.arguments?.[key],
                                 options: [{
                                     name: "Arg key end colon " + key + " | " + lastArg,
                                     value: "HELLO WORLD"
@@ -793,12 +776,13 @@ export class CommandBuilder {
             desc,
             group: undefined,
             type,
-            default: def,
+            def: def,
             choices,
             min: undefined,
             max: undefined,
             filter
         };
+        if (!this.command.arguments) this.command.arguments = {};
         this.command.arguments[name] = arg;
         return this;
     }

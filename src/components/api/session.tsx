@@ -4,7 +4,7 @@ import { getDiscordAuthUrl } from '@/utils/Auth';
 import { Button } from '../ui/button.tsx';
 import { Link } from 'react-router-dom';
 import {Mail, ExternalLink, KeyRound, ChevronRight} from 'lucide-react';
-import {SESSION} from "@/components/api/endpoints.tsx";
+import {useSession} from "./SessionContext";
 
 export function LoginPicker() {
     return (
@@ -48,89 +48,88 @@ export function LoginPicker() {
 }
 
 export default function SessionInfo() {
-    return SESSION.useDisplay({
-        args: {},
-        render: (session) => <>
-            <div className="themeDiv bg-opacity-10 p-2 rounded relative">
-                <table className="table-auto w-full border-separate border-spacing-y-1">
-                    <tbody>
-                    <tr className="bg-secondary">
-                        <td className="px-1 py-1 bg-secondary">User</td>
-                        <td className="px-1 py-1 bg-secondary">
-                            {session.user_icon && <img src={session.user_icon} alt={session.user_name}
-                                                       className="w-4 h-4 inline-block mr-1"/>}
-                            {session.user_name ? session.user_name + " | " : ""}
-                            {session.user ? session.user : "N/A"}
-                        </td>
-                    </tr>
-                    <tr className="bg-secondary">
-                        <td className="p-1">Nation</td>
-                        <td className="p-1">
-                            <div className="relative">
-                                {session.nation ? <Link className="text-blue-600 hover:text-blue-800 underline"
-                                                        to={`https://politicsandwar.com/nation/id=${session.nation}`}>
-                                    {session.nation_name ? session.nation_name : session.nation}
-                                </Link> : "N/A"}
-                                {session.alliance && " | "}
-                                {session.alliance ? <Link className="text-blue-600 hover:text-blue-800 underline"
-                                                          to={`https://politicsandwar.com/alliance/id=${session.alliance}`}>
-                                    {session.alliance_name ? session.alliance_name : session.alliance}
-                                </Link> : ""}
-                                {(session.nation && session.user) &&
+    const {session, error } = useSession();
 
-                                    <Button variant="outline" size="sm"
-                                            className='border-slate-600 absolute top-0 right-0'
-                                            asChild>
-                                        <Link to={`${process.env.BASE_PATH}unregister`}>
-                                            {session.registered ? session.registered_nation == session.nation ? "Unlink" : "!! Fix Invalid Registration !!" : "Link to Discord"}
-                                        </Link>
-                                    </Button>
-                                }
-                            </div>
-                        </td>
-                    </tr>
-                    <tr className="bg-secondary">
-                        <td className="p-1">Expires</td>
-                        <td className="p-1">
-                            <div className="relative">
-                                {session.expires}
-                                <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
-                                        asChild>
-                                    <Link to={`${process.env.BASE_PATH}logout`}>Logout</Link></Button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr className="bg-secondary">
-                        <td className="p-1">Guild</td>
-                        <td className="p-1">
-                            <div className="relative">
-                                {session.guild_icon && <img src={session.guild_icon} alt={session.guild_name}
-                                                            className="w-4 h-4 inline-block mr-1"/>}
-                                {session.guild_name ? session.guild_name + " | " : ""}
-                                {session.guild ? session.guild : "N/A"}
-                                <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
-                                        asChild>
-                                    <Link
-                                        to={`${process.env.BASE_PATH}guild_select`}>{session.guild ? "Switch" : "Select"}</Link></Button>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                {session.guild && true &&
-                    <Button variant="link" className='hover:text-blue-500 underline text-lg'
-                            asChild>
-                        <Link
-                            to={`${process.env.BASE_PATH}guild_member`}>View Guild Member Homepage<ChevronRight /></Link></Button>
-                }
-            </div>
-        </>,
-        renderError: (error) => <>
+    if (!session) {
+        return <>
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                 <strong className="font-bold">Error:&nbsp;</strong>
                 <span className="block sm:inline">Could not fetch login data. {error}</span>
             </div>
             <LoginPicker/>
         </>
-    });
+    }
+    return <div className="themeDiv bg-opacity-10 p-2 rounded relative">
+        <table className="table-auto w-full border-separate border-spacing-y-1">
+            <tbody>
+            <tr className="bg-secondary">
+                <td className="px-1 py-1 bg-secondary">User</td>
+                <td className="px-1 py-1 bg-secondary">
+                    {session.user_icon && <img src={session.user_icon} alt={session.user_name}
+                                               className="w-4 h-4 inline-block mr-1"/>}
+                    {session.user_name ? session.user_name + " | " : ""}
+                    {session.user ? session.user : "N/A"}
+                </td>
+            </tr>
+            <tr className="bg-secondary">
+                <td className="p-1">Nation</td>
+                <td className="p-1">
+                    <div className="relative">
+                        {session.nation ? <Link className="text-blue-600 hover:text-blue-800 underline"
+                                                to={`https://politicsandwar.com/nation/id=${session.nation}`}>
+                            {session.nation_name ? session.nation_name : session.nation}
+                        </Link> : "N/A"}
+                        {session.alliance && " | "}
+                        {session.alliance ? <Link className="text-blue-600 hover:text-blue-800 underline"
+                                                  to={`https://politicsandwar.com/alliance/id=${session.alliance}`}>
+                            {session.alliance_name ? session.alliance_name : session.alliance}
+                        </Link> : ""}
+                        {(session.nation && session.user) &&
+                            <Button variant="outline" size="sm"
+                                    className='border-slate-600 absolute top-0 right-0'
+                                    asChild>
+                                <Link to={`${process.env.BASE_PATH}unregister`}>
+                                    {session.registered ? session.registered_nation == session.nation ? "Unlink" : "!! Fix Invalid Registration !!" : "Link to Discord"}
+                                </Link>
+                            </Button>
+                        }
+                    </div>
+                </td>
+            </tr>
+            <tr className="bg-secondary">
+                <td className="p-1">Expires</td>
+                <td className="p-1">
+                    <div className="relative">
+                        {session.expires}
+                        <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
+                                asChild>
+                            <Link to={`${process.env.BASE_PATH}logout`}>Logout</Link></Button>
+                    </div>
+                </td>
+            </tr>
+            <tr className="bg-secondary">
+                <td className="p-1">Guild</td>
+                <td className="p-1">
+                    <div className="relative">
+                        {session.guild_icon && <img src={session.guild_icon} alt={session.guild_name}
+                                                    className="w-4 h-4 inline-block mr-1"/>}
+                        {session.guild_name ? session.guild_name + " | " : ""}
+                        {session.guild ? session.guild : "N/A"}
+                        <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
+                                asChild>
+                            <Link
+                                to={`${process.env.BASE_PATH}guild_select`}>{session.guild ? "Switch" : "Select"}</Link></Button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        {session.guild && true &&
+            <Button variant="link" className='hover:text-blue-500 underline text-lg'
+                    asChild>
+                <Link
+                    to={`${process.env.BASE_PATH}guild_member`}>View Guild Member
+                    Homepage<ChevronRight/></Link></Button>
+        }
+    </div>
 }

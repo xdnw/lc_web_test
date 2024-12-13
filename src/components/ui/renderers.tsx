@@ -51,7 +51,7 @@ export function getRenderer(type: string): ObjectColumnRender | undefined {
     if (!type) return undefined;
     if (type.startsWith("enum:")) {
         const enumType = type.split(":")[1];
-        const options = COMMANDS.options[enumType]?.options ?? [];
+        const options = (COMMANDS.options[enumType] as IOptionData)?.options ?? [];
         return {
             display: (value: number) => options[value],
         };

@@ -6,34 +6,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { hashWithMD5, loadWeights, toVector } from '@/utils/Embedding';
 import React, { useRef } from 'react';
 import {COMMAND_MAP} from "@/utils/Command.ts";
-import {UNPACKR} from "@/lib/utils.ts";
-
-async function testDeserialization() {
-    const url = `${process.env.API_URL}test`;
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/msgpack',
-            },
-            credentials: 'include',
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const serializedData = await response.arrayBuffer();
-        const data = new Uint8Array(serializedData);
-        const deserializedData = UNPACKR.unpack(data);
-
-        console.log(deserializedData);
-        alert(deserializedData);
-    } catch (error) {
-        console.error('Error fetching or deserializing data:', error);
-    }
-}
+import {CommandWeights} from "../../utils/Embedding";
 
 export default function Admin() {
     const textareaRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
@@ -49,23 +22,22 @@ export default function Admin() {
         setIsSetupRunning(true);
         try {
             setProgressText("Loading weights...");
-            const weights = await loadWeights();
+            const weights: CommandWeights = await loadWeights();
             textareaRef.current!.value = JSON.stringify(weights);
 
             const commands = COMMAND_MAP;
             const cmdLen = Object.keys(commands).length;
-            console.log("Commands: ", cmdLen);
 
-            const funcs = Object.entries(commands).map(([name, group], i) => async () => {
-                const fullText = name + " " + group.command.desc;
+            const funcs = Object.entries(commands.getCommands()).map(([name, cmd], i) => async () => {
+                const fullText = name + " " + cmd.command.desc;
                 const hash = hashWithMD5(fullText);
-                const existing = weights[name]
+                const existing = weights.commands[name];
                 if (existing && existing.hash === hash) {
                     console.log("Skipping: ", name);
                     return;
                 }
                 const vector = await toVector(fullText);
-                weights[name] = {
+                weights.commands[name] = {
                     vector,
                     hash
                 };
@@ -114,7 +86,7 @@ export default function Admin() {
                 <BlockCopyButton getText={() => textareaRef.current ? textareaRef.current.value : ''} />
                 </TooltipProvider>
             </div>
-            <Button type="submit" className="w-full" variant="outline" size='sm' onClick={async () => {setup();}}>Load Weights</Button>
+            <Button type="submit" className="w-full" variant="outline" size='sm' onClick={() => void setup()}>Load Weights</Button>
             <div className="relative">
                 <Progress value={progress} max={100} />
                 <div className="absolute inset-0 flex items-center justify-center font-bold text-gray-400">
@@ -123,7 +95,6 @@ export default function Admin() {
             </div>
             <hr className="my-2"/>
             <h1 className="text-2xl font-bold">Test Deserialization</h1>
-            <Button type="submit" className="w-full" variant="outline" size='sm' onClick={async () => {testDeserialization();}}>Test Deserialization</Button>
         </>
     );
 }

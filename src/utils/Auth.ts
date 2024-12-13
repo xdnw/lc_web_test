@@ -8,7 +8,7 @@ export const AUTHORIZE_URL = "https://discord.com/api/oauth2/authorize";
 
 // cookie with name lc_token_exists and is set to 1 if lc_token exists
 export function hasToken(): boolean {
-    return Cookies.get('lc_token_exists') === '1';
+    return Cookies.get('lc_token_exists') !== undefined;
 }
 
 export function clearStorage(cookieId: string) {

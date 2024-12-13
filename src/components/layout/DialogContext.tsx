@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import SimpleDialog from "../ui/simple-dialog";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '../ui/tabs';
 
@@ -19,15 +19,23 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [dialogs, setDialogs] = useState<DialogProps[]>([]);
     const [isDialogVisible, setDialogVisible] = useState(false);
 
-    const showDialog = (title: string, message: ReactNode, quote: boolean = false) => {
+    const showDialog = useCallback((title: string, message: ReactNode, quote: boolean = false) => {
         setDialogs(prevDialogs => [...prevDialogs, { title, message, quote }]);
         setDialogVisible(true);
-    };
+    }, []);
 
-    const hideDialog = () => {
-        setDialogVisible(false);
+    const hideDialog = useCallback(() => {
+        console.log("Clear dialog");
         setDialogs([]);
-    };
+        setDialogVisible(false);
+    }, []);
+
+    const setDialogVisibleAndClear = useCallback((visible: boolean) => {
+        setDialogVisible(visible);
+        if (!visible) {
+            setDialogs([]);
+        }
+    }, []);
 
     return (
         <DialogContext.Provider value={{ showDialog, hideDialog }}>
@@ -56,7 +64,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                         )
                     }
                     showDialog={isDialogVisible}
-                    setShowDialog={setDialogVisible}
+                    setShowDialog={setDialogVisibleAndClear}
                 />
             )}
         </DialogContext.Provider>

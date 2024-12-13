@@ -43,8 +43,24 @@ class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapper
             console.log("RENDER BECAUSE ERROR", this.props.index);
             return true;
         }
-        if (deepEqual(nextProps.data, this.state.data)) {
-            console.log("RENDER BECAUSE DATA ", this.props.index);
+        if (nextProps.index == -1) {
+            return false;
+        }
+        if (this.props.index != nextProps.index && nextProps.data && nextProps.data.length >= nextProps.index && nextProps.data[nextProps.index]) {
+            console.log("RENDER BECAUSE INDEX", this.props.index);
+            return true;
+        }
+        if (nextProps.data && nextProps.data.length >= nextProps.index && nextProps.data[nextProps.index]) {
+            if (!this.state.data || this.state.data.length < nextProps.index) {
+                console.log("RENDER BECAUSE PREVIOUS DATA IS NULL");
+                return true;
+            }
+            if (!deepEqual(nextProps.data[nextProps.index], this.state.data[nextProps.index])) {
+                console.log("RENDER BECAUSE DATA IS CHANGED");
+                return true;
+            }
+        } else if (this.state.data && this.state.data.length > nextProps.index && this.state.data[nextProps.index]) {
+            console.log("RENDER BECAUSE PREVIOUS DATA IS NOT NULL AND NEW DATA IS NULL");
             return true;
         }
         return false;
@@ -56,30 +72,30 @@ class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapper
 
         if (loading) {
             if (renderLoading) {
-                return <>{renderLoading()}</>;
+                return renderLoading();
             }
             return <Loading />;
         }
         if (error) {
             if (renderError) {
-                return <>{renderError(error)}</>;
+                return renderError(error);
             }
             return <div>An error occurred (1): {error}</div>;
         }
         const elem = data ? data[index] as WebSuccess : null;
         if (!elem) {
-            if (renderError) {
-                return <>{renderError(error ?? "Null")}</>;
-            }
-            return <></>;
+            // if (renderError) {
+            //     return renderError(error ?? "Null");
+            // }
+            return null;
         }
         if (elem?.success === false) {
             if (renderError) {
-                return <>{renderError(elem?.message ?? "Null")}</>;
+                return renderError(elem?.message ?? "Null");
             }
             return <div>An error occurred (3): {elem?.message ?? "Null"}</div>;
         }
-        return <>{render(elem as T)}</>;
+        return render(elem as T);
     }
 }
 

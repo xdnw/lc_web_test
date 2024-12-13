@@ -8,27 +8,23 @@ import {ChevronLeft} from "lucide-react";
 import {useData} from "@/components/cmd/DataContext.tsx";
 import {useDialog} from "../../components/layout/DialogContext";
 import {SetGuild} from "../../components/api/apitypes";
+import {useSession} from "../../components/api/SessionContext";
 
 
 const GuildPicker = () => {
-    const [hasGuild, setHasGuild] = useState<boolean>(Cookies.get('lc_guild') != null);
-    const [guildData, setGuildData] = useState<{ id: string, name: string, icon: string } | null>(null);
+    const { session, error, setSession, refetchSession } = useSession();
     const { showDialog } = useDialog();
-    const { refetch } = useData();
 
     const handleResponse = useCallback((data: SetGuild) => {
         clearStorage('lc_session');
         Cookies.set('lc_guild', data.id);
+        refetchSession();
+
         showDialog("Guild Set", <div className="flex items-center">
             <img src={data.icon} alt="Guild Icon" className="w-8 h-8 mr-2" />
             <span>Selected guild with id {data.id} and name {data.name}</span>
         </div>, false);
-
-        refetch();
-
-        setGuildData(data);
-        setHasGuild(true);
-    }, []);
+    }, [refetchSession, showDialog]);
 
     return (
         <>
@@ -38,7 +34,7 @@ const GuildPicker = () => {
             </Link>
         </Button>
         <div className="themeDiv bg-opacity-10 p-2 m-0 mt-2">
-            {hasGuild && <MemoizedGuildInfo hasGuild={hasGuild} guildData={guildData} setHasGuild={setHasGuild} />}
+            {session?.guild && <SelectedGuildInfo id={session?.guild} name={session?.guild_name} icon={session?.guild_icon} />}
             <GuildForm handleResponse={handleResponse} />
             <hr className="my-2" />
             <div className="bg-accent p-2 rounded relative">
@@ -51,22 +47,7 @@ const GuildPicker = () => {
     );
 };
 
-const GuildInfo = ({ hasGuild, guildData, setHasGuild }: { hasGuild: boolean, guildData: { id: string, name: string, icon: string } | null, setHasGuild: (value: boolean) => void }) => {
-    const hasRenderedFetchGuildCard = useRef(false);
-
-    return (
-        <>
-            {hasGuild && guildData ?
-                <SelectedGuildInfo guildData={guildData} setHasGuild={setHasGuild} />
-                : (!hasRenderedFetchGuildCard.current && <FetchGuildCard setHasGuild={setHasGuild} />)
-            }
-        </>
-    );
-};
-
-const MemoizedGuildInfo = memo(GuildInfo);
-
-const GuildForm = memo(({ handleResponse }: { handleResponse: (data: SetGuild) => void }) => {
+const GuildForm = (({ handleResponse }: { handleResponse: (data: SetGuild) => void }) => {
     return SET_GUILD.useForm({
         message: <>
             <h2 className="text-lg font-extrabold">Guild Select:</h2>
@@ -78,38 +59,13 @@ const GuildForm = memo(({ handleResponse }: { handleResponse: (data: SetGuild) =
     });
 });
 
-const SelectedGuildInfo = memo(({ guildData, setHasGuild }: { guildData: { id: string, name: string, icon: string } | null, setHasGuild: (value: boolean) => void }) => {
-    if (!guildData) {
-        return null;
-    }
-    return <GuildCard id={guildData.id} name={guildData.name} icon={guildData.icon} setHasGuild={setHasGuild} />;
+const SelectedGuildInfo = memo(({ id, name, icon }: { id: string, name?: string, icon?: string }) => {
+    return <GuildCard id={id} name={name} icon={icon} />;
 });
 
-const FetchGuildCard = memo(({ setHasGuild }: { setHasGuild: (value: boolean) => void }) => {
-    const hasRenderedFetchGuildCard = useRef(false);
 
-    if (hasRenderedFetchGuildCard.current) {
-        return <>No guild</>;
-    }
-
-    hasRenderedFetchGuildCard.current = true;
-
-    return <FetchGuildCardContent setHasGuild={setHasGuild} />;
-});
-
-const FetchGuildCardContent = memo(({ setHasGuild }: { setHasGuild: (value: boolean) => void }) => {
-    return SESSION.useDisplay({
-        args: {},
-        render: (session) => (
-            <>
-                {session.guild && <GuildCard id={session.guild} name={session.guild_name} icon={session.guild_icon} setHasGuild={setHasGuild} />}
-            </>
-        )
-    });
-});
-
-const GuildCard = memo(({ id, name, icon, setHasGuild }: { id: string | null, name: string | undefined, icon: string | undefined, setHasGuild: (value: boolean) => void }) => {
-    const { refetch } = useData();
+const GuildCard = memo(({ id, name, icon }: { id: string | null, name: string | undefined, icon: string | undefined }) => {
+    const { refetchSession } = useSession();
 
     return (
         <>
@@ -124,8 +80,7 @@ const GuildCard = memo(({ id, name, icon, setHasGuild }: { id: string | null, na
                     <Button onClick={() => {
                         clearStorage('lc_guild');
                         clearStorage('lc_session');
-                        refetch();
-                        setHasGuild(false);
+                        refetchSession();
                     }} variant="outline" size="sm" className="border-slate-600 absolute top-2 right-2">
                         Remove
                     </Button>

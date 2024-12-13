@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react';
+import React, { useCallback, createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react';
 import Cookies from "js-cookie";
 import {UNPACKR} from "@/lib/utils.ts";
+import {bool} from "prop-types";
 type DataProviderProps = {
     children: ReactNode;
     endpoint: string;
@@ -51,7 +52,7 @@ export function defaultCache(cookie: string) {
 }
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }) => {
-    const [data, setData] = useState<{ [key: string]: JSONValue }[] | null>(null);
+    const [data, setData] = useState<{ [key: string]: JSONValue | null }[] | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const queries = useRef<[string, QueryData][]>([]);
@@ -77,10 +78,38 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
         return newIndex;
     };
 
-    const refetch = () => {
+    const refetch = useCallback(() => {
         newQueryRef.current++;
-        setRerender(!rerender);
-    };
+        setRerender(prev => !prev);
+    }, []);
+
+    const refetchQueries = useCallback((queryId: number[]) => {
+        if (!data || !queries.current) return;
+        let newData: ({ [key: string]: JSONValue } | null)[] | null = null;
+        for (const id of queryId) {
+            if (!data[id]) continue;
+            if (newData === null) {
+                newData = [...data];
+            }
+            newData[id] = null;
+            const query = queries.current[id];
+            const cache = query[1].cache;
+            if (cache) {
+                if (cache.cache_type === CacheType.Cookie) {
+                    Cookies.remove(cache.cookie_id);
+                } else if (cache.cache_type === CacheType.LocalStorage) {
+                    localStorage.removeItem(cache.cookie_id);
+                } else if (cache.cache_type === CacheType.SessionStorage) {
+                    sessionStorage.removeItem(cache.cookie_id);
+                }
+            }
+        }
+        if (newData) {
+            setData(newData);
+            newQueryRef.current++;
+            setRerender(prev => !prev);
+        }
+    }, [data]);
 
     useEffect(() => {
         console.log("Run queries before ", queries.current.length + " | " + lastQuery.current + " | " + newQueryRef.current);
@@ -203,7 +232,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
     }, [rerender]);
 
     return (
-        <DataContext.Provider value={{ data, loading, error, registerQuery, refetch }}>
+        <DataContext.Provider value={{ data, loading, error, registerQuery, refetch, refetchQueries }}>
             {children}
         </DataContext.Provider>
     );
@@ -215,6 +244,7 @@ type DataContextType<T> = {
     error: string | null;
     registerQuery: (name: string, query: { [key: string]: string }, cache?: { cache_type: CacheType, duration?: number, cookie_id: string }) => number;
     refetch: () => void;
+    refetchQueries: (queryId: number[]) => void;
 };
 
 const DataContext = createContext<DataContextType<any> | undefined>(undefined);

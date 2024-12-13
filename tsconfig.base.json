@@ -29,10 +29,18 @@
     },
     "outDir": "./dist",
 
-
     /* Performance improvements */
     "removeComments": true,
     "downlevelIteration": true,
+
+    /* Additional strict options */
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true
   },
   "typeRoots": [
     "./node_modules/@types",

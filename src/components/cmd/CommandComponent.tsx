@@ -43,11 +43,11 @@ export default function CommandComponent({ command, filterArguments, initialValu
                     {groupExists && 
                         <>
                             <p className="font-bold">
-                                {command.command.groups[group[0].arg.group || 0]}
+                                {command.command.groups?.[group[0].arg.group || 0] ?? ''}
                             </p>
                             {groupDescExists &&
                                 <p className="">
-                                    {command.command.group_descs[group[0].arg.group || 0]}
+                                    {command.command.group_descs?.[group[0].arg.group || 0] ?? ''}
                                 </p>
                             }
                         </>

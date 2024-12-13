@@ -1,4 +1,4 @@
-import React, {Component, createRef, RefObject, useRef, useState} from 'react';
+import React, {Component, createRef, RefObject, useRef, useState, forwardRef} from 'react';
 import {
     Chart as ChartJS,
     Decimation,
@@ -10,7 +10,8 @@ import {
     Title,
     Tooltip,
     Legend,
-    Filler, ChartEvent, ActiveElement, Chart, ChartTypeRegistry, Point, BubbleDataPoint, TooltipItem
+    Filler, ChartEvent, ActiveElement, Chart, ChartTypeRegistry, Point, BubbleDataPoint, TooltipItem,
+    ChartData
 } from 'chart.js';
 import ChartDeferred from 'chartjs-plugin-deferred';
 import { Bar, Line, Scatter } from 'react-chartjs-2';
@@ -217,17 +218,17 @@ class ChartComponent extends Component<ChartProps, ChartState> {
             minY = Math.min(...graph.data.slice(1).map((dataSet) => Math.min(...dataSet as number[])));
             maxY = Math.max(...graph.data.slice(1).map((dataSet) => Math.max(...dataSet as number[])));
         }
-        let chartData;
+        let chartData: ChartData;
         if (type === 'SCATTER') {
             chartData = {
                 datasets: graph.data.slice(1).map((dataSet, index) => ({
                     label: graph.labels[index],
                     data: dataSet.map((yValue, i) => ({
                         x: toMillisFunc(graph.data[0][i] as number + origin),
-                        y: yValue
+                        y: Number(yValue) // Ensure y is a number
                     })),
-                    backgroundColor: colors[index],
-                    borderColor: colors[index],
+                    backgroundColor: colors[index].css(), // Convert chroma.Color to string
+                    borderColor: colors[index].css(), // Convert chroma.Color to string
                     borderWidth: 1,
                     pointRadius: 1,
                     pointHoverRadius: 5,
@@ -246,7 +247,7 @@ class ChartComponent extends Component<ChartProps, ChartState> {
                 labels: graph.data[0].map((xValue: number | string) => toMillisFunc(xValue as number + origin)),
                 datasets: graph.data.slice(1).map((dataSet, index) => ({
                     label: graph.labels[index],
-                    data: dataSet,
+                    data: dataSet as number[],
                     backgroundColor: `rgba(${colors[index].rgb()[0]}, ${colors[index].rgb()[1]}, ${colors[index].rgb()[2]}, 0.5)`,
                     borderColor: `rgba(${colors[index].rgb()[0]}, ${colors[index].rgb()[1]}, ${colors[index].rgb()[2]}, 1)`,
                     borderWidth: 1,

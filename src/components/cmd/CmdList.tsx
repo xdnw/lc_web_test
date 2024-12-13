@@ -1,4 +1,4 @@
-import React, { useState, } from 'react';
+import React, {useCallback, useState,} from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input';
 import { CommandWeights, cosineSimilarity, loadWeights, toVector } from '../../utils/Embedding';
@@ -6,21 +6,19 @@ import ListComponent from '@/components/cmd/ListComponent';
 import TriStateInput from '@/components/cmd/TriStateInput';
 import MarkupRenderer from '@/components/ui/MarkupRenderer';
 import {getCharFrequency, simpleSimilarity} from '@/utils/StringUtil';
-import {Command, CommandMap} from "@/utils/Command.ts";
+import {Command} from "@/utils/Command.ts";
 import {useDialog} from "../layout/DialogContext";
 
-type CmdListProps = {
-    map: CommandMap;
-    commands: Command[];
-};
+export default function CmdList({ commands, prefix }: {commands: Command[], prefix: string}) {
+    const { showDialog } = useDialog();
 
-export default function CmdList({ map, commands, prefix }: {map: CommandMap, commands: Command[], prefix: string}) {
     const [weights, setWeights] = useState<CommandWeights | null>(() => (null));
     const [filter, setFilter] = useState('');
     const [filteredCommands, setFilteredCommands] = useState<Command[]>(commands);
     const [showFilters, setShowFilters] = useState(false);
     const [customFilters, setCustomFilters] = useState<{[key: string]: (cmd: Command) => boolean}>(() => ({}));
-    const [cmdArgs, setCmdArguments] = useState<{label: string, value: string}[]>(() => {
+
+    const [cmdArgs] = useState<{label: string, value: string}[]>(() => {
         const argsUnique = new Map<string, number>();
         for (const cmd of commands) {
             const args = cmd.getArguments();
@@ -36,7 +34,7 @@ export default function CmdList({ map, commands, prefix }: {map: CommandMap, com
         }
         return Array.from(argsUnique.entries()).sort().map(([arg, count]) => ({ label: `${arg} (${count})`, value: arg }));
     });
-    const [roles, setRoles] = useState<{label: string, value: string}[]>(() => {
+    const [roles] = useState<{label: string, value: string}[]>(() => {
         const rolesUnique = new Map<string, number>();
         for (const cmd of commands) {
             if (cmd.command.annotations) {
@@ -50,7 +48,7 @@ export default function CmdList({ map, commands, prefix }: {map: CommandMap, com
         return Array.from(rolesUnique.entries()).sort().map(([role, count]) => ({ label: `${role} (${count})`, value: role }));
     });
 
-    const updateFilteredCommands = (filterValue: string, customFilters: {[key: string]: (cmd: Command) => boolean}) => {
+    const updateFilteredCommands = useCallback((filterValue: string, customFilters: {[key: string]: (cmd: Command) => boolean}) => {
         const inputLower = filterValue.toLowerCase();
         const inputFreq = getCharFrequency(inputLower);
         const inputWordFreq = new Set(inputLower.split(" "));
@@ -67,16 +65,15 @@ export default function CmdList({ map, commands, prefix }: {map: CommandMap, com
             .map(({ cmd }) => cmd);
 
         setFilteredCommands(newFilteredCommands);
-    };
+    }, [commands, setFilteredCommands]);
 
-    const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyUp = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
         const value = event.currentTarget.value;
         setFilter(value);
         updateFilteredCommands(value, customFilters);
-    };
+    }, [customFilters, updateFilteredCommands]);
 
-    async function semanticSearch() {
-        const { showDialog } = useDialog();
+    const semanticSearch = useCallback(async () => {
         let loaded = weights;
         if (!loaded) {
             loaded = await loadWeights();
@@ -95,9 +92,9 @@ export default function CmdList({ map, commands, prefix }: {map: CommandMap, com
                 similarityMap.push([cmd, cosineSimilarity(sentence.vector, myVector)]);
             }
         }
-        const sortedCommands= similarityMap.sort((a, b) => b[1] - a[1]).map(([cmd, similarity]) => cmd);
+        const sortedCommands = similarityMap.sort((a, b) => b[1] - a[1]).map(([cmd]) => cmd);
         setFilteredCommands(sortedCommands);
-    }
+    }, [weights, commands, filter, setWeights, setFilteredCommands, showDialog]);
 
     return (
         <div>
