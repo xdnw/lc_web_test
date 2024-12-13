@@ -44,6 +44,7 @@ class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapper
             return true;
         }
         if (nextProps.index == -1) {
+            console.log("NO RENDER BECAUSE INDEX IS -1");
             return false;
         }
         if (this.props.index != nextProps.index && nextProps.data && nextProps.data.length >= nextProps.index && nextProps.data[nextProps.index]) {
@@ -51,17 +52,20 @@ class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapper
             return true;
         }
         if (nextProps.data && nextProps.data.length >= nextProps.index && nextProps.data[nextProps.index]) {
-            if (!this.state.data || this.state.data.length < nextProps.index) {
+            if (this.props.index == -1 || !this.state.data || this.state.data.length < this.props.index || !this.state.data[this.props.index]) {
                 console.log("RENDER BECAUSE PREVIOUS DATA IS NULL");
                 return true;
-            }
-            if (!deepEqual(nextProps.data[nextProps.index], this.state.data[nextProps.index])) {
+            } else if (!deepEqual(nextProps.data[nextProps.index], this.state.data[this.props.index])) {
                 console.log("RENDER BECAUSE DATA IS CHANGED");
                 return true;
+            } else {
+                console.log("NO RENDER, data is the same");
             }
-        } else if (this.state.data && this.state.data.length > nextProps.index && this.state.data[nextProps.index]) {
+        } else if (this.state.data && this.state.data.length > nextProps.index && this.state.data[this.props.index]) {
             console.log("RENDER BECAUSE PREVIOUS DATA IS NOT NULL AND NEW DATA IS NULL");
             return true;
+        } else {
+            console.log("NO RENDER, both props are null", nextProps.index, nextProps.data);
         }
         return false;
     }

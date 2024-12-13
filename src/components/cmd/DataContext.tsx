@@ -2,6 +2,7 @@ import React, { useCallback, createContext, useContext, useEffect, useState, Rea
 import Cookies from "js-cookie";
 import {UNPACKR} from "@/lib/utils.ts";
 import {bool} from "prop-types";
+import {WebSuccess} from "../api/apitypes";
 type DataProviderProps = {
     children: ReactNode;
     endpoint: string;
@@ -127,7 +128,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
             for (let i = 0; i < queries.current.length; i++) {
                 if (data && data.length >= i) {
                     const dataI = data[i];
-                    if (data[i]?.success !== false) {
+                    if (dataI && dataI.success !== false) {
                         cachedResults.push(dataI);
                         continue;
                     }
