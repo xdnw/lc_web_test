@@ -63,6 +63,7 @@ export default function App() {
         <Route path="/balance/:category" element={<BalancePage />} />
         <Route path="/records" element={<Records />} />
         <Route path="/raid/:nation" element={<RaidSection />} />
+        <Route path="/raid" element={<RaidSection />} />
 
         <Route path="/login" element={<LoginPickerPage />} />
         <Route path="/login/:token" element={<LoginPage />} />

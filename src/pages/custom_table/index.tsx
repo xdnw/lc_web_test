@@ -792,10 +792,9 @@ export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColum
                     }
                 } as (row: Node, data: (string | number)[] | object, index: number) => void,
             }}
-            className="display table-auto divide-y w-full border-separate border-spacing-y-1 text-xs"/>
+            className="display table-auto divide-y w-full border-separate border-spacing-y-1 text-xs compact"/>
     );
 }
-
 
 export function PlaceholderTable({type, selection, columns, sort}: { type: string, selection: string, columns: (string | [string, string])[], sort: OrderIdx | OrderIdx[] }) {
     const typeRef = useRef<string>(type);

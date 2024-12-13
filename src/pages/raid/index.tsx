@@ -1,4 +1,4 @@
-import {useState, useMemo} from "react";
+import React, {useState, useMemo, useRef, useEffect} from "react";
 import {useDialog} from "../../components/layout/DialogContext";
 import {Color} from "../../components/ui/renderers";
 import { CommonEndpoint } from "@/components/api/endpoint";
@@ -10,20 +10,31 @@ import {COMMANDS} from "@/lib/commands.ts";
 import {WebTarget, WebTargets} from "@/components/api/apitypes";
 import {RAID, UNPROTECTED} from "../../components/api/endpoints";
 import {IOptionData} from "../../utils/Command";
+import {useSession} from "../../components/api/SessionContext";
+import {WebSession, WebSuccess} from "../../components/api/apitypes";
+import ArgInput from "../../components/cmd/ArgInput";
+import QueryComponent from "../../components/cmd/QueryComponent";
+import {CommandStoreType, createCommandStore} from "../../utils/StateUtil";
+import {OutputValuesDisplay} from "../command";
 
 type RaidOptions = { [key: string]: { endpoint: (typeof RAID | typeof UNPROTECTED), description: string, default_values: { [key: string]: (string | undefined) } } };
 
 export default function RaidSection() {
 
     const { nation } = useParams<{ nation: string }>();
+    const nationOverride = useRef<string | undefined>(nation);
+    useEffect(() => {
+        if (nation) nationOverride.current = nation;
+    }, [nation]);
+
     const [raidOutput, setRaidOutput] = useState<WebTargets | boolean | string | null>(null);
     const [desc, setDesc] = useState<string | null>(null);
+    const { session, error, setSession, refetchSession } = useSession();
 
     const raiding: RaidOptions = useMemo<RaidOptions>(() => ({
         app_7d: {
             endpoint: RAID,
             default_values: {
-                ...(nation !== undefined && { nation }),
                 nations: "*,#position<=1",
                 num_results: "25",
             } as { [key: string]: string },
@@ -32,7 +43,6 @@ export default function RaidSection() {
         members: {
             endpoint: RAID,
             default_values: {
-                ...(nation !== undefined && { nation }),
                 nations: "*",
                 num_results: "25"
             } as { [key: string]: string },
@@ -41,7 +51,6 @@ export default function RaidSection() {
         beige: {
             endpoint: RAID,
             default_values: {
-                ...(nation !== undefined && { nation }),
                 nations: "*",
                 num_results: "25",
                 beige_turns: "24"
@@ -51,7 +60,6 @@ export default function RaidSection() {
         ground: {
             endpoint: RAID,
             default_values: {
-                ...(nation !== undefined && { nation }),
                 nations: "#tankpct<0.2,#soldierpct<0.4,*",
                 num_results: "25",
                 time_inactive: "0d",
@@ -62,7 +70,6 @@ export default function RaidSection() {
         ground_2d: {
             endpoint: RAID,
             default_values: {
-                ...(nation !== undefined && { nation }),
                 nations: "#tankpct<0.2,#soldierpct<0.4,*",
                 num_results: "25",
                 time_inactive: "2d",
@@ -73,7 +80,6 @@ export default function RaidSection() {
         losing: {
             endpoint: RAID,
             default_values: {
-                ...(nation !== undefined && { nation }),
                 nations: "#def>0,#RelativeStrength<1,*",
                 num_results: "25",
                 time_inactive: "0d",
@@ -84,7 +90,6 @@ export default function RaidSection() {
         unprotected: {
             endpoint: UNPROTECTED,
             default_values: {
-                ...(nation !== undefined && { nation }),
                 nations: "*",
                 num_results: "25",
                 ignoreODP: "true",
@@ -100,12 +105,17 @@ export default function RaidSection() {
 
     return <div className="themeDiv bg-opacity-10 p-2 rounded mt-2">
         <h1 className="text-2xl mt-2 font-bold">War / Raiding</h1>
+        {((!session || !session?.nation) && !nation) && <PickNation nation={nationOverride}/>}
         <div className="p-2 my-1 relative">
             {/*<FetchEnemies setEnemies={setEnemies} />*/}
             {/*{enemies && <DisplayEnemies />}*/}
             Raiding: {Object.keys(raiding).map((key, index) => (
             <span key={index}>
-                <RaidButton optionKey={key} setDesc={setDesc} options={raiding} setRaidOutput={setRaidOutput}
+                <RaidButton optionKey={key}
+                            setDesc={setDesc}
+                            options={raiding}
+                            setRaidOutput={setRaidOutput}
+                            nation={nationOverride}
                             loading={raidOutput === true}/>
             </span>
         ))}
@@ -119,17 +129,45 @@ export default function RaidSection() {
     </div>;
 }
 
-export function RaidButton({ optionKey, options, setRaidOutput, loading, setDesc }: {
+export function PickNation({nation}: { nation: React.MutableRefObject<string | undefined> }) {
+    const [pickedNation, setPickedNation] = useState<string | undefined>(undefined);
+    return (
+        <>
+            <div className={`${pickedNation ? 'text-primary/80 border-secondary' : 'text-red-500 border-red-500/25'} border w-full mb-1 p-1 relative bg-accent rounded`}>
+                {pickedNation ? (
+                    <>Currently selected: {pickedNation}</>
+                ) : (
+                    <>You MUST Select a Nation to use this tool, or login!</>
+                )}
+            </div>
+            <QueryComponent element={"DBNation"} multi={false} argName={"nation"} initialValue={""} setOutputValue={(name, val) => {
+                setPickedNation(val);
+                nation.current = val;
+            }}/>
+        </>
+    );
+}
+
+export function RaidButton({optionKey, options, setRaidOutput, loading, setDesc, nation}: {
     optionKey: string;
     options: RaidOptions,
     setRaidOutput: (value: WebTargets | boolean | string | null) => void,
     loading: boolean,
-    setDesc: (value: string) => void
+    setDesc: (value: string) => void,
+    nation: React.MutableRefObject<string | undefined>
 }) {
     const { showDialog } = useDialog();
     return options[optionKey].endpoint.useForm({
         default_values: options[optionKey].default_values as { [key: string]: string },
         label: optionKey,
+        handle_submit: (data) => {
+            if (nation.current) {
+                data.nation = nation.current;
+            } else {
+                delete data.nation;
+            }
+            return true;
+        },
         handle_response: (data) => {
             setRaidOutput(data);
         },

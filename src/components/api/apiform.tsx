@@ -73,7 +73,6 @@ const areEqual = <T, A extends { [key: string]: string }>(prevProps: ApiFormProp
     const keys = Object.keys(prevProps) as (keyof ApiFormProps<T, A>)[];
     for (const key of keys) {
         if (prevProps[key] !== nextProps[key]) {
-            console.log(`Prop '${key}' changed:`, prevProps[key], nextProps[key]);
             return false;
         }
     }
