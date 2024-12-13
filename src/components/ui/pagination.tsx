@@ -117,7 +117,7 @@ export {
     PaginationPrevious,
 }
 
-type PaginationProps<T> = {
+export type PaginationProps<T> = {
     items: T[];
     render: (item: T) => React.ReactNode;
     parent?: React.ComponentType<{ children: React.ReactNode }>;

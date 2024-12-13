@@ -7,14 +7,20 @@ type DataProviderProps = {
     endpoint: string;
 };
 
-const areObjectsEqual = (obj1: { [key: string]: string }, obj2: { [key: string]: string }): boolean => {
+const areObjectsEqual = (obj1: { [key: string]: string | string[] }, obj2: { [key: string]: string | string[] }): boolean => {
     const keys1 = Object.keys(obj1);
     const keys2 = Object.keys(obj2);
     if (keys1.length !== keys2.length) {
         return false;
     }
     for (const key of keys1) {
-        if (obj1[key] !== obj2[key]) {
+        const val1 = obj1[key];
+        const val2 = obj2[key];
+        if (Array.isArray(val1) && Array.isArray(val2)) {
+            if (val1.length !== val2.length || !val1.every((val, index) => val === val2[index])) {
+                return false;
+            }
+        } else if (val1 !== val2) {
             return false;
         }
     }
@@ -36,7 +42,7 @@ interface JSONObject {
 interface JSONArray extends Array<JSONValue> {}
 
 interface QueryData {
-    query: { [key: string]: string };
+    query: { [key: string]: string | string[] };
     cache?: { cache_type: CacheType, duration?: number, cookie_id: string };
 }
 
@@ -52,7 +58,7 @@ export function defaultCache(cookie: string) {
 }
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }) => {
-    const [data, setData] = useState<{ [key: string]: JSONValue | null }[] | null>(null);
+    const [data, setData] = useState<({ [key: string]: JSONValue } | null)[] | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const queries = useRef<[string, QueryData][]>([]);
@@ -61,7 +67,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
     const newQueryRef = useRef<number>(0);
     const lastQuery = useRef<number>(0);
 
-    const registerQuery = (name: string, query: { [key: string]: string }, cache?: { cache_type: CacheType, duration?: number, cookie_id: string }): number => {
+    const registerQuery = (name: string, query: { [key: string]: string | string[] }, cache?: { cache_type: CacheType, duration?: number, cookie_id: string }): number => {
         let newIndex = -1;
         const existingIndex = queries.current.findIndex(([qName, qQuery]) => qName === name && areObjectsEqual(qQuery.query, query));
         if (existingIndex !== -1) {
@@ -121,7 +127,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
             for (let i = 0; i < queries.current.length; i++) {
                 if (data && data.length >= i) {
                     const dataI = data[i];
-                    if (data[i] && data[i].success !== false) {
+                    if (data[i]?.success !== false) {
                         cachedResults.push(dataI);
                         continue;
                     }
@@ -242,7 +248,7 @@ type DataContextType<T> = {
     data: T | null;
     loading: boolean;
     error: string | null;
-    registerQuery: (name: string, query: { [key: string]: string }, cache?: { cache_type: CacheType, duration?: number, cookie_id: string }) => number;
+    registerQuery: (name: string, query: { [key: string]: string | string[] }, cache?: { cache_type: CacheType, duration?: number, cookie_id: string }) => number;
     refetch: () => void;
     refetchQueries: (queryId: number[]) => void;
 };
@@ -258,7 +264,7 @@ export const useData = <T,>(): DataContextType<T[]> => {
 };
 
 export const useRegisterQuery = (name: string,
-                                 query: { [key: string]: string },
+                                 query: { [key: string]: string | string[] },
                                  cache: { cache_type: CacheType, duration?: number, cookie_id: string } | undefined = undefined): [number, React.Dispatch<React.SetStateAction<number>>] => {
     const { registerQuery } = useData();
     const hasRun = useRef(false);

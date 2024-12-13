@@ -783,7 +783,6 @@ export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColum
                 autoWidth: false,
                 info: false,
                 processing: false,
-                compact: true,
                 stateSave: false,
                 scrollX: false,
                 rowCallback: function (row: Node, data: (string | number)[] | object, index: number, displayIndexFull: number) {
@@ -791,10 +790,7 @@ export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColum
                     if (firstCell) {
                         firstCell.textContent = (displayIndexFull + 1).toString();
                     }
-                    // if (rowFormat.current) {
-                    //     rowFormat.current(row, data, displayIndexFull);
-                    // }
-                },
+                } as (row: Node, data: (string | number)[] | object, index: number) => void,
             }}
             className="display table-auto divide-y w-full border-separate border-spacing-y-1 text-xs"/>
     );
@@ -1207,9 +1203,11 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                                        if (input) {
                                            const start = input.selectionStart;
                                            const end = input.selectionEnd;
-                                           const value = input.value;
-                                           input.value = value.substring(0, start) + "\t" + value.substring(end);
-                                           input.selectionStart = input.selectionEnd = start + 1;
+                                           if (start !== null && end !== null) {
+                                               const value = input.value;
+                                               input.value = value.substring(0, start) + "\t" + value.substring(end);
+                                               input.selectionStart = input.selectionEnd = start + 1;
+                                           }
                                        }
                                    }
                                }}

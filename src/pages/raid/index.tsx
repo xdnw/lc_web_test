@@ -11,20 +11,22 @@ import {WebTarget, WebTargets} from "@/components/api/apitypes";
 import {RAID, UNPROTECTED} from "../../components/api/endpoints";
 import {IOptionData} from "../../utils/Command";
 
+type RaidOptions = { [key: string]: { endpoint: (typeof RAID | typeof UNPROTECTED), description: string, default_values: { [key: string]: (string | undefined) } } };
+
 export default function RaidSection() {
 
     const { nation } = useParams<{ nation: string }>();
     const [raidOutput, setRaidOutput] = useState<WebTargets | boolean | string | null>(null);
     const [desc, setDesc] = useState<string | null>(null);
 
-    const raiding = useMemo(() => ({
+    const raiding: RaidOptions = useMemo<RaidOptions>(() => ({
         app_7d: {
             endpoint: RAID,
             default_values: {
                 ...(nation !== undefined && { nation }),
                 nations: "*,#position<=1",
                 num_results: "25",
-            },
+            } as { [key: string]: string },
             description: "Attackable applicants and nones inactive for 7d"
         },
         members: {
@@ -33,7 +35,7 @@ export default function RaidSection() {
                 ...(nation !== undefined && { nation }),
                 nations: "*",
                 num_results: "25"
-            },
+            } as { [key: string]: string },
             description: "All attackable nations inactive for 7d"
         },
         beige: {
@@ -43,7 +45,7 @@ export default function RaidSection() {
                 nations: "*",
                 num_results: "25",
                 beige_turns: "24"
-            },
+            } as { [key: string]: string },
             description: "All nations inactive for 7d, including on beige"
         },
         ground: {
@@ -54,7 +56,7 @@ export default function RaidSection() {
                 num_results: "25",
                 time_inactive: "0d",
                 weak_ground: "true"
-            },
+            } as { [key: string]: string },
             description: "Nations with weak ground, including active nations"
         },
         ground_2d: {
@@ -65,7 +67,7 @@ export default function RaidSection() {
                 num_results: "25",
                 time_inactive: "2d",
                 weak_ground: "true"
-            },
+            } as { [key: string]: string },
             description: "Nations with weak ground, inactive for 2d"
         },
         losing: {
@@ -76,7 +78,7 @@ export default function RaidSection() {
                 num_results: "25",
                 time_inactive: "0d",
                 weak_ground: "true"
-            },
+            } as { [key: string]: string },
             description: "Nations losing wars"
         },
         unprotected: {
@@ -88,7 +90,7 @@ export default function RaidSection() {
                 ignoreODP: "true",
                 includeAllies: "true",
                 maxRelativeCounterStrength: "90"
-            },
+            } as { [key: string]: string },
             description: "Nations least likely to defend or have counters"
         }
     }), [nation]);
@@ -117,13 +119,19 @@ export default function RaidSection() {
     </div>;
 }
 
-export function RaidButton({optionKey, options, setRaidOutput, loading, setDesc }: { optionKey: string; options: Record<string, { endpoint: CommonEndpoint<unknown, {[key: string]: string}, {[key: string]: string}>, description: string, default_values: {[key: string]: string} }>, setRaidOutput: (value: WebTargets | boolean | string | null) => void, loading: boolean, setDesc: (value: string) => void }) {
+export function RaidButton({ optionKey, options, setRaidOutput, loading, setDesc }: {
+    optionKey: string;
+    options: RaidOptions,
+    setRaidOutput: (value: WebTargets | boolean | string | null) => void,
+    loading: boolean,
+    setDesc: (value: string) => void
+}) {
     const { showDialog } = useDialog();
     return options[optionKey].endpoint.useForm({
-        default_values: options[optionKey].default_values,
+        default_values: options[optionKey].default_values as { [key: string]: string },
         label: optionKey,
         handle_response: (data) => {
-            setRaidOutput(data as WebTargets);
+            setRaidOutput(data);
         },
         handle_loading: () => {
             setDesc(options[optionKey].description);

@@ -22,8 +22,8 @@ import {getNumberFormatCallback, getTimeFormatCallback, isTime, toMillisFunction
 } from "../utils/StringUtil";
 import {GLOBALSTATS, TRADEPRICEBYDAYJSON} from "../components/api/endpoints";
 import {Button} from "../components/ui/button";
-import {ChartJSOrUndefined} from "react-chartjs-2/dist/types";
 import {deepEqual} from "../lib/utils";
+import { ChartJSOrUndefined } from 'node_modules/react-chartjs-2/dist/types';
 
 export function GraphTest() {
     // Removed trade graph, its just an example
@@ -134,7 +134,7 @@ interface ChartState {
 }
 
 class ChartComponent extends Component<ChartProps, ChartState> {
-    chartRef: RefObject<ChartJSOrUndefined> = createRef();
+    chartRef = createRef<ChartJSOrUndefined>();
 
     constructor(props: ChartProps) {
         super(props);
@@ -154,49 +154,49 @@ class ChartComponent extends Component<ChartProps, ChartState> {
         }
     }
 
-    // onHover = (evt: ChartEvent, activeElements: ActiveElement[], chart: Chart) => {
-    //     const { previousActiveElements } = this.state;
-    //
-    //     const lastActiveIds: Set<number> = new Set(previousActiveElements.map((el) => el.datasetIndex));
-    //     const nowActiveIds: Set<number> = new Set(activeElements.map((el) => el.datasetIndex));
-    //
-    //     if (lastActiveIds.size !== nowActiveIds.size || [...lastActiveIds].some((id) => !nowActiveIds.has(id))) {
-    //         chart.data.datasets.forEach((dataset, index) => {
-    //             if (lastActiveIds.has(index) && !nowActiveIds.has(index)) {
-    //                 if (dataset.backgroundColor) {
-    //                     let currentColor: string;
-    //                     if (typeof dataset.backgroundColor === 'object' && 'css' in dataset.backgroundColor) {
-    //                         currentColor = (dataset.backgroundColor as { css: () => string }).css();
-    //                     } else {
-    //                         currentColor = dataset.backgroundColor as string;
-    //                     }
-    //                     dataset.backgroundColor = currentColor.replace(/[\d.]+\)$/g, '0.5)');
-    //                 }
-    //                 (dataset as ChartDataset<'line'>).pointRadius = 1;
-    //             }
-    //         });
-    //
-    //         if (activeElements && activeElements.length) {
-    //             const datasetIndex = activeElements[0].datasetIndex;
-    //             if (!lastActiveIds.has(datasetIndex)) {
-    //                 const activeDataset = chart.data.datasets[datasetIndex] as ChartDataset<'line'>;
-    //                 if (activeDataset.backgroundColor) {
-    //                     let activeColor: string;
-    //                     if (typeof activeDataset.backgroundColor === 'object' && 'css' in activeDataset.backgroundColor) {
-    //                         activeColor = (activeDataset.backgroundColor as { css: () => string }).css();
-    //                     } else {
-    //                         activeColor = activeDataset.backgroundColor as string;
-    //                     }
-    //                     activeDataset.backgroundColor = activeColor.replace(/[\d.]+\)$/g, '1)');
-    //                 }
-    //                 activeDataset.pointRadius = 2.5;
-    //             }
-    //         }
-    //
-    //         this.setState({ previousActiveElements: activeElements });
-    //         chart.update();
-    //     }
-    // };
+    onHover = (evt: ChartEvent, activeElements: ActiveElement[], chart: Chart) => {
+        const { previousActiveElements } = this.state;
+
+        const lastActiveIds: Set<number> = new Set(previousActiveElements.map((el) => el.datasetIndex));
+        const nowActiveIds: Set<number> = new Set(activeElements.map((el) => el.datasetIndex));
+
+        if (lastActiveIds.size !== nowActiveIds.size || [...lastActiveIds].some((id) => !nowActiveIds.has(id))) {
+            chart.data.datasets.forEach((dataset, index) => {
+                if (lastActiveIds.has(index) && !nowActiveIds.has(index)) {
+                    if (dataset.backgroundColor) {
+                        let currentColor: string;
+                        if (typeof dataset.backgroundColor === 'object' && 'css' in dataset.backgroundColor) {
+                            currentColor = (dataset.backgroundColor as { css: () => string }).css();
+                        } else {
+                            currentColor = dataset.backgroundColor as string;
+                        }
+                        dataset.backgroundColor = currentColor.replace(/[\d.]+\)$/g, '0.5)');
+                    }
+                    (dataset as ChartDataset<'line'>).pointRadius = 1;
+                }
+            });
+
+            if (activeElements && activeElements.length) {
+                const datasetIndex = activeElements[0].datasetIndex;
+                if (!lastActiveIds.has(datasetIndex)) {
+                    const activeDataset = chart.data.datasets[datasetIndex] as ChartDataset<'line'>;
+                    if (activeDataset.backgroundColor) {
+                        let activeColor: string;
+                        if (typeof activeDataset.backgroundColor === 'object' && 'css' in activeDataset.backgroundColor) {
+                            activeColor = (activeDataset.backgroundColor as { css: () => string }).css();
+                        } else {
+                            activeColor = activeDataset.backgroundColor as string;
+                        }
+                        activeDataset.backgroundColor = activeColor.replace(/[\d.]+\)$/g, '1)');
+                    }
+                    activeDataset.pointRadius = 2.5;
+                }
+            }
+
+            this.setState({ previousActiveElements: activeElements });
+            chart.update();
+        }
+    };
 
     generateColors(n: number, background: 'white' | 'black' = 'white'): chroma.Color[] {
         const options = {
@@ -354,20 +354,22 @@ class ChartComponent extends Component<ChartProps, ChartState> {
         };
 
         return (
-            <div className="bg-white dark:bg-black">
+            // ChartJSOrUndefined<"scatter", (number | Point | [number, number] | BubbleDataPoint | null)[], unknown>
+            // ChartJSOrUndefined<"bar", (number | Point | [number, number] | BubbleDataPoint | null)[], unknown>
+            <div className="bg-white dark:bg-slate-900 relative">
                 {(() => {
                     switch (type) {
                         case 'STACKED_BAR':
                         case 'SIDE_BY_SIDE_BAR':
-                            return <Bar ref={this.chartRef} data={chartData as ChartData<'bar'>} options={chartOptions as ChartOptions<'bar'>} style={canvasStyle} />;
+                            return <Bar ref={this.chartRef as RefObject<ChartJSOrUndefined<"bar", unknown, unknown>>} data={chartData as ChartData<'bar'>} options={chartOptions as ChartOptions<'bar'>} style={canvasStyle} />;
                         case 'HORIZONTAL_BAR':
-                            return <Bar ref={this.chartRef} data={chartData as ChartData<'bar'>} options={{ ...chartOptions, indexAxis: 'y' } as ChartOptions<'bar'>} style={canvasStyle} />;
+                            return <Bar ref={this.chartRef as RefObject<ChartJSOrUndefined<"bar", unknown, unknown>>} data={chartData as ChartData<'bar'>} options={{ ...chartOptions, indexAxis: 'y' } as ChartOptions<'bar'>} style={canvasStyle} />;
                         case 'STACKED_LINE':
                         case 'FILLED_LINE':
                         case 'LINE':
-                            return <Line ref={this.chartRef} data={chartData as ChartData<'line'>} options={chartOptions as ChartOptions<'line'>} style={canvasStyle} />;
+                            return <Line ref={this.chartRef as RefObject<ChartJSOrUndefined<"line", unknown, unknown>>} data={chartData as ChartData<'line'>} options={chartOptions as ChartOptions<'line'>} style={canvasStyle} />;
                         case 'SCATTER':
-                            return <Scatter ref={this.chartRef} data={chartData as ChartData<'scatter'>} options={chartOptions as ChartOptions<'scatter'>} style={canvasStyle} />;
+                            return <Scatter ref={this.chartRef as RefObject<ChartJSOrUndefined<"scatter", unknown, unknown>>} data={chartData as ChartData<'scatter'>} options={chartOptions as ChartOptions<'scatter'>} style={canvasStyle} />;
                         default:
                             return null;
                     }

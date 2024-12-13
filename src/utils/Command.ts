@@ -226,6 +226,14 @@ export class Command {
         return `${this.name} ${this.command.desc}`;
     }
 
+    toSentence(weights: CommandWeights): Sentence {
+        const weight = weights.commands[this.name];
+        return weight && {
+            text: this.getFullText(),
+            vector: weight.vector
+        };
+    }
+
     getArguments(): Argument[] {
         if (this.arguments == null) {
             if (this.command.arguments) {

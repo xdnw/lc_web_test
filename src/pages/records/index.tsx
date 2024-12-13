@@ -54,7 +54,7 @@ const Records = () => {
                                 <table className="min-w-full divide-y text-xs">
                                     <thead className="bg-gray-50 dark:bg-gray-800">
                                     <tr>
-                                        {header.current.map((cell, index) => (
+                                        {header.current!.map((cell, index) => (
                                             <th key={index}>{cell}</th>
                                         ))}
                                     </tr>
@@ -76,6 +76,6 @@ const Records = () => {
     );
 };
 
-const MemoizedPaginatedList = memo(PaginatedList);
+const MemoizedPaginatedList = memo(PaginatedList<string[]>);
 
 export default Records;

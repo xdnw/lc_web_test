@@ -2,7 +2,7 @@ import {CacheType} from "@/components/cmd/DataContext.tsx";
 import React, {ReactNode} from "react";
 import type * as ApiTypes from "@/components/api/apitypes.d.ts";
 import {useForm, useDisplay, ApiEndpoint, combine, CommonEndpoint} from "@/components/api/endpoint.tsx";
-export const WARSCOSTRANKINGBYDAY: CommonEndpoint<ApiTypes.WebGraph, {type: string, mode: string, time_start: string, time_end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}, {type?: string, mode?: string, time_start?: string, time_end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}> = {
+export const WARSCOSTRANKINGBYDAY: CommonEndpoint<ApiTypes.WebGraph, {type?: string, mode?: string, time_start?: string, time_end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}, {type?: string, mode?: string, time_start?: string, time_end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "warscostrankingbyday",
         "warsCostRankingByDay",
@@ -11,7 +11,7 @@ export const WARSCOSTRANKINGBYDAY: CommonEndpoint<ApiTypes.WebGraph, {type: stri
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {type: string, mode: string, time_start: string, time_end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {type?: string, mode?: string, time_start?: string, time_end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(WARSCOSTRANKINGBYDAY.endpoint.name, combine(WARSCOSTRANKINGBYDAY.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -19,7 +19,7 @@ export const WARSCOSTRANKINGBYDAY: CommonEndpoint<ApiTypes.WebGraph, {type: stri
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {type: string, mode: string, time_start: string, time_end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}) => boolean,
+        handle_submit?: (args: {type?: string, mode?: string, time_start?: string, time_end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -27,7 +27,7 @@ export const WARSCOSTRANKINGBYDAY: CommonEndpoint<ApiTypes.WebGraph, {type: stri
     }
 };
 
-export const GLOBALSTATS: CommonEndpoint<ApiTypes.CoalitionGraphs, {metrics: string, start: string, end: string, topX: string}, {metrics?: string, start?: string, end?: string, topX?: string}> = {
+export const GLOBALSTATS: CommonEndpoint<ApiTypes.CoalitionGraphs, {metrics?: string, start?: string, end?: string, topX?: string}, {metrics?: string, start?: string, end?: string, topX?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.CoalitionGraphs>(
         "globalstats",
         "globalStats",
@@ -36,7 +36,7 @@ export const GLOBALSTATS: CommonEndpoint<ApiTypes.CoalitionGraphs, {metrics: str
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metrics: string, start: string, end: string, topX: string}, render: (data: ApiTypes.CoalitionGraphs) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {metrics?: string, start?: string, end?: string, topX?: string}, render: (data: ApiTypes.CoalitionGraphs) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(GLOBALSTATS.endpoint.name, combine(GLOBALSTATS.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -44,7 +44,7 @@ export const GLOBALSTATS: CommonEndpoint<ApiTypes.CoalitionGraphs, {metrics: str
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.CoalitionGraphs) => void,
-        handle_submit?: (args: {metrics: string, start: string, end: string, topX: string}) => boolean,
+        handle_submit?: (args: {metrics?: string, start?: string, end?: string, topX?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -52,7 +52,7 @@ export const GLOBALSTATS: CommonEndpoint<ApiTypes.CoalitionGraphs, {metrics: str
     }
 };
 
-export const TABLE: CommonEndpoint<ApiTypes.WebTable, {type: string, selection_str: string, columns: string}, {type?: string, selection_str?: string, columns?: string}> = {
+export const TABLE: CommonEndpoint<ApiTypes.WebTable, {type?: string, selection_str?: string, columns?: string[] | string}, {type?: string, selection_str?: string, columns?: string[] | string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebTable>(
         "table",
         "table",
@@ -61,15 +61,15 @@ export const TABLE: CommonEndpoint<ApiTypes.WebTable, {type: string, selection_s
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {type: string, selection_str: string, columns: string}, render: (data: ApiTypes.WebTable) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {type?: string, selection_str?: string, columns?: string[] | string}, render: (data: ApiTypes.WebTable) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(TABLE.endpoint.name, combine(TABLE.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {type?: string, selection_str?: string, columns?: string},
+        default_values?: {type?: string, selection_str?: string, columns?: string[] | string},
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebTable) => void,
-        handle_submit?: (args: {type: string, selection_str: string, columns: string}) => boolean,
+        handle_submit?: (args: {type?: string, selection_str?: string, columns?: string[] | string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -77,7 +77,7 @@ export const TABLE: CommonEndpoint<ApiTypes.WebTable, {type: string, selection_s
     }
 };
 
-export const ALLIANCEMETRICSAB: CommonEndpoint<ApiTypes.WebGraph, {metric: string, coalition1: string, coalition2: string, time: string}, {metric?: string, coalition1?: string, coalition2?: string, time?: string}> = {
+export const ALLIANCEMETRICSAB: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, coalition1?: string, coalition2?: string, time?: string}, {metric?: string, coalition1?: string, coalition2?: string, time?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "alliancemetricsab",
         "allianceMetricsAB",
@@ -86,7 +86,7 @@ export const ALLIANCEMETRICSAB: CommonEndpoint<ApiTypes.WebGraph, {metric: strin
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metric: string, coalition1: string, coalition2: string, time: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {metric?: string, coalition1?: string, coalition2?: string, time?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(ALLIANCEMETRICSAB.endpoint.name, combine(ALLIANCEMETRICSAB.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -94,7 +94,7 @@ export const ALLIANCEMETRICSAB: CommonEndpoint<ApiTypes.WebGraph, {metric: strin
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {metric: string, coalition1: string, coalition2: string, time: string}) => boolean,
+        handle_submit?: (args: {metric?: string, coalition1?: string, coalition2?: string, time?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -102,7 +102,7 @@ export const ALLIANCEMETRICSAB: CommonEndpoint<ApiTypes.WebGraph, {metric: strin
     }
 };
 
-export const TRADEMARGINBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resources: string, start: string, end?: string, percent?: string}, {resources?: string, start?: string, end?: string, percent?: string}> = {
+export const TRADEMARGINBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resources?: string, start?: string, end?: string, percent?: string}, {resources?: string, start?: string, end?: string, percent?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "trademarginbyday",
         "trademarginbyday",
@@ -111,7 +111,7 @@ export const TRADEMARGINBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resources: str
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {resources: string, start: string, end?: string, percent?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {resources?: string, start?: string, end?: string, percent?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(TRADEMARGINBYDAY.endpoint.name, combine(TRADEMARGINBYDAY.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -119,7 +119,7 @@ export const TRADEMARGINBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resources: str
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {resources: string, start: string, end?: string, percent?: string}) => boolean,
+        handle_submit?: (args: {resources?: string, start?: string, end?: string, percent?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -127,7 +127,7 @@ export const TRADEMARGINBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resources: str
     }
 };
 
-export const COMPARESTATS: CommonEndpoint<ApiTypes.WebGraph, {metric: string, start: string, end: string, coalition1: string, coalition2: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string}, {metric?: string, start?: string, end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string}> = {
+export const COMPARESTATS: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, start?: string, end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string}, {metric?: string, start?: string, end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "comparestats",
         "compareStats",
@@ -136,7 +136,7 @@ export const COMPARESTATS: CommonEndpoint<ApiTypes.WebGraph, {metric: string, st
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metric: string, start: string, end: string, coalition1: string, coalition2: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {metric?: string, start?: string, end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(COMPARESTATS.endpoint.name, combine(COMPARESTATS.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -144,7 +144,7 @@ export const COMPARESTATS: CommonEndpoint<ApiTypes.WebGraph, {metric: string, st
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {metric: string, start: string, end: string, coalition1: string, coalition2: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string}) => boolean,
+        handle_submit?: (args: {metric?: string, start?: string, end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -177,7 +177,7 @@ export const NTHBEIGELOOTBYSCORERANGE: CommonEndpoint<ApiTypes.WebGraph, {nation
     }
 };
 
-export const ALLIANCESDATABYDAY: CommonEndpoint<ApiTypes.WebGraph, {metric: string, start: string, end: string, mode: string, alliances?: string, filter?: string, includeApps?: string}, {metric?: string, start?: string, end?: string, mode?: string, alliances?: string, filter?: string, includeApps?: string}> = {
+export const ALLIANCESDATABYDAY: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, start?: string, end?: string, mode?: string, alliances?: string, filter?: string, includeApps?: string}, {metric?: string, start?: string, end?: string, mode?: string, alliances?: string, filter?: string, includeApps?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "alliancesdatabyday",
         "AlliancesDataByDay",
@@ -186,7 +186,7 @@ export const ALLIANCESDATABYDAY: CommonEndpoint<ApiTypes.WebGraph, {metric: stri
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metric: string, start: string, end: string, mode: string, alliances?: string, filter?: string, includeApps?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {metric?: string, start?: string, end?: string, mode?: string, alliances?: string, filter?: string, includeApps?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(ALLIANCESDATABYDAY.endpoint.name, combine(ALLIANCESDATABYDAY.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -194,7 +194,7 @@ export const ALLIANCESDATABYDAY: CommonEndpoint<ApiTypes.WebGraph, {metric: stri
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {metric: string, start: string, end: string, mode: string, alliances?: string, filter?: string, includeApps?: string}) => boolean,
+        handle_submit?: (args: {metric?: string, start?: string, end?: string, mode?: string, alliances?: string, filter?: string, includeApps?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -227,7 +227,7 @@ export const MARK_ALL_READ: CommonEndpoint<ApiTypes.WebSuccess, Record<string, n
     }
 };
 
-export const WARCOSTSBYDAY: CommonEndpoint<ApiTypes.WebGraph, {coalition1: string, coalition2: string, type: string, time_start: string, time_end?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}, {coalition1?: string, coalition2?: string, type?: string, time_start?: string, time_end?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}> = {
+export const WARCOSTSBYDAY: CommonEndpoint<ApiTypes.WebGraph, {coalition1?: string, coalition2?: string, type?: string, time_start?: string, time_end?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}, {coalition1?: string, coalition2?: string, type?: string, time_start?: string, time_end?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "warcostsbyday",
         "warCostsByDay",
@@ -236,7 +236,7 @@ export const WARCOSTSBYDAY: CommonEndpoint<ApiTypes.WebGraph, {coalition1: strin
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {coalition1: string, coalition2: string, type: string, time_start: string, time_end?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {coalition1?: string, coalition2?: string, type?: string, time_start?: string, time_end?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(WARCOSTSBYDAY.endpoint.name, combine(WARCOSTSBYDAY.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -244,7 +244,7 @@ export const WARCOSTSBYDAY: CommonEndpoint<ApiTypes.WebGraph, {coalition1: strin
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {coalition1: string, coalition2: string, type: string, time_start: string, time_end?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}) => boolean,
+        handle_submit?: (args: {coalition1?: string, coalition2?: string, type?: string, time_start?: string, time_end?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -252,7 +252,7 @@ export const WARCOSTSBYDAY: CommonEndpoint<ApiTypes.WebGraph, {coalition1: strin
     }
 };
 
-export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token: string}, {token?: string}> = {
+export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token?: string}, {token?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "set_token",
         "set_token",
@@ -261,7 +261,7 @@ export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token: string}, {to
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {token: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {token?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(SET_TOKEN.endpoint.name, combine(SET_TOKEN.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -269,7 +269,7 @@ export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token: string}, {to
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebSuccess) => void,
-        handle_submit?: (args: {token: string}) => boolean,
+        handle_submit?: (args: {token?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -327,7 +327,7 @@ export const BALANCE: CommonEndpoint<ApiTypes.WebBalance, {nation?: string}, {na
     }
 };
 
-export const ORBISSTATBYDAY: CommonEndpoint<ApiTypes.WebGraph, {metrics: string, start?: string, end?: string}, {metrics?: string, start?: string, end?: string}> = {
+export const ORBISSTATBYDAY: CommonEndpoint<ApiTypes.WebGraph, {metrics?: string, start?: string, end?: string}, {metrics?: string, start?: string, end?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "orbisstatbyday",
         "orbisStatByDay",
@@ -336,7 +336,7 @@ export const ORBISSTATBYDAY: CommonEndpoint<ApiTypes.WebGraph, {metrics: string,
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metrics: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {metrics?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(ORBISSTATBYDAY.endpoint.name, combine(ORBISSTATBYDAY.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -344,7 +344,7 @@ export const ORBISSTATBYDAY: CommonEndpoint<ApiTypes.WebGraph, {metrics: string,
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {metrics: string, start?: string, end?: string}) => boolean,
+        handle_submit?: (args: {metrics?: string, start?: string, end?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -352,7 +352,7 @@ export const ORBISSTATBYDAY: CommonEndpoint<ApiTypes.WebGraph, {metrics: string,
     }
 };
 
-export const UNREAD_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: string}, {ann_id?: string}> = {
+export const UNREAD_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id?: string}, {ann_id?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "unread_announcement",
         "unread_announcement",
@@ -361,7 +361,7 @@ export const UNREAD_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: s
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {ann_id: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {ann_id?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(UNREAD_ANNOUNCEMENT.endpoint.name, combine(UNREAD_ANNOUNCEMENT.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -369,7 +369,7 @@ export const UNREAD_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: s
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebSuccess) => void,
-        handle_submit?: (args: {ann_id: string}) => boolean,
+        handle_submit?: (args: {ann_id?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -377,7 +377,7 @@ export const UNREAD_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: s
     }
 };
 
-export const REGISTER: CommonEndpoint<ApiTypes.WebSuccess, {confirm: string}, {confirm?: string}> = {
+export const REGISTER: CommonEndpoint<ApiTypes.WebSuccess, {confirm?: string}, {confirm?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "register",
         "register",
@@ -386,7 +386,7 @@ export const REGISTER: CommonEndpoint<ApiTypes.WebSuccess, {confirm: string}, {c
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {confirm: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {confirm?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(REGISTER.endpoint.name, combine(REGISTER.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -394,7 +394,7 @@ export const REGISTER: CommonEndpoint<ApiTypes.WebSuccess, {confirm: string}, {c
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebSuccess) => void,
-        handle_submit?: (args: {confirm: string}) => boolean,
+        handle_submit?: (args: {confirm?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -402,7 +402,7 @@ export const REGISTER: CommonEndpoint<ApiTypes.WebSuccess, {confirm: string}, {c
     }
 };
 
-export const COMPARETIERSTATS: CommonEndpoint<ApiTypes.WebGraph, {metric: string, groupBy: string, coalition1: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, total?: string, includeApps?: string, includeVm?: string, includeInactive?: string, snapshotDate?: string}, {metric?: string, groupBy?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, total?: string, includeApps?: string, includeVm?: string, includeInactive?: string, snapshotDate?: string}> = {
+export const COMPARETIERSTATS: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, groupBy?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, total?: string, includeApps?: string, includeVm?: string, includeInactive?: string, snapshotDate?: string}, {metric?: string, groupBy?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, total?: string, includeApps?: string, includeVm?: string, includeInactive?: string, snapshotDate?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "comparetierstats",
         "compareTierStats",
@@ -411,7 +411,7 @@ export const COMPARETIERSTATS: CommonEndpoint<ApiTypes.WebGraph, {metric: string
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metric: string, groupBy: string, coalition1: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, total?: string, includeApps?: string, includeVm?: string, includeInactive?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {metric?: string, groupBy?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, total?: string, includeApps?: string, includeVm?: string, includeInactive?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(COMPARETIERSTATS.endpoint.name, combine(COMPARETIERSTATS.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -419,7 +419,7 @@ export const COMPARETIERSTATS: CommonEndpoint<ApiTypes.WebGraph, {metric: string
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {metric: string, groupBy: string, coalition1: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, total?: string, includeApps?: string, includeVm?: string, includeInactive?: string, snapshotDate?: string}) => boolean,
+        handle_submit?: (args: {metric?: string, groupBy?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, total?: string, includeApps?: string, includeVm?: string, includeInactive?: string, snapshotDate?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -427,7 +427,7 @@ export const COMPARETIERSTATS: CommonEndpoint<ApiTypes.WebGraph, {metric: string
     }
 };
 
-export const TRADETOTALBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource: string, start: string, end?: string}, {resource?: string, start?: string, end?: string}> = {
+export const TRADETOTALBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource?: string, start?: string, end?: string}, {resource?: string, start?: string, end?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "tradetotalbyday",
         "tradetotalbyday",
@@ -436,7 +436,7 @@ export const TRADETOTALBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource: strin
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {resource: string, start: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {resource?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(TRADETOTALBYDAY.endpoint.name, combine(TRADETOTALBYDAY.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -444,7 +444,7 @@ export const TRADETOTALBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource: strin
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {resource: string, start: string, end?: string}) => boolean,
+        handle_submit?: (args: {resource?: string, start?: string, end?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -452,7 +452,7 @@ export const TRADETOTALBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource: strin
     }
 };
 
-export const ALLIANCEMETRICSCOMPAREBYTURN: CommonEndpoint<ApiTypes.WebGraph, {metric: string, alliances: string, time: string}, {metric?: string, alliances?: string, time?: string}> = {
+export const ALLIANCEMETRICSCOMPAREBYTURN: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, alliances?: string, time?: string}, {metric?: string, alliances?: string, time?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "alliancemetricscomparebyturn",
         "allianceMetricsCompareByTurn",
@@ -461,7 +461,7 @@ export const ALLIANCEMETRICSCOMPAREBYTURN: CommonEndpoint<ApiTypes.WebGraph, {me
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metric: string, alliances: string, time: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {metric?: string, alliances?: string, time?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(ALLIANCEMETRICSCOMPAREBYTURN.endpoint.name, combine(ALLIANCEMETRICSCOMPAREBYTURN.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -469,7 +469,7 @@ export const ALLIANCEMETRICSCOMPAREBYTURN: CommonEndpoint<ApiTypes.WebGraph, {me
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {metric: string, alliances: string, time: string}) => boolean,
+        handle_submit?: (args: {metric?: string, alliances?: string, time?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -477,7 +477,7 @@ export const ALLIANCEMETRICSCOMPAREBYTURN: CommonEndpoint<ApiTypes.WebGraph, {me
     }
 };
 
-export const GLOBALTIERSTATS: CommonEndpoint<ApiTypes.CoalitionGraphs, {metrics: string, topX: string, groupBy?: string, total?: string}, {metrics?: string, topX?: string, groupBy?: string, total?: string}> = {
+export const GLOBALTIERSTATS: CommonEndpoint<ApiTypes.CoalitionGraphs, {metrics?: string, topX?: string, groupBy?: string, total?: string}, {metrics?: string, topX?: string, groupBy?: string, total?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.CoalitionGraphs>(
         "globaltierstats",
         "globalTierStats",
@@ -486,7 +486,7 @@ export const GLOBALTIERSTATS: CommonEndpoint<ApiTypes.CoalitionGraphs, {metrics:
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metrics: string, topX: string, groupBy?: string, total?: string}, render: (data: ApiTypes.CoalitionGraphs) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {metrics?: string, topX?: string, groupBy?: string, total?: string}, render: (data: ApiTypes.CoalitionGraphs) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(GLOBALTIERSTATS.endpoint.name, combine(GLOBALTIERSTATS.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -494,7 +494,7 @@ export const GLOBALTIERSTATS: CommonEndpoint<ApiTypes.CoalitionGraphs, {metrics:
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.CoalitionGraphs) => void,
-        handle_submit?: (args: {metrics: string, topX: string, groupBy?: string, total?: string}) => boolean,
+        handle_submit?: (args: {metrics?: string, topX?: string, groupBy?: string, total?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -552,7 +552,7 @@ export const ANNOUNCEMENTS: CommonEndpoint<ApiTypes.WebAnnouncements, Record<str
     }
 };
 
-export const UNREGISTER: CommonEndpoint<ApiTypes.WebValue, {confirm: string}, {confirm?: string}> = {
+export const UNREGISTER: CommonEndpoint<ApiTypes.WebValue, {confirm?: string}, {confirm?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebValue>(
         "unregister",
         "unregister",
@@ -561,7 +561,7 @@ export const UNREGISTER: CommonEndpoint<ApiTypes.WebValue, {confirm: string}, {c
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {confirm: string}, render: (data: ApiTypes.WebValue) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {confirm?: string}, render: (data: ApiTypes.WebValue) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(UNREGISTER.endpoint.name, combine(UNREGISTER.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -569,7 +569,7 @@ export const UNREGISTER: CommonEndpoint<ApiTypes.WebValue, {confirm: string}, {c
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebValue) => void,
-        handle_submit?: (args: {confirm: string}) => boolean,
+        handle_submit?: (args: {confirm?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -602,7 +602,7 @@ export const RAID: CommonEndpoint<ApiTypes.WebTargets, {nation?: string, nations
     }
 };
 
-export const READ_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: string}, {ann_id?: string}> = {
+export const READ_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id?: string}, {ann_id?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "read_announcement",
         "read_announcement",
@@ -611,7 +611,7 @@ export const READ_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: str
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {ann_id: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {ann_id?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(READ_ANNOUNCEMENT.endpoint.name, combine(READ_ANNOUNCEMENT.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -619,7 +619,7 @@ export const READ_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: str
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebSuccess) => void,
-        handle_submit?: (args: {ann_id: string}) => boolean,
+        handle_submit?: (args: {ann_id?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -627,7 +627,7 @@ export const READ_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id: str
     }
 };
 
-export const ALLIANCEMETRICSBYTURN: CommonEndpoint<ApiTypes.WebGraph, {metric: string, coalition: string, time: string}, {metric?: string, coalition?: string, time?: string}> = {
+export const ALLIANCEMETRICSBYTURN: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, coalition?: string, time?: string}, {metric?: string, coalition?: string, time?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "alliancemetricsbyturn",
         "allianceMetricsByTurn",
@@ -636,7 +636,7 @@ export const ALLIANCEMETRICSBYTURN: CommonEndpoint<ApiTypes.WebGraph, {metric: s
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metric: string, coalition: string, time: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {metric?: string, coalition?: string, time?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(ALLIANCEMETRICSBYTURN.endpoint.name, combine(ALLIANCEMETRICSBYTURN.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -644,7 +644,7 @@ export const ALLIANCEMETRICSBYTURN: CommonEndpoint<ApiTypes.WebGraph, {metric: s
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {metric: string, coalition: string, time: string}) => boolean,
+        handle_submit?: (args: {metric?: string, coalition?: string, time?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -652,7 +652,7 @@ export const ALLIANCEMETRICSBYTURN: CommonEndpoint<ApiTypes.WebGraph, {metric: s
     }
 };
 
-export const TRADEVOLUMEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource: string, start: string, end?: string}, {resource?: string, start?: string, end?: string}> = {
+export const TRADEVOLUMEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource?: string, start?: string, end?: string}, {resource?: string, start?: string, end?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "tradevolumebyday",
         "tradevolumebyday",
@@ -661,7 +661,7 @@ export const TRADEVOLUMEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource: stri
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {resource: string, start: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {resource?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(TRADEVOLUMEBYDAY.endpoint.name, combine(TRADEVOLUMEBYDAY.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -669,7 +669,7 @@ export const TRADEVOLUMEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource: stri
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {resource: string, start: string, end?: string}) => boolean,
+        handle_submit?: (args: {resource?: string, start?: string, end?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -677,7 +677,7 @@ export const TRADEVOLUMEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource: stri
     }
 };
 
-export const RADIATIONSTATS: CommonEndpoint<ApiTypes.WebGraph, {continents: string, start: string, end: string}, {continents?: string, start?: string, end?: string}> = {
+export const RADIATIONSTATS: CommonEndpoint<ApiTypes.WebGraph, {continents?: string, start?: string, end?: string}, {continents?: string, start?: string, end?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "radiationstats",
         "radiationStats",
@@ -686,7 +686,7 @@ export const RADIATIONSTATS: CommonEndpoint<ApiTypes.WebGraph, {continents: stri
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {continents: string, start: string, end: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {continents?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(RADIATIONSTATS.endpoint.name, combine(RADIATIONSTATS.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -694,7 +694,7 @@ export const RADIATIONSTATS: CommonEndpoint<ApiTypes.WebGraph, {continents: stri
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {continents: string, start: string, end: string}) => boolean,
+        handle_submit?: (args: {continents?: string, start?: string, end?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -702,7 +702,7 @@ export const RADIATIONSTATS: CommonEndpoint<ApiTypes.WebGraph, {continents: stri
     }
 };
 
-export const COMPARESTOCKPILEVALUEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {stockpile1: string, stockpile2: string, numDays: string}, {stockpile1?: string, stockpile2?: string, numDays?: string}> = {
+export const COMPARESTOCKPILEVALUEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {stockpile1?: string, stockpile2?: string, numDays?: string}, {stockpile1?: string, stockpile2?: string, numDays?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "comparestockpilevaluebyday",
         "compareStockpileValueByDay",
@@ -711,7 +711,7 @@ export const COMPARESTOCKPILEVALUEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {stoc
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {stockpile1: string, stockpile2: string, numDays: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {stockpile1?: string, stockpile2?: string, numDays?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(COMPARESTOCKPILEVALUEBYDAY.endpoint.name, combine(COMPARESTOCKPILEVALUEBYDAY.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -719,7 +719,7 @@ export const COMPARESTOCKPILEVALUEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {stoc
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {stockpile1: string, stockpile2: string, numDays: string}) => boolean,
+        handle_submit?: (args: {stockpile1?: string, stockpile2?: string, numDays?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -727,7 +727,7 @@ export const COMPARESTOCKPILEVALUEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {stoc
     }
 };
 
-export const MILITARIZATIONTIME: CommonEndpoint<ApiTypes.WebGraph, {alliance: string, start_time?: string, end_time?: string}, {alliance?: string, start_time?: string, end_time?: string}> = {
+export const MILITARIZATIONTIME: CommonEndpoint<ApiTypes.WebGraph, {alliance?: string, start_time?: string, end_time?: string}, {alliance?: string, start_time?: string, end_time?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "militarizationtime",
         "militarizationTime",
@@ -736,7 +736,7 @@ export const MILITARIZATIONTIME: CommonEndpoint<ApiTypes.WebGraph, {alliance: st
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {alliance: string, start_time?: string, end_time?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {alliance?: string, start_time?: string, end_time?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(MILITARIZATIONTIME.endpoint.name, combine(MILITARIZATIONTIME.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -744,7 +744,7 @@ export const MILITARIZATIONTIME: CommonEndpoint<ApiTypes.WebGraph, {alliance: st
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {alliance: string, start_time?: string, end_time?: string}) => boolean,
+        handle_submit?: (args: {alliance?: string, start_time?: string, end_time?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -752,7 +752,7 @@ export const MILITARIZATIONTIME: CommonEndpoint<ApiTypes.WebGraph, {alliance: st
     }
 };
 
-export const INPUT_OPTIONS: CommonEndpoint<ApiTypes.WebOptions, {type: string}, {type?: string}> = {
+export const INPUT_OPTIONS: CommonEndpoint<ApiTypes.WebOptions, {type?: string}, {type?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebOptions>(
         "input_options",
         "input_options",
@@ -761,7 +761,7 @@ export const INPUT_OPTIONS: CommonEndpoint<ApiTypes.WebOptions, {type: string}, 
         {type: CacheType.LocalStorage, duration: 30}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {type: string}, render: (data: ApiTypes.WebOptions) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {type?: string}, render: (data: ApiTypes.WebOptions) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(INPUT_OPTIONS.endpoint.name, combine(INPUT_OPTIONS.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -769,7 +769,7 @@ export const INPUT_OPTIONS: CommonEndpoint<ApiTypes.WebOptions, {type: string}, 
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebOptions) => void,
-        handle_submit?: (args: {type: string}) => boolean,
+        handle_submit?: (args: {type?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -777,7 +777,7 @@ export const INPUT_OPTIONS: CommonEndpoint<ApiTypes.WebOptions, {type: string}, 
     }
 };
 
-export const LOGIN_MAIL: CommonEndpoint<ApiTypes.WebUrl, {nation: string}, {nation?: string}> = {
+export const LOGIN_MAIL: CommonEndpoint<ApiTypes.WebUrl, {nation?: string}, {nation?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebUrl>(
         "login_mail",
         "login_mail",
@@ -786,7 +786,7 @@ export const LOGIN_MAIL: CommonEndpoint<ApiTypes.WebUrl, {nation: string}, {nati
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {nation: string}, render: (data: ApiTypes.WebUrl) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {nation?: string}, render: (data: ApiTypes.WebUrl) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(LOGIN_MAIL.endpoint.name, combine(LOGIN_MAIL.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -794,7 +794,7 @@ export const LOGIN_MAIL: CommonEndpoint<ApiTypes.WebUrl, {nation: string}, {nati
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebUrl) => void,
-        handle_submit?: (args: {nation: string}) => boolean,
+        handle_submit?: (args: {nation?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -902,7 +902,7 @@ export const LOGOUT: CommonEndpoint<ApiTypes.WebSuccess, Record<string, never>, 
     }
 };
 
-export const SCORETIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: string, coalition2: string, includeInactives?: string, includeApplicants?: string, snapshotDate?: string}, {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, snapshotDate?: string}> = {
+export const SCORETIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, snapshotDate?: string}, {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, snapshotDate?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "scoretiergraph",
         "scoreTierGraph",
@@ -911,7 +911,7 @@ export const SCORETIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: stri
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {coalition1: string, coalition2: string, includeInactives?: string, includeApplicants?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(SCORETIERGRAPH.endpoint.name, combine(SCORETIERGRAPH.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -919,7 +919,7 @@ export const SCORETIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: stri
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {coalition1: string, coalition2: string, includeInactives?: string, includeApplicants?: string, snapshotDate?: string}) => boolean,
+        handle_submit?: (args: {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, snapshotDate?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -927,7 +927,7 @@ export const SCORETIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: stri
     }
 };
 
-export const SPYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: string, coalition2: string, includeInactives?: string, includeApplicants?: string, total?: string, barGraph?: string}, {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, total?: string, barGraph?: string}> = {
+export const SPYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, total?: string, barGraph?: string}, {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, total?: string, barGraph?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "spytiergraph",
         "spyTierGraph",
@@ -936,7 +936,7 @@ export const SPYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: string
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {coalition1: string, coalition2: string, includeInactives?: string, includeApplicants?: string, total?: string, barGraph?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, total?: string, barGraph?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(SPYTIERGRAPH.endpoint.name, combine(SPYTIERGRAPH.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -944,7 +944,7 @@ export const SPYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: string
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {coalition1: string, coalition2: string, includeInactives?: string, includeApplicants?: string, total?: string, barGraph?: string}) => boolean,
+        handle_submit?: (args: {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, total?: string, barGraph?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -952,7 +952,7 @@ export const SPYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: string
     }
 };
 
-export const STRENGTHTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: string, coalition2: string, includeInactives?: string, includeApplicants?: string, col1MMR?: string, col2MMR?: string, col1Infra?: string, col2Infra?: string, snapshotDate?: string}, {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, col1MMR?: string, col2MMR?: string, col1Infra?: string, col2Infra?: string, snapshotDate?: string}> = {
+export const STRENGTHTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, col1MMR?: string, col2MMR?: string, col1Infra?: string, col2Infra?: string, snapshotDate?: string}, {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, col1MMR?: string, col2MMR?: string, col1Infra?: string, col2Infra?: string, snapshotDate?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "strengthtiergraph",
         "strengthTierGraph",
@@ -961,7 +961,7 @@ export const STRENGTHTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: s
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {coalition1: string, coalition2: string, includeInactives?: string, includeApplicants?: string, col1MMR?: string, col2MMR?: string, col1Infra?: string, col2Infra?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, col1MMR?: string, col2MMR?: string, col1Infra?: string, col2Infra?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(STRENGTHTIERGRAPH.endpoint.name, combine(STRENGTHTIERGRAPH.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -969,7 +969,7 @@ export const STRENGTHTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: s
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {coalition1: string, coalition2: string, includeInactives?: string, includeApplicants?: string, col1MMR?: string, col2MMR?: string, col1Infra?: string, col2Infra?: string, snapshotDate?: string}) => boolean,
+        handle_submit?: (args: {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, col1MMR?: string, col2MMR?: string, col1Infra?: string, col2Infra?: string, snapshotDate?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -1002,7 +1002,7 @@ export const UNREAD_COUNT: CommonEndpoint<ApiTypes.WebInt, Record<string, never>
     }
 };
 
-export const SET_OAUTH_CODE: CommonEndpoint<ApiTypes.WebSuccess, {code: string}, {code?: string}> = {
+export const SET_OAUTH_CODE: CommonEndpoint<ApiTypes.WebSuccess, {code?: string}, {code?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "set_oauth_code",
         "set_oauth_code",
@@ -1011,7 +1011,7 @@ export const SET_OAUTH_CODE: CommonEndpoint<ApiTypes.WebSuccess, {code: string},
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {code: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {code?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(SET_OAUTH_CODE.endpoint.name, combine(SET_OAUTH_CODE.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -1019,7 +1019,7 @@ export const SET_OAUTH_CODE: CommonEndpoint<ApiTypes.WebSuccess, {code: string},
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebSuccess) => void,
-        handle_submit?: (args: {code: string}) => boolean,
+        handle_submit?: (args: {code?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -1077,7 +1077,7 @@ export const WARATTACKSBYDAY: CommonEndpoint<ApiTypes.WebGraph, {nations?: strin
     }
 };
 
-export const VIEW_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebAnnouncement, {ann_id: string}, {ann_id?: string}> = {
+export const VIEW_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebAnnouncement, {ann_id?: string}, {ann_id?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebAnnouncement>(
         "view_announcement",
         "view_announcement",
@@ -1086,7 +1086,7 @@ export const VIEW_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebAnnouncement, {ann_id
         {type: CacheType.SessionStorage, duration: 2592000}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {ann_id: string}, render: (data: ApiTypes.WebAnnouncement) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {ann_id?: string}, render: (data: ApiTypes.WebAnnouncement) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(VIEW_ANNOUNCEMENT.endpoint.name, combine(VIEW_ANNOUNCEMENT.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -1094,7 +1094,7 @@ export const VIEW_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebAnnouncement, {ann_id
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebAnnouncement) => void,
-        handle_submit?: (args: {ann_id: string}) => boolean,
+        handle_submit?: (args: {ann_id?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -1102,7 +1102,7 @@ export const VIEW_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebAnnouncement, {ann_id
     }
 };
 
-export const SET_GUILD: CommonEndpoint<ApiTypes.SetGuild, {guild: string}, {guild?: string}> = {
+export const SET_GUILD: CommonEndpoint<ApiTypes.SetGuild, {guild?: string}, {guild?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.SetGuild>(
         "set_guild",
         "set_guild",
@@ -1111,7 +1111,7 @@ export const SET_GUILD: CommonEndpoint<ApiTypes.SetGuild, {guild: string}, {guil
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {guild: string}, render: (data: ApiTypes.SetGuild) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {guild?: string}, render: (data: ApiTypes.SetGuild) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(SET_GUILD.endpoint.name, combine(SET_GUILD.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -1119,7 +1119,7 @@ export const SET_GUILD: CommonEndpoint<ApiTypes.SetGuild, {guild: string}, {guil
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.SetGuild) => void,
-        handle_submit?: (args: {guild: string}) => boolean,
+        handle_submit?: (args: {guild?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -1127,7 +1127,7 @@ export const SET_GUILD: CommonEndpoint<ApiTypes.SetGuild, {guild: string}, {guil
     }
 };
 
-export const AASTATS: CommonEndpoint<ApiTypes.WebGraph, {metrics: string, start: string, end: string, coalition: string}, {metrics?: string, start?: string, end?: string, coalition?: string}> = {
+export const AASTATS: CommonEndpoint<ApiTypes.WebGraph, {metrics?: string, start?: string, end?: string, coalition?: string}, {metrics?: string, start?: string, end?: string, coalition?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "aastats",
         "aaStats",
@@ -1136,7 +1136,7 @@ export const AASTATS: CommonEndpoint<ApiTypes.WebGraph, {metrics: string, start:
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metrics: string, start: string, end: string, coalition: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {metrics?: string, start?: string, end?: string, coalition?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(AASTATS.endpoint.name, combine(AASTATS.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -1144,7 +1144,7 @@ export const AASTATS: CommonEndpoint<ApiTypes.WebGraph, {metrics: string, start:
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {metrics: string, start: string, end: string, coalition: string}) => boolean,
+        handle_submit?: (args: {metrics?: string, start?: string, end?: string, coalition?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -1152,7 +1152,7 @@ export const AASTATS: CommonEndpoint<ApiTypes.WebGraph, {metrics: string, start:
     }
 };
 
-export const METRICBYGROUP: CommonEndpoint<ApiTypes.WebGraph, {metrics: string, nations: string, groupBy?: string, includeInactives?: string, includeApplicants?: string, total?: string, snapshotDate?: string}, {metrics?: string, nations?: string, groupBy?: string, includeInactives?: string, includeApplicants?: string, total?: string, snapshotDate?: string}> = {
+export const METRICBYGROUP: CommonEndpoint<ApiTypes.WebGraph, {metrics?: string, nations?: string, groupBy?: string, includeInactives?: string, includeApplicants?: string, total?: string, snapshotDate?: string}, {metrics?: string, nations?: string, groupBy?: string, includeInactives?: string, includeApplicants?: string, total?: string, snapshotDate?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "metricbygroup",
         "metricByGroup",
@@ -1161,7 +1161,7 @@ export const METRICBYGROUP: CommonEndpoint<ApiTypes.WebGraph, {metrics: string, 
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metrics: string, nations: string, groupBy?: string, includeInactives?: string, includeApplicants?: string, total?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {metrics?: string, nations?: string, groupBy?: string, includeInactives?: string, includeApplicants?: string, total?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(METRICBYGROUP.endpoint.name, combine(METRICBYGROUP.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -1169,7 +1169,7 @@ export const METRICBYGROUP: CommonEndpoint<ApiTypes.WebGraph, {metrics: string, 
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {metrics: string, nations: string, groupBy?: string, includeInactives?: string, includeApplicants?: string, total?: string, snapshotDate?: string}) => boolean,
+        handle_submit?: (args: {metrics?: string, nations?: string, groupBy?: string, includeInactives?: string, includeApplicants?: string, total?: string, snapshotDate?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -1177,7 +1177,7 @@ export const METRICBYGROUP: CommonEndpoint<ApiTypes.WebGraph, {metrics: string, 
     }
 };
 
-export const TRADEPRICEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resources: string, numDays: string}, {resources?: string, numDays?: string}> = {
+export const TRADEPRICEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resources?: string, numDays?: string}, {resources?: string, numDays?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "tradepricebyday",
         "tradepricebyday",
@@ -1186,7 +1186,7 @@ export const TRADEPRICEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resources: stri
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {resources: string, numDays: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {resources?: string, numDays?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(TRADEPRICEBYDAY.endpoint.name, combine(TRADEPRICEBYDAY.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -1194,7 +1194,7 @@ export const TRADEPRICEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resources: stri
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {resources: string, numDays: string}) => boolean,
+        handle_submit?: (args: {resources?: string, numDays?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -1202,7 +1202,7 @@ export const TRADEPRICEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resources: stri
     }
 };
 
-export const CITYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: string, coalition2: string, includeInactives?: string, barGraph?: string, includeApplicants?: string, snapshotDate?: string}, {coalition1?: string, coalition2?: string, includeInactives?: string, barGraph?: string, includeApplicants?: string, snapshotDate?: string}> = {
+export const CITYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1?: string, coalition2?: string, includeInactives?: string, barGraph?: string, includeApplicants?: string, snapshotDate?: string}, {coalition1?: string, coalition2?: string, includeInactives?: string, barGraph?: string, includeApplicants?: string, snapshotDate?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "citytiergraph",
         "cityTierGraph",
@@ -1211,7 +1211,7 @@ export const CITYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: strin
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {coalition1: string, coalition2: string, includeInactives?: string, barGraph?: string, includeApplicants?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {coalition1?: string, coalition2?: string, includeInactives?: string, barGraph?: string, includeApplicants?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(CITYTIERGRAPH.endpoint.name, combine(CITYTIERGRAPH.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -1219,7 +1219,7 @@ export const CITYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: strin
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {coalition1: string, coalition2: string, includeInactives?: string, barGraph?: string, includeApplicants?: string, snapshotDate?: string}) => boolean,
+        handle_submit?: (args: {coalition1?: string, coalition2?: string, includeInactives?: string, barGraph?: string, includeApplicants?: string, snapshotDate?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -1227,7 +1227,7 @@ export const CITYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1: strin
     }
 };
 
-export const UNPROTECTED: CommonEndpoint<ApiTypes.WebTargets, {nation: string, nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}, {nation?: string, nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}> = {
+export const UNPROTECTED: CommonEndpoint<ApiTypes.WebTargets, {nation?: string, nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}, {nation?: string, nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebTargets>(
         "unprotected",
         "unprotected",
@@ -1236,7 +1236,7 @@ export const UNPROTECTED: CommonEndpoint<ApiTypes.WebTargets, {nation: string, n
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {nation: string, nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}, render: (data: ApiTypes.WebTargets) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {nation?: string, nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}, render: (data: ApiTypes.WebTargets) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(UNPROTECTED.endpoint.name, combine(UNPROTECTED.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -1244,7 +1244,7 @@ export const UNPROTECTED: CommonEndpoint<ApiTypes.WebTargets, {nation: string, n
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebTargets) => void,
-        handle_submit?: (args: {nation: string, nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}) => boolean,
+        handle_submit?: (args: {nation?: string, nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -1252,7 +1252,7 @@ export const UNPROTECTED: CommonEndpoint<ApiTypes.WebTargets, {nation: string, n
     }
 };
 
-export const TRADEPRICEBYDAYJSON: CommonEndpoint<ApiTypes.WebGraph, {resources: string, days: string}, {resources?: string, days?: string}> = {
+export const TRADEPRICEBYDAYJSON: CommonEndpoint<ApiTypes.WebGraph, {resources?: string, days?: string}, {resources?: string, days?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "tradepricebydayjson",
         "tradePriceByDayJson",
@@ -1261,7 +1261,7 @@ export const TRADEPRICEBYDAYJSON: CommonEndpoint<ApiTypes.WebGraph, {resources: 
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {resources: string, days: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {resources?: string, days?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(TRADEPRICEBYDAYJSON.endpoint.name, combine(TRADEPRICEBYDAYJSON.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -1269,7 +1269,7 @@ export const TRADEPRICEBYDAYJSON: CommonEndpoint<ApiTypes.WebGraph, {resources: 
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {resources: string, days: string}) => boolean,
+        handle_submit?: (args: {resources?: string, days?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -1277,7 +1277,7 @@ export const TRADEPRICEBYDAYJSON: CommonEndpoint<ApiTypes.WebGraph, {resources: 
     }
 };
 
-export const WITHDRAW: CommonEndpoint<ApiTypes.WebTransferResult, {receiver: string, amount: string, note: string}, {receiver?: string, amount?: string, note?: string}> = {
+export const WITHDRAW: CommonEndpoint<ApiTypes.WebTransferResult, {receiver?: string, amount?: string, note?: string}, {receiver?: string, amount?: string, note?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebTransferResult>(
         "withdraw",
         "withdraw",
@@ -1286,7 +1286,7 @@ export const WITHDRAW: CommonEndpoint<ApiTypes.WebTransferResult, {receiver: str
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {receiver: string, amount: string, note: string}, render: (data: ApiTypes.WebTransferResult) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {receiver?: string, amount?: string, note?: string}, render: (data: ApiTypes.WebTransferResult) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(WITHDRAW.endpoint.name, combine(WITHDRAW.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -1294,7 +1294,7 @@ export const WITHDRAW: CommonEndpoint<ApiTypes.WebTransferResult, {receiver: str
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebTransferResult) => void,
-        handle_submit?: (args: {receiver: string, amount: string, note: string}) => boolean,
+        handle_submit?: (args: {receiver?: string, amount?: string, note?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
@@ -1327,7 +1327,7 @@ export const TEST: CommonEndpoint<ApiTypes.WebValue, Record<string, never>, Reco
     }
 };
 
-export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries: string}, {queries?: string}> = {
+export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries?: string}, {queries?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebBulkQuery>(
         "query",
         "query",
@@ -1336,7 +1336,7 @@ export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries: string}, {qu
         {}
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {queries: string}, render: (data: ApiTypes.WebBulkQuery) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+    {args: {queries?: string}, render: (data: ApiTypes.WebBulkQuery) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
         return useDisplay(QUERY.endpoint.name, combine(QUERY.endpoint.cache, args), args, render, renderLoading, renderError);
     },
     useForm: ({default_values, label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
@@ -1344,7 +1344,7 @@ export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries: string}, {qu
         label?: ReactNode,
         message?: ReactNode,
         handle_response?: (data: ApiTypes.WebBulkQuery) => void,
-        handle_submit?: (args: {queries: string}) => boolean,
+        handle_submit?: (args: {queries?: string}) => boolean,
         handle_loading?: () => void,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {

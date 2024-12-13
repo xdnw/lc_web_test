@@ -1,4 +1,4 @@
-import {COMMAND_MAP} from '@/utils/Command';
+import {COMMAND_MAP, ICommand} from '@/utils/Command';
 import { useState } from 'react';
 import TextInput from 'react-autocomplete-input';
 import 'react-autocomplete-input/dist/bundle.css';
@@ -35,7 +35,7 @@ export default function AutoComplete() {
             let hasArguments = false; // Changed to let for mutability
             const requiredArguments: string[] = [];
             if (command.arguments) { // Ensure command.arguments exists
-                for (const arg of Object.values(command.arguments)) { // Correctly iterate over values
+                for (const arg of Object.values((command as ICommand).arguments ?? {})) { // Correctly iterate over values
                     hasArguments = true;
                     if (!arg.optional) {
                         requiredArguments.push(arg.name);

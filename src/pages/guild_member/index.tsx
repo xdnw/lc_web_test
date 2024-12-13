@@ -16,6 +16,7 @@ import {ChevronDown, ChevronUp, ExternalLink, Plane, Sailboat, Settings, Shield}
 import {WebAudits, WebBankAccess} from "@/components/api/apitypes";
 import {useDialog} from "../../components/layout/DialogContext";
 import RaidSection from "../raid";
+import {IOptionData} from "../../utils/Command";
 
 export default function GuildMember() {
     return (
@@ -298,7 +299,7 @@ function BuyUnits({me, mywars}: { me: ApiTypes.WebTarget, mywars: ApiTypes.WebMy
     )
 }
 
-const allBeigeReasons: string[] = COMMANDS.options["BeigeReason"]?.options ?? [];
+const allBeigeReasons: string[] = (COMMANDS.options["BeigeReason"] as IOptionData).options ?? [];
 
 export function WarComponent({me, war, isAttacker}: { me: ApiTypes.WebTarget, war: ApiTypes.WebMyWar, isAttacker: boolean }) {
     const now_ms = Date.now();

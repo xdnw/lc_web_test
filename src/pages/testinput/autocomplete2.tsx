@@ -4,6 +4,7 @@ import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 import "@webscopeio/react-textarea-autocomplete/style.css";
 import { Button } from "@/components/ui/button.tsx";
 import {COMMAND_MAP, CommandMap} from "@/utils/Command";
+import {ICommand} from "../../utils/Command";
 
 type ItemType = {
     name: string;
@@ -58,7 +59,7 @@ export default function AutoComplete2() {
             let hasArguments = false; // Changed to let for mutability
             const requiredArguments: string[] = [];
             if (command.arguments) { // Ensure command.arguments exists
-                for (const arg of Object.values(command.arguments)) { // Correctly iterate over values
+                for (const arg of Object.values((command as ICommand).arguments ?? {})) { // Correctly iterate over values
                     hasArguments = true;
                     if (!arg.optional) {
                         requiredArguments.push(arg.name);

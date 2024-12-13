@@ -47,7 +47,7 @@ export class ApiEndpoint<T> {
     }
 }
 
-export type CommonEndpoint<T, U extends {[key: string]: string}, V extends {[key: string]: string}> = {
+export type CommonEndpoint<T, U extends {[key: string]: string | string[] | undefined}, V extends {[key: string]: string | string[] | undefined}> = {
     endpoint: ApiEndpoint<T>;
     useDisplay: (params: {
         args: U;
@@ -70,7 +70,7 @@ export type CommonEndpoint<T, U extends {[key: string]: string}, V extends {[key
 export function useDisplay<T>(
     name: string,
     cache: { cache_type: CacheType, duration?: number, cookie_id: string },
-    args: {[key: string]: string}, render: (data: T) => React.ReactNode,
+    args: {[key: string]: string | string[]}, render: (data: T) => React.ReactNode,
     renderLoading?: () => React.ReactNode,
     renderError?: (error: string) => React.ReactNode): React.ReactNode {
     const [queryId] = useRegisterQuery(name, args, cache);
@@ -90,7 +90,7 @@ export function useForm<T, A extends { [key: string]: string }>(
     url: string,
     args: { [name: string]: Argument },
     message?: React.ReactNode,
-    default_values?: { [key: string]: string },
+    default_values?: { [key: string]: string | string[] },
     label?: ReactNode,
     handle_response?: (data: T) => void,
     handle_submit?: (args: A) => boolean,
@@ -146,7 +146,7 @@ export function useForm<T, A extends { [key: string]: string }>(
     );
 }
 
-export function combine(cache: { cache_type: CacheType, duration?: number, cookie_id: string }, args: {[key: string]: string}) {
+export function combine(cache: { cache_type: CacheType, duration?: number, cookie_id: string }, args: {[key: string]: string | string[]}) {
     const argsString = JSON.stringify(args);
     const encodedArgs = encodeURIComponent(argsString);
     return { cache_type: cache.cache_type, duration: cache.duration, cookie_id: `${cache.cookie_id}_${encodedArgs}` };

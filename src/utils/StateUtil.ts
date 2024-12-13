@@ -35,7 +35,7 @@ export function useSyncedStateFunc<T>(initialValue: string, parseValue: (value: 
 }
 
 export function createCommandStore() {
-    return create<{ output: { [key: string]: string }; setOutput: (key: string, value: string) => void; }>((set) => ({
+    return create<{ output: { [key: string]: string | string[] }; setOutput: (key: string, value: string) => void; }>((set) => ({
       output: {},
       setOutput: (key, value) => set((state) => {
             const copy = { ...state.output };
@@ -46,8 +46,8 @@ export function createCommandStore() {
     }));
 }
 
-export function createCommandStoreWithDef(default_values: { [key: string]: string }) {
-    return create<{ output: { [key: string]: string }; setOutput: (key: string, value: string) => void; }>((set) => ({
+export function createCommandStoreWithDef(default_values: { [key: string]: string | string[] }) {
+    return create<{ output: { [key: string]: string | string[] }; setOutput: (key: string, value: string) => void; }>((set) => ({
       output: default_values,
       setOutput: (key, value) => set((state) => {
             const copy = { ...state.output };

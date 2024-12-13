@@ -8,7 +8,8 @@ import {ChevronDown, ChevronLeft, ChevronUp} from "lucide-react";
 import {BlockCopyButton} from "@/components/ui/block-copy-button.tsx";
 import {TooltipProvider} from "@/components/ui/tooltip.tsx";
 import Loading from "@/components/ui/loading.tsx";
-import {WebBalance} from "../../components/api/apitypes";
+import {WebBalance, WebTransferResult} from "../../components/api/apitypes";
+import {IOptionData} from "../../utils/Command";
 
 export default function BalancePage() {
     const {category} = useParams(); // TODO
@@ -21,7 +22,7 @@ export default function BalancePage() {
     })
 }
 
-const rssTypes: string[] = COMMANDS.options["ResourceType"]?.options ?? [];
+const rssTypes: string[] = (COMMANDS.options["ResourceType"] as IOptionData)?.options ?? [];
 
 function toResourceString(arr: number[]) {
     const filtered = Object.fromEntries(

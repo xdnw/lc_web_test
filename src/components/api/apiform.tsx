@@ -17,7 +17,7 @@ interface ApiFormProps<T, A extends { [key: string]: string }> {
     endpoint: string;
     label?: ReactNode;
     required?: string[];
-    default_values?: { [key: string]: string };
+    default_values?: { [key: string]: string | string[] };
     form_inputs: React.ComponentType<FormInputsProps>;
     handle_response?: (data: T) => void;
     handle_submit?: (data: A) => boolean;
