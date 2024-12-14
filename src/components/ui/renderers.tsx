@@ -7,11 +7,6 @@ import React, {ReactNode} from "react";
 import ChartComponent from "../../unused/GraphTest.jsx";
 import {WebGraph} from "../api/apitypes";
 
-//
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-//
-
 const colors: string[] = (COMMANDS.options["NationColor"] as IOptionData).options ?? [];
 
 export const RENDERERS: {[key: string]: ObjectColumnRender | undefined} = {
@@ -19,7 +14,7 @@ export const RENDERERS: {[key: string]: ObjectColumnRender | undefined} = {
     comma: {display: formatSi},
     color: {display: color},
     time: {display: time},
-    normal: {},
+    normal: {display: autoMarkdown},
     text: undefined,
     json: {display: json},
     graph: {display: Object.assign(graph, {isHtml: true})},
@@ -30,45 +25,13 @@ export function isHtmlRenderer(type: ObjectColumnRender): boolean {
     return (type?.display as unknown as { isHtml?: boolean })?.isHtml ?? false;
 }
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
-const generateDummyData = () => {
-    const labels = Array.from({ length: 10 }, (_, i) => `Label ${i + 1}`);
-    const data = Array.from({ length: 10 }, () => Math.floor(Math.random() * 100));
-    return { labels, data };
-};
-
-const { labels, data } = generateDummyData();
-
-const chartData = {
-    labels,
-    datasets: [
-        {
-            label: 'Dummy Data',
-            data,
-            borderColor: 'rgba(75, 192, 192, 1)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            fill: true,
-        },
-    ],
-};
-
-const chartOptions = {
-    responsive: true,
-    plugins: {
-        legend: {
-            position: 'top',
-        },
-        title: {
-            display: true,
-            text: 'Simple Line Chart with Dummy Data',
-        },
-    },
-};
-
 export function graph(value: WebGraph): ReactNode {
-    return <ChartComponent graph={value} type={"LINE"} theme="light" aspectRatio={10} />
-    // return <Line data={chartData} options={chartOptions} />;
+    return <ChartComponent graph={value} type={"LINE"} theme="light"
+                           hideLegend={true}
+                           hideDots={true}
+                           minHeight="40px"
+                           maxHeight="50px"
+    />
 }
 
 export function autoMarkdown(value: string): string {

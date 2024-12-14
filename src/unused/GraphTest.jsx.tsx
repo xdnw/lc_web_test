@@ -120,13 +120,17 @@ export function CoalitionGraphComp({graph, type}: { graph: CoalitionGraph, type:
     );
 }
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend, Filler, Decimation, ChartDeferred);
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend, Filler, Decimation);
 
 interface ChartProps {
     graph: WebGraph;
     type: GraphType;
     theme: 'light' | 'dark';
     aspectRatio?: number;
+    hideLegend?: boolean;
+    hideDots?: boolean;
+    minHeight?: string;
+    maxHeight?: string;
 }
 
 interface ChartState {
@@ -155,6 +159,7 @@ class ChartComponent extends Component<ChartProps, ChartState> {
     }
 
     onHover = (evt: ChartEvent, activeElements: ActiveElement[], chart: Chart) => {
+        if (this.props.hideDots) return;
         const { previousActiveElements } = this.state;
 
         const lastActiveIds: Set<number> = new Set(previousActiveElements.map((el) => el.datasetIndex));
@@ -252,8 +257,8 @@ class ChartComponent extends Component<ChartProps, ChartState> {
                     })),
                     backgroundColor: colors[index].css(), // Convert chroma.Color to string
                     borderColor: colors[index].css(), // Convert chroma.Color to string
-                    borderWidth: 1,
-                    pointRadius: 1,
+                    borderWidth: this.props.hideDots ? 1 : 1,
+                    pointRadius: this.props.hideDots ? 0 : 1,
                     pointHoverRadius: 5,
                     hitRadius: 100
                 }))
@@ -273,8 +278,8 @@ class ChartComponent extends Component<ChartProps, ChartState> {
                     data: dataSet as number[],
                     backgroundColor: `rgba(${colors[index].rgb()[0]}, ${colors[index].rgb()[1]}, ${colors[index].rgb()[2]}, 0.5)`,
                     borderColor: `rgba(${colors[index].rgb()[0]}, ${colors[index].rgb()[1]}, ${colors[index].rgb()[2]}, 1)`,
-                    borderWidth: 1,
-                    pointRadius: 1,
+                    borderWidth: this.props.hideDots ? 1 : 1,
+                    pointRadius: this.props.hideDots ? 0 : 1,
                     fill: type === 'STACKED_LINE' || type === "FILLED_LINE" ? '-1' : undefined,
                     pointHoverRadius: 5,
                     hitRadius: 100,
@@ -308,7 +313,8 @@ class ChartComponent extends Component<ChartProps, ChartState> {
                         sampleSize: 10, // Set your desired sample size
                         min: minX,
                         max: maxX,
-                    }
+                        display: !this.props.hideLegend, // Hide x-axis labels if hideLegend is true
+                    },
                 },
                 y: {
                     beginAtZero: true,
@@ -320,7 +326,8 @@ class ChartComponent extends Component<ChartProps, ChartState> {
                         sampleSize: 10, // Set your desired sample size
                         min: minY,
                         max: maxY,
-                    }
+                        display: !this.props.hideLegend,
+                    },
                 }
             },
             plugins: {
@@ -345,16 +352,24 @@ class ChartComponent extends Component<ChartProps, ChartState> {
                             return timeFormatFunc(context[0].parsed.x);
                         }
                     }
+                },
+                legend: {
+                    display: !this.props.hideLegend, // Hide legend if hideLegend is true
                 }
+            },
+            layout: {
+                padding: -100 // Remove padding
             }
         };
 
         const canvasStyle = {
-            display: 'block'
+            display: 'block',
+            maxHeight: this.props.maxHeight,
+            minHeight: this.props.minHeight,
         };
 
         return (
-            <div className="bg-white dark:bg-slate-900 relative">
+            <div className="bg-white dark:bg-slate-950 relative p-0 m-0">
                 {(() => {
                     switch (type) {
                         case 'STACKED_BAR':

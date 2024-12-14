@@ -54,6 +54,19 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
                 ],
                 sort: {idx: 3, dir: 'desc'}
             },
+            "Militarization": {
+                value: [
+                    ["{markdownUrl}", "Alliance"],
+                    ["({MetricAt(TANK_PCT)})*100", "tank%"],
+                    ["({MetricAt(AIRCRAFT_PCT)})*100", "air%"],
+                    ["({MetricAt(TANK_PCT)}-{MetricAt(AIRCRAFT_PCT,1d)})*100", "1d"],
+                    ["({MetricAt(TANK_PCT)}-{MetricAt(AIRCRAFT_PCT,2d)})*100", "2d"],
+                    ["({MetricAt(TANK_PCT)}-{MetricAt(AIRCRAFT_PCT,5d)})*100", "5d"],
+                    ["({MetricAt(TANK_PCT)}-{MetricAt(AIRCRAFT_PCT,10d)})*100", "10d"],
+                    "{MilitarizationGraph(60d)}"
+                ],
+                sort: {idx: 2, dir: 'desc'}
+            },
             "Revenue": {
                 value: [
                     ["{markdownUrl}", "Alliance"],
@@ -642,7 +655,7 @@ function setTableVars(
     api.order(sort.current);
 
     // Check if the number of columns is different
-    if (api.columns().count() !== header.length + 1) {
+    if (true || api.columns().count() !== header.length + 1) {
         api.destroy(false);
         setRerender(prevRerender => prevRerender + 1);
     } else {
