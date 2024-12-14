@@ -109,7 +109,7 @@ export function CoalitionGraphComp({graph, type}: { graph: CoalitionGraph, type:
                             <div key={allianceId} className="mb-1">
                                 <h3 className="text-lg font-semibold">Alliance {allianceId}</h3>
                                 <div className={`${!showAlliances ? 'hidden' : ''}`}>
-                                    <ChartComponent graph={allianceGraph} type={type} theme="light" aspectRatio={1} />
+                                    <ChartComponent graph={allianceGraph} type={type} aspectRatio={1} />
                                 </div>
                             </div>
                         ))}
@@ -354,8 +354,6 @@ class ChartComponent extends Component<ChartProps, ChartState> {
         };
 
         return (
-            // ChartJSOrUndefined<"scatter", (number | Point | [number, number] | BubbleDataPoint | null)[], unknown>
-            // ChartJSOrUndefined<"bar", (number | Point | [number, number] | BubbleDataPoint | null)[], unknown>
             <div className="bg-white dark:bg-slate-900 relative">
                 {(() => {
                     switch (type) {

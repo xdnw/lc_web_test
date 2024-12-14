@@ -1,8 +1,8 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {ReactNode, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import DataTable, { DataTableRef } from 'datatables.net-react';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
 import 'datatables.net-colreorder-dt';
-import DT, {Api, ConfigColumns, OrderIdx} from 'datatables.net';
+import DT, {Api, ConfigColumns, ObjectColumnRender, OrderIdx} from 'datatables.net';
 import {TABLE} from "../../components/api/endpoints";
 import {Button} from "../../components/ui/button";
 import CopyToClipboard, {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
@@ -12,12 +12,13 @@ import {Tabs, TabsList, TabsTrigger} from "../../components/ui/tabs";
 import {ArrowRightToLine, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ClipboardIcon, Download, Sheet} from "lucide-react";
 import {BlockCopyButton} from "../../components/ui/block-copy-button";
 import {TooltipProvider} from "../../components/ui/tooltip";
-import {WebTable, WebTableError} from "../../components/api/apitypes";
+import {WebGraph, WebTable, WebTableError} from "../../components/api/apitypes";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {useDialog} from "../../components/layout/DialogContext";
 import { Link } from "react-router-dom";
-import {getRenderer} from "../../components/ui/renderers";
+import {getRenderer, graph, isHtmlRenderer} from "../../components/ui/renderers";
 import {getQueryParams} from "../../lib/utils";
+import {createRoot} from "react-dom/client";
 
 DataTable.use(DT);
 
@@ -612,6 +613,7 @@ function setTableVars(
     columns: React.MutableRefObject<Map<string, string | null>>
 ) {
     errors.current = newData.errors ?? [];
+
     const api = table.current!.dt() as Api;
     // const elem = api.table().container() as HTMLElement;
     const header: string[] = columns.current.size > 0 ? Array.from(columns.current).map(([key, value]) => value ?? key) : newData.cells[0] as string[];
@@ -622,11 +624,10 @@ function setTableVars(
     // for (let i = 0; i < header.length; i++) {
     //     console.log(`Column ${i}: ${header[i]} - ${renderFuncNames ? renderFuncNames[i] : "no render func"}`);
     // }
-
-    const newColumnsInfo: ConfigColumns[]  = header.map((col: string, index: number) => ({
+    const newColumnsInfo: ConfigColumns[] = header.map((col: string, index: number) => ({
         title: formatColName(col),
         data: index,
-        render: renderFuncNames ? getRenderer(renderFuncNames[index]) : undefined
+        render: renderFuncNames ? getRenderer(renderFuncNames[index]) : undefined,
     }));
     // columns
     columnsInfo.current = newColumnsInfo;
@@ -759,6 +760,19 @@ function DeferTable(
     );
 }
 
+function getReactSlots(columnsInfo: ConfigColumns[]): { [key: number]: ((data, row, rowData: object[]) => ReactNode)} | undefined {
+    const reactSlots: { [key: number]: (data, row, rowData: object[]) => ReactNode } = {};
+
+    for (let i = 0; i < columnsInfo.length; i++) {
+        const col = columnsInfo[i];
+        if (col.render && isHtmlRenderer(col.render as ObjectColumnRender)) {
+            const tmpRender = ((col.render as ObjectColumnRender).display) as ((data: object) => ReactNode);
+            col.render = undefined;
+            reactSlots[i + 1] = (data, row, rowData: object[]) => tmpRender(rowData[i]);
+        }
+    }
+    return reactSlots ? reactSlots : undefined;
+}
 
 export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColumns}:
 {
@@ -767,9 +781,13 @@ export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColum
     columnsInfo: React.MutableRefObject<ConfigColumns[]>,
     sort: React.MutableRefObject<OrderIdx | OrderIdx[]>,
     searchSet: React.MutableRefObject<Set<number>>,
-    visibleColumns: React.MutableRefObject<number[]>}) {
+    visibleColumns: React.MutableRefObject<number[]>,
+    // reactColumns: ((data: object) => ReactNode)[],
+}) {
+
     return (
         <DataTable
+            slots={getReactSlots(columnsInfo.current)}
             ref={table}
             data={data.current}
             columns={[{data: null, title: "#", orderable: false, searchable: false, className: 'dt-center'},
