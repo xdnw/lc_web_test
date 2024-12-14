@@ -12,7 +12,12 @@ export function clamp(value: number, min: number, max: number) {
 }
 
 export function getQueryParams(): URLSearchParams {
-  return new URLSearchParams(window.location.hash.split('?')[1]);
+  const queryString = window.location.hash.split('?')[1];
+  try {
+    return new URLSearchParams(decodeURIComponent(queryString));
+  } catch (e) {
+    return new URLSearchParams(queryString);
+  }
 }
 
 export function deepEqual<T>(a: T, b: T): boolean {

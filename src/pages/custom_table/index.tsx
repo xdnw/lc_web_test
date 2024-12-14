@@ -59,13 +59,13 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
                     ["{markdownUrl}", "Alliance"],
                     ["({MetricAt(TANK_PCT)})*100", "tank%"],
                     ["({MetricAt(AIRCRAFT_PCT)})*100", "air%"],
-                    ["({MetricAt(TANK_PCT)}-{MetricAt(AIRCRAFT_PCT,1d)})*100", "1d"],
-                    ["({MetricAt(TANK_PCT)}-{MetricAt(AIRCRAFT_PCT,2d)})*100", "2d"],
-                    ["({MetricAt(TANK_PCT)}-{MetricAt(AIRCRAFT_PCT,5d)})*100", "5d"],
-                    ["({MetricAt(TANK_PCT)}-{MetricAt(AIRCRAFT_PCT,10d)})*100", "10d"],
+                    ["({MetricAt(TANK_PCT)}-{MetricAt(TANK_PCT,1d)})*100", "1d"],
+                    ["({MetricAt(TANK_PCT)}-{MetricAt(TANK_PCT,2d)})*100", "2d"],
+                    ["({MetricAt(TANK_PCT)}-{MetricAt(TANK_PCT,5d)})*100", "5d"],
+                    ["({MetricAt(TANK_PCT)}-{MetricAt(TANK_PCT,10d)})*100", "10d"],
                     "{MilitarizationGraph(60d)}"
                 ],
-                sort: {idx: 2, dir: 'desc'}
+                sort: {idx: 4, dir: 'desc'}
             },
             "Revenue": {
                 value: [
@@ -558,12 +558,12 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
                 className=""
                 onClick={() => {
                     const baseUrlWithoutPath = window.location.protocol + "//" + window.location.host;
-                    const url = (`${baseUrlWithoutPath}${process.env.BASE_PATH}#/view_table?${getQueryString({
+                    const url = (`${baseUrlWithoutPath}${process.env.BASE_PATH}#/view_table?${encodeURIComponent(getQueryString({
                         type: type.current,
                         sel: selection.current,
                         columns: columns.current,
                         sort: sort.current
-                    })}`);
+                    }))}`);
                     navigator.clipboard.writeText(url).then(() => {
                         showDialog("URL copied to clipboard", url, true);
                     }).catch((err) => {
