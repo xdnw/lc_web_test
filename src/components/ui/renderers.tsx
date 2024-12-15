@@ -4,7 +4,7 @@ import {commafy, formatSi} from "../../utils/StringUtil";
 import ReactDOMServer from 'react-dom/server';
 import {IOptionData} from "../../utils/Command";
 import React, {ReactNode} from "react";
-import ChartComponent from "../../unused/GraphTest.jsx";
+import SimpleChart from "../../pages/graphs/SimpleChart.js";
 import {WebGraph} from "../api/apitypes";
 
 const colors: string[] = (COMMANDS.options["NationColor"] as IOptionData).options ?? [];
@@ -26,11 +26,11 @@ export function isHtmlRenderer(type: ObjectColumnRender): boolean {
 }
 
 export function graph(value: WebGraph): ReactNode {
-    return <ChartComponent graph={value} type={"LINE"} theme="light"
-                           hideLegend={true}
-                           hideDots={true}
-                           minHeight="40px"
-                           maxHeight="50px"
+    return <SimpleChart graph={value} type={"LINE"} theme="light"
+                        hideLegend={true}
+                        hideDots={true}
+                        minHeight="40px"
+                        maxHeight="50px"
     />
 }
 

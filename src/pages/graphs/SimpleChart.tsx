@@ -1,4 +1,5 @@
-import React, {Component, createRef, RefObject, useRef, useState} from 'react';
+import React, {Component, createRef, CSSProperties, RefObject, useRef, useState} from 'react';
+// import Worker from '@/workers/chartWorker.ts?worker';
 import {
     Chart as ChartJS,
     Decimation,
@@ -15,77 +16,18 @@ import {
 } from 'chart.js';
 import ChartDeferred from 'chartjs-plugin-deferred';
 import { Bar, Line, Scatter } from 'react-chartjs-2';
-import {WebGraph, GraphType, CoalitionGraphs, CoalitionGraph} from '../components/api/apitypes';
+import {WebGraph, GraphType, CoalitionGraph} from '../../components/api/apitypes';
 import chroma from 'chroma-js';
 import distinctColors from 'distinct-colors'
 import {getNumberFormatCallback, getTimeFormatCallback, isTime, toMillisFunction,
-} from "../utils/StringUtil";
-import {GLOBALSTATS, TRADEPRICEBYDAYJSON} from "../components/api/endpoints";
-import {Button} from "../components/ui/button";
-import {deepEqual} from "../lib/utils";
+} from "../../utils/StringUtil";
+import {Button} from "../../components/ui/button";
+import {deepEqual} from "../../lib/utils";
 import { ChartJSOrUndefined } from 'node_modules/react-chartjs-2/dist/types';
+import {Link} from "react-router-dom";
+import {useTheme} from "../../components/ui/theme-provider";
 
-export function GraphTest() {
-    // Removed trade graph, its just an example
-    // return TRADEPRICEBYDAYJSON.useDisplay({
-    //     args: {
-    //         resources: "*",
-    //         days: "300"
-    //     },
-    //     render: (graph: WebGraph) => {
-    //         return <div className="bg-white dark:bg-black p-2">
-    //             <ChartComponent graph={graph} type='LINE' />;
-    //         </div>;
-    //     }
-    // })
-
-    // I want to generate charts for each, type=SIDE_BY_SIDE_BAR chart by default, I can change it later
-
-    const [graph, setGraph] = useState<WebGraph | null>(null);
-
-    // return (<>
-    //     {TRADEPRICEBYDAYJSON.useForm({
-    //         label: "Graph",
-    //         handle_response: setGraph,
-    //     })}
-    //     {graph && (
-    //         <div className="bg-white dark:bg-black p-2">
-    //             <ChartComponent graph={graph} type={graph.type} theme='light' aspectRatio={2.5} />
-    //         </div>
-    //     )}
-    //
-    // </>);
-
-    return GLOBALSTATS.useDisplay({
-        // {metrics: string, start: string, end: string, topX: string}
-        args: {
-            metrics: "SOLDIER_PCT,TANK_PCT,AIRCRAFT_PCT,SHIP_PCT",
-            start: "30d",
-            end: "0d",
-            topX: "50"
-        },
-        render: (graphs: CoalitionGraphs) => {
-            // graphs.spheres is CoalitionGraph[]
-            // CoalitionGraph is
-            //     name: string;
-            //     alliances: { [index: string]: number };
-            //     overall?: WebGraph;
-            //     by_alliance: { [index: string]: WebGraph };
-            // generate section for each, with title, then graphs
-            // main graph at top, dropdown (hidden class toggle) for each alliance
-            return (
-                <div className="container">
-                    {graphs.spheres.map((graph, index) => (
-                        <CoalitionGraphComp key={index} graph={graph} type="LINE"/>
-                    ))}
-                </div>
-            );
-        }
-    })
-
-}
-
-export function CoalitionGraphComp({graph, type}: { graph: CoalitionGraph, type: GraphType }) {
+export function CoalitionGraphComponent({graph, type}: { graph: CoalitionGraph, type: GraphType }) {
     const [showAlliances, setShowAlliances] = useState(false);
 
     return (
@@ -93,7 +35,7 @@ export function CoalitionGraphComp({graph, type}: { graph: CoalitionGraph, type:
             <h2 className="text-xl font-bold">{graph.name}</h2>
             {graph.overall && (
                 <div className="mb-2">
-                    <ChartComponent graph={graph.overall} type={type} theme="light" aspectRatio={3} />
+                    <SimpleChart graph={graph.overall} type={type} theme="light" aspectRatio={3} />
                 </div>
             )}
             <div className="themeDiv bg-opacity-10 rounded mt-2">
@@ -105,14 +47,18 @@ export function CoalitionGraphComp({graph, type}: { graph: CoalitionGraph, type:
                 </Button>
                 <div className={`transition-all duration-200 ease-in-out ${!showAlliances ? 'max-h-0 opacity-0 overflow-hidden' : 'p-2 opacity-100'}`}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
-                        {Object.entries(graph.by_alliance).map(([allianceId, allianceGraph]) => (
-                            <div key={allianceId} className="mb-1">
-                                <h3 className="text-lg font-semibold">Alliance {allianceId}</h3>
+                        {Object.entries(graph.alliances).map(([allianceName, allianceId]) => {
+                            return <div key={allianceId} className="mb-1">
+                                <h3 className="text-lg font-semibold">
+                                    <Link to={`https://politicsandwar.com/alliance/id=${allianceId}`}>
+                                        {allianceName}
+                                    </Link>
+                                </h3>
                                 <div className={`${!showAlliances ? 'hidden' : ''}`}>
-                                    <ChartComponent graph={allianceGraph} type={type} aspectRatio={1} />
+                                    <ThemedChart graph={graph.by_alliance[allianceId]} type={type} aspectRatio={1}/>
                                 </div>
                             </div>
-                        ))}
+                        })}
                     </div>
                 </div>
             </div>
@@ -124,8 +70,8 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineEleme
 
 interface ChartProps {
     graph: WebGraph;
-    type: GraphType;
-    theme: 'light' | 'dark';
+    type?: GraphType;
+    theme?: string;
     aspectRatio?: number;
     hideLegend?: boolean;
     hideDots?: boolean;
@@ -137,8 +83,21 @@ interface ChartState {
     previousActiveElements: ActiveElement[];
 }
 
-class ChartComponent extends Component<ChartProps, ChartState> {
+export function ThemedChart({graph, type, aspectRatio, hideLegend, hideDots, minHeight, maxHeight}: ChartProps) {
+    const { theme } = useTheme()
+    console.log("Creating themed chart");
+    return <SimpleChart graph={graph} type={type} theme={theme} aspectRatio={aspectRatio} hideLegend={hideLegend} hideDots={hideDots} minHeight={minHeight} maxHeight={maxHeight} />;
+}
+
+const COLOR_CACHE: { [key: string]: chroma.Color[] } = {};
+
+class SimpleChart extends Component<ChartProps, ChartState> {
     chartRef = createRef<ChartJSOrUndefined>();
+    // workerRef: Worker | null = null;
+    chartData: ChartData<keyof ChartTypeRegistry> | null = null;
+    chartOptions: ChartOptions<keyof ChartTypeRegistry> | null = null;
+    canvasStyle: CSSProperties | undefined = undefined;
+    type: GraphType = 'LINE';
 
     constructor(props: ChartProps) {
         super(props);
@@ -148,15 +107,33 @@ class ChartComponent extends Component<ChartProps, ChartState> {
     }
 
     shouldComponentUpdate(nextProps: ChartProps) {
-        return !deepEqual(nextProps.graph, this.props.graph) || nextProps.type !== this.props.type || nextProps.theme !== this.props.theme;
+        return !deepEqual(nextProps.graph, this.props.graph) || nextProps.type !== this.props.type;
     }
 
     componentWillUnmount() {
+        // if (this.workerRef) {
+        //     this.workerRef.terminate();
+        // }
         if (this.chartRef.current) {
-            console.log('destroying chart');
+            console.log("Destroying chart");
             this.chartRef.current.destroy();
         }
     }
+
+    // componentDidMount() {
+        // this.workerRef = new Worker();
+        // this.workerRef.onmessage = (event: MessageEvent) => {
+        //     const { type, options, canvas } = event.data;
+        //     if (type === 'chartCreated') {
+        //         console.log('Chart created:', canvas);
+        //     }
+        // };
+        // if (this.chartRef.current) {
+        //     const canvas = this.chartRef.current.canvas;
+        //     const offscreenCanvas = canvas.transferControlToOffscreen();
+        //     this.workerRef.postMessage({ type: 'createChart', options: this.chartOptions, canvas: offscreenCanvas }, [offscreenCanvas]);
+        // }
+    // }
 
     onHover = (evt: ChartEvent, activeElements: ActiveElement[], chart: Chart) => {
         if (this.props.hideDots) return;
@@ -177,7 +154,7 @@ class ChartComponent extends Component<ChartProps, ChartState> {
                         }
                         dataset.backgroundColor = currentColor.replace(/[\d.]+\)$/g, '0.5)');
                     }
-                    (dataset as ChartDataset<'line'>).pointRadius = 1;
+                    (dataset as ChartDataset<'line'>).pointRadius = 0;
                 }
             });
 
@@ -194,7 +171,7 @@ class ChartComponent extends Component<ChartProps, ChartState> {
                         }
                         activeDataset.backgroundColor = activeColor.replace(/[\d.]+\)$/g, '1)');
                     }
-                    activeDataset.pointRadius = 2.5;
+                    activeDataset.pointRadius = 2;
                 }
             }
 
@@ -204,16 +181,26 @@ class ChartComponent extends Component<ChartProps, ChartState> {
     };
 
     generateColors(n: number, background: 'white' | 'black' = 'white'): chroma.Color[] {
+        const cacheKey = `${n}-${background}`;
+        const existing = COLOR_CACHE[cacheKey];
+        if (existing) {
+            return existing;
+        }
+
         const options = {
             count: n,
             lightMin: background === 'white' ? 30 : 15,
             lightMax: background === 'white' ? 85 : 85
         };
-        return distinctColors(options);
+        const colors = distinctColors(options);
+        COLOR_CACHE[cacheKey] = colors;
+        return colors;
     }
 
-    render() {
-        const { graph, type } = this.props;
+    initializeChartOptions() {
+        if (this.canvasStyle) return;
+        const graph = this.props.graph;
+        this.type = this.props.type ?? graph.type ?? "LINE";
         const origin = graph.origin ?? 0;
         const timeFormat = graph.time_format ?? "SI_UNIT";
         const numberFormat = graph.number_format ?? "SI_UNIT";
@@ -229,7 +216,7 @@ class ChartComponent extends Component<ChartProps, ChartState> {
         if (isTimeBool) {
             minX = toMillisFunc(graph.data[0][0] as number + origin);
             maxX = toMillisFunc(graph.data[0][graph.data[0].length - 1] as number + origin);
-        } else if (type == 'SCATTER') {
+        } else if (this.type == 'SCATTER') {
             minX = Math.min(...graph.data[0] as number[]);
             maxX = Math.max(...graph.data[0] as number[]);
         } else {
@@ -246,9 +233,9 @@ class ChartComponent extends Component<ChartProps, ChartState> {
             minY = Math.min(...graph.data.slice(1).map((dataSet) => Math.min(...dataSet as number[])));
             maxY = Math.max(...graph.data.slice(1).map((dataSet) => Math.max(...dataSet as number[])));
         }
-        let chartData: ChartData<keyof ChartTypeRegistry>;
-        if (type === 'SCATTER') {
-            chartData = {
+
+        if (this.type === 'SCATTER') {
+            this.chartData = {
                 datasets: graph.data.slice(1).map((dataSet, index) => ({
                     label: graph.labels[index],
                     data: dataSet.map((yValue, i) => ({
@@ -271,8 +258,10 @@ class ChartComponent extends Component<ChartProps, ChartState> {
                 const parent = timeFormatFunc;
                 timeFormatFunc = (value: number) => parent(graph.data[0][value] as number + origin);
             }
-            chartData = {
-                labels: graph.data[0].map((xValue: number | string) => toMillisFunc(xValue as number + origin)),
+            const data0 = graph.data[0] as number[];
+            const labels = data0.map(value => toMillisFunc(value + origin));
+            this.chartData = {
+                labels: labels,
                 datasets: graph.data.slice(1).map((dataSet, index) => ({
                     label: graph.labels[index],
                     data: dataSet as number[],
@@ -280,7 +269,7 @@ class ChartComponent extends Component<ChartProps, ChartState> {
                     borderColor: `rgba(${colors[index].rgb()[0]}, ${colors[index].rgb()[1]}, ${colors[index].rgb()[2]}, 1)`,
                     borderWidth: this.props.hideDots ? 1 : 1,
                     pointRadius: this.props.hideDots ? 0 : 1,
-                    fill: type === 'STACKED_LINE' || type === "FILLED_LINE" ? '-1' : undefined,
+                    fill: this.type === 'STACKED_LINE' || this.type === "FILLED_LINE" ? '-1' : undefined,
                     pointHoverRadius: 5,
                     hitRadius: 100,
                     hoverBorderWidth: 3,
@@ -288,14 +277,17 @@ class ChartComponent extends Component<ChartProps, ChartState> {
             };
         }
 
+
+
         const yCallback = getNumberFormatCallback(numberFormat);
 
-        const chartOptions = {
+        this.chartOptions = {
             spanGaps: true,
             animation: false,
             responsive: true,
             aspectRatio: this.props.aspectRatio ?? 2,
             normalized: true,
+            // parsing: false, faster, but breaks everything, so...
             interaction: {
                 mode: 'nearest',
             },
@@ -303,27 +295,27 @@ class ChartComponent extends Component<ChartProps, ChartState> {
             scales: {
                 x: {
                     beginAtZero: origin === 0,
-                    stacked: type === 'STACKED_BAR' || type === 'STACKED_LINE',
+                    stacked: this.type === 'STACKED_BAR' || this.type === 'STACKED_LINE',
                     ticks: {
                         callback: timeFormatFunc,
                         autoSkip: true,
                         maxTicksLimit: 50,
-                        minRotation: 45, // Set your desired rotation value
-                        maxRotation: 45, // Set your desired rotation value
-                        sampleSize: 10, // Set your desired sample size
+                        minRotation: 45,
+                        maxRotation: 45,
+                        sampleSize: 10,
                         min: minX,
                         max: maxX,
-                        display: !this.props.hideLegend, // Hide x-axis labels if hideLegend is true
+                        display: !this.props.hideLegend,
                     },
                 },
                 y: {
                     beginAtZero: true,
-                    stacked: type === 'STACKED_BAR' || type === 'STACKED_LINE',
+                    stacked: this.type === 'STACKED_BAR' || this.type === 'STACKED_LINE',
                     ticks: {
                         callback: yCallback,
                         autoSkip: true,
                         maxTicksLimit: 50,
-                        sampleSize: 10, // Set your desired sample size
+                        sampleSize: 10,
                         min: minY,
                         max: maxY,
                         display: !this.props.hideLegend,
@@ -333,13 +325,13 @@ class ChartComponent extends Component<ChartProps, ChartState> {
             plugins: {
                 decimation: {
                     enabled: true,
-                    algorithm: 'lttb', // 'lttb' (Largest Triangle Three Buckets) or 'min-max'
-                    samples: 1000 // Number of samples to keep
+                    algorithm: 'lttb',
+                    samples: 1000
                 },
                 deferred: {
-                    xOffset: 15,   // defer until 150px of the canvas width are inside the viewport
-                    yOffset: '5%', // defer until 50% of the canvas height are inside the viewport
-                    delay: 0      // delay of 500 ms after the canvas is considered inside the viewport
+                    xOffset: 15,
+                    yOffset: '5%',
+                    delay: 0
                 },
                 tooltip: {
                     callbacks: {
@@ -354,36 +346,40 @@ class ChartComponent extends Component<ChartProps, ChartState> {
                     }
                 },
                 legend: {
-                    display: !this.props.hideLegend, // Hide legend if hideLegend is true
+                    display: !this.props.hideLegend,
                 }
             },
             layout: {
-                padding: -100 // Remove padding
+                padding: this.props.hideLegend ? -100 : undefined
             }
         };
 
-        const canvasStyle = {
+        this.canvasStyle = {
             display: 'block',
             maxHeight: this.props.maxHeight,
             minHeight: this.props.minHeight,
         };
+    }
 
+    render() {
+        this.initializeChartOptions();
         return (
             <div className="bg-white dark:bg-slate-950 relative p-0 m-0">
                 {(() => {
-                    switch (type) {
+                    switch (this.type) {
                         case 'STACKED_BAR':
                         case 'SIDE_BY_SIDE_BAR':
-                            return <Bar ref={this.chartRef as RefObject<ChartJSOrUndefined<"bar", unknown, unknown>>} data={chartData as ChartData<'bar'>} options={chartOptions as ChartOptions<'bar'>} style={canvasStyle} />;
+                            return <Bar ref={this.chartRef as RefObject<ChartJSOrUndefined<"bar", unknown, unknown>>} data={this.chartData as ChartData<'bar'>} options={this.chartOptions as ChartOptions<'bar'>} style={this.canvasStyle} />;
                         case 'HORIZONTAL_BAR':
-                            return <Bar ref={this.chartRef as RefObject<ChartJSOrUndefined<"bar", unknown, unknown>>} data={chartData as ChartData<'bar'>} options={{ ...chartOptions, indexAxis: 'y' } as ChartOptions<'bar'>} style={canvasStyle} />;
+                            return <Bar ref={this.chartRef as RefObject<ChartJSOrUndefined<"bar", unknown, unknown>>} data={this.chartData as ChartData<'bar'>} options={{ ...this.chartOptions, indexAxis: 'y' } as ChartOptions<'bar'>} style={this.canvasStyle} />;
                         case 'STACKED_LINE':
                         case 'FILLED_LINE':
                         case 'LINE':
-                            return <Line ref={this.chartRef as RefObject<ChartJSOrUndefined<"line", unknown, unknown>>} data={chartData as ChartData<'line'>} options={chartOptions as ChartOptions<'line'>} style={canvasStyle} />;
+                            return <Line ref={this.chartRef as RefObject<ChartJSOrUndefined<"line", unknown, unknown>>} data={this.chartData as ChartData<'line'>} options={this.chartOptions as ChartOptions<'line'>} style={this.canvasStyle} />;
                         case 'SCATTER':
-                            return <Scatter ref={this.chartRef as RefObject<ChartJSOrUndefined<"scatter", unknown, unknown>>} data={chartData as ChartData<'scatter'>} options={chartOptions as ChartOptions<'scatter'>} style={canvasStyle} />;
+                            return <Scatter ref={this.chartRef as RefObject<ChartJSOrUndefined<"scatter", unknown, unknown>>} data={this.chartData as ChartData<'scatter'>} options={this.chartOptions as ChartOptions<'scatter'>} style={this.canvasStyle} />;
                         default:
+                            console.log("Unknown chart type", this.props.type);
                             return null;
                     }
                 })()}
@@ -392,4 +388,4 @@ class ChartComponent extends Component<ChartProps, ChartState> {
     }
 }
 
-export default ChartComponent;
+export default SimpleChart;

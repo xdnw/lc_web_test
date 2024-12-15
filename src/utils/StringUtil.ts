@@ -21,7 +21,7 @@ export function isTime(format: TimeFormat) {
 export function toMillisFunction(format: TimeFormat): (value: number) => number {
     switch (format) {
         case "TURN_TO_DATE":
-          return (value: number) => value / 12 * 60 * 60 * 24 * 1000;
+          return (value: number) => value * 9.645061728395062e-10;
         case "DAYS_TO_DATE":
           return (value: number) => value * 60 * 60 * 1000;
         case "MILLIS_TO_DATE":

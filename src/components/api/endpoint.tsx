@@ -4,6 +4,7 @@ import React, {ReactNode, useCallback, useMemo} from "react";
 import LoadingWrapper from "@/components/api/loadingwrapper.tsx";
 import ApiForm from "@/components/api/apiform.tsx";
 import ArgInput from "@/components/cmd/ArgInput.tsx";
+import {ArgDescComponent} from "../cmd/CommandComponent";
 
 interface PlaceholderData {
     type: string;
@@ -34,8 +35,9 @@ export class ApiEndpoint<T> {
     args: { [name: string]: Argument };
     cast: (data: unknown) => T;
     cache: { cache_type: CacheType, duration?: number, cookie_id: string };
+    typeName: string;
 
-    constructor(name: string, url: string, args: { [name: string]: IArgument }, cast: (data: unknown) => T, cache: { type?: CacheType, duration?: number }) {
+    constructor(name: string, url: string, args: { [name: string]: IArgument }, cast: (data: unknown) => T, cache: { type?: CacheType, duration?: number }, typeName: string) {
         this.name = name;
         this.url = url;
         this.args = {};
@@ -44,6 +46,7 @@ export class ApiEndpoint<T> {
         }
         this.cast = cast;
         this.cache = { cache_type: cache.type ?? CacheType.None, duration: cache.duration ?? 0, cookie_id: `lc_${name}` };
+        this.typeName = typeName;
     }
 }
 
@@ -114,6 +117,8 @@ export function useForm<T, A extends { [key: string]: string }>(
                 {Object.values(args)
                     .filter(arg => !default_values || !Object.prototype.hasOwnProperty.call(default_values, arg.name))
                     .map((arg, index) => (
+                        <>
+                        <ArgDescComponent arg={arg} />
                         <ArgInput
                             key={index}
                             argName={arg.name}
@@ -123,6 +128,7 @@ export function useForm<T, A extends { [key: string]: string }>(
                             initialValue={""}
                             setOutputValue={props.setOutputValue}
                         />
+                        </>
                     ))}
             </>
         );

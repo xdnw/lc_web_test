@@ -137,7 +137,7 @@ export function PickNation({nation}: { nation: React.MutableRefObject<string | u
                 {pickedNation ? (
                     <>Currently selected: {pickedNation}</>
                 ) : (
-                    <>You MUST Select a Nation to use this tool, or login!</>
+                    <>You MUST Select a Nation to use this tool or add it to the url or login.</>
                 )}
             </div>
             <QueryComponent element={"DBNation"} multi={false} argName={"nation"} initialValue={""} setOutputValue={(name, val) => {

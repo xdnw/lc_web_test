@@ -26,9 +26,12 @@ import {Announcement} from "@/pages/announcement";
 import BalancePage from "@/pages/balance";
 import Records from "@/pages/records";
 import ViewTable from "@/pages/view_table";
-import {GraphTest} from "./unused/GraphTest.jsx";
 import TagManager from 'react-gtm-module';
 import RaidSection from "./pages/raid";
+import GraphList from "./pages/graphs/graph_list";
+import {ColMilGraph} from "./pages/graphs/col_mil_graph";
+import {ColTierGraph} from "./pages/graphs/col_tier_graph";
+import EditGraph, {ParamEditGraph, TestEditGraph} from "./pages/graphs/edit_graph";
 
 const tagManagerArgs = {
   gtmId: 'G-4J3KV26E2Z'
@@ -45,42 +48,51 @@ export default function App() {
       <Route path="" element={<Splash />} />
       <Route path="*" element={<PageView>
         <Routes>
-        <Route path="/home" element={<Home />} />
-        <Route path="/guild_member" element={<LoggedInRoute><GuildMember /></LoggedInRoute>} />
-        <Route path="/unregister" element={<LoggedInRoute><Unregister /></LoggedInRoute>} />
-        <Route path="/guild_select" element={<LoggedInRoute><GuildPicker /></LoggedInRoute>} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/guild_member" element={<LoggedInRoute><GuildMember /></LoggedInRoute>} />
+          <Route path="/unregister" element={<LoggedInRoute><Unregister /></LoggedInRoute>} />
+          <Route path="/guild_select" element={<LoggedInRoute><GuildPicker /></LoggedInRoute>} />
 
-        <Route path="/announcements" element={<LoggedInRoute><Announcements /></LoggedInRoute>} />
-        <Route path="/announcement/:id" element={<LoggedInRoute><Announcement /></LoggedInRoute>} />
-        <Route path="/announcement" element={<LoggedInRoute><Announcements /></LoggedInRoute>} />
+          <Route path="/announcements" element={<LoggedInRoute><Announcements /></LoggedInRoute>} />
+          <Route path="/announcement/:id" element={<LoggedInRoute><Announcement /></LoggedInRoute>} />
+          <Route path="/announcement" element={<LoggedInRoute><Announcements /></LoggedInRoute>} />
 
-        <Route path="/commands" element={<CommandsPage />} />
-        <Route path="/command" element={<CommandsPage />} />
-        <Route path="/command/:command" element={<CommandPage />} />
-        <Route path="/placeholders/:placeholder" element={<PlaceholdersList />} />
+          <Route path="/commands" element={<CommandsPage />} />
+          <Route path="/command" element={<CommandsPage />} />
+          <Route path="/command/:command" element={<CommandPage />} />
+          <Route path="/placeholders/:placeholder" element={<PlaceholdersList />} />
 
-        <Route path="/balance" element={<BalancePage />} />
-        <Route path="/balance/:category" element={<BalancePage />} />
-        <Route path="/records" element={<Records />} />
-        <Route path="/raid/:nation" element={<RaidSection />} />
-        <Route path="/raid" element={<RaidSection />} />
+          <Route path="/balance" element={<BalancePage />} />
+          <Route path="/balance/:category" element={<BalancePage />} />
+          <Route path="/records" element={<Records />} />
+          <Route path="/raid/:nation" element={<RaidSection />} />
+            <Route path="/raid" element={<RaidSection />} />
 
-        <Route path="/login" element={<LoginPickerPage />} />
-        <Route path="/login/:token" element={<LoginPage />} />
-        <Route path="/oauth2" element={<OAuth2 />} />
-        <Route path="/logout" element={<LogoutPage />} />
-        <Route path="/nation_picker" element={<NationPicker />} />
-        <Route path="/register" element={<Unregister />} />
-        <Route path="/custom_table" element={<CustomTable />} />
-        <Route path="/view_table" element={<ViewTable />} />
+          <Route path="/login" element={<LoginPickerPage />} />
+          <Route path="/login/:token" element={<LoginPage />} />
+          <Route path="/oauth2" element={<OAuth2 />} />
+          <Route path="/logout" element={<LogoutPage />} />
+          <Route path="/nation_picker" element={<NationPicker />} />
+          <Route path="/register" element={<Unregister />} />
+
+          {/*Tables*/}
+          <Route path="/custom_table" element={<CustomTable />} />
+          <Route path="/view_table" element={<ViewTable />} />
+
+          {/*graphs*/}
+          <Route path="/graphs" element={<GraphList />} />
+          <Route path="/col_mil_graph" element={<ColMilGraph />} />
+          <Route path="/col_tier_graph" element={<ColTierGraph />} />
+          <Route path="/edit_graph/:type" element={<ParamEditGraph />} />
+          <Route path="/edit_graph" element={<ParamEditGraph />} />
 
 
-        {/* testing pages */}
-          <Route path="/graph_test" element={<GraphTest />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/autocomplete" element={<AutoComplete />} />
-        <Route path="/auto2" element={<AutoComplete2 />} />
-        <Route path="/testinput" element={<TestInput />} />
+
+          {/* testing pages */}
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/autocomplete" element={<AutoComplete />} />
+          <Route path="/auto2" element={<AutoComplete2 />} />
+          <Route path="/testinput" element={<TestInput />} />
         </Routes>
         </PageView>} />
     </Routes>
