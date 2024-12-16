@@ -8,6 +8,9 @@ import {
     split, splitCustom
 } from "./StringUtil";
 import {COMMANDS} from "@/lib/commands.ts";
+import {CommonEndpoint} from "../components/api/endpoint";
+import {WebGraph} from "../components/api/apitypes";
+import {ENDPOINTS} from "../components/api/endpoints";
 
 export type IArgument = {
     name: string;
@@ -134,6 +137,7 @@ class OptionData {
     user: boolean;
     multi: boolean;
     map: CommandMap;
+    composite: string[];
 
     constructor(map: CommandMap, data: IOptionData, multi: boolean) {
         this.map = map;
@@ -144,6 +148,7 @@ class OptionData {
         this.nation = data.nation || false;
         this.user = data.user || false;
         this.multi = multi;
+        this.composite = data.composite || [];
     }
 }
 

@@ -19,6 +19,7 @@ import { Link } from "react-router-dom";
 import {getRenderer, graph, isHtmlRenderer} from "../../components/ui/renderers";
 import {getQueryParams} from "../../lib/utils";
 import {createRoot} from "react-dom/client";
+import {downloadCells, ExportType, ExportTypes} from "../../utils/StringUtil";
 
 DataTable.use(DT);
 
@@ -249,56 +250,6 @@ const DEFAULT_TABS: {[key: string]: TabDefault} = {
             // "Timers": [],
 
         }
-    }
-}
-
-interface ExportType {
-    delimiter: string,
-    ext: string,
-    mime: string
-}
-
-const ExportTypes = {
-    CSV: {
-        delimiter: ',',
-        ext: 'csv',
-        mime: 'text/csv'
-    },
-    TSV: {
-        delimiter: '\t',
-        ext: 'csv',
-        mime: 'text/tab-separated-values'
-    }
-}
-
-function downloadCells(data: (string | number)[][], useClipboard: boolean, type: ExportType): [string, string] {
-    const csvContent = (useClipboard ? '' : 'sep=' + type.delimiter + '\n') + data.map(e => e.join(type.delimiter)).join("\n");
-
-    if (useClipboard) {
-        navigator.clipboard.writeText(csvContent).then(() => {
-            console.log("Copied to clipboard");
-        }).catch((err) => {
-            console.error("Failed to copy to clipboard", err);
-        });
-        return ["Copied to clipboard", "The data for the currently selected columns has been copied to your clipboard."];
-    } else {
-        // Create a blob from the CSV content
-        const blob = new Blob([csvContent], { type: type.mime + ';charset=utf-8;' });
-
-        // Create a link element
-        const link = document.createElement("a");
-
-        if (link.download !== undefined) { // feature detection
-            // Browsers that support HTML5 download attribute
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", "data." + type.ext);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        return ["Download starting", "The data for the currently selected columns should begin downloading. If the download does not start, please check your browser settings, or try the clipboard button instead."];
     }
 }
 
@@ -773,9 +724,9 @@ function DeferTable(
     );
 }
 
-function getReactSlots(columnsInfo: ConfigColumns[]): { [key: number]: ((data, row, rowData: object[]) => ReactNode)} | undefined {
-    const reactSlots: { [key: number]: (data, row, rowData: object[]) => ReactNode } = {};
-
+// export type DataTableSlots = {     [p: string]: DataTableSlot     [p: number]: DataTableSlot }
+function getReactSlots(columnsInfo: ConfigColumns[]): { [key: number]: ((data: unknown, row: unknown, rowData: object[]) => ReactNode)} | undefined {
+    const reactSlots: { [key: number]: (data: unknown, row: unknown, rowData: object[]) => ReactNode } = {};
     for (let i = 0; i < columnsInfo.length; i++) {
         const col = columnsInfo[i];
         if (col.render && isHtmlRenderer(col.render as ObjectColumnRender)) {

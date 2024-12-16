@@ -1,6 +1,56 @@
 import {Command} from "@/utils/Command.ts";
 import {TableNumberFormat, TimeFormat} from "../components/api/apitypes";
 
+export interface ExportType {
+  delimiter: string,
+  ext: string,
+  mime: string
+}
+
+export const ExportTypes = {
+  CSV: {
+    delimiter: ',',
+    ext: 'csv',
+    mime: 'text/csv'
+  },
+  TSV: {
+    delimiter: '\t',
+    ext: 'csv',
+    mime: 'text/tab-separated-values'
+  }
+}
+
+export function downloadCells(data: (string | number)[][], useClipboard: boolean, type: ExportType): [string, string] {
+  const csvContent = (useClipboard ? '' : 'sep=' + type.delimiter + '\n') + data.map(e => e.join(type.delimiter)).join("\n");
+
+  if (useClipboard) {
+    navigator.clipboard.writeText(csvContent).then(() => {
+      console.log("Copied to clipboard");
+    }).catch((err) => {
+      console.error("Failed to copy to clipboard", err);
+    });
+    return ["Copied to clipboard", "The data for the currently selected columns has been copied to your clipboard."];
+  } else {
+    // Create a blob from the CSV content
+    const blob = new Blob([csvContent], { type: type.mime + ';charset=utf-8;' });
+
+    // Create a link element
+    const link = document.createElement("a");
+
+    if (link.download !== undefined) { // feature detection
+      // Browsers that support HTML5 download attribute
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "data." + type.ext);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    return ["Download starting", "The data for the currently selected columns should begin downloading. If the download does not start, please check your browser settings, or try the clipboard button instead."];
+  }
+}
+
 export function getNumberFormatCallback(format: TableNumberFormat): (value: number) => string {
     switch (format) {
       case "SI_UNIT":
@@ -21,9 +71,9 @@ export function isTime(format: TimeFormat) {
 export function toMillisFunction(format: TimeFormat): (value: number) => number {
     switch (format) {
         case "TURN_TO_DATE":
-          return (value: number) => value * 9.645061728395062e-10;
+          return (value: number) => value * 2 * 60 * 60 * 1000;
         case "DAYS_TO_DATE":
-          return (value: number) => value * 60 * 60 * 1000;
+          return (value: number) => value * 24 * 60 * 60 * 1000;
         case "MILLIS_TO_DATE":
           return (value: number) => value;
         case "SECONDS_TO_DATE":

@@ -1,4 +1,4 @@
-import React, {Component, createRef, CSSProperties, RefObject, useRef, useState} from 'react';
+import React, {Component, createRef, CSSProperties, MutableRefObject, RefObject, useRef, useState} from 'react';
 // import Worker from '@/workers/chartWorker.ts?worker';
 import {
     Chart as ChartJS,
@@ -11,21 +11,27 @@ import {
     Title,
     Tooltip,
     Legend,
-    Filler, ChartEvent, ActiveElement, Chart, ChartTypeRegistry, Point, BubbleDataPoint, TooltipItem,
-    ChartData, ChartOptions, ChartDataset, Color
+    Filler, ChartEvent, ActiveElement, Chart, ChartTypeRegistry, TooltipItem,
+    ChartData, ChartOptions, ChartDataset
 } from 'chart.js';
-import ChartDeferred from 'chartjs-plugin-deferred';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Bar, Line, Scatter } from 'react-chartjs-2';
 import {WebGraph, GraphType, CoalitionGraph} from '../../components/api/apitypes';
 import chroma from 'chroma-js';
 import distinctColors from 'distinct-colors'
-import {getNumberFormatCallback, getTimeFormatCallback, isTime, toMillisFunction,
+import {
+    downloadCells,
+    ExportType,
+    ExportTypes, formatDate, getNumberFormatCallback, getTimeFormatCallback, isTime, toMillisFunction,
 } from "../../utils/StringUtil";
 import {Button} from "../../components/ui/button";
 import {deepEqual} from "../../lib/utils";
 import { ChartJSOrUndefined } from 'node_modules/react-chartjs-2/dist/types';
 import {Link} from "react-router-dom";
 import {useTheme} from "../../components/ui/theme-provider";
+import {ArrowRightToLine, ClipboardIcon, Download} from "lucide-react";
+import {useDialog} from "../../components/layout/DialogContext";
+import {invertData} from "../../utils/MathUtil";
 
 export function CoalitionGraphComponent({graph, type}: { graph: CoalitionGraph, type: GraphType }) {
     const [showAlliances, setShowAlliances] = useState(false);
@@ -81,6 +87,83 @@ interface ChartProps {
 
 interface ChartState {
     previousActiveElements: ActiveElement[];
+}
+
+function downloadGraph(graph: WebGraph, useClipboard: boolean, formatDates: boolean, type: ExportType): [string, string] {
+    const header: string[] = [graph.x, ...graph.labels];
+    const data = invertData(graph.data);
+    if (graph.origin) {
+        console.log("Adding origin", graph.origin);
+        for (let i = 0; i < data.length; i++) {
+            (data[i][0] as number) += graph.origin;
+        }
+    }
+    if (formatDates && graph.time_format && isTime(graph.time_format)) {
+        const toMillis = toMillisFunction(graph.time_format);
+        for (let i = 0; i < data.length; i++) {
+            data[i][0] = formatDate(toMillis(data[i][0] as number))
+        }
+    }
+
+    const dataWithHeader = [header, ...data];
+
+    return downloadCells(dataWithHeader, useClipboard, type);
+}
+
+function getQueryString(params: { [key: string]: string | string[] | undefined }) {
+    return Object.keys(params)
+        .map(key => `${encodeURIComponent(key)}=${encodeURIComponent((params[key] as (number | string | undefined)) || "")}`)
+        .join("&");
+}
+
+export function ChartWithButtons({graph, endpointName, usedArgs}:
+{
+    graph: WebGraph,
+    endpointName: string,
+    usedArgs: MutableRefObject<{ [key: string]: string | string[] | undefined }>
+}) {
+    const { showDialog } = useDialog();
+    return <>
+        <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="me-1">Export</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadGraph(graph, false, true, ExportTypes.CSV))}>
+                    <kbd className="bg-accent rounded flex items-center space-x-1"><Download className="h-4 w-4" /> <span>,</span></kbd>&nbsp;Download CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadGraph(graph, true, true, ExportTypes.CSV))}>
+                    <kbd className="bg-accent rounded flex items-center space-x-1"><ClipboardIcon className="h-4 w-4" /> <span>,</span></kbd>&nbsp;Copy CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadGraph(graph, false, true, ExportTypes.TSV))}>
+                    <kbd className="bg-accent rounded flex items-center space-x-1"><Download className="h-4 w-3" /><ArrowRightToLine className="h-4 w-3" /></kbd>&nbsp;Download TSV
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadGraph(graph, true, true, ExportTypes.TSV))}>
+                    <kbd className="bg-accent rounded flex items-center space-x-1"><ClipboardIcon className="h-4 w-3" /><ArrowRightToLine className="h-4 w-3" /></kbd>&nbsp;Copy TSV
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+        <Button
+            variant="outline"
+            size="sm"
+            className=""
+            onClick={() => {
+                const queryStr = getQueryString(usedArgs.current);
+                const baseUrlWithoutPath = window.location.protocol + "//" + window.location.host;
+                const url = (`${baseUrlWithoutPath}${process.env.BASE_PATH}#/view_graph/${endpointName}?${queryStr}`);
+                navigator.clipboard.writeText(url).then(() => {
+                    showDialog("URL copied to clipboard", url, true);
+                }).catch((err) => {
+                    showDialog("Failed to copy URL to clipboard", err + "", true);
+                });
+            }}
+        >
+            Share
+        </Button>
+        <div className="w-full pt mt-1">
+            <ThemedChart graph={graph}/>
+        </div>
+    </>
 }
 
 export function ThemedChart({graph, type, aspectRatio, hideLegend, hideDots, minHeight, maxHeight}: ChartProps) {
@@ -352,7 +435,7 @@ class SimpleChart extends Component<ChartProps, ChartState> {
             layout: {
                 padding: this.props.hideLegend ? -100 : undefined
             }
-        };
+        } as ChartOptions<keyof ChartTypeRegistry>;
 
         this.canvasStyle = {
             display: 'block',

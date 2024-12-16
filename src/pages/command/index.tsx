@@ -8,7 +8,7 @@ import {TooltipProvider} from "@/components/ui/tooltip.tsx";
 
 export default function CommandPage() {
     const { command } = useParams();
-    const [cmdObj, setCmdObj] = useState<Command | null>(command ? COMMAND_MAP.get(command) : null);
+    const [cmdObj, setCmdObj] = useState<Command | null>(COMMAND_MAP.get(command ?? "") ?? COMMAND_MAP.buildTest());
     // COMMAND_MAP.cmdBuildTest()
 
     const [initialValues, setInitialValues] = useState<{ [key: string]: string }>({});
@@ -16,7 +16,7 @@ export default function CommandPage() {
 
     if (!cmdObj) {
         console.log("Not command");
-        return <div>Loading...</div>; // or some loading spinner
+        return <div>No command found</div>; // or some loading spinner
     }
 
     return (

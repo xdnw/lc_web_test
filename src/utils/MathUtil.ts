@@ -1,3 +1,11 @@
+export function invertData(data: (number | string)[][]) {
+  const newData = [];
+  for (let i = 0; i < data[0].length; i++) {
+    newData.push([data[0][i], ...data.slice(1).map(row => row[i])]);
+  }
+  return newData;
+}
+
 const minus0Hack = (value: number) => (Object.is(value, -0) ? '-0' : value);
 
 export const operators: {
@@ -270,7 +278,8 @@ export function calculate(expression: string) {
     const preprocessedExpression = expression
     .replace(/(\d)k(?!\w)/gi, '$1*1000')
     .replace(/(\d)m(?!\w)/gi, '$1*1000000')
-    .replace(/(\d)b(?!\w)/gi, '$1*1000000000');
+    .replace(/(\d)b(?!\w)/gi, '$1*1000000000')
+    .replace(/(\d)t(?!\w)/gi, '$1*1000000000000');
 
   const tokens = tokenize(preprocessedExpression);
   const rpn = shuntingYard(tokens);

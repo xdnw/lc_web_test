@@ -1,5 +1,8 @@
 import ListComponent from "./ListComponent";
 import {INPUT_OPTIONS} from "@/components/api/endpoints.tsx";
+import {useData, useRegisterMultipleQueries, useRegisterQuery} from "./DataContext";
+import {WebOptions, WebSession} from "../api/apitypes";
+import {useRef} from "react";
 
 export default function QueryComponent(
     {element, multi, argName, initialValue, setOutputValue}:
@@ -26,4 +29,64 @@ export default function QueryComponent(
                                        setOutputValue={setOutputValue}/>
                 }})}
     </>;
+}
+
+function combineAndLabelData(data: WebOptions[], queryIds: number[]): {label: string, value: string, subtext?: string, color?: string}[] {
+    const labelled = queryIds.map((queryId) => {
+        const options = data[queryId];
+        const key = options.key_numeric ?? options.key_string ?? [];
+        return key.map((o, i) => ({
+            label: options.text ? options.text[i] : o + "",
+            value: o + "",
+            subtext: options.subtext ? options.subtext[i] : undefined,
+            color: options.color ? options.color[i] : undefined
+        }));
+    });
+    return labelled.flat();
+}
+
+// useRegisterMultipleQueries will call useRegisterQuery(INPUT_OPTIONS.endpoint.name, {type: element}, INPUT_OPTIONS.endpoint.cache) for each element in composite
+export function CompositeQueryComponent(
+    {composites, multi, argName, initialValue, setOutputValue}:
+    {
+        composites: string[],
+        multi: boolean,
+        argName: string,
+        initialValue: string,
+        setOutputValue: (name: string, value: string) => void
+    }
+) {
+    const toArgs = (f: string) => ({type: f});
+    const [queryIds] = useRegisterMultipleQueries(composites, INPUT_OPTIONS, toArgs)
+    const { data } = useData<WebOptions>();
+
+    if (!data) return null;
+
+    for (const queryId of queryIds) {
+        if (!(data[queryId])) {
+            return null
+        }
+    }
+
+    return <CombinedCompositeComponent data={data} queryIds={queryIds} multi={multi} argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
+}
+
+// const combined = useRef(combineAndLabelData(data, queryIds));
+//
+//     return <ListComponent argName={argName} options={combined.current} isMulti={multi} initialValue={initialValue}
+//                           setOutputValue={setOutputValue}/>
+function CombinedCompositeComponent(
+    {data, queryIds, argName, multi, initialValue, setOutputValue}:
+    {
+        data: WebOptions[],
+        queryIds: number[],
+        argName: string,
+        multi: boolean,
+        initialValue: string,
+        setOutputValue: (name: string, value: string) => void
+    }
+) {
+    const combined = useRef(combineAndLabelData(data, queryIds));
+    return <ListComponent argName={argName} options={combined.current} isMulti={multi} initialValue={initialValue}
+                          setOutputValue={setOutputValue}/>
 }

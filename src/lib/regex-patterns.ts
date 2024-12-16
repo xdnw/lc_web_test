@@ -5,4 +5,5 @@ export const REGEX_PATTERN = {
     WAR: "^(https://politicsandwar.com/nation/war/timeline/war=\\d+)$",
     CHANNEL: "^(https://discord\\.com/channels/\\d+/\\d+/\\d+)$",
     UUID: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+    CITY: "^(https://politicsandwar.com/city/id=\\d+)$",
 }

@@ -20,6 +20,20 @@ export function getQueryParams(): URLSearchParams {
   }
 }
 
+export function queryParamsToObject(query: URLSearchParams): { [key: string]: string | string[] | undefined } {
+  const obj: { [key: string]: string | string[] | undefined } = {};
+  query.forEach((value, key) => {
+    if (obj[key] === undefined) {
+      obj[key] = value;
+    } else if (Array.isArray(obj[key])) {
+      (obj[key] as string[]).push(value);
+    } else {
+      obj[key] = [obj[key] as string, value];
+    }
+  });
+  return obj;
+}
+
 export function deepEqual<T>(a: T, b: T): boolean {
   if (a === b) return true;
 

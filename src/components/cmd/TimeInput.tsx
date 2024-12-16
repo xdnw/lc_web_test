@@ -11,7 +11,7 @@ export default function TimeInput(
     const [value, setValue] = useSyncedState(initialValue || '');
     return (
         <input type="datetime-local"
-            className="dark:bg-gray-800 bg-gray-200"
+            className="dark:bg-slate-700 bg-slate-100"
             value={value}
             onChange={(e) => {
                 const localDateTimeString = e.target.value;

@@ -5,6 +5,8 @@ import LoadingWrapper from "@/components/api/loadingwrapper.tsx";
 import ApiForm from "@/components/api/apiform.tsx";
 import ArgInput from "@/components/cmd/ArgInput.tsx";
 import {ArgDescComponent} from "../cmd/CommandComponent";
+import {WebGraph} from "./apitypes";
+import {ENDPOINTS} from "./endpoints";
 
 interface PlaceholderData {
     type: string;
@@ -117,10 +119,10 @@ export function useForm<T, A extends { [key: string]: string }>(
                 {Object.values(args)
                     .filter(arg => !default_values || !Object.prototype.hasOwnProperty.call(default_values, arg.name))
                     .map((arg, index) => (
-                        <>
+                        <div key={index} className="relative">
                         <ArgDescComponent arg={arg} />
+                        <div className="mb-1 bg-accent border border-slate-500 border-opacity-50 rounded-b-sm rounded-tr-sm">
                         <ArgInput
-                            key={index}
                             argName={arg.name}
                             breakdown={arg.getTypeBreakdown()}
                             min={arg.arg.min}
@@ -128,7 +130,8 @@ export function useForm<T, A extends { [key: string]: string }>(
                             initialValue={""}
                             setOutputValue={props.setOutputValue}
                         />
-                        </>
+                        </div>
+                        </div>
                     ))}
             </>
         );

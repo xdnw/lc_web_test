@@ -44,8 +44,8 @@ const _cardTemplates: {
         ad: false,
         desc: "Browse templates or create your custom chart from a variety of game data. Share or export options available.",
         subtitle: "Chart Viewer",
-        invite: "#",
-        label: "Coming Soon",
+        invite: "/edit_graph",
+        label: "View Charts",
         bg: "#FFC929",
     },
     "raid": {

@@ -7,16 +7,16 @@
     user-select: none;
     box-sizing: border-box;
   }
-  
+
   .react-select__option:hover {
     background-color: #EBECF0;
   }
-  
+
   .react-select__option_selected {
     background-color: #42526E;
     color: #FFFFFF;
   }
-  
+
   .react-select__option_selected:hover {
     background-color: #42526E;
-  } */
+  }

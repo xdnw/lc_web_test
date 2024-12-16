@@ -61,19 +61,20 @@ export default function MapInput(
             })}
             </div>
           <div className="flex items-center space-x-2">
-            <div>
+            <div className="w-1/2">
               <p>Key: </p>
               <ArgInput argName="key" breakdown={children[0]} min={undefined} max={undefined} initialValue={addKey} setOutputValue={(key, value) => {
                 setAddKey(value);
               }} />
             </div>
-            <div>
-              <p>Value: </p>
-              <ArgInput argName="value" breakdown={children[1]} min={undefined} max={undefined} initialValue={addValue} setOutputValue={(key, value) => {
-                setAddValue(value);
-              }} />
-            </div>
-            <Button onClick={() => {
+              <div className="w-1/2">
+                  <p>Value: </p>
+                  <ArgInput argName="value" breakdown={children[1]} min={undefined} max={undefined}
+                            initialValue={addValue} setOutputValue={(key, value) => {
+                      setAddValue(value);
+                  }}/>
+              </div>
+              <Button onClick={() => {
                 const keyCopy = addKey;
                 const valueCopy = addValue;
                 if (keyCopy === "") {

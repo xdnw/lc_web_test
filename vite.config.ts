@@ -1,4 +1,5 @@
 import path from "path";
+// const path = require('path');
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import tsconfigPaths from 'vite-tsconfig-paths';

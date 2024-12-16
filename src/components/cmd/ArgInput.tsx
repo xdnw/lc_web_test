@@ -13,7 +13,7 @@ import ColorInput from "./ColorInput";
 import MapInput from "./MapInput";
 import TriStateInput from "./TriStateInput";
 import QueryComponent from "./QueryComponent";
-import {REGEX_PATTERN} from "../api/regex-patterns";
+import {REGEX_PATTERN} from "../../lib/regex-patterns";
 import {useMemo} from "react";
 
 interface ArgProps {
@@ -23,6 +23,18 @@ interface ArgProps {
     max?: number,
     initialValue: string,
     setOutputValue: (key: string, value: string) => void
+}
+
+export function ArgSet(
+    { argName, breakdown, initialValue, setOutputValue }: ArgProps) {
+    const childOptions = useMemo(() => breakdown.child![0].getOptionData(), [breakdown]);
+    if (childOptions.options) {
+        return <ListComponentOptions argName={argName} options={childOptions.options} isMulti={true} initialValue={initialValue} setOutputValue={setOutputValue}/>
+    }
+    if (childOptions.query) {
+        return <QueryComponent element={breakdown.child![0].element} multi={true} argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
+    }
+    return "TODO SET " + JSON.stringify(breakdown);
 }
 
 export default function ArgInput({ argName, breakdown, min, max, initialValue, setOutputValue }: ArgProps) {
@@ -53,7 +65,7 @@ export default function ArgInput({ argName, breakdown, min, max, initialValue, s
             return "TODO TYPEDFUNCTION " + JSON.stringify(breakdown);
         }
         case 'set': {
-            return "TODO SET " + JSON.stringify(breakdown);
+            return <ArgSet argName={argName} breakdown={breakdown} initialValue={initialValue} setOutputValue={setOutputValue} />
         }
         case "color": {
             return <ColorInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
@@ -86,6 +98,9 @@ export default function ArgInput({ argName, breakdown, min, max, initialValue, s
         }
         case "dbwar": {
             return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={REGEX_PATTERN.WAR} filterHelp="a war timeline url"/>
+        }
+        case "dbcity": {
+            return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={REGEX_PATTERN.CITY} filterHelp="a city url"/>
         }
         case "message": {
             return <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} filter={REGEX_PATTERN.CHANNEL} filterHelp="a discord message url"/>

@@ -31,7 +31,8 @@ import RaidSection from "./pages/raid";
 import GraphList from "./pages/graphs/graph_list";
 import {ColMilGraph} from "./pages/graphs/col_mil_graph";
 import {ColTierGraph} from "./pages/graphs/col_tier_graph";
-import EditGraph, {ParamEditGraph, TestEditGraph} from "./pages/graphs/edit_graph";
+import {ParamEditGraph} from "./pages/graphs/edit_graph";
+import {ParamViewGraph} from "./pages/graphs/view_graph";
 
 const tagManagerArgs = {
   gtmId: 'G-4J3KV26E2Z'
@@ -85,6 +86,8 @@ export default function App() {
           <Route path="/col_tier_graph" element={<ColTierGraph />} />
           <Route path="/edit_graph/:type" element={<ParamEditGraph />} />
           <Route path="/edit_graph" element={<ParamEditGraph />} />
+          <Route path="/view_graph/:type" element={<ParamViewGraph />} />
+          <Route path="/view_graph" element={<ParamEditGraph />} />
 
 
 

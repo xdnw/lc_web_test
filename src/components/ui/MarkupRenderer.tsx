@@ -1,6 +1,7 @@
 import DOMPurify from 'dompurify';
 import { toHTML } from "discord-markdown";
 import Highlight from 'react-highlight'
+import {ReactNode, useMemo} from "react";
 
 interface Author {
     name: string;
@@ -193,8 +194,11 @@ export function Embed({json}: {json: DiscordEmbed}) {
     );
 }
 
-export default function MarkupRenderer({content, highlight}: {content: string, highlight: boolean}): JSX.Element {
-    const sanitized = DOMPurify.sanitize(markup(content, {replaceEmojis: true}));
+export default function MarkupRenderer({content, highlight}: {content: string, highlight: boolean}) {
+    const sanitized = useMemo(() => {
+        return content ? DOMPurify.sanitize(markup(content, { replaceEmojis: true })) : null;
+    }, [content]);
+    if (!sanitized) return null;
     if (highlight) {
         return (
             <Highlight innerHTML={true}>

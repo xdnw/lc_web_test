@@ -3,6 +3,7 @@ import Cookies from "js-cookie";
 import {UNPACKR} from "@/lib/utils.ts";
 import {bool} from "prop-types";
 import {WebSuccess} from "../api/apitypes";
+import {CommonEndpoint} from "../api/endpoint";
 type DataProviderProps = {
     children: ReactNode;
     endpoint: string;
@@ -281,3 +282,26 @@ export const useRegisterQuery = (name: string,
 
     return [queryId, setQueryId];
 };
+
+export function useRegisterMultipleQueries<T, U extends { [key: string]: string | string[] | undefined }, V extends { [key: string]: string | string[] | undefined; }>(
+    composites: string[],
+    endpoint: CommonEndpoint<T, U, V>,
+    getArgs: (element: string) => U
+): [number[], React.Dispatch<React.SetStateAction<number[]>>] {
+    const { registerQuery } = useData();
+    const hasRun = useRef(false);
+    const [queryIds, setQueryIds] = useState<number[]>([]);
+
+    useEffect(() => {
+        if (!hasRun.current) {
+            const ids = composites.map((element) => {
+                const args = getArgs(element);
+                return registerQuery(endpoint.endpoint.name, args as { [key: string]: string | string[]}, endpoint.endpoint.cache);
+            });
+            setQueryIds(ids);
+            hasRun.current = true;
+        }
+    }, [composites, endpoint, getArgs, registerQuery]);
+
+    return [queryIds, setQueryIds];
+}
