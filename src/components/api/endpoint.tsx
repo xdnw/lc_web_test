@@ -62,6 +62,7 @@ export type CommonEndpoint<T, U extends {[key: string]: string | string[] | unde
     }) => React.ReactNode;
     useForm: (params: {
         default_values?: V;
+        showArguments?: string[];
         label?: ReactNode;
         message?: ReactNode;
         handle_response?: (data: T) => void;
@@ -96,6 +97,7 @@ export function useForm<T, A extends { [key: string]: string }>(
     args: { [name: string]: Argument },
     message?: React.ReactNode,
     default_values?: { [key: string]: string | string[] },
+    showArguments?: string[],
     label?: ReactNode,
     handle_response?: (data: T) => void,
     handle_submit?: (args: A) => boolean,
@@ -114,25 +116,30 @@ export function useForm<T, A extends { [key: string]: string }>(
     }, [args, default_values]);
 
     const renderFormInputs = useCallback((props: { setOutputValue: (name: string, value: string) => void }) => {
+        if ((!required || required.length === 0) && (!showArguments || showArguments.length === 0)) {
+            return null;
+        }
         return (
             <>
                 {Object.values(args)
                     .filter(arg => !default_values || !Object.prototype.hasOwnProperty.call(default_values, arg.name))
                     .map((arg, index) => (
                         <div key={index} className="relative">
-                        <ArgDescComponent arg={arg} />
-                        <div className="mb-1 bg-accent border border-slate-500 border-opacity-50 rounded-b-sm rounded-tr-sm">
-                        <ArgInput
-                            argName={arg.name}
-                            breakdown={arg.getTypeBreakdown()}
-                            min={arg.arg.min}
-                            max={arg.arg.max}
-                            initialValue={""}
-                            setOutputValue={props.setOutputValue}
-                        />
-                        </div>
+                            <ArgDescComponent arg={arg}/>
+                            <div
+                                className="mb-1 bg-accent border border-slate-500 border-opacity-50 rounded-b-sm rounded-tr-sm">
+                                <ArgInput
+                                    argName={arg.name}
+                                    breakdown={arg.getTypeBreakdown()}
+                                    min={arg.arg.min}
+                                    max={arg.arg.max}
+                                    initialValue={""}
+                                    setOutputValue={props.setOutputValue}
+                                />
+                            </div>
                         </div>
                     ))}
+                <hr className="my-2"/>
             </>
         );
     }, [args, default_values]);

@@ -28,7 +28,6 @@ import Records from "@/pages/records";
 import ViewTable from "@/pages/view_table";
 import TagManager from 'react-gtm-module';
 import RaidSection from "./pages/raid";
-import GraphList from "./pages/graphs/graph_list";
 import {ColMilGraph} from "./pages/graphs/col_mil_graph";
 import {ColTierGraph} from "./pages/graphs/col_tier_graph";
 import {ParamEditGraph} from "./pages/graphs/edit_graph";
@@ -81,7 +80,6 @@ export default function App() {
           <Route path="/view_table" element={<ViewTable />} />
 
           {/*graphs*/}
-          <Route path="/graphs" element={<GraphList />} />
           <Route path="/col_mil_graph" element={<ColMilGraph />} />
           <Route path="/col_tier_graph" element={<ColTierGraph />} />
           <Route path="/edit_graph/:type" element={<ParamEditGraph />} />

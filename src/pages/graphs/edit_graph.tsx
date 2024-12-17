@@ -52,6 +52,7 @@ export default function EditGraph<U extends { [key: string]: string | string[] |
         {endpoint.useForm({
             // default_values: {
             // },
+            // args: Object.values(endpoint.endpoint.args,
             classes: "bg-destructive",
             label: "Generate Graph",
             handle_submit: (args) => {

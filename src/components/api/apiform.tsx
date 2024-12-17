@@ -18,7 +18,7 @@ interface ApiFormProps<T, A extends { [key: string]: string }> {
     label?: ReactNode;
     required?: string[];
     default_values?: { [key: string]: string | string[] };
-    form_inputs: React.ComponentType<FormInputsProps>;
+    form_inputs: React.ComponentType<FormInputsProps> | undefined;
     handle_response?: (data: T) => void;
     handle_submit?: (data: A) => boolean;
     handle_loading?: () => void;
@@ -53,9 +53,8 @@ function ApiForm<T, A extends { [key: string]: string }>({
     return <>
         {message}
         {message && required && required.length > 0 && <hr className="my-2"/> }
-        {required && required.length > 0 && <>
+        {FormInputs && <>
             <FormInputs setOutputValue={commandStore.current((state) => state.setOutput)} />
-            <hr className="my-2"/>
         </>}
         <ApiFormHandler endpoint={endpoint}
                         store={commandStore.current}
