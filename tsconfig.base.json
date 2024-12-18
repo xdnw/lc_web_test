@@ -25,6 +25,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@odiffey/discord-markdown/dist/types/HtmlOptions": [
+        "node_modules/@odiffey/discord-markdown/dist/types/HtmlOptions.d.ts"
       ]
     },
     "outDir": "./dist",
@@ -44,8 +47,8 @@
   },
   "typeRoots": [
     "./node_modules/@types",
-    "./@types"
+    "./@types",
   ],
-  "include": ["src"],
+  "include": ["src/types/**/*.d.ts", "src/**/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

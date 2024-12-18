@@ -1,10 +1,15 @@
-import React, { useRef, useState } from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import CommandComponent from '../../components/cmd/CommandComponent'; // Import CommandComponent
 import { CommandStoreType, createCommandStore } from '@/utils/StateUtil.ts';
 import {Command, COMMAND_MAP} from '@/utils/Command.ts';
 import {useParams} from "react-router-dom";
 import {BlockCopyButton} from "@/components/ui/block-copy-button.tsx";
 import {TooltipProvider} from "@/components/ui/tooltip.tsx";
+import {Button} from "../../components/ui/button";
+import {UNPACKR} from "@/lib/utils.ts";
+import {createRoot} from "react-dom/client";
+import {useDialog} from "../../components/layout/DialogContext";
+import {DiscordEmbed, Embed} from "../../components/ui/MarkupRenderer";
 
 export default function CommandPage() {
     const { command } = useParams();
@@ -27,23 +32,134 @@ export default function CommandPage() {
     );
 }
 
+function runCommand({command, values, onResponse}: {
+    command: string,
+    values: { [key: string]: string | string[] },
+    onResponse: (json: { [key: string]: string | object | object[] | number | number[] | string[] }) => void
+}) {
+    const url = new URL(`${process.env.BACKEND_URL}sse/${command}`);
+
+    console.log("URL is", url.toString());
+
+    Object.entries(values).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            value.forEach(val => url.searchParams.append(key, val));
+        } else {
+            url.searchParams.append(key, value);
+        }
+    });
+
+    fetch(url.toString(), {
+        method: 'GET',
+        credentials: 'include', // Ensure cookies are included
+        headers: {
+            'Accept': 'text/event-stream'
+        }
+    }).then(response => {
+        if (!response.ok) {
+            onResponse({error: error.toString(), title: "HTTP Error: " + response.status});
+            return;
+        }
+        const reader = response.body?.getReader();
+        function readStream() {
+            reader?.read().then(({ done, value }) => {
+                if (done) {
+                    console.log("Stream closed");
+                    return;
+                }
+                const json: { [key: string]: string | object | object[] | number | number[] | string[] } = UNPACKR.decode(value);
+                console.log("Message from server:", json);
+                onResponse(json);
+                readStream();
+            }).catch(error => {
+                onResponse({error: error.toString(), title: "Error Reading Stream"});
+            });
+        }
+
+        readStream();
+    }).catch(error => {
+        onResponse({error: error.toString(), title: "Error Fetching"});
+    });
+}
+
+function handleResponse(
+    {json, responseRef, showDialog}: {
+        json: { [key: string]: string | object | object[] | number | number[] | string[] },
+        responseRef: React.RefObject<HTMLDivElement>,
+        showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
+    }) {
+    if (json['error'] && json['title']) {
+        showDialog(json['title'], JSON.stringify(json['error']));
+        return;
+    }
+    const action = json['action'] as string | undefined;
+    if (action) {
+        if (action === "deleteByIds") {
+            const ids: string[] = json['value'] as string[];
+            if (responseRef.current) {
+                ids.forEach(id => {
+                    const element = responseRef.current?.querySelector(`#${id}`);
+                    if (element) {
+                        element.remove();
+                    }
+                });
+            }
+            return;
+        }
+        // Redirect response
+        // "action": "redirect",
+        // "value": string
+        if (action === "redirect") {
+            const value: string = json['value'] as string;
+            showDialog("Redirecting", `Redirecting to ${value}`);
+            setTimeout(() => {
+                window.location.href = value;
+            }, 2000);
+            return;
+        }
+
+        showDialog("Unknown action", `Unknown action: ${action}`);
+        return;
+    }
+
+    if (responseRef.current) {
+        const container = document.createElement('div');
+        responseRef.current.appendChild(container);
+        const root = createRoot(container);
+        root.render(<Embed json={json as unknown as DiscordEmbed} />);
+    }
+}
+
 export function OutputValuesDisplay({name, store}: {name: string, store: CommandStoreType}) {
     const output = store((state) => state.output);
     const textRef: React.RefObject<HTMLParagraphElement> = useRef(null);
+    const responseRef = useRef<HTMLDivElement>(null);
+    const { showDialog } = useDialog();
+
+    const runCommandCallback = useCallback(() => {
+        runCommand({command: name, values: output, onResponse: (json) => handleResponse({json, responseRef, showDialog})});
+    }, [name, output, responseRef]);
+
     return (
         <div className="relative">
-        <TooltipProvider>
-            <BlockCopyButton getText={() => textRef.current ? textRef.current.textContent ?? "" : ''} />
-        </TooltipProvider>
-        <p className="bg-accent p-2" ref={textRef}>/{name}&nbsp;
-            {
-                Object.entries(output).map(([name, value]) => (
-                    <span key={name} className="me-1">
+            <TooltipProvider>
+                <BlockCopyButton getText={() => textRef.current ? textRef.current.textContent ?? "" : ''}/>
+            </TooltipProvider>
+            <p className="bg-accent p-2" ref={textRef}>/{name}&nbsp;
+                {
+                    Object.entries(output).map(([name, value]) => (
+                        <span key={name} className="me-1">
                         {name}: {value}
                     </span>
-                ))
-            }
-        </p>
+                    ))
+                }
+            </p>
+            <Button variant="outline" size="sm"
+                    onClick={runCommandCallback}
+            >Run Command</Button>
+            <div ref={responseRef}>
+
+            </div>
         </div>
     );
 }

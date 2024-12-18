@@ -13,6 +13,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@odiffey/discord-markdown": "^3.3.0",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
@@ -33,7 +34,6 @@
     "datatables.net-colreorder-dt": "^2.0.4",
     "datatables.net-dt": "^2.1.8",
     "datatables.net-react": "^1.0.0",
-    "discord-markdown": "^2.5.1",
     "distinct-colors": "^3.0.0",
     "dompurify": "^3.1.6",
     "gh-pages": "^6.1.1",

@@ -210,6 +210,11 @@ export interface CoalitionGraphs {
     spheres: CoalitionGraph[];
 }
 
+export interface DiscordRole {
+    name: string;
+    color: number;
+}
+
 export type CacheType = "None" | "Cookie" | "LocalStorage" | "SessionStorage";
 
 export type TransactionType = "INTERNAL" | "TAX" | "BANK";

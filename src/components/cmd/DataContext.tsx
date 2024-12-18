@@ -1,8 +1,6 @@
 import React, { useCallback, createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react';
 import Cookies from "js-cookie";
 import {UNPACKR} from "@/lib/utils.ts";
-import {bool} from "prop-types";
-import {WebSuccess} from "../api/apitypes";
 import {CommonEndpoint} from "../api/endpoint";
 type DataProviderProps = {
     children: ReactNode;
@@ -69,7 +67,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
     const newQueryRef = useRef<number>(0);
     const lastQuery = useRef<number>(0);
 
-    const registerQuery = (name: string, query: { [key: string]: string | string[] }, cache?: { cache_type: CacheType, duration?: number, cookie_id: string }): number => {
+    const registerQuery = useCallback((name: string, query: { [key: string]: string | string[] }, cache?: { cache_type: CacheType, duration?: number, cookie_id: string }): number => {
         let newIndex = -1;
         const existingIndex = queries.current.findIndex(([qName, qQuery]) => qName === name && areObjectsEqual(qQuery.query, query));
         if (existingIndex !== -1) {
@@ -84,12 +82,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
             }
         }
         return newIndex;
-    };
+    }, [queries, newQueryRef, lastQuery, rerender]);
 
     const refetch = useCallback(() => {
         newQueryRef.current++;
         setRerender(prev => !prev);
-    }, []);
+    }, [setRerender]);
 
     const refetchQueries = useCallback((queryId: number[]) => {
         if (!data || !queries.current) return;
@@ -117,7 +115,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
             newQueryRef.current++;
             setRerender(prev => !prev);
         }
-    }, [data]);
+    }, [data, setRerender]);
 
     useEffect(() => {
         console.log("Run queries before ", queries.current.length + " | " + lastQuery.current + " | " + newQueryRef.current);

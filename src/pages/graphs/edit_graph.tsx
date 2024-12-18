@@ -50,9 +50,6 @@ export default function EditGraph<U extends { [key: string]: string | string[] |
     const usedArgs = useRef<{ [key: string]: string | string[] | undefined }>(args || {});
     return <div className="container themeDiv bg-opacity-10 p-2 mt-2">
         {endpoint.useForm({
-            // default_values: {
-            // },
-            // args: Object.values(endpoint.endpoint.args,
             showArguments: Object.keys(endpoint.endpoint.args),
             classes: "bg-destructive",
             label: "Generate Graph",

@@ -31,13 +31,12 @@ const useSessionDisplay = () => {
         if (dataError && dataError !== error) {
             setError(dataError);
         }
-    }, [dataError, error]);
+    }, [dataError, error, setError]);
 
     const refetchSession = useCallback(() => {
         refetchQueries([queryId]);
     }, [queryId, refetchQueries]);
 
-    // pass refetchQueries[queryId]
     return { session, error, setSession, setError, refetchSession };
 };
 

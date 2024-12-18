@@ -7,9 +7,9 @@ const isDevelopment = import.meta.env.MODE === 'development';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
     isDevelopment ? (
-        // <React.StrictMode>
+        <React.StrictMode>
             <App />
-        // </React.StrictMode>
+        </React.StrictMode>
     ) : (
         <App />
     )
