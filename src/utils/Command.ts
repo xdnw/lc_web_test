@@ -8,9 +8,7 @@ import {
     split, splitCustom
 } from "./StringUtil";
 import {COMMANDS} from "@/lib/commands.ts";
-import {CommonEndpoint} from "../components/api/endpoint";
-import {WebGraph} from "../components/api/apitypes";
-import {ENDPOINTS} from "../components/api/endpoints";
+import type { CommandBehavior } from "@/components/api/apitypes";
 
 export type IArgument = {
     name: string;
@@ -879,3 +877,22 @@ export function toPlaceholderName(type: string): string {
 
 // Constants
 export const COMMAND_MAP = new CommandMap(COMMANDS);
+
+export const COMMAND_BEHAVIOR: {[key: string]: CommandBehavior} = {
+    "": "DELETE_MESSAGE",
+    "~": "UNPRESS",
+    "_": "DELETE_BUTTONS",
+    ".": "DELETE_PRESSED_BUTTON",
+    "=": "EPHEMERAL",
+}
+
+export function getCommandAndBehavior(cmd: string): {behavior: CommandBehavior, command: string, args: {[key: string]: string}} {
+    let char0 = cmd.charAt(0);
+    if (char0 === "{") char0 = "";
+    const commandAndArgs: {[key: string]: string} = JSON.parse(cmd.substring(char0.length)) as {[key: string]: string};
+    const command: string = commandAndArgs[""];
+    // args is everything else, except the "" key
+    const args = commandAndArgs;
+    delete args[""];
+    return {behavior: COMMAND_BEHAVIOR[char0], command, args};
+}

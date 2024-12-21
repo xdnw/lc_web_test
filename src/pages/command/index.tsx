@@ -10,6 +10,7 @@ import {UNPACKR} from "@/lib/utils.ts";
 import {createRoot} from "react-dom/client";
 import {useDialog} from "../../components/layout/DialogContext";
 import {DiscordEmbed, Embed} from "../../components/ui/MarkupRenderer";
+import {getCommandAndBehavior} from "../../utils/Command";
 
 export default function CommandPage() {
     const { command } = useParams();
@@ -30,6 +31,45 @@ export default function CommandPage() {
             <OutputValuesDisplay name={cmdObj?.name} store={commandStore.current} />
         </>
     );
+}
+
+export function commandButtonAction({name, command, responseRef, showDialog}: {
+    name: string,
+    command: string,
+    responseRef: React.RefObject<HTMLDivElement>,
+    showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
+}) {
+    const cmdInfo = getCommandAndBehavior(command);
+
+    switch (cmdInfo.behavior) {
+        case "DELETE_MESSAGE":
+            if (responseRef.current) {
+                responseRef.current.innerHTML = "";
+            }
+            break;
+        case "EPHEMERAL":
+        case "UNPRESS":
+            // do nothing
+            break;
+        case "DELETE_BUTTONS":
+            if (responseRef.current) {
+                const buttons = responseRef.current.querySelectorAll('button');
+                buttons.forEach(button => button.remove());
+            }
+            break;
+        case "DELETE_PRESSED_BUTTON":
+            if (responseRef.current) {
+                const buttons = responseRef.current.querySelectorAll(`button[data-label="${name}"]`);
+                buttons.forEach(button => button.remove());
+            }
+            break;
+    }
+
+    runCommand({
+        command: cmdInfo.command,
+        values: cmdInfo.args,
+        onResponse: (json) => handleResponse({json, responseRef, showDialog})
+    });
 }
 
 function runCommand({command, values, onResponse}: {
@@ -57,7 +97,7 @@ function runCommand({command, values, onResponse}: {
         }
     }).then(response => {
         if (!response.ok) {
-            onResponse({error: error.toString(), title: "HTTP Error: " + response.status});
+            onResponse({error: response.statusText, title: "Error Fetching"});
             return;
         }
         const reader = response.body?.getReader();
@@ -89,7 +129,7 @@ function handleResponse(
         showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
     }) {
     if (json['error'] && json['title']) {
-        showDialog(json['title'], JSON.stringify(json['error']));
+        showDialog(json['title'] as string, JSON.stringify(json['error']));
         return;
     }
     const action = json['action'] as string | undefined;
@@ -106,9 +146,6 @@ function handleResponse(
             }
             return;
         }
-        // Redirect response
-        // "action": "redirect",
-        // "value": string
         if (action === "redirect") {
             const value: string = json['value'] as string;
             showDialog("Redirecting", `Redirecting to ${value}`);
@@ -126,7 +163,7 @@ function handleResponse(
         const container = document.createElement('div');
         responseRef.current.appendChild(container);
         const root = createRoot(container);
-        root.render(<Embed json={json as unknown as DiscordEmbed} />);
+        root.render(<Embed json={json as unknown as DiscordEmbed} responseRef={responseRef} showDialog={showDialog} />);
     }
 }
 

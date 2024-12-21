@@ -8,6 +8,7 @@ import {SET_OAUTH_CODE} from "@/components/api/endpoints.tsx";
 import {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
 import {useDialog} from "../../components/layout/DialogContext";
 import {useSession} from "../../components/api/SessionContext";
+import {useEffect, useState} from "react";
 
 export function OAuth2Component() {
     const fullUrl = window.location.href;
@@ -16,13 +17,21 @@ export function OAuth2Component() {
     const code = params.get("code");
     const { showDialog } = useDialog();
     const { refetchSession } = useSession();
+    const [ loggedIn, setLoggedIn ] = useState(false);
+
+    useEffect(() => {
+        if (loggedIn) {
+            Cookies.set('lc_token_exists', Math.random().toString(36).substring(2));
+            clearStorage('lc_session');
+            refetchSession();
+        }
+
+    }, [loggedIn, refetchSession]);
 
     return SET_OAUTH_CODE.useDisplay({
         args: {"code": code ?? ""},
         render: (oauth2) => {
-            Cookies.set('lc_token_exists', Math.random().toString(36).substring(2));
-            clearStorage('lc_session');
-            refetchSession();
+            setLoggedIn(true);
             return <>Logged in Successfully via OAuth2!<br/>
                 <Button variant="outline" size="sm" className='border-slate-600' asChild>
                     <Link to={`${process.env.BASE_PATH}home`}>Return Home</Link></Button>

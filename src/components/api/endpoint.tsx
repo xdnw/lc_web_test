@@ -7,6 +7,7 @@ import ArgInput from "@/components/cmd/ArgInput.tsx";
 import {ArgDescComponent} from "../cmd/CommandComponent";
 import {WebGraph} from "./apitypes";
 import {ENDPOINTS} from "./endpoints";
+import {UNPACKR} from "../../lib/utils";
 
 interface PlaceholderData {
     type: string;
@@ -49,6 +50,35 @@ export class ApiEndpoint<T> {
         this.cast = cast;
         this.cache = { cache_type: cache.type ?? CacheType.None, duration: cache.duration ?? 0, cookie_id: `lc_${name}` };
         this.typeName = typeName;
+    }
+
+    async call(params: { [key: string]: string }): Promise<T> {
+        const url = `${process.env.API_URL}${this.url}`;
+        return fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/msgpack',
+            },
+            body: new URLSearchParams(params).toString(),
+            credentials: 'include',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+                }
+                return response.arrayBuffer();
+            })
+            .then(serializedData => {
+                return UNPACKR.unpack(new Uint8Array(serializedData)) as T;
+            })
+            .catch((error: unknown) => {
+                console.error("Error during fetch:", error);
+                if (error instanceof Error) {
+                    throw new Error(`Fetch error: ${error.message}`);
+                } else {
+                    throw new Error("Fetch error: unknown error: " + JSON.stringify(error));
+                }
+            });
     }
 }
 

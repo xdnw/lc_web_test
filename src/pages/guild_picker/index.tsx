@@ -9,6 +9,7 @@ import {useData} from "@/components/cmd/DataContext.tsx";
 import {useDialog} from "../../components/layout/DialogContext";
 import {SetGuild} from "../../components/api/apitypes";
 import {useSession} from "../../components/api/SessionContext";
+import {UNSET_GUILD} from "../../components/api/endpoints";
 
 
 const GuildPicker = () => {
@@ -17,7 +18,6 @@ const GuildPicker = () => {
 
     const handleResponse = useCallback((data: SetGuild) => {
         clearStorage('lc_session');
-        Cookies.set('lc_guild', data.id);
         refetchSession();
 
         showDialog("Guild Set", <div className="flex items-center">
@@ -66,6 +66,7 @@ const SelectedGuildInfo = memo(({ id, name, icon }: { id: string, name?: string,
 
 const GuildCard = memo(({ id, name, icon }: { id: string | null, name: string | undefined, icon: string | undefined }) => {
     const { refetchSession } = useSession();
+    const { showDialog } = useDialog();
 
     return (
         <>
@@ -78,9 +79,14 @@ const GuildCard = memo(({ id, name, icon }: { id: string | null, name: string | 
                         {id ? id : "N/A"}
                     </p>
                     <Button onClick={() => {
-                        clearStorage('lc_guild');
-                        clearStorage('lc_session');
-                        refetchSession();
+                        UNSET_GUILD.endpoint.call({}).then(() => {
+                            clearStorage('lc_guild');
+                            clearStorage('lc_session');
+                            refetchSession();
+                            showDialog("Guild Unset", "Successfully unset guild");
+                        }).catch(error => {
+                            showDialog("Failed to unset guild", error + "");
+                        });
                     }} variant="outline" size="sm" className="border-slate-600 absolute top-2 right-2">
                         Remove
                     </Button>

@@ -1,9 +1,12 @@
-import DOMPurify from 'dompurify';
 import Highlight from 'react-highlight'
-import {ReactNode, useMemo} from "react";
+import React, {ReactNode} from "react";
 import '@/pages/command/discord.css';
 import {markup} from "../../lib/discord";
-import {useDialog} from "../layout/DialogContext";
+import { Button } from './button';
+import {ButtonInfoCmd, ButtonInfoHref, WebGraph} from "../api/apitypes";
+import { ThemedChart} from "../../pages/graphs/SimpleChart";
+import {Link} from "react-router-dom";
+import {commandButtonAction} from "../../pages/command";
 
 interface Author {
     name: string;
@@ -51,6 +54,11 @@ export interface DiscordEmbed {
     users?: { [key: string]: string };
     channels?: { [key: string]: string };
     roles?: { [key: string]: string };
+    // bytes[] in java, whatever msgpack encodes that as
+    files?: { [key: string]: string };
+    images?: { [key: string]: number[] };
+    tables?: WebGraph[];
+    buttons?: (ButtonInfoHref | ButtonInfoCmd)[];
 }
 
 function timestamp(stringISO?: string): string {
@@ -66,20 +74,63 @@ function timestamp(stringISO?: string): string {
                 `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}/${date.getFullYear()}`;
 }
 
-export function Embed({json}: {json: DiscordEmbed}) {
+export function CmdButton({button, responseRef, showDialog}:
+{
+    button: ButtonInfoCmd,
+    responseRef: React.RefObject<HTMLDivElement>,
+    showDialog: (title: string, message: React.ReactNode, quote?: boolean) => void
+}): ReactNode {
+    return (
+        <Button variant="outline" size="sm" className="me-1" data-label={button.label}
+                onClick={() => commandButtonAction({name: button.label, command: button.cmd, responseRef: responseRef, showDialog: showDialog})}>
+            {button.label}
+        </Button>
+    );
+}
+
+export function HrefButton({button}: {button: ButtonInfoHref}): ReactNode {
+    return (
+        <Button variant="outline" size="sm" asChild data-label={button.label}>
+            <Link to={button.href}>{button.label}</Link>
+        </Button>
+    );
+}
+
+export function Embed({json, responseRef, showDialog}:
+{
+    json: DiscordEmbed,
+    responseRef: React.RefObject<HTMLDivElement>,
+    showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
+}) {
+    console.log("BUTTONS ARE", json.buttons);
     const embeds = [];
+    const images = [];
     if (json.embeds) {
         embeds.push(...json.embeds);
     }
     if (json.embed) {
         embeds.push(json.embed);
     }
+    if (json.images) {
+        for (const key in json.images) {
+            const image: number[] = json.images[key];
+            const uint8Array = new Uint8Array(image);
+            const blob = new Blob([uint8Array], { type: 'image/png' });
+            const url = URL.createObjectURL(blob);
+            images.push({
+                title: key,
+                image: {
+                    url: url
+                }
+            });
+        }
+    }
     return (
         <div className="msgEmbed font-mono" id={json.id}>
             <div className="markup messageContent"><MarkupRenderer content={json.content} highlight={true} embed={json} /></div>
             {embeds.map((embed, index) => (
                 <div className="" key={index}>
-                    <div className="embed markup">
+                    <div className="embed markup bg-accent mb-0.5">
                         <div className="embedGrid" style={{ borderColor: embed.color ? `#${embed.color.toString(16).padStart(6, "0")}` : 'transparent' }}>
                             {embed.author && (
                                 <div className="embedAuthor embedMargin">
@@ -131,6 +182,37 @@ export function Embed({json}: {json: DiscordEmbed}) {
                         </div>
                     </div>
                 </div>
+            ))}
+            {json.buttons && <div className="bg-accent rounded-sm border mb-1 p-2">
+                Actions:
+                {json.buttons.map((button, index) => {
+                        if ((button as ButtonInfoCmd).cmd) {
+                            return <CmdButton key={index} button={button as ButtonInfoCmd} responseRef={responseRef} showDialog={showDialog} />;
+                        }
+                        return <HrefButton key={index} button={button as ButtonInfoHref} />;
+                    })}
+            </div>}
+            {images.map((image, index) => (
+                <img key={index} className="max-w-full max-h-64 rounded-sm border-2 border-background m-0.5" src={image.image.url} alt={image.title} />
+            ))}
+            {(json.files ?? {}) && Object.keys(json.files ?? {}).map((key) => {
+                const file: string = json.files![key];
+                const blob = new Blob([file], { type: 'application/octet-stream' });
+                const url = URL.createObjectURL(blob);
+                return (
+                    <div key={key} className="m-0.5 file-item flex items-center p-2 border-background/50 border-2 rounded-sm bg-accent max-w-96">
+                        <span className="file-name flex-grow text-foreground-light dark:text-foreground-dark">{key}</span>
+                        <Button variant="outline" size="sm" onClick={() => {
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = key;
+                            a.click();
+                        }}>Download</Button>
+                    </div>
+                );
+            })}
+            {json.tables && json.tables.map((data, index) => (
+                <ThemedChart key={index} graph={data} classes="max-w-screen-sm"/>
             ))}
             <div className="emptyTxt"></div>
         </div>

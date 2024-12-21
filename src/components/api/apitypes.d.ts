@@ -215,6 +215,16 @@ export interface DiscordRole {
     color: number;
 }
 
+type ButtonInfoHref = {
+    href: string;
+    label: string;
+};
+
+type ButtonInfoCmd = {
+    cmd: string;
+    label: string;
+};
+
 export type CacheType = "None" | "Cookie" | "LocalStorage" | "SessionStorage";
 
 export type TransactionType = "INTERNAL" | "TAX" | "BANK";
@@ -224,3 +234,5 @@ export type TimeFormat = "NUMERIC" | "DECIMAL_ROUNDED" | "SI_UNIT" | "TURN_TO_DA
 export type TableNumberFormat = "SI_UNIT" | "PERCENTAGE_ONE" | "PERCENTAGE_100" | "DECIMAL_ROUNDED";
 
 export type GraphType = "STACKED_BAR" | "SIDE_BY_SIDE_BAR" | "HORIZONTAL_BAR" | "LINE" | "STACKED_LINE" | "FILLED_LINE" | "SCATTER";
+
+export type CommandBehavior = "DELETE_MESSAGE" | "UNPRESS" | "DELETE_BUTTONS" | "DELETE_PRESSED_BUTTON" | "EPHEMERAL";

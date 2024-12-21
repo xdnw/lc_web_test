@@ -83,6 +83,7 @@ interface ChartProps {
     hideDots?: boolean;
     minHeight?: string;
     maxHeight?: string;
+    classes?: string;
 }
 
 interface ChartState {
@@ -119,8 +120,8 @@ function getQueryString(params: { [key: string]: string | string[] | undefined }
 export function ChartWithButtons({graph, endpointName, usedArgs}:
 {
     graph: WebGraph,
-    endpointName: string,
-    usedArgs: MutableRefObject<{ [key: string]: string | string[] | undefined }>
+    endpointName?: string,
+    usedArgs?: MutableRefObject<{ [key: string]: string | string[] | undefined }>
 }) {
     const { showDialog } = useDialog();
     return <>
@@ -143,12 +144,12 @@ export function ChartWithButtons({graph, endpointName, usedArgs}:
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
-        <Button
+        {endpointName && <Button
             variant="outline"
             size="sm"
             className=""
             onClick={() => {
-                const queryStr = getQueryString(usedArgs.current);
+                const queryStr = getQueryString(usedArgs!.current);
                 const baseUrlWithoutPath = window.location.protocol + "//" + window.location.host;
                 const url = (`${baseUrlWithoutPath}${process.env.BASE_PATH}#/view_graph/${endpointName}?${queryStr}`);
                 navigator.clipboard.writeText(url).then(() => {
@@ -159,17 +160,17 @@ export function ChartWithButtons({graph, endpointName, usedArgs}:
             }}
         >
             Share
-        </Button>
+        </Button>}
         <div className="w-full pt mt-1">
             <ThemedChart graph={graph}/>
         </div>
     </>
 }
 
-export function ThemedChart({graph, type, aspectRatio, hideLegend, hideDots, minHeight, maxHeight}: ChartProps) {
+export function ThemedChart({graph, type, aspectRatio, hideLegend, hideDots, minHeight, maxHeight, classes}: ChartProps) {
     const { theme } = useTheme()
     console.log("Creating themed chart");
-    return <SimpleChart graph={graph} type={type} theme={theme} aspectRatio={aspectRatio} hideLegend={hideLegend} hideDots={hideDots} minHeight={minHeight} maxHeight={maxHeight} />;
+    return <SimpleChart graph={graph} type={type} theme={theme} aspectRatio={aspectRatio} hideLegend={hideLegend} hideDots={hideDots} minHeight={minHeight} maxHeight={maxHeight}  classes={classes} />;
 }
 
 const COLOR_CACHE: { [key: string]: chroma.Color[] } = {};
@@ -447,7 +448,7 @@ class SimpleChart extends Component<ChartProps, ChartState> {
     render() {
         this.initializeChartOptions();
         return (
-            <div className="bg-white dark:bg-slate-950 relative p-0 m-0">
+            <div className={`bg-white dark:bg-slate-950 relative p-0 m-0 ${this.props.classes}`}>
                 {(() => {
                     switch (this.type) {
                         case 'STACKED_BAR':

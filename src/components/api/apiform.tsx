@@ -171,7 +171,7 @@ export function ApiFormHandler<T, A extends {[key: string]: string}>({store, end
             })
             .finally(() => setSubmit(false));
         }
-    }, [submit]);
+    }, [submit, output, missing, handle_submit, handle_loading, handle_error, handle_response, endpoint, showDialog]);
 
     if (missing.length) {
         return <>
