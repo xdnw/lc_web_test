@@ -130,7 +130,7 @@ export function formatTurnsToDate(value: number) {
 
 export function split(input: string, delimiter: string): string[] {
   return splitCustom(input, (input, index) => {
-    if (input.charAt(index) === delimiter) return 1;
+    if (input.charAt(index) === delimiter) return [1, 0];
     return null;
   }, Number.MAX_SAFE_INTEGER).map(s => s.content);
 }
@@ -139,6 +139,7 @@ export type SplitStr = {
     delimiter: string;
     offset: number; // the extra amt of characters skipped in addition to the delimiter (e.g. brackets or quotes)
     content: string;
+    type: number;
 }
 
 export function commafy(num: number): string {
@@ -199,13 +200,14 @@ export function formatSi(num: number): string {
   return isNegative ? '-' + result : result;
 }
 
-export function splitCustom(input: string, startsWith: ((input: string, index: number) => number | null) | null, limit: number): SplitStr[] {
+export function splitCustom(input: string, startsWith: ((input: string, index: number) => [number, number] | null) | null, limit: number): SplitStr[] {
   const result: SplitStr[] = [];
   let start = 0;
   let bracket = 0;
   let inQuotes = false;
   let quoteChar: string | null = null;
   let lastDelim = ""
+  let lastType = 0;
 
   for (let current = 0; current < input.length; current++) {
     let currentChar = input.charAt(current);
@@ -235,13 +237,15 @@ export function splitCustom(input: string, startsWith: ((input: string, index: n
         toAdd = {
           delimiter: lastDelim,
           offset: 1,
-          content: input.substring(start + 1, input.length - 1)
+          content: input.substring(start + 1, input.length - 1),
+          type: lastType,
         };
       } else {
         toAdd = {
             delimiter: lastDelim,
             offset: 0,
-            content: input.substring(start)
+            content: input.substring(start),
+            type: lastType,
         };
       }
       if (toAdd) result.push(toAdd);
@@ -258,7 +262,7 @@ export function splitCustom(input: string, startsWith: ((input: string, index: n
     if (!inQuotes && startsWith) {
       const foundLen = startsWith(input, current);
 
-      if (foundLen !== null && foundLen !== -1) {
+      if (foundLen !== null) {
         let toAdd = input.substring(start, current);
         let offset = 0;
         if (toAdd) {
@@ -274,12 +278,14 @@ export function splitCustom(input: string, startsWith: ((input: string, index: n
             result.push({
               delimiter: lastDelim,
               offset: offset,
-              content: toAdd
+              content: toAdd,
+              type: foundLen[1]
             });
-            lastDelim = input.substring(current, current + foundLen);
+            lastDelim = input.substring(current, current + foundLen[0]);
+            lastType = foundLen[1];
           }
         }
-        start = current + foundLen;
+        start = current + foundLen[0];
         current = start - 1;
         if (--limit <= 1) {
           startsWith = null;

@@ -542,25 +542,31 @@ export class CommandMap {
             return this.getCurrentlyTypingFunction(content.substring(1, content.length - 1), token, caretPosition - 1, placeholder_type);
         }
         const components = splitCustom(content, (f, i) => {
-            console.log("Find " + content.substring(i))
-            if (f.startsWith(",", i)) return 1;
-            if (f.startsWith("||", i)) return 2;
-            if (f.startsWith("&&", i)) return 2;
-            if (f.startsWith("|", i)) return 1;
-            if (f.startsWith("&", i)) return 1;
-            if (f.startsWith(">=", i)) return 2;
-            if (f.startsWith("<=", i)) return 2;
-            if (f.startsWith("!=", i)) return 2;
-            if (f.startsWith("=", i)) return 1;
-            if (f.startsWith(">", i)) return 1;
-            if (f.startsWith("<", i)) return 1;
-            return -1;
+            if (f.startsWith(",", i)) return [1, 1];
+
+            if (f.startsWith("||", i)) return [2, 2];
+            if (f.startsWith("&&", i)) return [2, 2];
+            if (f.startsWith("|", i)) return [1, 2];
+            if (f.startsWith("&", i)) return [1, 2];
+
+            if (f.startsWith(">=", i)) return [2, 3];
+            if (f.startsWith("<=", i)) return [2, 3];
+            if (f.startsWith("!=", i)) return [2, 3];
+            if (f.startsWith("=", i)) return [1, 3];
+            if (f.startsWith(">", i)) return [1, 3];
+            if (f.startsWith("<", i)) return [1, 3];
+            return null;
         }, Number.MAX_SAFE_INTEGER);
 
         let lastIndex = 0;
-        for (const item of components) {
+        let isNextValue = false;
+
+        for (let i = 0; i < components.length; i++) {
+            const item = components[i];
             let substring = item.content.trim();
             if (!substring) continue;
+            const isCurrentValue = isNextValue;
+            isNextValue = item.type == 3;
 
             let start = content.indexOf(substring, lastIndex + item.offset + item.delimiter.length);
             if (start == -1) {
@@ -569,9 +575,7 @@ export class CommandMap {
             lastIndex = start + substring.length + item.offset;
             const end = start + substring.length + item.offset;
 
-            console.log("Substring " + substring + " | " + start + " | " + end + " | " + caretPosition);
             if (isQuoteOrBracket(substring.charAt(0)) && findMatchingQuoteOrBracket(substring, 0) == substring.length - 1) {
-                console.log("Substring is quote or bracket");
                 return this.getCurrentlyTypingFunction(substring.substring(1, substring.length - 1), token, caretPosition - start - 1, placeholder_type);
             }
             if (substring.startsWith("#")) {
@@ -583,15 +587,28 @@ export class CommandMap {
                     placeholder_type: placeholder_type,
                     options: [{
                         name: "NO-RESULT (2)",
-                        value: "HELLO WORLD"
+                        value: JSON.stringify(item) + " | " + start + " | " + end + " | " + substring
                     }]
                 };
             }
-
             if (caretPosition > end) {
                 continue;
             }
             console.log("Find at " + substring + " | " + (caretPosition - start) + " | " + caretPosition + " | " + start)
+
+            if (isCurrentValue) {
+                const commandComp = components[i - 1];
+                return {
+                    // TODO get command type
+
+                    placeholder_type: placeholder_type,
+                    options: [{
+                        name: "VALUE OF PREVIOUS " + JSON.stringify(components[i - 1]),
+                        value: "TODO"
+                    }]
+                };
+            }
+
             const completion = this.getCurrentlyTypingCommand(null, substring, token, caretPosition - start, placeholder_type);
             if (completion != null) return completion;
             return {
@@ -600,7 +617,8 @@ export class CommandMap {
                     name: "NO-RESULT (3)",
                     value: "HELLO WORLD"
                 }]
-            };        }
+            };
+        }
         return {
             placeholder_type: placeholder_type,
             options: [{

@@ -18,24 +18,41 @@ export default function CityRanges(
         }
         return result;
     });
-    
-    return <div className="flex items-center">c
-    <NumberInput argName={argName} min={0} max={100} initialValue={value[0] ? value[0] + "" : ""} className="w-8"
-    setOutputValue={
-        (name, t) => {
-            setValue([t ? parseInt(t) : null, value[1]]);
-            if (!t || value[1] == null) setOutputValue(argName, "");
-            else setOutputValue(argName, "c" + t + "-" + (value[1] || 0))
-        }
-    } isFloat={false} />
-    <span>-</span>
-    <NumberInput argName={argName} min={0} max={100} initialValue={value[1] ? value[1] + "" : ""} className="w-8"
-        setOutputValue={
-        (name, t) => {
-            setValue([value[0], t ? parseInt(t) : null]);
-            if (value[0] == null || !t) setOutputValue(argName, "");
-            else setOutputValue(argName, "c" + (value[0] || 0) + "-" + t)
-        }
-    } isFloat={false} />
-    </div>
+
+    return (
+        <div className="flex w-full items-center">
+            <div className="flex items-center w-1/2 flex-grow">
+                <span className="mr-2">c</span>
+                <NumberInput
+                    argName={argName}
+                    min={0}
+                    max={100}
+                    initialValue={value[0] ? value[0] + "" : ""}
+                    className="flex-grow"
+                    setOutputValue={(name, t) => {
+                        setValue([t ? parseInt(t) : null, value[1]]);
+                        if (!t || value[1] == null) setOutputValue(argName, "");
+                        else setOutputValue(argName, "c" + t + "-" + (value[1] || 0));
+                    }}
+                    isFloat={false}
+                />
+            </div>
+            <div className="flex items-center w-1/2 flex-grow">
+                <span className="mx-2">-</span>
+                <NumberInput
+                    argName={argName}
+                    min={0}
+                    max={100}
+                    initialValue={value[1] ? value[1] + "" : ""}
+                    className="flex-grow"
+                    setOutputValue={(name, t) => {
+                        setValue([value[0], t ? parseInt(t) : null]);
+                        if (value[0] == null || !t) setOutputValue(argName, "");
+                        else setOutputValue(argName, "c" + (value[0] || 0) + "-" + t);
+                    }}
+                    isFloat={false}
+                />
+            </div>
+        </div>
+    );
 }

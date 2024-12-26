@@ -112,7 +112,8 @@ export default function ListComponent(
             const selectedValueSet: Set<string> = new Set(value.map((v) => v.value));
             const inputLower = inputValue.toLowerCase();
             for (const option of options) {
-                if (option.label.toLowerCase().includes(inputLower)) {
+                const checkAgainst = option.label ? option.label : option.value;
+                if (checkAgainst.toLowerCase().includes(inputLower)) {
                     let li;
                     if (selectedValueSet.has(option.value)) {
                         li = "<li class='bg-input dark:bg-slate-700 p-0.5'>" + option.label + "</li>";
@@ -223,7 +224,8 @@ export default function ListComponent(
                     const valueStr = (newValue as { label: string, value: string }[]).map((v) => v.value).join(',');
                     setOutputValue(argName, valueStr);
                 } else {
-                    addValue(option, option.label);
+                    const labelOrValue = option.label ? option.label : option.value;
+                    addValue(option, labelOrValue);
                 }
             }
         }

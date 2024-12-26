@@ -215,12 +215,12 @@ export interface DiscordRole {
     color: number;
 }
 
-type ButtonInfoHref = {
+export type ButtonInfoHref = {
     href: string;
     label: string;
 };
 
-type ButtonInfoCmd = {
+export type ButtonInfoCmd = {
     cmd: string;
     label: string;
 };
@@ -236,3 +236,9 @@ export type TableNumberFormat = "SI_UNIT" | "PERCENTAGE_ONE" | "PERCENTAGE_100" 
 export type GraphType = "STACKED_BAR" | "SIDE_BY_SIDE_BAR" | "HORIZONTAL_BAR" | "LINE" | "STACKED_LINE" | "FILLED_LINE" | "SCATTER";
 
 export type CommandBehavior = "DELETE_MESSAGE" | "UNPRESS" | "DELETE_BUTTONS" | "DELETE_PRESSED_BUTTON" | "EPHEMERAL";
+
+export type ItemType = {
+    name: string;
+    nameLower: string;
+    value: string;
+}

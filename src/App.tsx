@@ -32,6 +32,7 @@ import {ColMilGraph} from "./pages/graphs/col_mil_graph";
 import {ColTierGraph} from "./pages/graphs/col_tier_graph";
 import {ParamEditGraph} from "./pages/graphs/edit_graph";
 import {ParamViewGraph} from "./pages/graphs/view_graph";
+import DndTest from "./components/dnd/dnd";
 
 const tagManagerArgs = {
   gtmId: 'G-4J3KV26E2Z'
@@ -93,6 +94,7 @@ export default function App() {
           <Route path="/admin" element={<Admin />} />
           <Route path="/autocomplete" element={<AutoComplete />} />
           <Route path="/auto2" element={<AutoComplete2 />} />
+          <Route path="/dnd" element={<DndTest />} />
           <Route path="/testinput" element={<TestInput />} />
         </Routes>
         </PageView>} />

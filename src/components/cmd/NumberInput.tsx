@@ -20,56 +20,54 @@ export default function NumberInput(
     const [validText, setValidText] = useState('');
     const [noteText, setNoteText] = useState('');
     return (
-        <div className="relative">
-            <div className="flex items-center px-0 mx-0 m-0">
-                <Input type="text"
-                       value={value}
-                       onChange={(e) => {
-                           const myStr = e.target.value;
-                           if (myStr) {
-                               const containsAnyExpr = /[\\(\\)+\-*/%^]/.test(myStr);
-                               try {
-                                   let myNum: number;
-                                   if (isFloat) {
-                                       myNum = containsAnyExpr ? calculate(myStr) : parseFloat(myStr);
-                                   } else {
-                                       myNum = containsAnyExpr ? Math.floor(calculate(myStr)) : parseInt(myStr);
-                                   }
-                                   if (Number.isNaN(myNum)) {
-                                       throw new Error("Invalid number");
-                                   }
-                                   if (!Number.isFinite(myNum)) {
-                                       throw new Error("Number is not finite");
-                                   }
-                                   if (min && myNum < min) {
-                                       throw new Error("Minimum value is " + min + " but got " + myNum);
-                                   }
-                                   if (max && myNum > max) {
-                                       throw new Error("Maximum value is " + max + " but got " + myNum);
-                                   }
-                                   setIsValid(true);
-                                   setOutputValue(argName, myNum + "");
-                                   setValidText("");
-                                   setNoteText(containsAnyExpr ? myNum + "" : "");
-                               } catch (err) {
-                                   setIsValid(false);
-                                   const message = typeof err === "object" && err !== null && "message" in err ? err.message + "" : "Invalid number";
-                                   setValidText(message);
-                                   setNoteText("");
+        <>
+            <Input type="text"
+                   value={value}
+                   onChange={(e) => {
+                       const myStr = e.target.value;
+                       if (myStr) {
+                           const containsAnyExpr = /[\\(\\)+\-*/%^]/.test(myStr);
+                           try {
+                               let myNum: number;
+                               if (isFloat) {
+                                   myNum = containsAnyExpr ? calculate(myStr) : parseFloat(myStr);
+                               } else {
+                                   myNum = containsAnyExpr ? Math.floor(calculate(myStr)) : parseInt(myStr);
                                }
-                           } else {
+                               if (Number.isNaN(myNum)) {
+                                   throw new Error("Invalid number");
+                               }
+                               if (!Number.isFinite(myNum)) {
+                                   throw new Error("Number is not finite");
+                               }
+                               if (min && myNum < min) {
+                                   throw new Error("Minimum value is " + min + " but got " + myNum);
+                               }
+                               if (max && myNum > max) {
+                                   throw new Error("Maximum value is " + max + " but got " + myNum);
+                               }
                                setIsValid(true);
-                               setOutputValue(argName, "");
+                               setOutputValue(argName, myNum + "");
                                setValidText("");
+                               setNoteText(containsAnyExpr ? myNum + "" : "");
+                           } catch (err) {
+                               setIsValid(false);
+                               const message = typeof err === "object" && err !== null && "message" in err ? err.message + "" : "Invalid number";
+                               setValidText(message);
                                setNoteText("");
                            }
-                           setValue(myStr);
-                       }} placeholder="Type here..."
-                       className={`${!isValid ? 'border border-2 border-red-500 dark:border-red-800' : ''} ${className} px-0 w-full px-1`}
-                />
-                <span className={`${noteText ? noteText + " px-1" : ""}`}>{noteText}</span>
-            </div>
+                       } else {
+                           setIsValid(true);
+                           setOutputValue(argName, "");
+                           setValidText("");
+                           setNoteText("");
+                       }
+                       setValue(myStr);
+                   }} placeholder="Type here..."
+                   className={`${!isValid ? 'border border-2 border-red-500 dark:border-red-800' : ''} ${className} px-0 w-full px-1`}
+            />
+            <span className={`${noteText ? noteText + " px-1" : ""}`}>{noteText}</span>
             {validText && <p className="text-xs font-bold text-red-900 bg-red-500 dark:text-red-300 dark:bg-red-800 rounded-t-sm absolute bottom-full right-0 p-1 ">{validText}</p>}
-        </div>
+        </>
     )
 }

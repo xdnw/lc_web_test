@@ -1,54 +1,32 @@
-import React, { useEffect, useRef, useState } from "react";
-// @ts-ignore
-import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "@webscopeio/react-textarea-autocomplete/style.css";
 import { Button } from "@/components/ui/button.tsx";
-import {COMMAND_MAP, CommandMap} from "@/utils/Command";
+import {COMMAND_MAP} from "@/utils/Command";
 import {ICommand} from "../../utils/Command";
-
-type ItemType = {
-    name: string;
-    nameLower: string;
-    value: string;
-}
-
-function Item({ entity: { name } }: { entity: ItemType }) {
-    return <div>{name}</div>;
-}
-
-
-// TODO both { and # not just the latter
-// TODO cursor move event
-// TODO get the current function
-// TODO get the current argument
-// TODO list the optional arguments
-// display the currently typing argument
-// TODO generate completions for the argument if it has a type and that type has either options or fetchable options
-// OR if the option is placeholder type generate new completions for that placeholder type
-
+import { ItemType } from "@/components/api/apitypes";
+import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 
 export default function AutoComplete2() {
+    return <AutoComplete2Input type="DBNation" />;
+}
+
+export function AutoComplete2Input(
+{type}:
+{
+    type: string
+}) {
+    const [defaultValue, setDefaultValue] = useState<string>("*,#position>1,#vm_turns=0,#isIn(\"AA:Singularity\")=0,#color=blue,#istaxable,#cities>=5,#cities<=2000,Borg");
+
     const rtaRef = useRef<ReactTextareaAutocomplete<ItemType> | null>(null);
     const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-    const setTextAreaRef = (element: HTMLTextAreaElement) => {
-        textAreaRef.current = element;
-    };
 
-    const [options, setOptions] = useState<ItemType[]>([]);
     const [outputInfo, setOutputInfo] = useState<string>("");
-    
 
-    const type = "DBNation";
-
-    // effect set options
-    useEffect(() => {
+    const options = useMemo(() => {
         const stripPrefixes = ["get", "is", "can", "has"];
         const obj = COMMAND_MAP.data.placeholders[type].commands;
-        // value -> ICommand -> arguments -> iterate and check if `optional` exists and is true
         const options: ItemType[] = [];
-        // loop key and value of obj
         for (const [id, command] of Object.entries(obj)) {
-            // strip prefixes from id
             let modifiedId = id;
             for (const prefix of stripPrefixes) {
                 if (modifiedId.startsWith(prefix)) {
@@ -56,10 +34,10 @@ export default function AutoComplete2() {
                     break;
                 }
             }
-            let hasArguments = false; // Changed to let for mutability
+            let hasArguments = false;
             const requiredArguments: string[] = [];
-            if (command.arguments) { // Ensure command.arguments exists
-                for (const arg of Object.values((command as ICommand).arguments ?? {})) { // Correctly iterate over values
+            if (command.arguments) {
+                for (const arg of Object.values((command as ICommand).arguments ?? {})) {
                     hasArguments = true;
                     if (!arg.optional) {
                         requiredArguments.push(arg.name);
@@ -79,8 +57,8 @@ export default function AutoComplete2() {
             }
             options.push({ name: modifiedId, nameLower: id.toLowerCase(), value });
         }
-        setOptions(options);
-    }, []);
+        return options;
+    }, [type]);
   
     const onCaretPositionChange = (position: number) => {
         const content = textAreaRef.current?.value as string;
@@ -99,7 +77,7 @@ export default function AutoComplete2() {
         console.log(`Caret position is equal to ${caretPosition}`);
         console.log(`Content is equal to ${content}`);
     };
-  
+
     return (
         <>
             <div className="app">
@@ -111,7 +89,7 @@ export default function AutoComplete2() {
                 <div className="h-64">
                     {outputInfo}
                 </div>
-                <ReactTextareaAutocomplete
+                <ReactTextareaAutocomplete<ItemType>
                     className="my-textarea h-64"
                     loadingComponent={() => <span>Loading</span>}
                     minChar={0}
@@ -124,36 +102,45 @@ export default function AutoComplete2() {
                         // " ": findCompletion(cmdMap!, rtaRef, textAreaRef, type),
                     }}
                     ref={rtaRef}
-                    innerRef={setTextAreaRef}
+                    innerRef={(ref: HTMLTextAreaElement) => {
+                        textAreaRef.current = ref;
+                    }}
                     onCaretPositionChange={onCaretPositionChange}
+                    value={defaultValue}
+                    onChange={(e) => setDefaultValue(e.target.value)}
                 />
             </div>
         </>
     );
 }
+//
+// function findCompletion(cmdMap: CommandMap, rtaRef: React.MutableRefObject<ReactTextareaAutocomplete<ItemType> | null>, textAreaRef: React.MutableRefObject<HTMLTextAreaElement | null>, type: string) {
+//     return {
+//         dataProvider: (token: string) => {
+//             console.log("Current token " + token);
+//             if (!cmdMap) return [];
+//             const position = rtaRef.current?.getCaretPosition();
+//             const content = textAreaRef.current?.value || "";
+//             const completion = cmdMap?.getCurrentlyTypingFunction(content, token, position, type)
+//             return completion.options.map(({ name, value }) => ({
+//                 name,
+//                 value,
+//                 nameLower: name.toLowerCase(),
+//             }));
+//           // const tokenLower = token.toLowerCase();
+//           // const filtered = options.filter(option => option.nameLower.includes(tokenLower));
+//           // const sorted = filtered.sort((a, b) => a.nameLower.indexOf(tokenLower) - b.nameLower.indexOf(tokenLower));
+//           // return sorted;
+//         },
+//         component: Item,
+//         output: (item: ItemType, trigger: string) => {
+//           console.log("Current item " + item, typeof(item), trigger);
+//           return item.value;
+//         }
+//       };
+// }
 
-function findCompletion(cmdMap: CommandMap, rtaRef: React.MutableRefObject<ReactTextareaAutocomplete<ItemType> | null>, textAreaRef: React.MutableRefObject<HTMLTextAreaElement | null>, type: string) {
-    return {
-        dataProvider: (token: string) => {
-            console.log("Current token " + token);
-            if (!cmdMap) return [];
-            const position = rtaRef.current?.getCaretPosition();
-            const content = textAreaRef.current?.value || "";
-            const completion = cmdMap?.getCurrentlyTypingFunction(content, token, position, type)
-            return completion.options.map(({ name, value }) => ({
-                name,
-                value,
-                nameLower: name.toLowerCase(),
-            }));
-          // const tokenLower = token.toLowerCase();
-          // const filtered = options.filter(option => option.nameLower.includes(tokenLower));
-          // const sorted = filtered.sort((a, b) => a.nameLower.indexOf(tokenLower) - b.nameLower.indexOf(tokenLower));
-          // return sorted;
-        },
-        component: Item,
-        output: (item: ItemType, trigger: string) => {
-          console.log("Current item " + item, typeof(item), trigger);
-          return item.value;
-        }
-      };
-}
+
+// function Item({ entity: { name } }: { entity: ItemType }) {
+//     return <div>{name}</div>;
+// }

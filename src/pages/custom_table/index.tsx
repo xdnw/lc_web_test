@@ -265,7 +265,24 @@ function downloadTable(api: Api, useClipboard: boolean, type: ExportType): [stri
     // Combine header and rows
     const data = [header, ...rows];
 
-    // Call downloadCells with the data
+    // iterate column objects (not the element)
+    // (col.render as ObjectColumnRender)
+    // cast to have property isEnum: boolean, options: string[] (optional)
+    // if isEnum, then need to replace the values in the data with the options[value]
+    // Iterate column objects (not the element)
+    api.columns().every((index) => {
+        const col = api.column(index);
+        const render = col.init().render as {isEnum: boolean, options: string[]} | undefined;
+        if (render && render.isEnum && render.options) {
+            data.forEach((row, rowIndex) => {
+                if (rowIndex > 0) { // Skip header row
+                    const enumId = row[index - 1] as number;
+                    row[index - 1] = render.options[enumId];
+                }
+            });
+        }
+    });
+
     return downloadCells(data, useClipboard, type);
 }
 
