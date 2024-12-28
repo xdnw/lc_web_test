@@ -455,7 +455,7 @@ export default function DndTest({
                 <SortableContext
                     items={[...containers, PLACEHOLDER_ID]}
                     strategy={
-                        verticalListSortingStrategy
+                        rectSortingStrategy
                     }
                 >
                     {containers.map((containerId) => (

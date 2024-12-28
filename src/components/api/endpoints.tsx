@@ -272,33 +272,6 @@ export const ALLIANCESTATS: CommonEndpoint<ApiTypes.WebGraph, {metrics?: string,
     }
 };
 
-export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>, Record<string, never>> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSession>(
-        "session",
-        "session",
-        {},
-        (data: unknown) => data as ApiTypes.WebSession,
-        {type: CacheType.LocalStorage, duration: 2592000},
-        "WebSession"
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: Record<string, never>, render: (data: ApiTypes.WebSession) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(SESSION.endpoint.name, SESSION.endpoint.cache, args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: Record<string, never>,
-        showArguments?: string[],
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSession) => void,
-        handle_submit?: (args: Record<string, never>) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(SESSION.endpoint.url, SESSION.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
 export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token?: string}, {token?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "set_token",
@@ -323,6 +296,33 @@ export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token?: string}, {t
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(SET_TOKEN.endpoint.url, SET_TOKEN.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>, Record<string, never>> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSession>(
+        "session",
+        "session",
+        {},
+        (data: unknown) => data as ApiTypes.WebSession,
+        {type: CacheType.LocalStorage, duration: 2592000},
+        "WebSession"
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: Record<string, never>, render: (data: ApiTypes.WebSession) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(SESSION.endpoint.name, SESSION.endpoint.cache, args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: Record<string, never>,
+        showArguments?: string[],
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebSession) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(SESSION.endpoint.url, SESSION.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 
@@ -1433,33 +1433,6 @@ export const TEST: CommonEndpoint<ApiTypes.WebValue, Record<string, never>, Reco
     }
 };
 
-export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries?: string}, {queries?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebBulkQuery>(
-        "query",
-        "query",
-        {"queries":{"name":"queries","type":"List\u003cEntry\u003cString,Map\u003cString,Object\u003e\u003e\u003e"}},
-        (data: unknown) => data as ApiTypes.WebBulkQuery,
-        {},
-        "WebBulkQuery"
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {queries?: string}, render: (data: ApiTypes.WebBulkQuery) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(QUERY.endpoint.name, combine(QUERY.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {queries?: string},
-        showArguments?: string[],
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebBulkQuery) => void,
-        handle_submit?: (args: {queries?: string}) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(QUERY.endpoint.url, QUERY.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
 export const UNSET_GUILD: CommonEndpoint<ApiTypes.WebSuccess, Record<string, never>, Record<string, never>> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "unset_guild",
@@ -1487,4 +1460,31 @@ export const UNSET_GUILD: CommonEndpoint<ApiTypes.WebSuccess, Record<string, nev
     }
 };
 
-export const ENDPOINTS = [WARSCOSTRANKINGBYDAY, GLOBALSTATS, TABLE, ALLIANCEMETRICSAB, COMPARESTATS, NTHBEIGELOOTBYSCORERANGE, ALLIANCESDATABYDAY, MARK_ALL_READ, WARCOSTSBYDAY, ALLIANCESTATS, SESSION, SET_TOKEN, BALANCE, ORBISSTATBYDAY, UNREAD_ANNOUNCEMENT, REGISTER, COMPARETIERSTATS, ALLIANCEMETRICSCOMPAREBYTURN, GLOBALTIERSTATS, BANK_ACCESS, TRADEVOLUMEBYDAY, ANNOUNCEMENTS, UNREGISTER, RAID, READ_ANNOUNCEMENT, ALLIANCEMETRICSBYTURN, RADIATIONSTATS, COMPARESTOCKPILEVALUEBYDAY, MILITARIZATIONTIME, INPUT_OPTIONS, TRADEPRICEBYDAY, LOGIN_MAIL, TRADEMARGINBYDAY, MY_WARS, MY_AUDITS, RECORDS, LOGOUT, SCORETIERGRAPH, SPYTIERGRAPH, STRENGTHTIERGRAPH, UNREAD_COUNT, SET_OAUTH_CODE, ANNOUNCEMENT_TITLES, WARATTACKSBYDAY, VIEW_ANNOUNCEMENT, SET_GUILD, METRICBYGROUP, CITYTIERGRAPH, UNPROTECTED, TRADEPRICEBYDAYJSON, WITHDRAW, TRADETOTALBYDAY, TEST, QUERY, UNSET_GUILD];
+export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries?: string}, {queries?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebBulkQuery>(
+        "query",
+        "query",
+        {"queries":{"name":"queries","type":"List\u003cEntry\u003cString,Map\u003cString,Object\u003e\u003e\u003e"}},
+        (data: unknown) => data as ApiTypes.WebBulkQuery,
+        {},
+        "WebBulkQuery"
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {queries?: string}, render: (data: ApiTypes.WebBulkQuery) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(QUERY.endpoint.name, combine(QUERY.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {queries?: string},
+        showArguments?: string[],
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebBulkQuery) => void,
+        handle_submit?: (args: {queries?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(QUERY.endpoint.url, QUERY.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const ENDPOINTS = [WARSCOSTRANKINGBYDAY, GLOBALSTATS, TABLE, ALLIANCEMETRICSAB, COMPARESTATS, NTHBEIGELOOTBYSCORERANGE, ALLIANCESDATABYDAY, MARK_ALL_READ, WARCOSTSBYDAY, ALLIANCESTATS, SET_TOKEN, SESSION, BALANCE, ORBISSTATBYDAY, UNREAD_ANNOUNCEMENT, REGISTER, COMPARETIERSTATS, ALLIANCEMETRICSCOMPAREBYTURN, GLOBALTIERSTATS, BANK_ACCESS, TRADEVOLUMEBYDAY, ANNOUNCEMENTS, UNREGISTER, RAID, READ_ANNOUNCEMENT, ALLIANCEMETRICSBYTURN, RADIATIONSTATS, COMPARESTOCKPILEVALUEBYDAY, MILITARIZATIONTIME, INPUT_OPTIONS, TRADEPRICEBYDAY, LOGIN_MAIL, TRADEMARGINBYDAY, MY_WARS, MY_AUDITS, RECORDS, LOGOUT, SCORETIERGRAPH, SPYTIERGRAPH, STRENGTHTIERGRAPH, UNREAD_COUNT, SET_OAUTH_CODE, ANNOUNCEMENT_TITLES, WARATTACKSBYDAY, VIEW_ANNOUNCEMENT, SET_GUILD, METRICBYGROUP, CITYTIERGRAPH, UNPROTECTED, TRADEPRICEBYDAYJSON, WITHDRAW, TRADETOTALBYDAY, TEST, UNSET_GUILD, QUERY];

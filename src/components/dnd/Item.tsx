@@ -4,6 +4,7 @@ import type {Transform} from '@dnd-kit/utilities';
 
 import {Handle} from '@/components/dnd/Handle';
 import {Remove} from '@/components/dnd/Remove';
+import styles from '@/components/dnd/Item.module.css';
 
 import {cn} from "../../lib/utils";
 
@@ -95,7 +96,7 @@ export const Item = React.memo(
             ) : (
                 <li
                     className={cn(
-                        "flex box-border transform origin-top-left touch-manipulation",
+                        styles.Wrapper,
                         fadeIn && "animate-fadeIn",
                         sorting && "z-10",
                         dragOverlay && "z-[999] scale-[1.05] shadow-lg"
