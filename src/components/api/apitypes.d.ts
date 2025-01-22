@@ -286,7 +286,6 @@ export interface WebTaxBracket {
 
 export type CacheType = "None" | "Cookie" | "LocalStorage" | "SessionStorage";
 
-export type TransactionType = "INTERNAL" | "TAX" | "BANK";
 export type GraphType = "STACKED_BAR" | "SIDE_BY_SIDE_BAR" | "HORIZONTAL_BAR" | "LINE" | "STACKED_LINE" | "FILLED_LINE" | "SCATTER";
 
 export type NationColor = "AQUA" | "BEIGE" | "BLACK" | "BLUE" | "BROWN" | "GRAY" | "GREEN" | "LIME" | "MAROON" | "OLIVE" | "ORANGE" | "PINK" | "PURPLE" | "RED" | "WHITE" | "YELLOW";
