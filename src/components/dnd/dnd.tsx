@@ -166,7 +166,7 @@ export default function DndTest({
                                        modifiers,
                                        renderItem,
                                        strategy = verticalListSortingStrategy,
-                                       trashable = false,
+                                       trashable = true,
                                        vertical = false,
                                        scrollable,
                                    }: Props) {
@@ -270,7 +270,6 @@ export default function DndTest({
         if (id in items) {
             return id;
         }
-
         return Object.keys(items).find((key) => items[key].includes(id));
     };
 
@@ -624,20 +623,7 @@ function Trash({id}: {id: UniqueIdentifier}) {
     return (
         <div
             ref={setNodeRef}
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'fixed',
-                left: '50%',
-                marginLeft: -150,
-                bottom: 20,
-                width: 300,
-                height: 60,
-                borderRadius: 5,
-                border: '1px solid',
-                borderColor: isOver ? 'red' : '#DDD',
-            }}
+            className={`${isOver ? 'bg-red-100' : 'bg-red-50'} p-5 rounded-md border border-red-200`}
         >
             Drop here to delete
         </div>

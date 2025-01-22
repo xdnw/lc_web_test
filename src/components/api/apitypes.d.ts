@@ -1,6 +1,41 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2024-11-20 07:27:13.
+// Generated using typescript-generator version 3.2.1263 on 2025-01-22 05:10:25.
+
+export interface CoalitionGraph {
+    name: string;
+    alliances: { [index: string]: number };
+    overall?: WebGraph;
+    by_alliance: { [index: string]: WebGraph };
+}
+
+export interface CoalitionGraphs {
+    spheres: CoalitionGraph[];
+}
+
+export interface DiscordRole {
+    name: string;
+    color: number;
+}
+
+export interface NationTaxInfo {
+    name: string;
+    id: number;
+    cities: number;
+    off: number;
+    def: number;
+    vm_turns: number;
+    active_m: number;
+    color: NationColor;
+    city_turns: number;
+    project_turns: number;
+    num_projects: number;
+    project_slots: number;
+    mmr_unit: number[];
+    mmr_build: number[];
+    avg_infra: number;
+    avg_land: number;
+}
 
 export interface SetGuild {
     id: string;
@@ -8,16 +43,23 @@ export interface SetGuild {
     icon: string;
 }
 
-export interface WebGraph {
-    time_format?: TimeFormat;
-    number_format?: TableNumberFormat;
-    origin?: number;
-    title?: string;
-    type?: GraphType;
+export interface TaxExpenseBracket {
+    transactionsByNation: { [index: string]: WebTransaction[] };
+    bracket: WebTaxBracket;
+    bracketToNationDepositCount: { [index: string]: number };
+    income: number[];
+    nations: NationTaxInfo[];
+    incomeByNation: { [index: string]: number[] };
+    expense: number[];
+    expensesByNation: { [index: string]: number[] };
+}
+
+export interface TradePriceByDayJson {
     x: string;
     y: string;
     labels: string[];
-    data: (number | string)[][];
+    timestamps: number[];
+    prices: number[][];
 }
 
 export interface WebAnnouncement {
@@ -61,8 +103,26 @@ export interface WebBulkQuery {
     results: any[];
 }
 
+export interface WebGraph {
+    time_format?: TimeFormat;
+    number_format?: TableNumberFormat;
+    type?: GraphType;
+    origin?: number;
+    title: string;
+    x: string;
+    y: string;
+    labels: string[];
+    data: any[][];
+}
+
 export interface WebInt {
     value: number;
+}
+
+export interface WebMyEnemies {
+    alliance_ids: number[];
+    alliances: string[];
+    commands: WebWarFinder[];
 }
 
 export interface WebMyWar {
@@ -128,16 +188,16 @@ export interface WebSuccess {
     message?: string;
 }
 
+export interface WebTable {
+    errors?: WebTableError[];
+    cells: any[][];
+    renderers?: string[];
+}
+
 export interface WebTableError {
     col?: number;
     row?: number;
     msg: string;
-}
-
-export interface WebTable {
-    cells: any[][];
-    renderers?: string[];
-    errors?: WebTableError[];
 }
 
 export interface WebTarget {
@@ -172,6 +232,18 @@ export interface WebTargets {
     self: WebTarget;
 }
 
+export interface WebTransaction {
+    tx_id: number;
+    tx_datetime: number;
+    sender_id: number;
+    sender_type: number;
+    receiver_id: number;
+    receiver_type: number;
+    banker_nation: number;
+    note: string;
+    resources: number[];
+}
+
 export interface WebTransferResult {
     status: string;
     status_msg: string;
@@ -192,53 +264,33 @@ export interface WebValue {
     value: string;
 }
 
-// public record CoalitionGraph(
-//         String name,
-//         Map<DBAlliance, Integer> alliances,
-//         @Nullable WebGraph overall,
-//         Map<Integer, WebGraph> by_alliance
-// ) {
+export interface WebWarFinder {
+}
 
-export interface CoalitionGraph {
+export interface TaxExpenses {
+    brackets: TaxExpenseBracket[];
+    alliances: number[];
+    requireGrant: boolean;
+    requireExpiry: boolean;
+    requireTagged: boolean;
+}
+
+export interface WebTaxBracket {
+    taxId: number;
+    dateFetched: number;
+    allianceId: number;
     name: string;
-    alliances: { [index: string]: number };
-    overall?: WebGraph;
-    by_alliance: { [index: string]: WebGraph };
+    moneyRate: number;
+    rssRate: number;
 }
-
-export interface CoalitionGraphs {
-    spheres: CoalitionGraph[];
-}
-
-export interface DiscordRole {
-    name: string;
-    color: number;
-}
-
-export type ButtonInfoHref = {
-    href: string;
-    label: string;
-};
-
-export type ButtonInfoCmd = {
-    cmd: string;
-    label: string;
-};
 
 export type CacheType = "None" | "Cookie" | "LocalStorage" | "SessionStorage";
 
 export type TransactionType = "INTERNAL" | "TAX" | "BANK";
+export type GraphType = "STACKED_BAR" | "SIDE_BY_SIDE_BAR" | "HORIZONTAL_BAR" | "LINE" | "STACKED_LINE" | "FILLED_LINE" | "SCATTER";
+
+export type NationColor = "AQUA" | "BEIGE" | "BLACK" | "BLUE" | "BROWN" | "GRAY" | "GREEN" | "LIME" | "MAROON" | "OLIVE" | "ORANGE" | "PINK" | "PURPLE" | "RED" | "WHITE" | "YELLOW";
 
 export type TimeFormat = "NUMERIC" | "DECIMAL_ROUNDED" | "SI_UNIT" | "TURN_TO_DATE" | "DAYS_TO_DATE" | "MILLIS_TO_DATE" | "SECONDS_TO_DATE";
 
 export type TableNumberFormat = "SI_UNIT" | "PERCENTAGE_ONE" | "PERCENTAGE_100" | "DECIMAL_ROUNDED";
-
-export type GraphType = "STACKED_BAR" | "SIDE_BY_SIDE_BAR" | "HORIZONTAL_BAR" | "LINE" | "STACKED_LINE" | "FILLED_LINE" | "SCATTER";
-
-export type CommandBehavior = "DELETE_MESSAGE" | "UNPRESS" | "DELETE_BUTTONS" | "DELETE_PRESSED_BUTTON" | "EPHEMERAL";
-
-export type ItemType = {
-    name: string;
-    nameLower: string;
-    value: string;
-}

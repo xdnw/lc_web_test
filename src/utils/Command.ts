@@ -543,7 +543,6 @@ export class CommandMap {
         }
         const components = splitCustom(content, (f, i) => {
             if (f.startsWith(",", i)) return [1, 1];
-
             if (f.startsWith("||", i)) return [2, 2];
             if (f.startsWith("&&", i)) return [2, 2];
             if (f.startsWith("|", i)) return [1, 2];

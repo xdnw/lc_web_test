@@ -3,7 +3,7 @@ import React, {ReactNode} from "react";
 import '@/pages/command/discord.css';
 import {markup} from "../../lib/discord";
 import { Button } from './button';
-import {ButtonInfoCmd, ButtonInfoHref, WebGraph} from "../api/apitypes";
+import {ButtonInfoCmd, ButtonInfoHref, WebGraph} from "../api/apitypes2";
 import { ThemedChart} from "../../pages/graphs/SimpleChart";
 import {Link} from "react-router-dom";
 import {commandButtonAction} from "../../pages/command";

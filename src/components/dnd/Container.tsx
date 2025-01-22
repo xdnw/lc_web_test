@@ -3,7 +3,6 @@ import React, {forwardRef, Ref} from 'react';
 import {Handle} from '@/components/dnd/Handle';
 import {Remove} from '@/components/dnd/Remove';
 import {cn} from "../../lib/utils";
-import styles from './Container.module.css';
 
 export interface ContainerProps {
     children: React.ReactNode;
