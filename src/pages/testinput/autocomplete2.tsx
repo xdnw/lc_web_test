@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import "@webscopeio/react-textarea-autocomplete/style.css";
 import { Button } from "@/components/ui/button.tsx";
 import {COMMAND_MAP} from "@/utils/Command";
 import {ICommand} from "../../utils/Command";
-import { ItemType } from "@/components/api/apitypes";
+import { ItemType } from "@/components/api/apitypes2";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 
 export default function AutoComplete2() {

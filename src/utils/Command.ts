@@ -8,7 +8,7 @@ import {
     split, splitCustom
 } from "./StringUtil";
 import {COMMANDS} from "@/lib/commands.ts";
-import type { CommandBehavior } from "@/components/api/apitypes";
+import type { CommandBehavior } from "@/components/api/apitypes2";
 
 export type IArgument = {
     name: string;

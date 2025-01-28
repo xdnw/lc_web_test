@@ -1,0 +1,30 @@
+.tooltipContainer {
+    display: inline-block;
+    position: relative;
+}
+
+.tooltipContent {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0.5rem;
+    z-index: 50;
+}
+
+@keyframes progress {
+    0% {
+        stroke-dasharray: 0, 100;
+    }
+    100% {
+        stroke-dasharray: 100, 100;
+    }
+}
+
+.tooltipCircle {
+    animation-name: progress;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    stroke: currentColor;
+    stroke-width: 2;
+}

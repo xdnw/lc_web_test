@@ -1,18 +1,17 @@
 import {ReactNode, forwardRef} from 'react';
-
-import { Button } from '../ui/button';
-import { Grip } from 'lucide-react';
+import { cn } from "@/lib/utils"
 
 interface HandleProps {
     children: ReactNode;
+    className?: string;
 }
 
-export const Handle = forwardRef<HTMLDivElement, HandleProps>(({children, ...props}, ref) => {
+export const Handle = forwardRef<HTMLDivElement, HandleProps>(({ children, className, ...props }, ref) => {
     return (
         <div
             ref={ref}
             data-cypress="draggable-handle"
-            className="p-0 cursor-grab"
+            className={cn("p-0 cursor-grab", className)}
             {...props}
         >
             {children}

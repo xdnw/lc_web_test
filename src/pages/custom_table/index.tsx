@@ -12,13 +12,12 @@ import {Tabs, TabsList, TabsTrigger} from "../../components/ui/tabs";
 import {ArrowRightToLine, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ClipboardIcon, Download, Sheet} from "lucide-react";
 import {BlockCopyButton} from "../../components/ui/block-copy-button";
 import {TooltipProvider} from "../../components/ui/tooltip";
-import {WebGraph, WebTable, WebTableError} from "../../components/api/apitypes";
+import { WebTable, WebTableError} from "../../components/api/apitypes";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {useDialog} from "../../components/layout/DialogContext";
 import { Link } from "react-router-dom";
-import {getRenderer, graph, isHtmlRenderer} from "../../components/ui/renderers";
+import {getRenderer, isHtmlRenderer} from "../../components/ui/renderers";
 import {getQueryParams} from "../../lib/utils";
-import {createRoot} from "react-dom/client";
 import {downloadCells, ExportType, ExportTypes} from "../../utils/StringUtil";
 
 DataTable.use(DT);
@@ -686,6 +685,21 @@ function LoadTable(
     </>
 }
 
+/**
+ * A table with a button to fetch and render the data
+ * @param type
+ * @param selection
+ * @param columns
+ * @param errors
+ * @param table
+ * @param data
+ * @param columnsInfo
+ * @param sort
+ * @param searchSet
+ * @param visibleColumns
+ * @param setRerender
+ * @constructor
+ */
 function DeferTable(
     {type, selection, columns, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender}:
     {

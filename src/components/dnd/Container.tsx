@@ -20,7 +20,7 @@ export interface ContainerProps {
     onRemove?(): void;
 }
 
-export const Container = forwardRef<HTMLDivElement | HTMLButtonElement, ContainerProps>(
+export const Container = forwardRef<HTMLDivElement, ContainerProps>(
     (
         {
             children,
@@ -38,11 +38,10 @@ export const Container = forwardRef<HTMLDivElement | HTMLButtonElement, Containe
             unstyled,
             ...props
         }: ContainerProps,
-        ref: Ref<HTMLDivElement | HTMLButtonElement>
+        ref: Ref<HTMLDivElement>
     ) => {
-        const Component = onClick ? 'button' : 'div';
         return (
-            <Component
+            <div
                 {...props}
                 ref={ref}
                 style={
@@ -58,7 +57,8 @@ export const Container = forwardRef<HTMLDivElement | HTMLButtonElement, Containe
                     hover && "bg-[rgb(235,235,235,1)]",
                     placeholder && "justify-center items-center cursor-pointer text-[rgba(0,0,0,0.5)] bg-transparent border-dashed border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.15)]",
                     scrollable && "[&>ul]:overflow-y-auto",
-                    shadow && "shadow-[0_1px_10px_0_rgba(34,33,81,0.1)]"
+                    shadow && "shadow-[0_1px_10px_0_rgba(34,33,81,0.1)]",
+                    onClick && "cursor-pointer"
                 )}
                 onClick={onClick?.bind(null)}
                 tabIndex={onClick ? 0 : undefined}
@@ -74,7 +74,7 @@ export const Container = forwardRef<HTMLDivElement | HTMLButtonElement, Containe
                     </div>
                 ) : null}
                 {placeholder ? children : <ul>{children}</ul>}
-            </Component>
+            </div>
         );
     }
 );
