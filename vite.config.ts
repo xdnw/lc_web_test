@@ -28,8 +28,8 @@ export default defineConfig(({ mode }) => {
     ],
     define: {
       'global': 'window',
-      'process.env.BACKEND_URL': mode === 'development' ? JSON.stringify('http://localhost/') : JSON.stringify('https://api.locutus.link/'),
-      'process.env.API_URL': mode === 'development' ? JSON.stringify('http://localhost/api/') : JSON.stringify('https://api.locutus.link/api/'),
+      'process.env.BACKEND_URL': mode === 'development' ? JSON.stringify('http://localhost:8080/') : JSON.stringify('https://api.locutus.link/'),
+      'process.env.API_URL': mode === 'development' ? JSON.stringify('http://localhost:8080/api/') : JSON.stringify('https://api.locutus.link/api/'),
       'process.env.EXTERNAL_URL': mode === 'development' ? JSON.stringify('http://localhost:5173/') : JSON.stringify('https://www.locutus.link/'),
       'process.env.APPLICATION': JSON.stringify('Locutus'),
       'process.env.ADMIN_ID': JSON.stringify("664156861033086987"),
