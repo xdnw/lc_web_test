@@ -339,6 +339,15 @@ export default function CustomTable() {
     );
 }
 
+export function getUrl(type: string, selection: string, columns: string[], sort?: OrderIdx | OrderIdx[]): string {
+    return `${process.env.BASE_PATH}custom_table?${getQueryString({
+        type: type,
+        sel: selection,
+        columns: new Map(columns.map(col => [col, null])),
+        sort: sort ? sort : {idx: 0, dir: "asc"}
+    })}`;
+}
+
 export function getQueryString(
     {type, sel, columns, sort}: {
         type: string,

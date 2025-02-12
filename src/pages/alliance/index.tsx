@@ -15,7 +15,8 @@
 import {useDialog} from "../../components/layout/DialogContext";
 import {useRef} from "react";
 import {TABLE} from "../../components/api/endpoints";
-import {getQueryString} from "../custom_table";
+import {getQueryString, getUrl} from "../custom_table";
+import { useParams } from "react-router-dom";
 
 export default function Alliance() {
     // return (
@@ -26,19 +27,18 @@ export default function Alliance() {
     //         </LazyTooltip>
     //     </div>
     // );
+    const type = "Alliance";
+    const { alliance } = useParams<{ alliance: string }>();
+    const columns: string[] = ["{name}", "{id}", "{score}"];
+
     const { showDialog } = useDialog();
-    const url = useRef(`${process.env.BASE_PATH}custom_table?${getQueryString({
-        type: "Alliance",
-        sel: "AA:Singularity",
-        columns: ["{name}", "{id}", "{score}"],
-        sort: sort.current
-    })}`);
+    const url = useRef(getUrl(type, alliance as string, columns));
     return <>
         {TABLE.useDisplay({
             args: {
-                type: type.current,
-                selection_str: selection.current,
-                columns: Array.from(columns.current.keys()),
+                type: type,
+                selection_str: alliance,
+                columns: columns,
             },
             render: (newData) => {
                 return JSON.stringify(newData);

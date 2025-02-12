@@ -92,7 +92,10 @@ export default function App() {
 
 
           {/* testing pages */}
-          <Route path="/alliance" element={<Alliance />} />
+          {/*<Route path="/alliance" element={<Alliance />} />*/}
+          <Route path="/alliance/:alliance" element={<Alliance />} />
+
+
           <Route path="/admin" element={<Admin />} />
           <Route path="/autocomplete" element={<AutoComplete />} />
           <Route path="/auto2" element={<AutoComplete2 />} />
