@@ -1,3 +1,4 @@
+// Extends #nationlist
 // basic stats / link etc.
 // dropdown for more stats
 // wars
@@ -12,10 +13,10 @@
 //
 // Hover shows ranking/graph
 
-import {useDialog} from "../../components/layout/DialogContext";
+import {useDialog} from "../../../components/layout/DialogContext";
 import {useRef} from "react";
-import {TABLE} from "../../components/api/endpoints";
-import {getQueryString, getUrl} from "../custom_table";
+import {TABLE} from "../../../components/api/endpoints";
+import {getUrl} from "../../custom_table";
 import { useParams } from "react-router-dom";
 
 export default function Alliance() {

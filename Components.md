@@ -1,39 +1,27 @@
 TODO:
+
 - Shift things to nation list page
 - Add different views in nation list page (to determine which options get shown as primary buttons, and which are under a `More Options`)
 
 When running a command, link to any pages that host it (that the user can use, otherwise link to the prereq page, such as login)
 
-# Components
-Continent component
-Resources
-- Trade / value
-War
-- /war counter url
-- /war counter nation
-- /spy counter nation
-- /war counter auto
-MilitaryUnit
-- /unit cost
-
 /help argument
 /help command
 
 Argument list
+
 - /help find_argument
 
 Command list
+
 - /help find_command
 
 Placeholder list:
 /help find_nation_placeholder
 
-# Continents
-/continent info
-/continent radiation
-
 # Alliances extends NationList
-List of alliances (default *)
+
+List of alliances (default \*)
 Customize button (customize saves to local storage)
 /alliance stats merges
 
@@ -48,34 +36,37 @@ Customize button (customize saves to local storage)
 
 TODO: Find other Set<DBAlliance>
 
-If not *
+If not \*
+
 - /alliance stats allianceMetricsAB
 - /alliance stats allianceMetricsCompareByTurn
 - /alliance stats metricsByTurn
 - /alliance stats militarization_time
 
-If *
+If \*
 /alliance stats militarization
 
 # Alliance extends NationList extends Alliances
+
 Basic stats
+
 - View ingame
 - Customize button (customize saves to local storage)
 - color links to color bloc pages (TODO color bloc component does this - from the formatter)
-Graphs for alliances, show current value with graph on hover?
-/alliance stats allianceMetricsAB
-/alliance stats allianceMetricsCompareByTurn
-/alliance stats attribute_ranking
-/alliance stats loot_ranking
-/alliance stats metricsByTurn
-/alliance stats ranking
-/alliance stats rankingTime
-/nation loot
-/sheets_ia ActivitySheet
-/sheets_ia activity_date
-/sheets_ia daychange
-/sheets_ia declares_date
-/sheets_ia deposits_date
+  Graphs for alliances, show current value with graph on hover?
+  /alliance stats allianceMetricsAB
+  /alliance stats allianceMetricsCompareByTurn
+  /alliance stats attribute_ranking
+  /alliance stats loot_ranking
+  /alliance stats metricsByTurn
+  /alliance stats ranking
+  /alliance stats rankingTime
+  /nation loot
+  /sheets_ia ActivitySheet
+  /sheets_ia activity_date
+  /sheets_ia daychange
+  /sheets_ia declares_date
+  /sheets_ia deposits_date
 
 Link to guild, or link to add guild
 
@@ -85,6 +76,7 @@ Link to guild, or link to add guild
 /alliance edit
 
 If server is offshore server, and this is an account
+
 - /deposits add
 - /deposits check
 
@@ -92,11 +84,13 @@ If meets requirements of being an offshore
 /offshore markAsOffshore
 
 # Nation extends NationList
+
 Basic stats
+
 - View ingame
 - color links to color blocs pages (TODO color bloc component does this - from the formatter)
-graphs for nations
-Departures
+  graphs for nations
+  Departures
 
 todo: Group actions (e.g. Audits, Banking)
 If matches guild alliance
@@ -123,6 +117,7 @@ If matches guild alliance
 /sheets_ia ActivitySheetFromId
 
 ## Counter if has wars - prominent if wars against current guild
+
 /war counter auto
 /spy counter
 
@@ -140,24 +135,28 @@ If member of alliance or guild (and has perm)
 /nation stockpile
 /nation set rank
 /nation set taxbracket
+
 - View account (with guild)
 - /interview create (if interviews are enabled)
 
 # Nation wars
+
 /nation wars
 
 # Nation trades
+
 -> Link to trade alerts
 -> Link to trade util page
 /nation stats inflows
 /nation moneyTrades
 TODO: Check trade utils page to see what is relevant here
 
-
 # Nation taxes
+
 /tax info
 
 # Nation balance
+
 /deposits check
 /bank deposit
 /bank records
@@ -174,39 +173,42 @@ TODO: Check trade utils page to see what is relevant here
 /escrow set
 
 ## If offshore is setup
+
 /trade accept
 
 -> Nation list grants
 
 # Nation list
-- List of nations (default *)
+
+- List of nations (default \*)
 - Summary of stats
 - Copy ids
-/admin command format_for_nations
-/admin list multis
-/admin list multis_land
-/admin list_login_times
-/alliance cost
-/nation revenueSheet
-/nation stats nationRanking
-/alliance stats allianceNationsSheet
-/sheets_ia ActivitySheet
-/sheets_ia activity_date
-/sheets_ia daychange
-/sheets_ia declares_date
-/sheets_ia deposits_date
-/sheets_milcom MMRSheet
-/sheets_milcom WarCostByAllianceSheet
-/sheets_milcom combatantSheet
-/sheets_milcom lootValueSheet
-/sheets_milcom warSheet
-/sheets_econ stockpileSheet
+  /admin command format_for_nations
+  /admin list multis
+  /admin list multis_land
+  /admin list_login_times
+  /alliance cost
+  /nation revenueSheet
+  /nation stats nationRanking
+  /alliance stats allianceNationsSheet
+  /sheets_ia ActivitySheet
+  /sheets_ia activity_date
+  /sheets_ia daychange
+  /sheets_ia declares_date
+  /sheets_ia deposits_date
+  /sheets_milcom MMRSheet
+  /sheets_milcom WarCostByAllianceSheet
+  /sheets_milcom combatantSheet
+  /sheets_milcom lootValueSheet
+  /sheets_milcom warSheet
+  /sheets_econ stockpileSheet
 
 /trade findProducer
 
 /war counter sheet
 
 ## Tier graphs
+
 TODO: Update the tier graphs to work solo
 /spy tierGraph
 /stats_tier attributeTierGraph#
@@ -217,42 +219,45 @@ TODO: Update the tier graphs to work solo
 /stats_tier strengthTierGraph
 
 ## If matches guild id:
+
 - Audit:
-/audit hasNotBoughtSpies
-/audit run
-/audit sheet
-/spy sheet free_ops
-/sheets_milcom IntelOpSheet
-/sheets_milcom unit_buy_sheet
+  /audit hasNotBoughtSpies
+  /audit run
+  /audit sheet
+  /spy sheet free_ops
+  /sheets_milcom IntelOpSheet
+  /sheets_milcom unit_buy_sheet
 
 - /channel permissions
--> Nation list banking
--> Nation list grants
--> Nation list escrow
+  -> Nation list banking
+  -> Nation list grants
+  -> Nation list escrow
 
 /sheets_milcom warchestSheet
-
 
 /mail command
 /mail send
 /mail web_login
 
 # Nation list banking
+
 - /deposits convertNegative
 - /bank deposit
 - /deposits add
-/deposits interest
-/deposits reset
-/deposits sheet
+  /deposits interest
+  /deposits reset
+  /deposits sheet
 
 TODO: Link to escrow
 
 ## Nation list taxes
+
 /tax deposits
 /tax listBracketAuto
 /nation set taxinternal
 
 ## Nation list grants
+
 /grant build
 /grant city
 /grant consumption
@@ -268,6 +273,7 @@ if guild is set:
 -> Link to templates
 
 ## Guild grant templates
+
 /grant_template list
 
 /grant_template delete
@@ -285,6 +291,7 @@ if guild is set:
 /grant_template create warchest
 
 # Guild - Discord role
+
 /role addRoleToAllMembers
 /role autoassign
 /role autorole
@@ -304,11 +311,13 @@ if guild is set:
 /role unregister
 
 # Guild taxes extends NationList taxes
+
 /nation set taxbracketAuto
 /nation set taxinternalAuto
 /tax set_from_sheet
 
 # Guild mail
+
 /mail search
 /mail read
 /mail reply
@@ -319,15 +328,18 @@ if guild is set:
 /mail web_login
 
 # Nation list escrow
+
 /escrow add
 /escrow set
 /escrow set_sheet
 /escrow view_sheet
 
 # Nation cities
+
 /city cost
 
 # Nation city
+
 /city cost
 /city optimalBuild
 /building cost
@@ -336,24 +348,28 @@ if guild is set:
 /infra roi
 
 # Nation (SELF)
+
 /bank deposit
 /me
 
 # Color blocs
+
 /color revenue
 
 # Guild extends NationList
+
 - Invite locutus: /invite
 - Link to # guild settings
 - Link to announcements
 - War room management button
 - Link to builds
--> Link to templates
--> interviews (if enabled)
+  -> Link to templates
+  -> interviews (if enabled)
 
 /admin importEmoji
 
 # Builds
+
 /build add
 /build delete
 /build assign
@@ -361,11 +377,13 @@ if guild is set:
 /build listall
 
 ## Guild blockades
+
 -> TODO: List of nations blockaded / the requests
 /war blockade cancelRequest
 /war blockade request
 
 ## Guild settings
+
 List of settings and their commands
 /help find_setting
 /settings delete
@@ -374,6 +392,7 @@ List of settings and their commands
 -> Group settings by category and have pages for each
 
 # Guild banking
+
 /transfer bulk
 /transfer raws
 /transfer resources
@@ -410,6 +429,7 @@ If offshore:
 ## Guild grants (links to nation list grants)
 
 ## Guild treaties
+
 -> Link coalitions
 /treaty list
 /treaty approve
@@ -418,6 +438,7 @@ If offshore:
 /treaty send
 
 # Guild channels/categories
+
 TODO: Assign to setting
 /channel channelMembers
 /channel memberChannels
@@ -445,9 +466,11 @@ TODO: Assign to setting
 /channel open
 
 # channel
+
 Send embed template to channel
 
 # embeds (linked from channels)
+
 /embed add command
 /embed add modal
 /embed add raw
@@ -462,16 +485,19 @@ Send embed template to channel
 TODO: All the embed templates
 
 # Announcements
+
 /copyPasta
 
 /announcement archive
 
 ## create
+
 /announcement create
 /announcement document
 /announcement invite
 
 ## create
+
 /announcement find
 /announcement find_invite
 
@@ -483,6 +509,7 @@ TODO: All the embed templates
 /announcement list #TODO
 
 # War rooms
+
 Set war server (setting)
 /admin sync warrooms
 /war room create
@@ -498,49 +525,53 @@ Set war server (setting)
 /mail targets
 
 # Guild offshore (if offshore server) - Manage Offshore
+
 /offshore accountSheet
 /offshore add
 
 # Guild offshoring - Setup Offshore / Manage Offshoring
+
 /offshore add
 /offshore send
 /deposits check
 
 ## Guild interviews
+
 - Linked on guild page (if enabled)
-/interview channel auto_rename
-/interview create
-/interview iacat
-/interview iachannels
-/interview incentiveRanking
-/interview interviewMessage
-/interview listMentors
-/interview mentee
-/interview mentor
-/interview mymentees
-/interview questions set
-/interview questions view
-/interview recruitmentRankings
-/interview setReferrer
-/interview setreferrerid
-/interview sheet
-/interview sortInterviews
-/interview syncInterviews
-/interview unassignMentee
+  /interview channel auto_rename
+  /interview create
+  /interview iacat
+  /interview iachannels
+  /interview incentiveRanking
+  /interview interviewMessage
+  /interview listMentors
+  /interview mentee
+  /interview mentor
+  /interview mymentees
+  /interview questions set
+  /interview questions view
+  /interview recruitmentRankings
+  /interview setReferrer
+  /interview setreferrerid
+  /interview sheet
+  /interview sortInterviews
+  /interview syncInterviews
+  /interview unassignMentee
 
 # coalition
+
 /war dnr
 Linked on guild page
 Each coalition has a link to the nation list (with a filter for View Nations | All | Active Members, Unslotted Members) - Maybe have these common options to the top of nation list page??
 
 - Description of what colitions are
-/admin clear_deleted_coalition_entries
-/coalition add
-/coalition create
-/coalition delete
-/coalition remove
-/coalition list
-/coalition generate
+  /admin clear_deleted_coalition_entries
+  /coalition add
+  /coalition create
+  /coalition delete
+  /coalition remove
+  /coalition list
+  /coalition generate
 
 /coalition sheet
 
@@ -548,6 +579,7 @@ Each coalition has a link to the nation list (with a filter for View Nations | A
 /offshore find for_enemies
 
 # Player settings
+
 /credentials addApiKey
 
 /credentials login
@@ -572,7 +604,6 @@ Trade
 /alerts trade undercut
 /alerts trade unsubscribe
 
-
 Beige
 /alerts beige beigeAlert
 /alerts beige beigeAlertMode
@@ -590,6 +621,7 @@ Bank alerts
 /alerts bank unsubscribe
 
 # Baseball
+
 /baseball baseBallChallengeInflow
 /baseball baseballChallengeEarningsRanking
 /baseball baseballChallengeRanking
@@ -597,6 +629,7 @@ Bank alerts
 /baseball baseballRanking
 
 # Conflicts
+
 /conflict alliance add
 /conflict alliance remove
 /conflict create
@@ -631,10 +664,12 @@ Bank alerts
 # Wars list
 
 # War page
+
 /stats_war warCost
 
 # War stats
--> Link from nation list page, with enemies being * or ~enemies
+
+-> Link from nation list page, with enemies being \* or ~enemies
 -> Create conflict first, then link to these commands?
 
 /stats_war warRanking
@@ -658,33 +693,37 @@ Bank alerts
 /stats_war attack_ranking
 
 # Graphs
+
 keep existing
 /stats_other global_metrics by_time
 /stats_other radiationByTurn
 /stats_tier attributeTierGraph#
 
 # Cost calculation
+
 -> Linked on home? under tools
 
-- Linked??? 
-Link to the grant commands
-/building cost
-/project cost
-/city cost
-/infra cost
-/infra roi
-/land cost
-/land roi
-/city optimalbuild
-/project cost
-/project costsheet
+- Linked???
+  Link to the grant commands
+  /building cost
+  /project cost
+  /city cost
+  /infra cost
+  /infra roi
+  /land cost
+  /land roi
+  /city optimalbuild
+  /project cost
+  /project costsheet
 
 # Menu commands
+
 -> Linked in guild
 /menu list
 TODO: The menu commands
 
 # Custom sheets
+
 /selection_alias list
 /selection_alias remove
 /selection_alias rename
@@ -707,6 +746,7 @@ TODO: The menu commands
 /selection_alias add <type>
 
 # Spy sheets
+
 -> Linked under Blitzes / Espionage on guild page
 /sheets_milcom convertHidudeSpySheet
 /sheets_milcom convertTKRSpySheet
@@ -721,6 +761,7 @@ TODO: The menu commands
 /mail targets
 
 # Blitzes
+
 -> Linked under BLitzes / Espionage on guild page
 TODO:
 /war sheet blitzSheet
@@ -729,6 +770,7 @@ TODO:
 /mail targets
 
 ## Target finder
+
 TODO: Link embed panel
 /war find blitztargets
 /spy find intel
@@ -743,9 +785,12 @@ TODO: Link embed panel
 /war find unprotected
 
 # Unsorted
+
 -- Actually useful ---
 /embassy
+
 ---
+
 /nation sheet NationSheet
 /bank stats weeklyInterest
 /fun say
@@ -754,6 +799,7 @@ TODO: Link embed panel
 /modal create
 
 # War Sim
+
 /simulate air
 /simulate casualties
 /simulate fastBeige
@@ -761,6 +807,7 @@ TODO: Link embed panel
 /simulate naval
 
 # Trade utilities
+
 -> Link to nation trading page
 -> Link to trade alerts
 /trade average
@@ -778,16 +825,16 @@ TODO: Link embed panel
 /trade volume
 /trade volumebyday
 
-
 # unused, report loan
+
 /report loan add
 /report loan purge
 /report loan remove
 /report loan sheet
 /report loan update
 
-
 # GPT - unused
+
 /chat conversion delete
 /chat conversion list
 /chat conversion pause
@@ -804,6 +851,7 @@ TODO: Link embed panel
 /chat providers set
 
 # Unused trade offers
+
 /trade offer buy
 /trade offer buy_list
 /trade offer delete
@@ -812,34 +860,5 @@ TODO: Link embed panel
 /trade offer sell
 /trade offer sell_list
 /trade offer update
-
-AttackType
-AuditType
-Ban
-Bounty
-Building
-City
-Conflict
-Continent
-Guild
-GuildSetting
-IAttack
-MilitaryUnit
-NationColor
-NationList
-NationOrAlliance
-Project
-ResourceType
-TaxBracket
-TaxDeposit
-TextChannel
-Trade
-Transaction
-Treasure
-Treaty
-TreatyType
-User
-War
-
 
 ---

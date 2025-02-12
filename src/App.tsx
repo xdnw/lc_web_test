@@ -33,7 +33,7 @@ import {ColTierGraph} from "./pages/graphs/col_tier_graph";
 import {ParamEditGraph} from "./pages/graphs/edit_graph";
 import {ParamViewGraph} from "./pages/graphs/view_graph";
 import DndTest from "./components/dnd/dnd";
-import Alliance from "./pages/alliance";
+import Alliance from "./pages/a2/alliance";
 
 const tagManagerArgs = {
   gtmId: 'G-4J3KV26E2Z'
