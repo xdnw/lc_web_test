@@ -1,6 +1,6 @@
 import {COMMANDS} from "../../lib/commands";
 import {ObjectColumnRender} from "datatables.net";
-import {commafy, formatSi} from "../../utils/StringUtil";
+import {commafy, formatSi, split} from "../../utils/StringUtil";
 import ReactDOMServer from 'react-dom/server';
 import {IOptionData} from "../../utils/Command";
 import React, {ReactNode} from "react";
@@ -40,9 +40,22 @@ export function graph(value: WebGraph): ReactNode {
 }
 
 export function autoMarkdown(value: string): string {
-    if (value === undefined) return value;
+    if (!value) return value;
     const openBracketIndex = value.indexOf("[");
-    if (openBracketIndex !== 0) return value;
+    if (openBracketIndex !== 0) {
+        // if first char is =
+        if (value[0] === "=" && value.startsWith("=HYPERLINK(")) {
+            const closeParenIndex = value.indexOf(")", 11);
+            const remaining = value.slice(11, closeParenIndex);
+            if (closeParenIndex === value.length - 1) {
+                const s2 = split(remaining, ",");
+                if (s2.length === 2) {
+                    return `<a href="${s2[0].trim().replace(/^"|"$/g, '')}">${s2[1].trim().replace(/^"|"$/g, '')}</a>`;
+                }
+            }
+        }
+        return value;
+    }
 
     const closeBracketIndex = value.indexOf("]", openBracketIndex);
     if (closeBracketIndex <= openBracketIndex) return value;
