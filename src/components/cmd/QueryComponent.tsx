@@ -1,7 +1,7 @@
 import ListComponent from "./ListComponent";
 import {INPUT_OPTIONS} from "@/components/api/endpoints.tsx";
-import {useData, useRegisterMultipleQueries, useRegisterQuery} from "./DataContext";
-import {WebOptions, WebSession} from "../api/apitypes";
+import {useData, useRegisterMultipleQueries} from "./DataContext";
+import {WebOptions} from "../api/apitypes";
 import {useRef} from "react";
 
 export default function QueryComponent(
@@ -45,7 +45,6 @@ function combineAndLabelData(data: WebOptions[], queryIds: number[]): {label: st
     return labelled.flat();
 }
 
-// useRegisterMultipleQueries will call useRegisterQuery(INPUT_OPTIONS.endpoint.name, {type: element}, INPUT_OPTIONS.endpoint.cache) for each element in composite
 export function CompositeQueryComponent(
     {composites, multi, argName, initialValue, setOutputValue}:
     {
@@ -71,10 +70,6 @@ export function CompositeQueryComponent(
     return <CombinedCompositeComponent data={data} queryIds={queryIds} multi={multi} argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
 }
 
-// const combined = useRef(combineAndLabelData(data, queryIds));
-//
-//     return <ListComponent argName={argName} options={combined.current} isMulti={multi} initialValue={initialValue}
-//                           setOutputValue={setOutputValue}/>
 function CombinedCompositeComponent(
     {data, queryIds, argName, multi, initialValue, setOutputValue}:
     {

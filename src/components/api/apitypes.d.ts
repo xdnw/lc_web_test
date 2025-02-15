@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-01-22 05:10:25.
+// Generated using typescript-generator version 3.2.1263 on 2025-02-14 17:26:22.
 
 export interface CoalitionGraph {
     name: string;
@@ -275,6 +275,34 @@ export interface TaxExpenses {
     requireTagged: boolean;
 }
 
+export interface MultiResult {
+    network: { [index: string]: NetworkRow };
+    trade: SameNetworkTrade[];
+    nationId: number;
+    dateFetched: number;
+    bans: { [index: string]: string };
+    nationNames: { [index: string]: string };
+    allianceNames: { [index: string]: string };
+}
+
+export interface NetworkRow {
+    id: number;
+    lastAccessFromSharedIP: number;
+    numberOfSharedIPs: number;
+    lastActiveMs: number;
+    allianceId: number;
+    dateCreated: number;
+}
+
+export interface SameNetworkTrade {
+    sellingNation: number;
+    buyingNation: number;
+    dateOffered: number;
+    resource: ResourceType;
+    amount: number;
+    ppu: number;
+}
+
 export interface WebTaxBracket {
     taxId: number;
     dateFetched: number;
@@ -293,3 +321,5 @@ export type NationColor = "AQUA" | "BEIGE" | "BLACK" | "BLUE" | "BROWN" | "GRAY"
 export type TimeFormat = "NUMERIC" | "DECIMAL_ROUNDED" | "SI_UNIT" | "TURN_TO_DATE" | "DAYS_TO_DATE" | "MILLIS_TO_DATE" | "SECONDS_TO_DATE";
 
 export type TableNumberFormat = "SI_UNIT" | "PERCENTAGE_ONE" | "PERCENTAGE_100" | "DECIMAL_ROUNDED";
+
+export type ResourceType = "MONEY" | "CREDITS" | "FOOD" | "COAL" | "OIL" | "URANIUM" | "LEAD" | "IRON" | "BAUXITE" | "GASOLINE" | "MUNITIONS" | "STEEL" | "ALUMINUM";

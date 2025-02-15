@@ -1,3 +1,20 @@
+/**
+ * MyTable - raw table wrapper that accepts data and column info
+ * CustomTable - No args, page view of custom tables
+ * TableWithButtons
+ * StaticTable - Memoized TableWithButtons
+ * PlaceholderTabs - Buttons for placeholders
+ *
+ * getTypeFromUrl - parse the types from query string
+ * getSelectionFromUrl - parse the types from query string
+ * getColumnsFromUrl - parse the types from query string
+ * getSortFromUrl - parse the types from query string
+ * getUrl - get a full url from the type values
+ * getQueryString - get the query string from the type values
+ *
+
+ */
+
 import React, {ReactNode, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import DataTable, { DataTableRef } from 'datatables.net-react';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
@@ -483,51 +500,7 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
                       setRerender={setRerender}
                 />
             }
-            <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="me-1">Export</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadTable(table.current!.dt() as Api, false, ExportTypes.CSV))}>
-                        <kbd className="bg-accent rounded flex items-center space-x-1"><Download className="h-4 w-4" /> <span>,</span></kbd>&nbsp;Download CSV
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadTable(table.current!.dt() as Api, true, ExportTypes.CSV))}>
-                        <kbd className="bg-accent rounded flex items-center space-x-1"><ClipboardIcon className="h-4 w-4" /> <span>,</span></kbd>&nbsp;Copy CSV
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadTable(table.current!.dt() as Api, false, ExportTypes.TSV))}>
-                        <kbd className="bg-accent rounded flex items-center space-x-1"><Download className="h-4 w-3" /><ArrowRightToLine className="h-4 w-3" /></kbd>&nbsp;Download TSV
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadTable(table.current!.dt() as Api, true, ExportTypes.TSV))}>
-                        <kbd className="bg-accent rounded flex items-center space-x-1"><ClipboardIcon className="h-4 w-3" /><ArrowRightToLine className="h-4 w-3" /></kbd>&nbsp;Copy TSV
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer" onClick={() => {
-                        const body = <>
-                            <ol className="list-decimal list-inside">
-                                <li className="bg-accent/20 mb-1 p-1 border-primary/5 border-2 rounded">
-                                    Set the google sheet tab name as the selection:<br/>
-                                    <CopyToClipboard
-                                        text={`${toPlaceholderName(type.current)}:${selection.current}`}/>
-                                </li>
-                                <li className="bg-accent/20 mb-1 p-1 border-primary/5 border-2 rounded">
-                                    Set the columns as the first row of cells in the sheet tab:<br/>
-                                    <CopyToClipboard
-                                        text={`${Array.from(columns.current.keys()).join("\t")}`}/>
-                                </li>
-                                <li className="bg-accent/20 mb-1 p-1 border-primary/5 border-2 rounded">
-                                    Run the discord command, with the sheet url, to autofill the remaining
-                                    cells:<br/>
-                                    <CopyToClipboard
-                                        text={`/sheet_custom auto`}/>
-                                </li>
-                            </ol>
-                        </>
-                        showDialog("Creating custom google sheets", body)
-                    }}>
-                        <kbd className="bg-accent rounded flex items-center space-x-1"><Sheet className="h-4 w-6" /></kbd>
-                        &nbsp;Google Sheets
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+            <TableExports table={table} type={type} selection={selection} columns={columns} />
             <Button
                 variant="outline"
                 size="sm"
@@ -576,6 +549,93 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
     );
 }
 
+// function updateTable({table, columns, data: renderers}: {table: DataTableRef, columns: string[], data: (string | number | number[])[][], renderers?: (string | undefined)[]}) {
+//     const api = table.current!.dt() as Api;
+//     api.clear();
+//     api.columns().remove();
+//
+// }
+
+export function TableWith2DData({ columns, data, renderers, sort }: { columns: string[], data: (string | number | number[])[][], renderers?: (string | undefined)[], sort?: OrderIdx | OrderIdx[] }) {
+    const table = null;
+    const sort2 = useRef<OrderIdx | OrderIdx[]>(sort ?? {idx: 0, dir: "asc"});
+    const dataRef = data;
+    const visibleColumns = Array.from(Array(data.length).keys());
+    const searchSet = new Set<number>();
+    const columnsInfo = columns.map((col, index) => ({
+        title: col,
+        data: index,
+        render: renderers && renderers[index] ? getRenderer(renderers[index] as string) : undefined
+    }));
+    return useMemo(() => (
+        <>
+            <TableExports table={{ current: table }} />
+            <MyTable
+                table={{ current: table }}
+                data={{ current: dataRef }}
+                columnsInfo={{ current: columnsInfo }}
+                sort={sort2}
+                searchSet={{ current: searchSet }}
+                visibleColumns={{ current: visibleColumns }}
+            />
+        </>
+    ), [data]);
+}
+export function TableExports({table, type, selection, columns}: {
+    table: React.RefObject<DataTableRef>,
+    type?: React.MutableRefObject<string>,
+    selection?: React.MutableRefObject<string>,
+    columns?: React.MutableRefObject<Map<string, string | null>>,
+}) {
+    const { showDialog } = useDialog();
+
+    return <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="me-1">Export</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+            <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadTable(table.current!.dt() as Api, false, ExportTypes.CSV))}>
+                <kbd className="bg-accent rounded flex items-center space-x-1"><Download className="h-4 w-4" /> <span>,</span></kbd>&nbsp;Download CSV
+            </DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadTable(table.current!.dt() as Api, true, ExportTypes.CSV))}>
+                <kbd className="bg-accent rounded flex items-center space-x-1"><ClipboardIcon className="h-4 w-4" /> <span>,</span></kbd>&nbsp;Copy CSV
+            </DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadTable(table.current!.dt() as Api, false, ExportTypes.TSV))}>
+                <kbd className="bg-accent rounded flex items-center space-x-1"><Download className="h-4 w-3" /><ArrowRightToLine className="h-4 w-3" /></kbd>&nbsp;Download TSV
+            </DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadTable(table.current!.dt() as Api, true, ExportTypes.TSV))}>
+                <kbd className="bg-accent rounded flex items-center space-x-1"><ClipboardIcon className="h-4 w-3" /><ArrowRightToLine className="h-4 w-3" /></kbd>&nbsp;Copy TSV
+            </DropdownMenuItem>
+            {type && selection && columns && <DropdownMenuItem className="cursor-pointer" onClick={() => {
+                const body = <>
+                    <ol className="list-decimal list-inside">
+                        <li className="bg-accent/20 mb-1 p-1 border-primary/5 border-2 rounded">
+                            Set the google sheet tab name as the selection:<br/>
+                            <CopyToClipboard
+                                text={`${toPlaceholderName(type.current)}:${selection.current}`}/>
+                        </li>
+                        <li className="bg-accent/20 mb-1 p-1 border-primary/5 border-2 rounded">
+                            Set the columns as the first row of cells in the sheet tab:<br/>
+                            <CopyToClipboard
+                                text={`${Array.from(columns.current.keys()).join("\t")}`}/>
+                        </li>
+                        <li className="bg-accent/20 mb-1 p-1 border-primary/5 border-2 rounded">
+                            Run the discord command, with the sheet url, to autofill the remaining
+                            cells:<br/>
+                            <CopyToClipboard
+                                text={`/sheet_custom auto`}/>
+                        </li>
+                    </ol>
+                </>
+                showDialog("Creating custom google sheets", body)
+            }}>
+                <kbd className="bg-accent rounded flex items-center space-x-1"><Sheet className="h-4 w-6" /></kbd>
+                &nbsp;Google Sheets
+            </DropdownMenuItem>}
+        </DropdownMenuContent>
+    </DropdownMenu>
+}
+
 function formatColName(str: string): string {
     if (str.includes("{")) {
         for (const prefix of STRIP_PREFIXES) {
@@ -608,11 +668,6 @@ function setTableVars(
     const header: string[] = columns.current.size > 0 ? Array.from(columns.current).map(([key, value]) => value ?? key) : newData.cells[0] as string[];
     const body = newData.cells.slice(1);
     const renderFuncNames = newData.renderers;
-
-    // // iterate columns and print their name / renderFuncNames
-    // for (let i = 0; i < header.length; i++) {
-    //     console.log(`Column ${i}: ${header[i]} - ${renderFuncNames ? renderFuncNames[i] : "no render func"}`);
-    // }
     const newColumnsInfo: ConfigColumns[] = header.map((col: string, index: number) => ({
         title: formatColName(col),
         data: index,
@@ -814,26 +869,8 @@ export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColum
                     }
                 } as (row: Node, data: (string | number)[] | object, index: number) => void,
             }}
-            className="display table-auto divide-y w-full border-separate border-spacing-y-1 text-xs compact"/>
+            className="display table-auto divide-y w-full border-separate border-spacing-y-1 text-xs compact font-mono"/>
     );
-}
-
-export function PlaceholderTable({type, selection, columns, sort}: { type: string, selection: string, columns: (string | [string, string])[], sort: OrderIdx | OrderIdx[] }) {
-    const typeRef = useRef<string>(type);
-    const selectionRef = useRef<string>(selection);
-    const columnsRef = useRef<Map<string, string | null>>(new Map(columns.map(col => {
-        if (Array.isArray(col)) {
-            return [col[0], col[1]];
-        } else {
-            return [col, null];
-        }
-    })));
-    const sortRef = useRef<OrderIdx | OrderIdx[]>(sort);
-    return (
-        <>
-        <TableWithButtons columns={columnsRef} selection={selectionRef} type={typeRef} sort={sortRef} load={true} />
-        </>
-    )
 }
 
 function getColOptions(type: string): [string, string][] {

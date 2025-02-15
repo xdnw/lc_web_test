@@ -4,7 +4,7 @@ import '@/pages/command/discord.css';
 import {markup} from "../../lib/discord";
 import { Button } from './button';
 import {WebGraph} from "../api/apitypes";
-import {ButtonInfoCmd, ButtonInfoHref} from "../api/apitypes2";
+import {ButtonInfoCmd, ButtonInfoHref} from "../api/internaltypes";
 import { ThemedChart} from "../../pages/graphs/SimpleChart";
 import {Link} from "react-router-dom";
 import {commandButtonAction} from "../../pages/command";

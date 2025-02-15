@@ -14,11 +14,16 @@ export const RENDERERS: {[key: string]: ObjectColumnRender | undefined} = {
     comma: {display: formatSi},
     color: {display: color},
     time: {display: time},
+    time_ms: {display: time_ms},
     normal: {display: autoMarkdown},
     text: undefined,
     json: {display: json},
     graph: {display: Object.assign(graph, {isHtml: true})},
-    // TODO other renderers
+    html: {display: html}
+}
+
+export function html(value: string) {
+    return value;
 }
 
 export function isHtmlRenderer(type: ObjectColumnRender): boolean {
@@ -78,7 +83,13 @@ export function getRenderer(type: string): ObjectColumnRender | undefined {
 }
 
 export function time(t: number): string {
-    return new Date(t * 1000).toLocaleString();
+    const date = new Date(t * 1000);
+    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+}
+
+export function time_ms(t: number): string {
+    const date = new Date(t);
+    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
 }
 
 export function money(f: number): string {

@@ -160,6 +160,13 @@ const si = [
   { value: 1E3, symbol: "k" }
 ];
 
+export function formatTimeRelative(x: number, maxwords: number) {
+  const now = Date.now();
+  const diff = (now - x) / 1000;
+  if (diff === 0) return "just now";
+  return diff > 0 ? formatDuration(diff, maxwords) + " ago" : "in " + formatDuration(-diff, maxwords);
+}
+
 export function formatDuration(x: number, maxWords: number): string {
   const units = [
     { label: 'y', value: 31536000 },

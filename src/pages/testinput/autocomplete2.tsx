@@ -3,7 +3,7 @@ import "@webscopeio/react-textarea-autocomplete/style.css";
 import { Button } from "@/components/ui/button.tsx";
 import {COMMAND_MAP} from "@/utils/Command";
 import {ICommand} from "../../utils/Command";
-import { ItemType } from "@/components/api/apitypes2";
+import { ItemType } from "@/components/api/internaltypes";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 
 export default function AutoComplete2() {

@@ -1217,6 +1217,33 @@ export const WARATTACKSBYDAY: CommonEndpoint<ApiTypes.WebGraph, {nations?: strin
     }
 };
 
+export const MULTI_BUSTER: CommonEndpoint<ApiTypes.MultiResult, {nation?: string, forceUpdate?: string}, {nation?: string, forceUpdate?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.MultiResult>(
+        "multi_buster",
+        "multi_buster",
+        {"nation":{"name":"nation","type":"DBNation"},"forceUpdate":{"name":"forceUpdate","optional":true,"type":"Boolean"}},
+        (data: unknown) => data as ApiTypes.MultiResult,
+        {},
+        "MultiResult"
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {nation?: string, forceUpdate?: string}, render: (data: ApiTypes.MultiResult) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(MULTI_BUSTER.endpoint.name, combine(MULTI_BUSTER.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {nation?: string, forceUpdate?: string},
+        showArguments?: string[],
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.MultiResult) => void,
+        handle_submit?: (args: {nation?: string, forceUpdate?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(MULTI_BUSTER.endpoint.url, MULTI_BUSTER.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
 export const VIEW_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebAnnouncement, {ann_id?: string}, {ann_id?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebAnnouncement>(
         "view_announcement",
@@ -1514,4 +1541,4 @@ export const UNSET_GUILD: CommonEndpoint<ApiTypes.WebSuccess, Record<string, nev
     }
 };
 
-export const ENDPOINTS = [WARSCOSTRANKINGBYDAY, GLOBALSTATS, TABLE, ALLIANCEMETRICSAB, COMPARESTATS, NTHBEIGELOOTBYSCORERANGE, ALLIANCESDATABYDAY, MARK_ALL_READ, WARCOSTSBYDAY, ALLIANCESTATS, SET_TOKEN, SESSION, BALANCE, ORBISSTATBYDAY, UNREAD_ANNOUNCEMENT, REGISTER, COMPARETIERSTATS, ALLIANCEMETRICSCOMPAREBYTURN, GLOBALTIERSTATS, BANK_ACCESS, TRADEVOLUMEBYDAY, ANNOUNCEMENTS, UNREGISTER, RAID, READ_ANNOUNCEMENT, TAX_EXPENSE, ALLIANCEMETRICSBYTURN, RADIATIONSTATS, COMPARESTOCKPILEVALUEBYDAY, MILITARIZATIONTIME, INPUT_OPTIONS, TRADEPRICEBYDAY, LOGIN_MAIL, TRADEMARGINBYDAY, MY_WARS, MY_AUDITS, RECORDS, LOGOUT, SCORETIERGRAPH, SPYTIERGRAPH, STRENGTHTIERGRAPH, UNREAD_COUNT, SET_OAUTH_CODE, ANNOUNCEMENT_TITLES, WARATTACKSBYDAY, VIEW_ANNOUNCEMENT, SET_GUILD, METRICBYGROUP, CITYTIERGRAPH, UNPROTECTED, TRADEPRICEBYDAYJSON, WITHDRAW, TRADETOTALBYDAY, TEST, QUERY, UNSET_GUILD];
+export const ENDPOINTS = [WARSCOSTRANKINGBYDAY, GLOBALSTATS, TABLE, ALLIANCEMETRICSAB, COMPARESTATS, NTHBEIGELOOTBYSCORERANGE, ALLIANCESDATABYDAY, MARK_ALL_READ, WARCOSTSBYDAY, ALLIANCESTATS, SET_TOKEN, SESSION, BALANCE, ORBISSTATBYDAY, UNREAD_ANNOUNCEMENT, REGISTER, COMPARETIERSTATS, ALLIANCEMETRICSCOMPAREBYTURN, GLOBALTIERSTATS, BANK_ACCESS, TRADEVOLUMEBYDAY, ANNOUNCEMENTS, UNREGISTER, RAID, READ_ANNOUNCEMENT, TAX_EXPENSE, ALLIANCEMETRICSBYTURN, RADIATIONSTATS, COMPARESTOCKPILEVALUEBYDAY, MILITARIZATIONTIME, INPUT_OPTIONS, TRADEPRICEBYDAY, LOGIN_MAIL, TRADEMARGINBYDAY, MY_WARS, MY_AUDITS, RECORDS, LOGOUT, SCORETIERGRAPH, SPYTIERGRAPH, STRENGTHTIERGRAPH, UNREAD_COUNT, SET_OAUTH_CODE, ANNOUNCEMENT_TITLES, WARATTACKSBYDAY, MULTI_BUSTER, VIEW_ANNOUNCEMENT, SET_GUILD, METRICBYGROUP, CITYTIERGRAPH, UNPROTECTED, TRADEPRICEBYDAYJSON, WITHDRAW, TRADETOTALBYDAY, TEST, QUERY, UNSET_GUILD];

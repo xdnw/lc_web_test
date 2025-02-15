@@ -2,6 +2,7 @@ import React, { useCallback, createContext, useContext, useEffect, useState, Rea
 import Cookies from "js-cookie";
 import {UNPACKR} from "@/lib/utils.ts";
 import {CommonEndpoint} from "../api/endpoint";
+import {deepEqual} from "../../lib/utils";
 type DataProviderProps = {
     children: ReactNode;
     endpoint: string;
@@ -78,6 +79,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
             queries.current.push([name, newQueryData]);
             if (newQueryRef.current == lastQuery.current) {
                 newQueryRef.current++;
+                setLoading(true);
                 setRerender(!rerender);
             }
         }
@@ -267,20 +269,23 @@ export const useRegisterQuery = (name: string,
                                  query: { [key: string]: string | string[] },
                                  cache: { cache_type: CacheType, duration?: number, cookie_id: string } | undefined = undefined): [number, React.Dispatch<React.SetStateAction<number>>] => {
     const { registerQuery } = useData();
-    const hasRun = useRef(false);
+    const hasRun = useRef<{ hasRun: boolean, query?: { [key: string]: string | string[] } }>({ hasRun: false });
     const [queryId, setQueryId] = useState(-1);
 
     useEffect(() => {
-        if (!hasRun.current) {
+        if (!hasRun.current.hasRun) {
             const val = registerQuery(name, query, cache);
             setQueryId(val);
-            hasRun.current = true;
+            hasRun.current = { hasRun: true, query };
+        } else if (!deepEqual(query, hasRun.current.query)) {
+            const val = registerQuery(name, query, cache);
+            setQueryId(val);
+            hasRun.current.query = query;
         }
-    }, []);
+    }, [name, query, cache, registerQuery]);
 
     return [queryId, setQueryId];
 };
-
 export function useRegisterMultipleQueries<T, U extends { [key: string]: string | string[] | undefined }, V extends { [key: string]: string | string[] | undefined; }>(
     composites: string[],
     endpoint: CommonEndpoint<T, U, V>,
