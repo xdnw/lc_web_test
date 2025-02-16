@@ -36,7 +36,7 @@ class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapper
 
     shouldComponentUpdate(nextProps: LoadingWrapperProps<T>, nextState: LoadingWrapperState<T>) {
         if (nextProps.loading !== this.props.loading) {
-            console.log("RENDER BECAUSE LOADING", this.props.index);
+            console.log("RENDER BECAUSE LOADING", this.props.index + " | " + nextProps.loading);
             return true;
         }
         if (nextProps.error !== this.props.error) {

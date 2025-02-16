@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-02-14 17:26:22.
+// Generated using typescript-generator version 3.2.1263 on 2025-02-16 17:21:29.
 
 export interface CoalitionGraph {
     name: string;
@@ -301,6 +301,45 @@ export interface SameNetworkTrade {
     resource: ResourceType;
     amount: number;
     ppu: number;
+}
+
+export interface AdvMultiReport {
+    nationId: number;
+    nation: string;
+    allianceId: number;
+    alliance: string;
+    age: number;
+    cities: number;
+    discord: string;
+    discord_linked: boolean;
+    irl_verified: boolean;
+    customization: number;
+    banned: boolean;
+    lastActive: number;
+    percentOnline: number;
+    dateFetched: number;
+    rows: AdvMultiRow[];
+}
+
+export interface AdvMultiRow {
+    id: number;
+    Nation: string;
+    alliance_id: number;
+    alliance: string;
+    age: number;
+    cities: number;
+    shared_ips: number;
+    shared_percent: number;
+    shared_nation_percent: number;
+    same_ip: boolean;
+    banned: boolean;
+    login_diff: number;
+    same_activity_percent: number;
+    percentOnline: number;
+    discord: string;
+    discord_linked: boolean;
+    irl_verified: boolean;
+    customization: number;
 }
 
 export interface WebTaxBracket {

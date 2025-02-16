@@ -6,19 +6,20 @@ import Timestamp from "../../../components/ui/timestamp";
 import React from "react";
 import { Button } from "@/components/ui/button";
 
+export function renderLink(id: number, name: string | number, type: 'nation' | 'alliance', banned: string | undefined, path?: string) {
+    if (id == 0) return "None";
+    if (id == -1) return "N/A";
+    if (!name) name = type + ":" + id;
+    if (type == 'nation') {
+        if (banned) {
+            name = "&#x3C;&#x3C;BANNED&#x3E;&#x3E; " + name;
+        }
+    }
+    return path === undefined ? `[${name}](https://politicsandwar.com/${type}/id=${id})` : `[${name}](${process.env.BASE_PATH}#/${path}/${id})`;
+}
+
 export default function MultiBuster() {
     const { nation } = useParams<{ nation: string }>();
-
-    const renderLink = (id: number, name: string | number, type: 'nation' | 'alliance', banned: string | undefined) => {
-        if (id == 0) return "None";
-        if (id == -1) return "N/A";
-        if (type == 'nation') {
-            if (banned) {
-                return `[${name} - BANNED](${process.env.BASE_PATH}#/multi/${id})`;
-            }
-        }
-        return type == 'nation' ? `[${name}](${process.env.BASE_PATH}#/multi/${id})` : `[${name}](https://politicsandwar.com/${type}/id=${id})`;
-    };
 
     return <>
         {MULTI_BUSTER.useDisplay({
@@ -30,11 +31,11 @@ export default function MultiBuster() {
                 const networkColumns = ["ID", "Last Access From Shared IP", "Number Of Shared IPs", "Last Active Ms", "Alliance ID", "Date Created"];
                 const networkRenderers = ["normal", 'time_ms', 'comma', 'time_ms', "normal", 'time_ms'];
                 const networkData = Object.values(newData.network).map((row) => [
-                    renderLink(row.id, newData.nationNames[row.id] ?? row.id, 'nation', newData.bans[row.id]),
+                    renderLink(row.id, newData.nationNames[row.id] ?? row.id, 'nation', newData.bans[row.id], "multi"),
                     row.lastAccessFromSharedIP,
                     row.numberOfSharedIPs,
                     row.lastActiveMs,
-                    renderLink(row.allianceId, newData.allianceNames[row.allianceId] ?? row.allianceId, 'alliance', undefined),
+                    renderLink(row.allianceId, newData.allianceNames[row.allianceId] ?? row.allianceId, 'alliance', undefined, undefined),
                     row.dateCreated
                 ]);
 

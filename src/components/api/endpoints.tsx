@@ -272,33 +272,6 @@ export const ALLIANCESTATS: CommonEndpoint<ApiTypes.WebGraph, {metrics?: string,
     }
 };
 
-export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token?: string}, {token?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
-        "set_token",
-        "set_token",
-        {"token":{"name":"token","type":"UUID"}},
-        (data: unknown) => data as ApiTypes.WebSuccess,
-        {},
-        "WebSuccess"
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {token?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(SET_TOKEN.endpoint.name, combine(SET_TOKEN.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {token?: string},
-        showArguments?: string[],
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccess) => void,
-        handle_submit?: (args: {token?: string}) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(SET_TOKEN.endpoint.url, SET_TOKEN.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
 export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>, Record<string, never>> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSession>(
         "session",
@@ -323,6 +296,33 @@ export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>,
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(SESSION.endpoint.url, SESSION.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token?: string}, {token?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
+        "set_token",
+        "set_token",
+        {"token":{"name":"token","type":"UUID"}},
+        (data: unknown) => data as ApiTypes.WebSuccess,
+        {},
+        "WebSuccess"
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {token?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(SET_TOKEN.endpoint.name, combine(SET_TOKEN.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {token?: string},
+        showArguments?: string[],
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebSuccess) => void,
+        handle_submit?: (args: {token?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(SET_TOKEN.endpoint.url, SET_TOKEN.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 
@@ -1325,6 +1325,33 @@ export const METRICBYGROUP: CommonEndpoint<ApiTypes.WebGraph, {metrics?: string,
     }
 };
 
+export const MULTI_V2: CommonEndpoint<ApiTypes.AdvMultiReport, {nation?: string, forceUpdate?: string}, {nation?: string, forceUpdate?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.AdvMultiReport>(
+        "multi_v2",
+        "multi_v2",
+        {"nation":{"name":"nation","type":"DBNation"},"forceUpdate":{"name":"forceUpdate","optional":true,"type":"Boolean"}},
+        (data: unknown) => data as ApiTypes.AdvMultiReport,
+        {},
+        "AdvMultiReport"
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {nation?: string, forceUpdate?: string}, render: (data: ApiTypes.AdvMultiReport) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(MULTI_V2.endpoint.name, combine(MULTI_V2.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {nation?: string, forceUpdate?: string},
+        showArguments?: string[],
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.AdvMultiReport) => void,
+        handle_submit?: (args: {nation?: string, forceUpdate?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(MULTI_V2.endpoint.url, MULTI_V2.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
 export const CITYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1?: string, coalition2?: string, includeInactives?: string, barGraph?: string, includeApplicants?: string, snapshotDate?: string}, {coalition1?: string, coalition2?: string, includeInactives?: string, barGraph?: string, includeApplicants?: string, snapshotDate?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "citytiergraph",
@@ -1541,4 +1568,4 @@ export const UNSET_GUILD: CommonEndpoint<ApiTypes.WebSuccess, Record<string, nev
     }
 };
 
-export const ENDPOINTS = [WARSCOSTRANKINGBYDAY, GLOBALSTATS, TABLE, ALLIANCEMETRICSAB, COMPARESTATS, NTHBEIGELOOTBYSCORERANGE, ALLIANCESDATABYDAY, MARK_ALL_READ, WARCOSTSBYDAY, ALLIANCESTATS, SET_TOKEN, SESSION, BALANCE, ORBISSTATBYDAY, UNREAD_ANNOUNCEMENT, REGISTER, COMPARETIERSTATS, ALLIANCEMETRICSCOMPAREBYTURN, GLOBALTIERSTATS, BANK_ACCESS, TRADEVOLUMEBYDAY, ANNOUNCEMENTS, UNREGISTER, RAID, READ_ANNOUNCEMENT, TAX_EXPENSE, ALLIANCEMETRICSBYTURN, RADIATIONSTATS, COMPARESTOCKPILEVALUEBYDAY, MILITARIZATIONTIME, INPUT_OPTIONS, TRADEPRICEBYDAY, LOGIN_MAIL, TRADEMARGINBYDAY, MY_WARS, MY_AUDITS, RECORDS, LOGOUT, SCORETIERGRAPH, SPYTIERGRAPH, STRENGTHTIERGRAPH, UNREAD_COUNT, SET_OAUTH_CODE, ANNOUNCEMENT_TITLES, WARATTACKSBYDAY, MULTI_BUSTER, VIEW_ANNOUNCEMENT, SET_GUILD, METRICBYGROUP, CITYTIERGRAPH, UNPROTECTED, TRADEPRICEBYDAYJSON, WITHDRAW, TRADETOTALBYDAY, TEST, QUERY, UNSET_GUILD];
+export const ENDPOINTS = [WARSCOSTRANKINGBYDAY, GLOBALSTATS, TABLE, ALLIANCEMETRICSAB, COMPARESTATS, NTHBEIGELOOTBYSCORERANGE, ALLIANCESDATABYDAY, MARK_ALL_READ, WARCOSTSBYDAY, ALLIANCESTATS, SESSION, SET_TOKEN, BALANCE, ORBISSTATBYDAY, UNREAD_ANNOUNCEMENT, REGISTER, COMPARETIERSTATS, ALLIANCEMETRICSCOMPAREBYTURN, GLOBALTIERSTATS, BANK_ACCESS, TRADEVOLUMEBYDAY, ANNOUNCEMENTS, UNREGISTER, RAID, READ_ANNOUNCEMENT, TAX_EXPENSE, ALLIANCEMETRICSBYTURN, RADIATIONSTATS, COMPARESTOCKPILEVALUEBYDAY, MILITARIZATIONTIME, INPUT_OPTIONS, TRADEPRICEBYDAY, LOGIN_MAIL, TRADEMARGINBYDAY, MY_WARS, MY_AUDITS, RECORDS, LOGOUT, SCORETIERGRAPH, SPYTIERGRAPH, STRENGTHTIERGRAPH, UNREAD_COUNT, SET_OAUTH_CODE, ANNOUNCEMENT_TITLES, WARATTACKSBYDAY, MULTI_BUSTER, VIEW_ANNOUNCEMENT, SET_GUILD, METRICBYGROUP, MULTI_V2, CITYTIERGRAPH, UNPROTECTED, TRADEPRICEBYDAYJSON, WITHDRAW, TRADETOTALBYDAY, TEST, QUERY, UNSET_GUILD];

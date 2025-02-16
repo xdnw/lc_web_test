@@ -556,7 +556,7 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
 //
 // }
 
-export function TableWith2DData({ columns, data, renderers, sort }: { columns: string[], data: (string | number | number[])[][], renderers?: (string | undefined)[], sort?: OrderIdx | OrderIdx[] }) {
+export function TableWith2DData({ columns, data, renderers, sort }: { columns: string[], data: (string | number | number[] | boolean)[][], renderers?: (string | undefined)[], sort?: OrderIdx | OrderIdx[] }) {
     const table = null;
     const sort2 = useRef<OrderIdx | OrderIdx[]>(sort ?? {idx: 0, dir: "asc"});
     const dataRef = data;
@@ -836,7 +836,7 @@ function getReactSlots(columnsInfo: ConfigColumns[]): { [key: number]: ((data: u
 export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColumns}:
 {
     table: React.RefObject<DataTableRef>,
-    data: React.MutableRefObject<(string | number | number[])[][]>,
+    data: React.MutableRefObject<(string | number | number | boolean[])[][]>,
     columnsInfo: React.MutableRefObject<ConfigColumns[]>,
     sort: React.MutableRefObject<OrderIdx | OrderIdx[]>,
     searchSet: React.MutableRefObject<Set<number>>,

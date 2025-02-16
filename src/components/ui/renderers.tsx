@@ -1,6 +1,6 @@
 import {COMMANDS} from "../../lib/commands";
 import {ObjectColumnRender} from "datatables.net";
-import {commafy, formatSi, split} from "../../utils/StringUtil";
+import {commafy, formatDuration, formatSi, formatTimeRelative, split} from "../../utils/StringUtil";
 import ReactDOMServer from 'react-dom/server';
 import {IOptionData} from "../../utils/Command";
 import React, {ReactNode} from "react";
@@ -15,11 +15,51 @@ export const RENDERERS: {[key: string]: ObjectColumnRender | undefined} = {
     color: {display: color},
     time: {display: time},
     time_ms: {display: time_ms},
+    diff_ms: {display: diff_ms},
     normal: {display: autoMarkdown},
     text: undefined,
     json: {display: json},
     graph: {display: Object.assign(graph, {isHtml: true})},
-    html: {display: html}
+    html: {display: html},
+    duration_day: {display: duration_day},
+    percent_100: {display: percent_100},
+    percent: {display: percent},
+    duration_ms: {display: duration_ms},
+}
+
+export function percent_100(value: number): string {
+    if (value === null || value === undefined) return "N/A";
+    console.log(value);
+    return (value).toFixed(2) + "%";
+}
+
+export function percent(value: number): string {
+    if (value === null || value === undefined) return "N/A";
+    try {
+        console.log(value);
+        return (value * 100).toFixed(2) + "%";
+    } catch (e) {
+        console.error(e);
+        return "N/A2";
+    }
+}
+
+export function diff_ms(t: number): string {
+    return formatTimeRelative(t, 5);
+}
+
+export function duration_day(days: number): string {
+    if (days === null || days === undefined) return "N/A";
+    const seconds = days * 24 * 60 * 60;
+    if (seconds == 0) return '0s';
+    return formatDuration(seconds, 3);
+}
+
+export function duration_ms(ms: number): string {
+    if (ms === null || ms === undefined) return "N/A";
+    const seconds = ms / 1000;
+    if (seconds == 0) return '0s';
+    return formatDuration(seconds, 3);
 }
 
 export function html(value: string) {
@@ -41,6 +81,7 @@ export function graph(value: WebGraph): ReactNode {
 
 export function autoMarkdown(value: string): string {
     if (!value) return value;
+    value = value.toString();
     const openBracketIndex = value.indexOf("[");
     if (openBracketIndex !== 0) {
         // if first char is =

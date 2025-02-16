@@ -35,6 +35,7 @@ import {ParamViewGraph} from "./pages/graphs/view_graph";
 import DndTest from "./components/dnd/dnd";
 import Alliance from "./pages/a2/alliance";
 import MultiBuster from "./pages/a2/nation/multi";
+import MultiV2 from "./pages/a2/nation/multi_2";
 
 const tagManagerArgs = {
   gtmId: 'G-4J3KV26E2Z'
@@ -96,6 +97,7 @@ export default function App() {
           {/*<Route path="/alliance" element={<Alliance />} />*/}
           <Route path="/alliance/:alliance" element={<Alliance />} />
           <Route path="/multi/:nation" element={<MultiBuster />} />
+          <Route path="/multi_v2/:nation" element={<MultiV2 />} />
 
 
           <Route path="/admin" element={<Admin />} />
