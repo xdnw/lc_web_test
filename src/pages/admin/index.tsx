@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { hashWithMD5, loadWeights, toVector } from '@/utils/Embedding';
 import React, { useRef } from 'react';
-import {COMMAND_MAP} from "@/utils/Command.ts";
+import {CM} from "@/utils/Command.ts";
 import {CommandWeights} from "../../utils/Embedding";
 
 export default function Admin() {
@@ -25,7 +25,7 @@ export default function Admin() {
             const weights: CommandWeights = await loadWeights();
             textareaRef.current!.value = JSON.stringify(weights);
 
-            const commands = COMMAND_MAP;
+            const commands = CM;
             const cmdLen = Object.keys(commands).length;
 
             const funcs = Object.entries(commands.getCommands()).map(([name, cmd], i) => async () => {

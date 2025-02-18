@@ -203,7 +203,7 @@ export function UnprotectedButton({options, setRaidOutput, loading, desc, setDes
     });
 }
 
-const ranks: string[] = (((COMMANDS.options["Rank"] as IOptionData).options ?? [])).map((o) => o === "REMOVE" ? "" : o);
+const ranks: string[] = ((COMMANDS.options.Rank.options)).map((o) => o === "REMOVE" ? "" : o);
 
 export function RaidOutput({ output, dismiss }: { output: WebTargets | boolean | string | null, dismiss: () => void }) {
     if (!output) return <></>

@@ -80,7 +80,7 @@ export class Argument {
     }
 
     getMap(): CommandMap {
-        return COMMAND_MAP;
+        return CM;
     }
 
     clone(): Argument {
@@ -89,7 +89,7 @@ export class Argument {
     }
 
     getKeyData(): IKeyData {
-        const result = COMMAND_MAP.data.keys[this.arg.type];
+        const result = CM.data.keys[this.arg.type];
         if (result == null) {
             return {desc: "", examples: null};
         }
@@ -115,14 +115,14 @@ export class Argument {
             options = breakdown.getOptionData();
         }
         if (options != null) {
-            return new OptionData(COMMAND_MAP, options, multi);
+            return new OptionData(CM, options, multi);
         }
-        return new OptionData(COMMAND_MAP, {options: null, query: false, completions: false, guild: false, nation: false, user: false}, false);
+        return new OptionData(CM, {options: null, query: false, completions: false, guild: false, nation: false, user: false}, false);
     }
 
     getTypeBreakdown(): TypeBreakdown {
         if (this.breakdown != null) return this.breakdown;
-        return this.breakdown = getTypeBreakdown(COMMAND_MAP, this.arg.type);
+        return this.breakdown = getTypeBreakdown(CM, this.arg.type);
     }
 }
 
@@ -261,13 +261,92 @@ export type Completion = {
 
 export const STRIP_PREFIXES = ["get", "is", "can", "has"];
 
+export class PlaceholderMap<T extends keyof typeof COMMANDS.placeholders> {
+    name: string;
+    data: typeof COMMANDS.placeholders[T];
+
+    constructor(name: T) {
+        this.name = name;
+        this.data = COMMANDS.placeholders[this.name as T];
+    }
+
+    getCommandsData(): typeof COMMANDS.placeholders[T]['commands'] {
+        return this.data.commands;
+    }
+
+    array(): PlaceholderArrayBuilder<T> {
+        return new PlaceholderArrayBuilder(this.name as T);
+    }
+}
+
+export class PlaceholderArrayBuilder<T extends keyof typeof COMMANDS.placeholders> {
+    private type: T;
+    private data: (string | [string, string])[];
+
+    constructor(type: T) {
+        this.type = type;
+        this.data = [];
+    }
+
+    addRaw(placeholder: string, alias?: string) {
+        if (alias) {
+            this.data.push([placeholder, alias]);
+        } else {
+            this.data.push(placeholder);
+        }
+        return this;
+    }
+    addMultipleRaw(data: (string | [string, string])[]) {
+        this.data.push(...data);
+        return this;
+    }
+
+    // iterate over a provided object and add according to the function
+    add<C extends keyof typeof COMMANDS.placeholders[T]['commands']>(
+        {cmd, args, alias}: {cmd: C,
+            args?: typeof COMMANDS.placeholders[T]['commands'][C] extends { arguments: infer A }
+                ? { [key in keyof A]?: string }
+                : never, alias?: string}
+    ): this {
+        let str;
+        if (args) {
+            str = ("{" + (cmd as string) + "(" + Object.entries(args).map(([key, value]) => key + ": " + (value as string)).join(" ") + ")}");
+        } else {
+            str = ("{" + (cmd as string) + "}");
+        }
+        if (alias) {
+            this.data.push([str, alias]);
+        } else {
+            this.data.push(str);
+        }
+        return this;
+    }
+
+    shorten() {
+        // STRIP_PREFIXES
+        for (let i = 0; i < this.data.length; i++) {
+            const item = this.data[i];
+            if (Array.isArray(item)) continue;
+            this.data[i] = item.replace(/^\{(get|is|can|has)/, "");
+        }
+        return this;
+    }
+
+    build2d() {
+        return this.data;
+    }
+
+    build(): string[] {
+        return this.data.map((item) => Array.isArray(item) ? item.join(";") : item);
+    }
+}
+
 export class CommandMap {
     data: ICommandMap;
     flat: { [key: string]: Command } | null = null;
     ph_flat: {[key: string]: {[key: string]: Command}} = {};
 
     constructor(commands: ICommandMap) {
-        console.log("NEW COMMAND MAP");
         this.data = commands;
     }
 
@@ -301,12 +380,16 @@ export class CommandMap {
         return this.flat;
     }
 
-    getPlaceholderTypes(toSimpleName: boolean): string[] {
+    getPlaceholderTypes(toSimpleName: boolean): Array<keyof typeof COMMANDS.placeholders> {
         const result = Object.keys(this.data.placeholders);
         if (toSimpleName) {
-            return result.map((type) => toPlaceholderName(type));
+            return result.map((type) => toPlaceholderName(type)) as Array<keyof typeof COMMANDS.placeholders>;
         }
-        return result;
+        return result as Array<keyof typeof COMMANDS.placeholders>;
+    }
+
+    placeholders<G extends keyof typeof COMMANDS.placeholders>(type: G): PlaceholderMap<G> {
+        return new PlaceholderMap(type);
     }
 
     get(text: string): Command {
@@ -369,10 +452,10 @@ export class CommandMap {
         };
     }
 
-    getPlaceholderCommand(placeholder_type: string, functionString: string) {
-        const result = this.searchPlaceholders(placeholder_type, functionString);
-        return Object.keys(result.completeMatch).length > 0 ? result.completeMatch[Object.keys(result.completeMatch)[0]] : undefined;
-    }
+    // getPlaceholderCommand(placeholder_type: string, functionString: string) {
+    //     const result = this.searchPlaceholders(placeholder_type, functionString);
+    //     return Object.keys(result.completeMatch).length > 0 ? result.completeMatch[Object.keys(result.completeMatch)[0]] : undefined;
+    // }
 
     getCurrentlyTypingCommand(parent: Command | null, content: string, token: string, caretPosition: number, placeholder_type: string): Completion {
         // find the index of the first non valid function character
@@ -881,7 +964,7 @@ export class TypeBreakdown {
 }
 
 function resolveOptionData(type: string) {
-    const options = COMMAND_MAP.data.options[type];
+    const options = CM.data.options[type];
     if (typeof options === "string") {
         return resolveOptionData(options);
     }
@@ -893,7 +976,7 @@ export function toPlaceholderName(type: string): string {
 }
 
 // Constants
-export const COMMAND_MAP = new CommandMap(COMMANDS);
+export const CM = new CommandMap(COMMANDS as unknown as ICommandMap);
 
 export const COMMAND_BEHAVIOR: {[key: string]: CommandBehavior} = {
     "": "DELETE_MESSAGE",

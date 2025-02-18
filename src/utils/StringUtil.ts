@@ -167,6 +167,22 @@ export function formatTimeRelative(x: number, maxwords: number) {
   return diff > 0 ? formatDuration(diff, maxwords) + " ago" : "in " + formatDuration(-diff, maxwords);
 }
 
+export function joinAndQuote(input: string[], separator: string): string {
+    let result = '';
+    for (let i = 0; i < input.length; i++) {
+        const s = input[i];
+        if (s.includes(separator)) {
+        result += '\u201C' + s + '\u201D';
+        } else {
+        result += s;
+        }
+        if (i < input.length - 1) {
+        result += separator;
+        }
+    }
+    return result;
+}
+
 export function formatDuration(x: number, maxWords: number): string {
   const units = [
     { label: 'y', value: 31536000 },

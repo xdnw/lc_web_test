@@ -1,8 +1,8 @@
 import { useMemo, useRef, useState } from "react";
 import "@webscopeio/react-textarea-autocomplete/style.css";
 import { Button } from "@/components/ui/button.tsx";
-import {COMMAND_MAP} from "@/utils/Command";
-import {ICommand} from "../../utils/Command";
+import {CM} from "@/utils/Command";
+import {ICommand, STRIP_PREFIXES} from "../../utils/Command";
 import { ItemType } from "@/components/api/internaltypes";
 import ReactTextareaAutocomplete from "@webscopeio/react-textarea-autocomplete";
 
@@ -23,12 +23,11 @@ export function AutoComplete2Input(
     const [outputInfo, setOutputInfo] = useState<string>("");
 
     const options = useMemo(() => {
-        const stripPrefixes = ["get", "is", "can", "has"];
-        const obj = COMMAND_MAP.data.placeholders[type].commands;
+        const obj = CM.data.placeholders[type].commands;
         const options: ItemType[] = [];
         for (const [id, command] of Object.entries(obj)) {
             let modifiedId = id;
-            for (const prefix of stripPrefixes) {
+            for (const prefix of STRIP_PREFIXES) {
                 if (modifiedId.startsWith(prefix)) {
                     modifiedId = modifiedId.slice(prefix.length);
                     break;
@@ -63,7 +62,7 @@ export function AutoComplete2Input(
     const onCaretPositionChange = (position: number) => {
         const content = textAreaRef.current?.value as string;
         const token = "";
-        const info = COMMAND_MAP?.getCurrentlyTypingFunction(content, token, position, type);
+        const info = CM?.getCurrentlyTypingFunction(content, token, position, type);
         setOutputInfo(JSON.stringify(info));
     };
   

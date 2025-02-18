@@ -2,12 +2,12 @@ import {COMMANDS} from "../../lib/commands";
 import {ObjectColumnRender} from "datatables.net";
 import {commafy, formatDuration, formatSi, formatTimeRelative, split} from "../../utils/StringUtil";
 import ReactDOMServer from 'react-dom/server';
-import {IOptionData} from "../../utils/Command";
+import {CM, ICommandMap, IOptionData} from "../../utils/Command";
 import React, {ReactNode} from "react";
 import SimpleChart from "../../pages/graphs/SimpleChart.js";
 import {WebGraph} from "../api/apitypes";
 
-const colors: string[] = (COMMANDS.options["NationColor"] as IOptionData).options ?? [];
+const colors: string[] = COMMANDS.options.NationColor.options;
 
 export const RENDERERS: {[key: string]: ObjectColumnRender | undefined} = {
     money: {display: money},
@@ -127,7 +127,7 @@ export function getRenderer(type: string): ObjectColumnRender | undefined {
     if (!type) return undefined;
     if (type.startsWith("enum:")) {
         const enumType = type.split(":")[1];
-        const options = (COMMANDS.options[enumType] as IOptionData)?.options ?? [];
+        const options = (CM.data.options[enumType] as IOptionData)?.options ?? [];
         return Object.assign({
             display: (value: number) => options[value],
         }, {isEnum: true, options: options});

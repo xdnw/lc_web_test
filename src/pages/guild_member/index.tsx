@@ -299,7 +299,7 @@ function BuyUnits({me, mywars}: { me: ApiTypes.WebTarget, mywars: ApiTypes.WebMy
     )
 }
 
-const allBeigeReasons: string[] = (COMMANDS.options["BeigeReason"] as IOptionData).options ?? [];
+const allBeigeReasons: string[] = COMMANDS.options.BeigeReason.options;
 
 export function WarComponent({me, war, isAttacker}: { me: ApiTypes.WebTarget, war: ApiTypes.WebMyWar, isAttacker: boolean }) {
     const now_ms = Date.now();

@@ -1,7 +1,7 @@
 import React, {useCallback, useRef, useState} from 'react';
 import CommandComponent from '../../components/cmd/CommandComponent'; // Import CommandComponent
 import { CommandStoreType, createCommandStore } from '@/utils/StateUtil.ts';
-import {Command, COMMAND_MAP} from '@/utils/Command.ts';
+import {Command, CM} from '@/utils/Command.ts';
 import {useParams} from "react-router-dom";
 import {BlockCopyButton} from "@/components/ui/block-copy-button.tsx";
 import {TooltipProvider} from "@/components/ui/tooltip.tsx";
@@ -14,8 +14,8 @@ import {getCommandAndBehavior} from "../../utils/Command";
 
 export default function CommandPage() {
     const { command } = useParams();
-    const [cmdObj, setCmdObj] = useState<Command | null>(COMMAND_MAP.get(command ?? "") ?? COMMAND_MAP.buildTest());
-    // COMMAND_MAP.cmdBuildTest()
+    const [cmdObj, setCmdObj] = useState<Command | null>(CM.get(command ?? "") ?? CM.buildTest());
+    // CM.cmdBuildTest()
 
     const [initialValues, setInitialValues] = useState<{ [key: string]: string }>({});
     const commandStore = useRef(createCommandStore());

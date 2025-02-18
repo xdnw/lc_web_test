@@ -1,7 +1,8 @@
-import {COMMAND_MAP, ICommand} from '@/utils/Command';
+import {CM, ICommand} from '@/utils/Command';
 import { useState } from 'react';
 import TextInput from 'react-autocomplete-input';
 import 'react-autocomplete-input/dist/bundle.css';
+import {STRIP_PREFIXES} from "../../utils/Command";
 
 export default function AutoComplete() {
     const type = "DBNation";
@@ -18,15 +19,14 @@ export default function AutoComplete() {
 
     return <>
     <TextInput matchAny={true} className="bg-background w-full h-6" requestOnlyIfNoOptions={true} options={options} trigger="#" maxOptions={0} spacer={""} onRequestOptions={() => {
-        const stripPrefixes = ["get", "is", "can", "has"];
-        const obj = COMMAND_MAP.data.placeholders[type].commands;
+        const obj = CM.data.placeholders[type].commands;
         // value -> ICommand -> arguments -> iterate and check if `optional` exists and is true
         const options: string[] = [];
         // loop key and value of obj
         for (const [id, command] of Object.entries(obj)) {
             // strip prefixes from id
             let modifiedId = id;
-            for (const prefix of stripPrefixes) {
+            for (const prefix of STRIP_PREFIXES) {
                 if (modifiedId.startsWith(prefix)) {
                     modifiedId = modifiedId.slice(prefix.length);
                     break;

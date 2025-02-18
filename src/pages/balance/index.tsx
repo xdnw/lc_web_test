@@ -22,7 +22,7 @@ export default function BalancePage() {
     })
 }
 
-const rssTypes: string[] = (COMMANDS.options["ResourceType"] as IOptionData)?.options ?? [];
+const rssTypes: string[] = COMMANDS.options.ResourceType.options;
 
 function toResourceString(arr: number[]) {
     const filtered = Object.fromEntries(

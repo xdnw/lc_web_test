@@ -5,7 +5,6 @@ import {TableWith2DData} from "../../custom_table";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {renderLink} from "./multi";
-import {time_d} from "../../../components/ui/renderers";
 import {ChevronDown, ChevronUp} from "lucide-react";
 
 export default function MultiV2() {

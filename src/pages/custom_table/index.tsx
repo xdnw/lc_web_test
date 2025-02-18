@@ -24,7 +24,7 @@ import {TABLE} from "../../components/api/endpoints";
 import {Button} from "../../components/ui/button";
 import CopyToClipboard, {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
 import {COMMANDS} from "../../lib/commands";
-import {Command, COMMAND_MAP, IOptionData, STRIP_PREFIXES, toPlaceholderName} from "../../utils/Command";
+import {Command, CM, IOptionData, STRIP_PREFIXES, toPlaceholderName} from "../../utils/Command";
 import {Tabs, TabsList, TabsTrigger} from "../../components/ui/tabs";
 import {ArrowRightToLine, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ClipboardIcon, Download, Sheet} from "lucide-react";
 import {BlockCopyButton} from "../../components/ui/block-copy-button";
@@ -36,238 +36,9 @@ import { Link } from "react-router-dom";
 import {getRenderer, isHtmlRenderer} from "../../components/ui/renderers";
 import {getQueryParams} from "../../lib/utils";
 import {downloadCells, ExportType, ExportTypes} from "../../utils/StringUtil";
+import {DEFAULT_TABS} from "../../lib/layouts";
 
 DataTable.use(DT);
-
-interface Columns {
-    value: (string | [string, string])[],
-    sort: OrderIdx | OrderIdx[],
-}
-
-interface TabDefault {
-    selections: { [key: string]: string },
-    columns: { [key: string]: Columns },
-}
-
-const DEFAULT_TABS: {[key: string]: TabDefault} = {
-    DBAlliance: {
-        selections: {
-            "All": "*",
-            "All (>0 active member)": "*,#countNations(\"#position>1,#vm_turns=0,#active_m<10080\")>0",
-            "Top 10": "*,#rank<=10",
-            "Top 15": "*,#rank<=15",
-            "Top 25": "*,#rank<=25",
-            "Top 50": "*,#rank<=50",
-            "Guild Alliances": "%guild_alliances%",
-        },
-        columns: {
-            "General": {
-                value: [
-                    ["{markdownUrl}", "Alliance"],
-                    "{score}",
-                    "{cities}",
-                    "{color}",
-                    ["{countNations(#position>1)}", "members"]
-                ],
-                sort: {idx: 3, dir: 'desc'}
-            },
-            "Militarization": {
-                value: [
-                    ["{markdownUrl}", "Alliance"],
-                    ["({MetricAt(TANK_PCT)})*100", "tank%"],
-                    ["({MetricAt(AIRCRAFT_PCT)})*100", "air%"],
-                    ["({MetricAt(TANK_PCT)}-{MetricAt(TANK_PCT,1d)})*100", "1d"],
-                    ["({MetricAt(TANK_PCT)}-{MetricAt(TANK_PCT,2d)})*100", "2d"],
-                    ["({MetricAt(TANK_PCT)}-{MetricAt(TANK_PCT,5d)})*100", "5d"],
-                    ["({MetricAt(TANK_PCT)}-{MetricAt(TANK_PCT,10d)})*100", "10d"],
-                    "{MilitarizationGraph(60d)}"
-                ],
-                sort: {idx: 4, dir: 'desc'}
-            },
-            "Revenue": {
-                value: [
-                    ["{markdownUrl}", "Alliance"],
-                    ["{revenueConverted}", "Total"],
-                    ...(((COMMANDS.options["ResourceType"] as IOptionData).options ?? [])).filter(f => f !== "CREDITS").map((type) => [`{revenue.${type}}`, type] as [string, string])
-                ],
-                sort: {idx: 2, dir: 'desc'}
-            },
-            "City Growth (30d)": {
-                value: [
-                    ["{markdownUrl}", "Alliance"],
-                    ["{countMembers}", "Members"],
-                    "{cities}",
-                    ["{MembershipChangesByReason(\"recruited,joined\",30d,0d)}", "Joined"],
-                    ["{MembershipChangesByReason(left,30d,0d)}", "Left"],
-                    ["{NetMembersAcquired(30d,0d)}", "Net"],
-
-                    ["{MembershipChangeAssetCount(joined,cities,30d,0d)}", "Poached City"],
-                    ["{MembershipChangeAssetValue(joined,cities,30d,0d)}", "Poached City $"],
-
-                    ["{MembershipChangeAssetCount(recruited,cities,30d,0d)}", "Recruited City"],
-                    ["{MembershipChangeAssetCount(left,cities,30d,0d)}", "Left City"],
-                    ["{MembershipChangeAssetCount(vm_returned,cities,30d,0d)}", "VM Ended City"],
-                    ["{MembershipChangeAssetCount(vm_left,cities,30d,0d)}", "VM City"],
-                    ["{MembershipChangeAssetCount(deleted,cities,30d,0d)}", "Deleted City"],
-
-                    ["{BoughtAssetCount(cities,30d,0d)}", "City Buy"],
-                    ["{EffectiveBoughtAssetCount(cities,30d,0d)}", "City Buy (remain)"],
-
-                    ["{SpendingValue(cities,30d,0d)}", "City Buy $"],
-                    ["{EffectiveSpendingValue(cities,30d,0d)}", "City Buy $ (remain)"],
-
-                    ["{NetAsset(cities,30d,0d)}", "Net City"],
-                    ["{NetAssetValue(cities,30d,0d)}", "Net City $"],
-                ],
-                sort: {idx: 18, dir: 'desc'}
-            },
-            "Growth (30d)": {
-                value: [
-                    ["{markdownUrl}", "Alliance"],
-                    ["{countMembers}", "Members"],
-                    "{score}",
-                    ["{NetMembersAcquired(30d,0d)}", "Net Member"],
-
-                    ["{NetAsset(cities,30d,0d)}", "Net City"],
-
-                    ["{NetAssetValue(cities,30d,0d)}", "Net City $"],
-                    ["{NetAssetValue(projects,30d,0d)}", "Net Project $"],
-                    ["{NetAssetValue(land,30d,0d)}", "Net Land $"],
-                    ["{NetAssetValue(infra,30d,0d)}", "Net Infra $"],
-                    ["{NetAssetValue(*,30d,0d)}", "Net Asset $"],
-
-                    ["{EffectiveSpendingValue(cities,30d,0d)}", "City Buy $"],
-                    ["{EffectiveSpendingValue(projects,30d,0d)}", "Project Buy $"],
-                    ["{EffectiveSpendingValue(land,30d,0d)}", "Land Buy $"],
-                    ["{EffectiveSpendingValue(infra,30d,0d)}", "Infra Buy-Loss $"],
-
-                    ["{CumulativeRevenueValue(30d,0d)}", "Total Revenue"],
-                ],
-                sort: {idx: 10, dir: 'desc'}
-            },
-            "Normalized Growth (30d)": {
-                value: [
-                    ["{markdownUrl}", "Alliance"],
-                    ["{countMembers}", "Members"],
-                    ["{EffectiveBoughtAssetCount(\"cities,projects,land\",30d,0d)}/{countMembers}", "Cities/Member"],
-                    ["{EffectiveSpendingValue(\"cities,projects,land\",30d,0d)}/{countMembers}", "Invest/Member"],
-                    ["{EffectiveSpendingValue(\"cities,projects,land\",30d,0d)}/{CumulativeRevenueValue(30d,0d)}", "Invest/Revenue"],
-                ],
-                sort: {idx: 10, dir: 'desc'}
-            },
-            "Cumulative Revenue (30d)": {
-                value: [
-                    ["{markdownUrl}", "Alliance"],
-                    ["{CumulativeRevenueValue(30d,0d)}", "Value"],
-                    ...(((COMMANDS.options["ResourceType"] as IOptionData).options ?? [])).filter(f => f !== "CREDITS").map((type) => [`{CumulativeRevenue(30d,0d).${type}}`, type] as [string, string])
-                ],
-                sort: {idx: 2, dir: 'desc'}
-            },
-            "City Exponent": {
-                value: [
-                    ["{markdownUrl}", "Alliance"],
-                    ["{countMembers}", "Members"],
-                    ["{cities}", "Cities"],
-                    ["{score}", "Score"],
-                    ["{exponentialCityStrength}", "city^3"],
-                    ["{exponentialCityStrength(2.5)}", "city^2.5"],
-                ],
-                sort: {idx: 6, dir: 'desc'}
-            }
-        }
-    },
-    ResourceType: {
-        selections: {
-            "All": "*",
-            "Raws": "raws",
-            "Manufactured": "manu",
-            ...Object.fromEntries(((COMMANDS.options["ResourceType"] as IOptionData).options ?? []).map((type) => [type, type]))
-        },
-        columns: {
-            "Price": {
-                value: [
-                    "{name}",
-                    "test",
-                    "{low}",
-                    "{high}",
-                    "{margin}"],
-                sort: {idx: 1, dir: 'asc'}
-            },
-        }
-    },
-    DBNation: {
-        selections: {
-            "All": "*",
-            "Alliance Nations": "%guild_alliances%",
-            "Members (Non VM)": "%guild_alliances%,#position>1,#vm_turns=0",
-            "Active Applicant (1d)": "%guild_alliances%,#position=1,#vm_turns=0,#active_m<1440",
-            "Inactive Member >5d": "%guild_alliances%,#position>1,#vm_turns=0,#active_m>7200",
-            "Inactive Member >1w": "%guild_alliances%,#position>1,#vm_turns=0,#active_m>10080",
-            "Allies": "~allies,#position>1,#vm_turns=0,#active_m<10800",
-            "Allies (underutilized)": "~allies,#active_m<2880,#freeoffensiveslots>0,#tankpct>0.8,#aircraftpct>0.8,#RelativeStrength>1.3,#vm_turns=0,#isbeige=0",
-            "Enemies": "~enemies,#position>1,#vm_turns=0,#active_m<10800",
-            "Enemies (priority)": "~enemies,#cities>10,#active_m<2880,#def<3,#off>0,#vm_turns=0,#isbeige=0,#RelativeStrength>0.7,#fighting(~allies)",
-            "Spyable Enemies": "~enemies,#position>1,#vm_turns=0,#active_m<2880,#espionageFull=0",
-            "Lacking Spies": "%guild_alliances%,#position>1,#vm_turns=0,#getSpyCapLeft>0,#daysSinceLastSpyBuy>0",
-            "Member Not Verified": "%guild_alliances%,#position>1,#vm_turns=0,#verified=0",
-            "Member Not in Guild": "%guild_alliances%,#position>1,#vm_turns=0,#isInAllianceGuild=0",
-            "Member Not in Milcom Guild": "%guild_alliances%,#position>1,#vm_turns=0,#isInMilcomGuild=0",
-            "Low Tier, Not Raiding": "%guild_alliances%,#cities<10,#position>1,#vm_turns=0,#active_m<2880,#off<5,#color!=beige,#blockaded=0",
-        },
-        columns: {
-            "General": {
-                value: [
-                    ["{markdownUrl}", "name"],
-                    ["{allianceUrlMarkup}", "AA"],
-                    "{agedays}",
-                    "{color}",
-                    "{cities}",
-                    "{score}"],
-                sort: [{idx: 2, dir: 'desc'}, {idx: 5, dir: 'desc'}]
-            },
-            "MMR": {
-                value: [
-                    ["{markdownUrl}", "name"],
-                    ["{allianceUrlMarkup}", "AA"],
-                    "{cities}",
-                    ["{avg_infra}", "infra"],
-                    ["{score}", "ns"],
-                    ["{off}", "🗡"],
-                    ["{def}", "🛡"],
-                    ["{soldiers}", "💂"],
-                    ["{tanks}", "⚙"],
-                    ["{aircraft}", "✈"],
-                    ["{ships}", "⛵"],
-                    ["{spies}", "🔎"],
-                    ["{daysSinceLastSpyBuy}", "$🔎days"],
-                    ["{spyCap}", "🔎cap"],
-                    ["{MMRBuildingDecimal}", "MMR[build]"],
-                    ["{daysSinceLastSoldierBuy}", "$💂days"],
-                    ["{daysSinceLastTankBuy}", "$⚙days"],
-                    ["{daysSinceLastAircraftBuy}", "$✈days"],
-                    ["{daysSinceLastShipBuy}", "$⛵days"],
-                ],
-                sort: [{idx: 2, dir: 'desc'}, {idx: 3, dir: 'desc'}]
-            },
-            // "Revenue": [],
-            // "Usernames": [],
-            // "Activity": [],
-            // "Projects": [],
-            // "War Slots": [],
-            // "Utilization": [],
-            // "Stockpile": [],
-            // "Deposits": [],
-            // "Warchest": [],
-            // "Escrow": [],
-            // "Audits": [],
-            // "DayChange": [],
-            // "Espionage": [],
-            // "War Range": [],
-            // "Timers": [],
-
-        }
-    }
-}
 
 function downloadTable(api: Api, useClipboard: boolean, type: ExportType): [string, string] {
     // Get the header
@@ -836,7 +607,7 @@ function getReactSlots(columnsInfo: ConfigColumns[]): { [key: number]: ((data: u
 export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColumns}:
 {
     table: React.RefObject<DataTableRef>,
-    data: React.MutableRefObject<(string | number | number | boolean[])[][]>,
+    data: React.MutableRefObject<(string | number | boolean | number[])[][]>,
     columnsInfo: React.MutableRefObject<ConfigColumns[]>,
     sort: React.MutableRefObject<OrderIdx | OrderIdx[]>,
     searchSet: React.MutableRefObject<Set<number>>,
@@ -874,7 +645,7 @@ export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColum
 }
 
 function getColOptions(type: string): [string, string][] {
-    const commands: {[key: string]: Command} = COMMAND_MAP.getPlaceholderCommands(type);
+    const commands: {[key: string]: Command} = CM.getPlaceholderCommands(type);
     const result: [string, string][] = [];
     for (const [key, value] of Object.entries(commands)) {
         if (!value.hasRequiredArgument()) {
@@ -898,7 +669,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
     const [collapseColOptions, setCollapseColOptions] = useState(true);
     const filterRef = useRef<HTMLInputElement>(null);
 
-    const phTypes = useMemo(() => COMMAND_MAP.getPlaceholderTypes(false), []);
+    const phTypes = useMemo(() => CM.getPlaceholderTypes(false), []);
     const colTemplates = useRef(Object.keys(DEFAULT_TABS[typeRef.current]?.columns ?? []));
     const selTemplates = useRef(Object.keys(DEFAULT_TABS[typeRef.current]?.selections ?? []));
 
