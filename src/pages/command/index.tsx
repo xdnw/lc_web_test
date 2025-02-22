@@ -6,18 +6,19 @@ import {useParams} from "react-router-dom";
 import {BlockCopyButton} from "@/components/ui/block-copy-button.tsx";
 import {TooltipProvider} from "@/components/ui/tooltip.tsx";
 import {Button} from "../../components/ui/button";
-import {UNPACKR} from "@/lib/utils.ts";
+import {UNPACKR, getQueryParams} from "@/lib/utils.ts";
 import {createRoot} from "react-dom/client";
 import {useDialog} from "../../components/layout/DialogContext";
 import {DiscordEmbed, Embed} from "../../components/ui/MarkupRenderer";
 import {getCommandAndBehavior} from "../../utils/Command";
+import {queryParamsToObject} from "../../lib/utils";
 
 export default function CommandPage() {
     const { command } = useParams();
     const [cmdObj, setCmdObj] = useState<Command | null>(CM.get(command ?? "") ?? CM.buildTest());
     // CM.cmdBuildTest()
 
-    const [initialValues, setInitialValues] = useState<{ [key: string]: string }>({});
+    const [initialValues, setInitialValues] = useState<{ [key: string]: string }>(queryParamsToObject(getQueryParams()) as { [key: string]: string });
     const commandStore = useRef(createCommandStore());
 
     if (!cmdObj) {
