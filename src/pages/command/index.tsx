@@ -12,6 +12,7 @@ import {useDialog} from "../../components/layout/DialogContext";
 import {DiscordEmbed, Embed} from "../../components/ui/MarkupRenderer";
 import {getCommandAndBehavior} from "../../utils/Command";
 import {queryParamsToObject} from "../../lib/utils";
+import {createCommandStoreWithDef} from "../../utils/StateUtil";
 
 export default function CommandPage() {
     const { command } = useParams();
@@ -19,7 +20,7 @@ export default function CommandPage() {
     // CM.cmdBuildTest()
 
     const [initialValues, setInitialValues] = useState<{ [key: string]: string }>(queryParamsToObject(getQueryParams()) as { [key: string]: string });
-    const commandStore = useRef(createCommandStore());
+    const commandStore = useRef(createCommandStoreWithDef(initialValues));
 
     if (!cmdObj) {
         console.log("Not command");
