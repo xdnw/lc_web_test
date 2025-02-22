@@ -3,12 +3,12 @@ import {TooltipProvider} from "./tooltip";
 import {BlockCopyButton} from "./block-copy-button";
 import {useDialog} from "../layout/DialogContext";
 
-export default function CopyToClipboard({ text, className}: { text: string, className?: string }) {
+export default function CopyToClipboard({ text, copy, className}: { text: string, copy?: string, className?: string }) {
     const { showDialog } = useDialog();
 
     const handleCopy = () => {
-        navigator.clipboard.writeText(text).then(() => {
-            showDialog("Copied to Clipboard", <>The text <kbd className='bg-secondary rounded px-0.5'>{text}</kbd> has been copied to your clipboard.</>);
+        navigator.clipboard.writeText(copy ? copy : text).then(() => {
+            showDialog("Copied to Clipboard", <>The text <kbd className='bg-secondary rounded px-0.5'>{copy ? copy : text}</kbd> has been copied to your clipboard.</>);
         });
     };
 

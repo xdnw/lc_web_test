@@ -187,6 +187,7 @@ export function Embed({json, responseRef, showDialog}:
             {json.buttons && <div className="bg-accent rounded-sm border mb-1 p-2">
                 Actions:
                 {json.buttons.map((button, index) => {
+                    console.log("ADD BUTTON");
                         if ((button as ButtonInfoCmd).cmd) {
                             return <CmdButton key={index} button={button as ButtonInfoCmd} responseRef={responseRef} showDialog={showDialog} />;
                         }

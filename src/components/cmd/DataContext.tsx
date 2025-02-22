@@ -2,7 +2,7 @@ import React, { useCallback, createContext, useContext, useEffect, useState, Rea
 import Cookies from "js-cookie";
 import {UNPACKR} from "@/lib/utils.ts";
 import {CommonEndpoint} from "../api/endpoint";
-import {deepEqual} from "../../lib/utils";
+import {DEBUG, deepEqual} from "../../lib/utils";
 type DataProviderProps = {
     children: ReactNode;
     endpoint: string;
@@ -120,10 +120,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
     }, [data, setRerender]);
 
     useEffect(() => {
-        console.log("Run queries before ", queries.current.length + " | " + lastQuery.current + " | " + newQueryRef.current);
+        if (DEBUG.LOADING_WRAPPER) console.log("Run queries before ", queries.current.length + " | " + lastQuery.current + " | " + newQueryRef.current);
         if (newQueryRef.current !== lastQuery.current) {
             lastQuery.current = newQueryRef.current;
-            console.log("Run Queries", queries.current.length);
+            if (DEBUG.LOADING_WRAPPER) console.log("Run Queries", queries.current.length);
             const cachedResults: ({ [key: string]: JSONValue } | null)[] = [];
             const indexes: number[] = [];
             for (let i = 0; i < queries.current.length; i++) {
@@ -139,7 +139,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
                 if (cache) {
                     if (cache.cache_type === CacheType.Cookie) {
                         const cookieVal = Cookies.get(cache.cookie_id);
-                        console.log("Cookie value", cookieVal, (cookieVal === undefined));
+                        if (DEBUG.LOADING_WRAPPER) console.log("Cookie value", cookieVal, (cookieVal === undefined));
                         if (cookieVal) {
                             cachedResults.push(JSON.parse(cookieVal));
                             continue;

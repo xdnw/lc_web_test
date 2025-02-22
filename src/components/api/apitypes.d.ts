@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-02-16 17:21:29.
+// Generated using typescript-generator version 3.2.1263 on 2025-02-22 00:36:33.
 
 export interface CoalitionGraph {
     name: string;
@@ -224,6 +224,11 @@ export interface WebTarget {
     expected: number;
     actual: number;
     strength: number;
+}
+
+export interface WebViewCommand {
+    uid: number;
+    data: { [index: string]: any }[];
 }
 
 export interface WebTargets {

@@ -111,7 +111,6 @@ export function useDisplay<T>(
     renderError?: (error: string) => React.ReactNode): React.ReactNode {
     const [queryId] = useRegisterQuery(name, args, cache);
     const { data, loading, error } = useData<T>();
-    console.log("USE display " + queryId + " | " + JSON.stringify(args));
     return <LoadingWrapper<T>
         index={queryId}
     loading={loading}

@@ -36,6 +36,7 @@ import DndTest from "./components/dnd/dnd";
 import Alliance from "./pages/a2/alliance";
 import MultiBuster from "./pages/a2/nation/multi";
 import MultiV2 from "./pages/a2/nation/multi_2";
+import ViewCommand from "./pages/command/view_command";
 
 const tagManagerArgs = {
   gtmId: 'G-4J3KV26E2Z'
@@ -95,6 +96,7 @@ export default function App() {
 
           {/* testing pages */}
           {/*<Route path="/alliance" element={<Alliance />} />*/}
+          <Route path="/view_command/:command" element={<ViewCommand />} />
           <Route path="/alliance/:alliance" element={<Alliance />} />
           <Route path="/multi/:nation" element={<MultiBuster />} />
           <Route path="/multi_v2/:nation" element={<MultiV2 />} />

@@ -15,6 +15,8 @@ import TriStateInput from "./TriStateInput";
 import QueryComponent from "./QueryComponent";
 import {REGEX_PATTERN} from "../../lib/regex-patterns";
 import {useMemo} from "react";
+import TypedInput from "./TypedInput";
+import {COMMANDS} from "../../lib/commands";
 
 interface ArgProps {
     argName: string,
@@ -45,7 +47,12 @@ export default function ArgInput({ argName, breakdown, min, max, initialValue, s
 
     const placeholder = breakdown.getPlaceholder();
     if (placeholder != null) {
-        return "IS PLACEHOLDER: " + breakdown;
+        if (breakdown.element.toLowerCase() === 'typedfunction') {
+            return <TypedInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} placeholder={breakdown.child![0].element as keyof typeof COMMANDS.placeholders} type={breakdown.child![1].element} />
+        }
+        return <>
+            <StringInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
+        </>
     }
     if (breakdown.annotations && breakdown.annotations.includes("TextArea")) {
         return <TextComponent argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
@@ -60,9 +67,6 @@ export default function ArgInput({ argName, breakdown, min, max, initialValue, s
     switch (breakdown.element.toLowerCase()) {
         case 'map': {
             return <MapInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} children={breakdown.child!} />
-        }
-        case 'typedfunction': {
-            return "TODO TYPEDFUNCTION " + JSON.stringify(breakdown);
         }
         case 'set': {
             return <ArgSet argName={argName} breakdown={breakdown} initialValue={initialValue} setOutputValue={setOutputValue} />

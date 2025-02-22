@@ -24,7 +24,7 @@ import {TABLE} from "../../components/api/endpoints";
 import {Button} from "../../components/ui/button";
 import CopyToClipboard, {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
 import {COMMANDS} from "../../lib/commands";
-import {Command, CM, IOptionData, STRIP_PREFIXES, toPlaceholderName} from "../../utils/Command";
+import {Command, CM, STRIP_PREFIXES, toPlaceholderName} from "../../utils/Command";
 import {Tabs, TabsList, TabsTrigger} from "../../components/ui/tabs";
 import {ArrowRightToLine, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ClipboardIcon, Download, Sheet} from "lucide-react";
 import {BlockCopyButton} from "../../components/ui/block-copy-button";
@@ -102,10 +102,10 @@ export function getSortFromUrl(params: URLSearchParams): OrderIdx | OrderIdx[] |
 export default function CustomTable() {
     const params = getQueryParams();
     // Placeholder data
-    const type = useRef<string>(getTypeFromUrl(params) ?? "DBNation");
-    const selection = useRef<string>(getSelectionFromUrl(params) ?? DEFAULT_TABS[type.current].selections.All ?? "*");
+    const type = useRef<keyof typeof COMMANDS.placeholders>((getTypeFromUrl(params) ?? "DBNation") as keyof typeof COMMANDS.placeholders);
+    const selection = useRef<string>(getSelectionFromUrl(params) ?? DEFAULT_TABS[type.current]!.selections.All ?? "*");
     const columns = useRef<Map<string, string | null>>(getColumnsFromUrl(params) ?? new Map(
-        (DEFAULT_TABS[type.current]?.columns[Object.keys(DEFAULT_TABS[type.current]?.columns)[0]]?.value || ["{id}"]).map(col => {
+        (DEFAULT_TABS[type.current]?.columns[Object.keys(DEFAULT_TABS[type.current]?.columns ?? {})[0]]?.value ?? ["{id}"]).map(col => {
             if (Array.isArray(col)) {
                 return [col[0], col[1]];
             } else {
@@ -113,7 +113,7 @@ export default function CustomTable() {
             }
         })
     ));
-    const sort = useRef<OrderIdx | OrderIdx[]>(getSortFromUrl(params) ?? (DEFAULT_TABS[type.current]?.columns[Object.keys(DEFAULT_TABS[type.current]?.columns)[0]]?.sort || { idx: 0, dir: 'asc' }));
+    const sort = useRef<OrderIdx | OrderIdx[]>(getSortFromUrl(params) ?? (DEFAULT_TABS[type.current]?.columns[Object.keys(DEFAULT_TABS[type.current]?.columns ?? {})[0]]?.sort || { idx: 0, dir: 'asc' }));
 
     return (
         <>
@@ -644,10 +644,13 @@ export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColum
     );
 }
 
-function getColOptions(type: string): [string, string][] {
+export function getColOptions(type: string, filter?: (f: Command) => boolean): [string, string][] {
     const commands: {[key: string]: Command} = CM.getPlaceholderCommands(type);
     const result: [string, string][] = [];
     for (const [key, value] of Object.entries(commands)) {
+        if (filter && !filter(value)) {
+            continue;
+        }
         if (!value.hasRequiredArgument()) {
             result.push([value.name, value.command.desc]);
         }
@@ -656,7 +659,7 @@ function getColOptions(type: string): [string, string][] {
 }
 
 export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: {
-    typeRef: React.MutableRefObject<string>,
+    typeRef: React.MutableRefObject<keyof typeof COMMANDS.placeholders>,
     selectionRef: React.MutableRefObject<string>,
     columnsRef: React.MutableRefObject<Map<string, string | null>>,
     sortRef: React.MutableRefObject<OrderIdx | OrderIdx[]>,
@@ -670,8 +673,8 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
     const filterRef = useRef<HTMLInputElement>(null);
 
     const phTypes = useMemo(() => CM.getPlaceholderTypes(false), []);
-    const colTemplates = useRef(Object.keys(DEFAULT_TABS[typeRef.current]?.columns ?? []));
-    const selTemplates = useRef(Object.keys(DEFAULT_TABS[typeRef.current]?.selections ?? []));
+    const colTemplates = useRef(Object.keys(DEFAULT_TABS[typeRef.current]?.columns ?? {}));
+    const selTemplates = useRef(Object.keys(DEFAULT_TABS[typeRef.current]?.selections ?? {}));
 
     const selInputRef = useRef<HTMLInputElement>(null);
     const colInputRef = useRef<HTMLInputElement>(null);
@@ -737,13 +740,14 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
         window.history.replaceState(null, '', `${window.location.pathname}${newHash}`);
     }
 
-    function setSelectedTab(value: string) {
+    function setSelectedTab(valueStr: string) {
+        const value = valueStr as keyof typeof COMMANDS.placeholders;
         typeRef.current = value;
-        selectionRef.current = DEFAULT_TABS[value]?.selections[Object.keys(DEFAULT_TABS[value]?.selections)[0]] || "*";
+        selectionRef.current = DEFAULT_TABS[value]?.selections[Object.keys(DEFAULT_TABS[value]?.selections ?? {})[0]] || "*";
         (selInputRef.current as HTMLInputElement).value = selectionRef.current;
         selTemplates.current = Object.keys(DEFAULT_TABS[value]?.selections ?? []);
 
-        const colInfo = DEFAULT_TABS[value]?.columns[Object.keys(DEFAULT_TABS[value]?.columns)[0]];
+        const colInfo = DEFAULT_TABS[value]?.columns[Object.keys(DEFAULT_TABS[value]?.columns ?? {})[0]];
         columnsRef.current = new Map((colInfo?.value || ["{id}"]).map(col => {
             if (Array.isArray(col)) {
                 return [col[0], col[1]];

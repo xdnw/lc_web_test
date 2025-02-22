@@ -29,15 +29,34 @@ export function useSyncedStateFunc<T>(initialValue: string, parseValue: (value: 
       setValue(parseValue(initialValue));
       setLastInitial(initialValue);
     }
-  }, [initialValue, lastInitial]);
+  }, [initialValue, lastInitial, parseValue]);
 
   return [value, setValue];
 }
 
+interface DataStore<T> {
+    data: T | undefined;
+    setData: (data: T) => void;
+}
+
+export const createDataStore = <T>() => {
+    return create<DataStore<T>>((set) => ({
+        data: undefined,
+        setData: (data) => set({ data }),
+    }));
+};
+
+export const createDataStoreWithDef = <T>(default_data: T) => {
+    return create<DataStore<T>>((set) => ({
+        data: default_data,
+        setData: (data) => set({ data }),
+    }));
+}
+
 export function createCommandStore() {
     return create<{ output: { [key: string]: string | string[] }; setOutput: (key: string, value: string) => void; }>((set) => ({
-      output: {},
-      setOutput: (key, value) => set((state) => {
+        output: {},
+        setOutput: (key, value) => set((state) => {
             const copy = { ...state.output };
             if (value) copy[key] = value;
             else delete copy[key];
@@ -48,8 +67,8 @@ export function createCommandStore() {
 
 export function createCommandStoreWithDef(default_values: { [key: string]: string | string[] }) {
     return create<{ output: { [key: string]: string | string[] }; setOutput: (key: string, value: string) => void; }>((set) => ({
-      output: default_values,
-      setOutput: (key, value) => set((state) => {
+        output: default_values,
+        setOutput: (key, value) => set((state) => {
             const copy = { ...state.output };
             if (value) copy[key] = value;
             else delete copy[key];

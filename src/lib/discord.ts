@@ -120,7 +120,6 @@ function formatTimestamp(timestamp: number, style: string): string {
 }
 
 export function markup({txt, replaceEmoji, embed, showDialog}: {txt: string, replaceEmoji: boolean, embed?: DiscordEmbed, showDialog?: (title: string, message: ReactNode, quote?: boolean) => void}): string {
-    console.log("markup", (embed != null));
     if (replaceEmoji)
         txt = txt.replace(/(?<!code(?: \w+=".+")?>[^>]+)(?<!\/[^\s"]+?):((?!\/)\w+):/g, (match, p: string) => p && emojis[p] ? emojis[p] : match);
     const options: HtmlOptions = embed ? createOptions({embed, showDialog}) : {escapeHTML: true} as HtmlOptions;
