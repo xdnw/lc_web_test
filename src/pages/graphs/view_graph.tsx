@@ -1,6 +1,6 @@
 import {CommonEndpoint} from "../../components/api/endpoint";
 import {WebGraph} from "../../components/api/apitypes";
-import React, {MutableRefObject, useRef} from "react";
+import React, {MutableRefObject, useMemo, useRef} from "react";
 import {Link, useParams} from "react-router-dom";
 import {PickAnEndpoint} from "./edit_graph";
 import {getQueryParams, queryParamsToObject} from "../../lib/utils";
@@ -26,7 +26,8 @@ export default function ViewGraph<U extends { [key: string]: string | string[] |
         args: MutableRefObject<{ [key: string]: string | string[] | undefined }>
     }) {
     return endpoint.useDisplay({
-        args: args.current as U,
+        // Can (args.current as U) filter out any pairs where the key isn't a key in endpoint.endpoint.args
+        args: Object.fromEntries(Object.entries(args.current).filter(([key]) => key in endpoint.endpoint.args)) as U,
         render: (data) => {
             return <>
                 <Button variant="outline" size="sm" className="me-1 no-underline" asChild>

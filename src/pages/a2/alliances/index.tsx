@@ -17,8 +17,8 @@
 //
 // If not \*
 //
-// - /alliance stats allianceMetricsAB
-// - /alliance stats allianceMetricsCompareByTurn
+// - /alliance stats allianceMetricAB
+// - /alliance stats metric_compare_by_turn
 // - /alliance stats metricsByTurn
 // - /alliance stats militarization_time
 //

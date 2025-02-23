@@ -38,8 +38,8 @@ TODO: Find other Set<DBAlliance>
 
 If not \*
 
-- /alliance stats allianceMetricsAB
-- /alliance stats allianceMetricsCompareByTurn
+- /alliance stats allianceMetricAB
+- /alliance stats metric_compare_by_turn
 - /alliance stats metricsByTurn
 - /alliance stats militarization_time
 
@@ -54,8 +54,8 @@ Basic stats
 - Customize button (customize saves to local storage)
 - color links to color bloc pages (TODO color bloc component does this - from the formatter)
   Graphs for alliances, show current value with graph on hover?
-  /alliance stats allianceMetricsAB
-  /alliance stats allianceMetricsCompareByTurn
+  /alliance stats allianceMetricAB
+  /alliance stats metric_compare_by_turn
   /alliance stats attribute_ranking
   /alliance stats loot_ranking
   /alliance stats metricsByTurn

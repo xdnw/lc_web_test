@@ -37,7 +37,7 @@ export function ViewCommand({ command, args }: { command: string, args: { [key: 
         </Button>
         {COMMAND.useDisplay({
         args: {
-            data: { "": command, ...args },
+            data: { "": command, ...args } as unknown as string, // hacky way to pass in the raw data
         },
         render: (newData) => {
             return <MemoizedRenderResponse data={newData} showDialog={showDialog} />;

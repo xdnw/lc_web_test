@@ -83,33 +83,6 @@ export const TABLE: CommonEndpoint<ApiTypes.WebTable, {type?: string, selection_
     }
 };
 
-export const ALLIANCEMETRICSAB: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, coalition1?: string, coalition2?: string, start?: string, end?: string}, {metric?: string, coalition1?: string, coalition2?: string, start?: string, end?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
-        "alliancemetricsab",
-        "allianceMetricsAB",
-        {"metric":{"name":"metric","type":"AllianceMetric"},"coalition1":{"name":"coalition1","type":"Set\u003cDBAlliance\u003e"},"coalition2":{"name":"coalition2","type":"Set\u003cDBAlliance\u003e"},"start":{"name":"start","desc":"Date to start from","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
-        (data: unknown) => data as ApiTypes.WebGraph,
-        {},
-        "WebGraph"
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metric?: string, coalition1?: string, coalition2?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(ALLIANCEMETRICSAB.endpoint.name, combine(ALLIANCEMETRICSAB.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {metric?: string, coalition1?: string, coalition2?: string, start?: string, end?: string},
-        showArguments?: string[],
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {metric?: string, coalition1?: string, coalition2?: string, start?: string, end?: string}) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(ALLIANCEMETRICSAB.endpoint.url, ALLIANCEMETRICSAB.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
 export const COMPARESTATS: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, start?: string, end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string}, {metric?: string, start?: string, end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "comparestats",
@@ -134,6 +107,60 @@ export const COMPARESTATS: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, s
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(COMPARESTATS.endpoint.url, COMPARESTATS.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const ALLIANCEMETRICAB: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, coalition1?: string, coalition2?: string, start?: string, end?: string}, {metric?: string, coalition1?: string, coalition2?: string, start?: string, end?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
+        "alliancemetricab",
+        "allianceMetricAB",
+        {"metric":{"name":"metric","type":"AllianceMetric"},"coalition1":{"name":"coalition1","type":"Set\u003cDBAlliance\u003e"},"coalition2":{"name":"coalition2","type":"Set\u003cDBAlliance\u003e"},"start":{"name":"start","desc":"Date to start from","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
+        (data: unknown) => data as ApiTypes.WebGraph,
+        {},
+        "WebGraph"
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {metric?: string, coalition1?: string, coalition2?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(ALLIANCEMETRICAB.endpoint.name, combine(ALLIANCEMETRICAB.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {metric?: string, coalition1?: string, coalition2?: string, start?: string, end?: string},
+        showArguments?: string[],
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebGraph) => void,
+        handle_submit?: (args: {metric?: string, coalition1?: string, coalition2?: string, start?: string, end?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(ALLIANCEMETRICAB.endpoint.url, ALLIANCEMETRICAB.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const ALLIANCEMETRICBYTURN: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, coalition?: string, start?: string, end?: string}, {metric?: string, coalition?: string, start?: string, end?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
+        "alliancemetricbyturn",
+        "allianceMetricByTurn",
+        {"metric":{"name":"metric","type":"AllianceMetric"},"coalition":{"name":"coalition","type":"Set\u003cDBAlliance\u003e"},"start":{"name":"start","desc":"Date to start from","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
+        (data: unknown) => data as ApiTypes.WebGraph,
+        {},
+        "WebGraph"
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {metric?: string, coalition?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(ALLIANCEMETRICBYTURN.endpoint.name, combine(ALLIANCEMETRICBYTURN.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {metric?: string, coalition?: string, start?: string, end?: string},
+        showArguments?: string[],
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebGraph) => void,
+        handle_submit?: (args: {metric?: string, coalition?: string, start?: string, end?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(ALLIANCEMETRICBYTURN.endpoint.url, ALLIANCEMETRICBYTURN.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 
@@ -488,33 +515,6 @@ export const RADIATIONBYTURN: CommonEndpoint<ApiTypes.WebGraph, {continents?: st
     }
 };
 
-export const ALLIANCEMETRICSCOMPAREBYTURN: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, alliances?: string, start?: string, end?: string}, {metric?: string, alliances?: string, start?: string, end?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
-        "alliancemetricscomparebyturn",
-        "allianceMetricsCompareByTurn",
-        {"metric":{"name":"metric","type":"AllianceMetric"},"alliances":{"name":"alliances","type":"Set\u003cDBAlliance\u003e"},"start":{"name":"start","desc":"Date to start from","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
-        (data: unknown) => data as ApiTypes.WebGraph,
-        {},
-        "WebGraph"
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metric?: string, alliances?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(ALLIANCEMETRICSCOMPAREBYTURN.endpoint.name, combine(ALLIANCEMETRICSCOMPAREBYTURN.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {metric?: string, alliances?: string, start?: string, end?: string},
-        showArguments?: string[],
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {metric?: string, alliances?: string, start?: string, end?: string}) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(ALLIANCEMETRICSCOMPAREBYTURN.endpoint.url, ALLIANCEMETRICSCOMPAREBYTURN.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
 export const GLOBALTIERSTATS: CommonEndpoint<ApiTypes.CoalitionGraphs, {metrics?: string, topX?: string, groupBy?: string, total?: string}, {metrics?: string, topX?: string, groupBy?: string, total?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.CoalitionGraphs>(
         "globaltierstats",
@@ -755,33 +755,6 @@ export const TAX_EXPENSE: CommonEndpoint<ApiTypes.TaxExpenses, {start?: string, 
         handle_error?: (error: string) => void,
         classes?: string}): React.ReactNode => {
         return useForm(TAX_EXPENSE.endpoint.url, TAX_EXPENSE.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
-export const ALLIANCEMETRICSBYTURN: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, coalition?: string, start?: string, end?: string}, {metric?: string, coalition?: string, start?: string, end?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
-        "alliancemetricsbyturn",
-        "allianceMetricsByTurn",
-        {"metric":{"name":"metric","type":"AllianceMetric"},"coalition":{"name":"coalition","type":"Set\u003cDBAlliance\u003e"},"start":{"name":"start","desc":"Date to start from","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
-        (data: unknown) => data as ApiTypes.WebGraph,
-        {},
-        "WebGraph"
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {metric?: string, coalition?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(ALLIANCEMETRICSBYTURN.endpoint.name, combine(ALLIANCEMETRICSBYTURN.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {metric?: string, coalition?: string, start?: string, end?: string},
-        showArguments?: string[],
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebGraph) => void,
-        handle_submit?: (args: {metric?: string, coalition?: string, start?: string, end?: string}) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(ALLIANCEMETRICSBYTURN.endpoint.url, ALLIANCEMETRICSBYTURN.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
     }
 };
 
@@ -1244,6 +1217,33 @@ export const WARATTACKSBYDAY: CommonEndpoint<ApiTypes.WebGraph, {nations?: strin
     }
 };
 
+export const METRIC_COMPARE_BY_TURN: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, alliances?: string, start?: string, end?: string}, {metric?: string, alliances?: string, start?: string, end?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
+        "metric_compare_by_turn",
+        "metric_compare_by_turn",
+        {"metric":{"name":"metric","type":"AllianceMetric"},"alliances":{"name":"alliances","type":"Set\u003cDBAlliance\u003e"},"start":{"name":"start","desc":"Date to start from","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
+        (data: unknown) => data as ApiTypes.WebGraph,
+        {},
+        "WebGraph"
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {metric?: string, alliances?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(METRIC_COMPARE_BY_TURN.endpoint.name, combine(METRIC_COMPARE_BY_TURN.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {metric?: string, alliances?: string, start?: string, end?: string},
+        showArguments?: string[],
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebGraph) => void,
+        handle_submit?: (args: {metric?: string, alliances?: string, start?: string, end?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(METRIC_COMPARE_BY_TURN.endpoint.url, METRIC_COMPARE_BY_TURN.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
 export const MULTI_BUSTER: CommonEndpoint<ApiTypes.MultiResult, {nation?: string, forceUpdate?: string}, {nation?: string, forceUpdate?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.MultiResult>(
         "multi_buster",
@@ -1541,33 +1541,6 @@ export const TEST: CommonEndpoint<ApiTypes.WebValue, Record<string, never>, Reco
     }
 };
 
-export const UNSET_GUILD: CommonEndpoint<ApiTypes.WebSuccess, Record<string, never>, Record<string, never>> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
-        "unset_guild",
-        "unset_guild",
-        {},
-        (data: unknown) => data as ApiTypes.WebSuccess,
-        {},
-        "WebSuccess"
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: Record<string, never>, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(UNSET_GUILD.endpoint.name, UNSET_GUILD.endpoint.cache, args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: Record<string, never>,
-        showArguments?: string[],
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccess) => void,
-        handle_submit?: (args: Record<string, never>) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(UNSET_GUILD.endpoint.url, UNSET_GUILD.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
 export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries?: string}, {queries?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebBulkQuery>(
         "query",
@@ -1595,4 +1568,31 @@ export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries?: string}, {q
     }
 };
 
-export const ENDPOINTS = [WARSCOSTRANKINGBYDAY, GLOBALSTATS, TABLE, ALLIANCEMETRICSAB, COMPARESTATS, NTHBEIGELOOTBYSCORERANGE, ALLIANCESDATABYDAY, MARK_ALL_READ, WARCOSTSBYDAY, ALLIANCESTATS, SET_TOKEN, SESSION, BALANCE, ORBISSTATBYDAY, UNREAD_ANNOUNCEMENT, REGISTER, COMPARETIERSTATS, RADIATIONBYTURN, ALLIANCEMETRICSCOMPAREBYTURN, GLOBALTIERSTATS, BANK_ACCESS, COMMAND, TRADEVOLUMEBYDAY, ANNOUNCEMENTS, UNREGISTER, RAID, READ_ANNOUNCEMENT, TAX_EXPENSE, ALLIANCEMETRICSBYTURN, COMPARESTOCKPILEVALUEBYDAY, MILITARIZATIONTIME, INPUT_OPTIONS, TRADEPRICEBYDAY, LOGIN_MAIL, TRADEMARGINBYDAY, MY_WARS, MY_AUDITS, RECORDS, LOGOUT, SCORETIERGRAPH, SPYTIERGRAPH, STRENGTHTIERGRAPH, UNREAD_COUNT, SET_OAUTH_CODE, ANNOUNCEMENT_TITLES, WARATTACKSBYDAY, MULTI_BUSTER, VIEW_ANNOUNCEMENT, SET_GUILD, METRICBYGROUP, MULTI_V2, CITYTIERGRAPH, UNPROTECTED, TRADEPRICEBYDAYJSON, WITHDRAW, TRADETOTALBYDAY, TEST, UNSET_GUILD, QUERY];
+export const UNSET_GUILD: CommonEndpoint<ApiTypes.WebSuccess, Record<string, never>, Record<string, never>> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
+        "unset_guild",
+        "unset_guild",
+        {},
+        (data: unknown) => data as ApiTypes.WebSuccess,
+        {},
+        "WebSuccess"
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: Record<string, never>, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(UNSET_GUILD.endpoint.name, UNSET_GUILD.endpoint.cache, args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: Record<string, never>,
+        showArguments?: string[],
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebSuccess) => void,
+        handle_submit?: (args: Record<string, never>) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(UNSET_GUILD.endpoint.url, UNSET_GUILD.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const ENDPOINTS = [WARSCOSTRANKINGBYDAY, GLOBALSTATS, TABLE, COMPARESTATS, ALLIANCEMETRICAB, ALLIANCEMETRICBYTURN, NTHBEIGELOOTBYSCORERANGE, ALLIANCESDATABYDAY, MARK_ALL_READ, WARCOSTSBYDAY, ALLIANCESTATS, SET_TOKEN, SESSION, BALANCE, ORBISSTATBYDAY, UNREAD_ANNOUNCEMENT, REGISTER, COMPARETIERSTATS, RADIATIONBYTURN, GLOBALTIERSTATS, BANK_ACCESS, COMMAND, TRADEVOLUMEBYDAY, ANNOUNCEMENTS, UNREGISTER, RAID, READ_ANNOUNCEMENT, TAX_EXPENSE, COMPARESTOCKPILEVALUEBYDAY, MILITARIZATIONTIME, INPUT_OPTIONS, TRADEPRICEBYDAY, LOGIN_MAIL, TRADEMARGINBYDAY, MY_WARS, MY_AUDITS, RECORDS, LOGOUT, SCORETIERGRAPH, SPYTIERGRAPH, STRENGTHTIERGRAPH, UNREAD_COUNT, SET_OAUTH_CODE, ANNOUNCEMENT_TITLES, WARATTACKSBYDAY, METRIC_COMPARE_BY_TURN, MULTI_BUSTER, VIEW_ANNOUNCEMENT, SET_GUILD, METRICBYGROUP, MULTI_V2, CITYTIERGRAPH, UNPROTECTED, TRADEPRICEBYDAYJSON, WITHDRAW, TRADETOTALBYDAY, TEST, QUERY, UNSET_GUILD];
