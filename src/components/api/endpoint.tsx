@@ -39,8 +39,9 @@ export class ApiEndpoint<T> {
     cast: (data: unknown) => T;
     cache: { cache_type: CacheType, duration?: number, cookie_id: string };
     typeName: string;
+    desc: string;
 
-    constructor(name: string, url: string, args: { [name: string]: IArgument }, cast: (data: unknown) => T, cache: { type?: CacheType, duration?: number }, typeName: string) {
+    constructor(name: string, url: string, args: { [name: string]: IArgument }, cast: (data: unknown) => T, cache: { type?: CacheType, duration?: number }, typeName: string, desc: string) {
         this.name = name;
         this.url = url;
         this.args = {};
@@ -50,6 +51,7 @@ export class ApiEndpoint<T> {
         this.cast = cast;
         this.cache = { cache_type: cache.type ?? CacheType.None, duration: cache.duration ?? 0, cookie_id: `lc_${name}` };
         this.typeName = typeName;
+        this.desc = desc;
     }
 
     async call(params: { [key: string]: string }): Promise<T> {

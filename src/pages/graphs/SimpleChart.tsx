@@ -92,7 +92,7 @@ interface ChartState {
 
 function downloadGraph(graph: WebGraph, useClipboard: boolean, formatDates: boolean, type: ExportType): [string, string] {
     const header: string[] = [graph.x, ...graph.labels];
-    const data = invertData(graph.data);
+    const data = invertData(graph.data as (number | string)[][]);
     if (graph.origin) {
         console.log("Adding origin", graph.origin);
         for (let i = 0; i < data.length; i++) {

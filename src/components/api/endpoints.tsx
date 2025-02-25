@@ -9,7 +9,8 @@ export const WARSCOSTRANKINGBYDAY: CommonEndpoint<ApiTypes.WebGraph, {type?: str
         {"type":{"name":"type","type":"WarCostByDayMode"},"mode":{"name":"mode","type":"WarCostMode"},"time_start":{"name":"time_start","type":"long[Timestamp]"},"time_end":{"name":"time_end","optional":true,"type":"Long[Timestamp]"},"coalition1":{"name":"coalition1","optional":true,"flag":"c1","type":"Set\u003cNationOrAlliance\u003e"},"coalition2":{"name":"coalition2","optional":true,"flag":"c2","type":"Set\u003cNationOrAlliance\u003e"},"coalition3":{"name":"coalition3","optional":true,"flag":"c3","type":"Set\u003cNationOrAlliance\u003e"},"coalition4":{"name":"coalition4","optional":true,"flag":"c4","type":"Set\u003cNationOrAlliance\u003e"},"coalition5":{"name":"coalition5","optional":true,"flag":"c5","type":"Set\u003cNationOrAlliance\u003e"},"coalition6":{"name":"coalition6","optional":true,"flag":"c6","type":"Set\u003cNationOrAlliance\u003e"},"coalition7":{"name":"coalition7","optional":true,"flag":"c7","type":"Set\u003cNationOrAlliance\u003e"},"coalition8":{"name":"coalition8","optional":true,"flag":"c8","type":"Set\u003cNationOrAlliance\u003e"},"coalition9":{"name":"coalition9","optional":true,"flag":"c9","type":"Set\u003cNationOrAlliance\u003e"},"coalition10":{"name":"coalition10","optional":true,"flag":"c10","type":"Set\u003cNationOrAlliance\u003e"},"running_total":{"name":"running_total","optional":true,"flag":"o","type":"boolean"},"allowedWarStatus":{"name":"allowedWarStatus","optional":true,"flag":"s","type":"Set\u003cWarStatus\u003e"},"allowedWarTypes":{"name":"allowedWarTypes","optional":true,"flag":"w","type":"Set\u003cWarType\u003e"},"allowedAttackTypes":{"name":"allowedAttackTypes","optional":true,"flag":"a","type":"Set\u003cAttackType\u003e"},"allowedVictoryTypes":{"name":"allowedVictoryTypes","optional":true,"flag":"v","type":"Set\u003cSuccessType\u003e"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Graph of cost by day of each coalitions wars vs everyone`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {type?: string, mode?: string, time_start?: string, time_end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -36,7 +37,8 @@ export const GLOBALSTATS: CommonEndpoint<ApiTypes.CoalitionGraphs, {metrics?: st
         {"metrics":{"name":"metrics","type":"Set\u003cAllianceMetric\u003e"},"start":{"name":"start","type":"long[Timestamp]"},"end":{"name":"end","type":"long[Timestamp]"},"topX":{"name":"topX","type":"int"}},
         (data: unknown) => data as ApiTypes.CoalitionGraphs,
         {},
-        "CoalitionGraphs"
+        "CoalitionGraphs",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {metrics?: string, start?: string, end?: string, topX?: string}, render: (data: ApiTypes.CoalitionGraphs) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -63,7 +65,8 @@ export const TABLE: CommonEndpoint<ApiTypes.WebTable, {type?: string, selection_
         {"type":{"name":"type","type":"Class[PlaceholderType]"},"selection_str":{"name":"selection_str","type":"String"},"columns":{"name":"columns","type":"List\u003cString\u003e[TextArea]"}},
         (data: unknown) => data as ApiTypes.WebTable,
         {},
-        "WebTable"
+        "WebTable",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {type?: string, selection_str?: string, columns?: string[] | string}, render: (data: ApiTypes.WebTable) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -90,7 +93,8 @@ export const COMPARESTATS: CommonEndpoint<ApiTypes.WebGraph, {metric?: string, s
         {"metric":{"name":"metric","type":"AllianceMetric"},"start":{"name":"start","type":"long[Timestamp]"},"end":{"name":"end","type":"long[Timestamp]"},"coalition1":{"name":"coalition1","type":"Set\u003cDBAlliance\u003e"},"coalition2":{"name":"coalition2","type":"Set\u003cDBAlliance\u003e"},"coalition3":{"name":"coalition3","optional":true,"type":"Set\u003cDBAlliance\u003e"},"coalition4":{"name":"coalition4","optional":true,"type":"Set\u003cDBAlliance\u003e"},"coalition5":{"name":"coalition5","optional":true,"type":"Set\u003cDBAlliance\u003e"},"coalition6":{"name":"coalition6","optional":true,"type":"Set\u003cDBAlliance\u003e"},"coalition7":{"name":"coalition7","optional":true,"type":"Set\u003cDBAlliance\u003e"},"coalition8":{"name":"coalition8","optional":true,"type":"Set\u003cDBAlliance\u003e"},"coalition9":{"name":"coalition9","optional":true,"type":"Set\u003cDBAlliance\u003e"},"coalition10":{"name":"coalition10","optional":true,"type":"Set\u003cDBAlliance\u003e"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Compare the stats of up to 10 alliances/coalitions on a single time graph`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {metric?: string, start?: string, end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -117,7 +121,8 @@ export const ALLIANCEMETRICAB: CommonEndpoint<ApiTypes.WebGraph, {metric?: strin
         {"metric":{"name":"metric","type":"AllianceMetric"},"coalition1":{"name":"coalition1","type":"Set\u003cDBAlliance\u003e"},"coalition2":{"name":"coalition2","type":"Set\u003cDBAlliance\u003e"},"start":{"name":"start","desc":"Date to start from","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Graph an alliance metric over time for two coalitions`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {metric?: string, coalition1?: string, coalition2?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -144,7 +149,8 @@ export const ALLIANCEMETRICBYTURN: CommonEndpoint<ApiTypes.WebGraph, {metric?: s
         {"metric":{"name":"metric","type":"AllianceMetric"},"coalition":{"name":"coalition","type":"Set\u003cDBAlliance\u003e"},"start":{"name":"start","desc":"Date to start from","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Graph the metric over time for a coalition`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {metric?: string, coalition?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -171,7 +177,8 @@ export const NTHBEIGELOOTBYSCORERANGE: CommonEndpoint<ApiTypes.WebGraph, {nation
         {"nations":{"name":"nations","optional":true,"type":"Set\u003cDBNation\u003e"},"n":{"name":"n","optional":true,"type":"int","def":"5"},"snapshotDate":{"name":"snapshotDate","optional":true,"type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Get nth loot beige graph by score range`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {nations?: string, n?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -198,7 +205,9 @@ export const ALLIANCESDATABYDAY: CommonEndpoint<ApiTypes.WebGraph, {metric?: str
         {"metric":{"name":"metric","type":"TypedFunction\u003cDBNation,Double\u003e"},"start":{"name":"start","type":"long[Timestamp]"},"end":{"name":"end","type":"long[Timestamp]"},"mode":{"name":"mode","type":"AllianceMetricMode"},"alliances":{"name":"alliances","optional":true,"desc":"The alliances to include. Defaults to top 15","type":"Set\u003cDBAlliance\u003e"},"filter":{"name":"filter","optional":true,"type":"Predicate\u003cDBNation\u003e"},"includeApps":{"name":"includeApps","optional":true,"flag":"a","type":"boolean"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Get alliance attributes by day
+If your metric does not relate to cities, set \`skipCityData\` to true to speed up the process.`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {metric?: string, start?: string, end?: string, mode?: string, alliances?: string, filter?: string, includeApps?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -225,7 +234,8 @@ export const MARK_ALL_READ: CommonEndpoint<ApiTypes.WebSuccess, Record<string, n
         {},
         (data: unknown) => data as ApiTypes.WebSuccess,
         {},
-        "WebSuccess"
+        "WebSuccess",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: Record<string, never>, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -252,7 +262,8 @@ export const WARCOSTSBYDAY: CommonEndpoint<ApiTypes.WebGraph, {coalition1?: stri
         {"coalition1":{"name":"coalition1","type":"Set\u003cNationOrAlliance\u003e"},"coalition2":{"name":"coalition2","type":"Set\u003cNationOrAlliance\u003e"},"type":{"name":"type","type":"WarCostByDayMode"},"time_start":{"name":"time_start","type":"long[Timestamp]"},"time_end":{"name":"time_end","optional":true,"type":"Long[Timestamp]"},"running_total":{"name":"running_total","optional":true,"flag":"o","type":"boolean"},"allowedWarStatus":{"name":"allowedWarStatus","optional":true,"flag":"s","type":"Set\u003cWarStatus\u003e"},"allowedWarTypes":{"name":"allowedWarTypes","optional":true,"flag":"w","type":"Set\u003cWarType\u003e"},"allowedAttackTypes":{"name":"allowedAttackTypes","optional":true,"flag":"a","type":"Set\u003cAttackType\u003e"},"allowedVictoryTypes":{"name":"allowedVictoryTypes","optional":true,"flag":"v","type":"Set\u003cSuccessType\u003e"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Get a line graph by day of the war stats between two coalitions`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {coalition1?: string, coalition2?: string, type?: string, time_start?: string, time_end?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -279,7 +290,8 @@ export const ALLIANCESTATS: CommonEndpoint<ApiTypes.WebGraph, {metrics?: string,
         {"metrics":{"name":"metrics","type":"Set\u003cAllianceMetric\u003e"},"start":{"name":"start","type":"long[Timestamp]"},"end":{"name":"end","type":"long[Timestamp]"},"coalition":{"name":"coalition","type":"Set\u003cDBAlliance\u003e"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {metrics?: string, start?: string, end?: string, coalition?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -299,33 +311,6 @@ export const ALLIANCESTATS: CommonEndpoint<ApiTypes.WebGraph, {metrics?: string,
     }
 };
 
-export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token?: string}, {token?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
-        "set_token",
-        "set_token",
-        {"token":{"name":"token","type":"UUID"}},
-        (data: unknown) => data as ApiTypes.WebSuccess,
-        {},
-        "WebSuccess"
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {token?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(SET_TOKEN.endpoint.name, combine(SET_TOKEN.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {token?: string},
-        showArguments?: string[],
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebSuccess) => void,
-        handle_submit?: (args: {token?: string}) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(SET_TOKEN.endpoint.url, SET_TOKEN.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
 export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>, Record<string, never>> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSession>(
         "session",
@@ -333,7 +318,8 @@ export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>,
         {},
         (data: unknown) => data as ApiTypes.WebSession,
         {type: CacheType.LocalStorage, duration: 2592000},
-        "WebSession"
+        "WebSession",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: Record<string, never>, render: (data: ApiTypes.WebSession) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -353,6 +339,34 @@ export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>,
     }
 };
 
+export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token?: string}, {token?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
+        "set_token",
+        "set_token",
+        {"token":{"name":"token","type":"UUID"}},
+        (data: unknown) => data as ApiTypes.WebSuccess,
+        {},
+        "WebSuccess",
+        ``
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {token?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(SET_TOKEN.endpoint.name, combine(SET_TOKEN.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {token?: string},
+        showArguments?: string[],
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebSuccess) => void,
+        handle_submit?: (args: {token?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(SET_TOKEN.endpoint.url, SET_TOKEN.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
 export const BALANCE: CommonEndpoint<ApiTypes.WebBalance, {nation?: string}, {nation?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebBalance>(
         "balance",
@@ -360,7 +374,8 @@ export const BALANCE: CommonEndpoint<ApiTypes.WebBalance, {nation?: string}, {na
         {"nation":{"name":"nation","optional":true,"type":"DBNation"}},
         (data: unknown) => data as ApiTypes.WebBalance,
         {},
-        "WebBalance"
+        "WebBalance",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {nation?: string}, render: (data: ApiTypes.WebBalance) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -387,7 +402,8 @@ export const ORBISSTATBYDAY: CommonEndpoint<ApiTypes.WebGraph, {metrics?: string
         {"metrics":{"name":"metrics","type":"Set\u003cOrbisMetric\u003e"},"start":{"name":"start","optional":true,"type":"Long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Get a game graph by day`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {metrics?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -414,7 +430,8 @@ export const UNREAD_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id?: 
         {"ann_id":{"name":"ann_id","type":"int"}},
         (data: unknown) => data as ApiTypes.WebSuccess,
         {},
-        "WebSuccess"
+        "WebSuccess",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {ann_id?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -441,7 +458,8 @@ export const REGISTER: CommonEndpoint<ApiTypes.WebSuccess, {confirm?: string}, {
         {"confirm":{"name":"confirm","type":"boolean"}},
         (data: unknown) => data as ApiTypes.WebSuccess,
         {},
-        "WebSuccess"
+        "WebSuccess",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {confirm?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -468,7 +486,8 @@ export const COMPARETIERSTATS: CommonEndpoint<ApiTypes.WebGraph, {metric?: strin
         {"metric":{"name":"metric","type":"TypedFunction\u003cDBNation,Double\u003e"},"groupBy":{"name":"groupBy","type":"TypedFunction\u003cDBNation,Double\u003e"},"coalition1":{"name":"coalition1","type":"Set\u003cDBNation\u003e"},"coalition2":{"name":"coalition2","optional":true,"type":"Set\u003cDBNation\u003e"},"coalition3":{"name":"coalition3","optional":true,"type":"Set\u003cDBNation\u003e"},"coalition4":{"name":"coalition4","optional":true,"type":"Set\u003cDBNation\u003e"},"coalition5":{"name":"coalition5","optional":true,"type":"Set\u003cDBNation\u003e"},"coalition6":{"name":"coalition6","optional":true,"type":"Set\u003cDBNation\u003e"},"coalition7":{"name":"coalition7","optional":true,"type":"Set\u003cDBNation\u003e"},"coalition8":{"name":"coalition8","optional":true,"type":"Set\u003cDBNation\u003e"},"coalition9":{"name":"coalition9","optional":true,"type":"Set\u003cDBNation\u003e"},"coalition10":{"name":"coalition10","optional":true,"type":"Set\u003cDBNation\u003e"},"total":{"name":"total","optional":true,"flag":"t","type":"boolean"},"includeApps":{"name":"includeApps","optional":true,"flag":"a","type":"boolean"},"includeVm":{"name":"includeVm","optional":true,"flag":"v","type":"boolean"},"includeInactive":{"name":"includeInactive","optional":true,"flag":"i","type":"boolean"},"snapshotDate":{"name":"snapshotDate","optional":true,"flag":"s","type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Compare the tier stats of up to 10 alliances/nations on a single graph`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {metric?: string, groupBy?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, total?: string, includeApps?: string, includeVm?: string, includeInactive?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -495,7 +514,8 @@ export const RADIATIONBYTURN: CommonEndpoint<ApiTypes.WebGraph, {continents?: st
         {"continents":{"name":"continents","type":"Set\u003cContinent\u003e"},"start":{"name":"start","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Graph global and per continent radiation by turn over a specified time period`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {continents?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -522,7 +542,8 @@ export const GLOBALTIERSTATS: CommonEndpoint<ApiTypes.CoalitionGraphs, {metrics?
         {"metrics":{"name":"metrics","type":"Set\u003cTypedFunction\u003cDBNation,Double\u003e\u003e"},"topX":{"name":"topX","type":"int"},"groupBy":{"name":"groupBy","optional":true,"type":"TypedFunction\u003cDBNation,Double\u003e","def":"getCities"},"total":{"name":"total","optional":true,"flag":"t","type":"boolean"}},
         (data: unknown) => data as ApiTypes.CoalitionGraphs,
         {},
-        "CoalitionGraphs"
+        "CoalitionGraphs",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {metrics?: string, topX?: string, groupBy?: string, total?: string}, render: (data: ApiTypes.CoalitionGraphs) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -549,7 +570,8 @@ export const BANK_ACCESS: CommonEndpoint<ApiTypes.WebBankAccess, Record<string, 
         {},
         (data: unknown) => data as ApiTypes.WebBankAccess,
         {},
-        "WebBankAccess"
+        "WebBankAccess",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: Record<string, never>, render: (data: ApiTypes.WebBankAccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -576,7 +598,8 @@ export const COMMAND: CommonEndpoint<ApiTypes.WebViewCommand, {data?: string}, {
         {"data":{"name":"data","type":"Map\u003cString,Object\u003e"}},
         (data: unknown) => data as ApiTypes.WebViewCommand,
         {},
-        "WebViewCommand"
+        "WebViewCommand",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {data?: string}, render: (data: ApiTypes.WebViewCommand) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -603,7 +626,8 @@ export const TRADEVOLUMEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource?: str
         {"resource":{"name":"resource","type":"ResourceType"},"start":{"name":"start","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Generate a graph of average trade buy and sell volume by day`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {resource?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -630,7 +654,8 @@ export const ANNOUNCEMENTS: CommonEndpoint<ApiTypes.WebAnnouncements, Record<str
         {},
         (data: unknown) => data as ApiTypes.WebAnnouncements,
         {type: CacheType.SessionStorage, duration: 30},
-        "WebAnnouncements"
+        "WebAnnouncements",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: Record<string, never>, render: (data: ApiTypes.WebAnnouncements) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -657,7 +682,8 @@ export const UNREGISTER: CommonEndpoint<ApiTypes.WebValue, {confirm?: string}, {
         {"confirm":{"name":"confirm","type":"boolean"}},
         (data: unknown) => data as ApiTypes.WebValue,
         {},
-        "WebValue"
+        "WebValue",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {confirm?: string}, render: (data: ApiTypes.WebValue) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -684,7 +710,8 @@ export const RAID: CommonEndpoint<ApiTypes.WebTargets, {nation?: string, nations
         {"nation":{"name":"nation","optional":true,"type":"DBNation"},"nations":{"name":"nations","optional":true,"type":"Set\u003cDBNation\u003e","def":"*,#position\u003c\u003d1"},"weak_ground":{"name":"weak_ground","optional":true,"type":"boolean","def":"false"},"vm_turns":{"name":"vm_turns","optional":true,"type":"int","def":"0"},"beige_turns":{"name":"beige_turns","optional":true,"type":"int","def":"0"},"ignore_dnr":{"name":"ignore_dnr","optional":true,"type":"boolean","def":"false"},"time_inactive":{"name":"time_inactive","optional":true,"type":"long[Timediff]","def":"7d"},"min_loot":{"name":"min_loot","optional":true,"type":"double","def":"-1"},"num_results":{"name":"num_results","optional":true,"type":"int","def":"8"}},
         (data: unknown) => data as ApiTypes.WebTargets,
         {},
-        "WebTargets"
+        "WebTargets",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {nation?: string, nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, render: (data: ApiTypes.WebTargets) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -711,7 +738,8 @@ export const READ_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id?: st
         {"ann_id":{"name":"ann_id","type":"int"}},
         (data: unknown) => data as ApiTypes.WebSuccess,
         {},
-        "WebSuccess"
+        "WebSuccess",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {ann_id?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -738,7 +766,8 @@ export const TAX_EXPENSE: CommonEndpoint<ApiTypes.TaxExpenses, {start?: string, 
         {"start":{"name":"start","type":"long[Timestamp]"},"end":{"name":"end","type":"long[Timestamp]"},"nationList":{"name":"nationList","optional":true,"flag":"n","type":"Set\u003cDBNation\u003e"},"dontRequireGrant":{"name":"dontRequireGrant","optional":true,"flag":"g","type":"boolean"},"dontRequireTagged":{"name":"dontRequireTagged","optional":true,"flag":"t","type":"boolean"},"dontRequireExpiry":{"name":"dontRequireExpiry","optional":true,"flag":"e","type":"boolean"},"includeDeposits":{"name":"includeDeposits","optional":true,"flag":"d","type":"boolean"}},
         (data: unknown) => data as ApiTypes.TaxExpenses,
         {},
-        "TaxExpenses"
+        "TaxExpenses",
+        `Show cumulative tax expenses over a period by nation/bracket`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {start?: string, end?: string, nationList?: string, dontRequireGrant?: string, dontRequireTagged?: string, dontRequireExpiry?: string, includeDeposits?: string}, render: (data: ApiTypes.TaxExpenses) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -765,7 +794,8 @@ export const COMPARESTOCKPILEVALUEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {stoc
         {"stockpile1":{"name":"stockpile1","type":"Map\u003cResourceType,Double\u003e"},"stockpile2":{"name":"stockpile2","type":"Map\u003cResourceType,Double\u003e"},"numDays":{"name":"numDays","type":"int","min":1.0,"max":3000.0}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Generate a graph comparing market values of two resource amounts by day`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {stockpile1?: string, stockpile2?: string, numDays?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -792,7 +822,8 @@ export const MILITARIZATIONTIME: CommonEndpoint<ApiTypes.WebGraph, {alliance?: s
         {"alliance":{"name":"alliance","type":"DBAlliance"},"start_time":{"name":"start_time","optional":true,"type":"long[Timestamp]","def":"7d"},"end_time":{"name":"end_time","optional":true,"flag":"e","type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Graph militarization (soldier, tank, aircraft, ship) over time of an alliance`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {alliance?: string, start_time?: string, end_time?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -819,7 +850,8 @@ export const INPUT_OPTIONS: CommonEndpoint<ApiTypes.WebOptions, {type?: string},
         {"type":{"name":"type","type":"String"}},
         (data: unknown) => data as ApiTypes.WebOptions,
         {type: CacheType.LocalStorage, duration: 30},
-        "WebOptions"
+        "WebOptions",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {type?: string}, render: (data: ApiTypes.WebOptions) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -846,7 +878,8 @@ export const TRADEPRICEBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resources?: str
         {"resources":{"name":"resources","type":"Set\u003cResourceType\u003e"},"numDays":{"name":"numDays","type":"int"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Generate a graph of average buy and sell trade price by day`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {resources?: string, numDays?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -873,7 +906,8 @@ export const LOGIN_MAIL: CommonEndpoint<ApiTypes.WebUrl, {nation?: string}, {nat
         {"nation":{"name":"nation","type":"DBNation"}},
         (data: unknown) => data as ApiTypes.WebUrl,
         {},
-        "WebUrl"
+        "WebUrl",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {nation?: string}, render: (data: ApiTypes.WebUrl) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -900,7 +934,8 @@ export const TRADEMARGINBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resources?: st
         {"resources":{"name":"resources","type":"Set\u003cResourceType\u003e"},"start":{"name":"start","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"},"percent":{"name":"percent","optional":true,"desc":"Use the margin percent instead of absolute difference","type":"boolean","def":"true"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Generate a graph of average trade buy and sell margin by day`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {resources?: string, start?: string, end?: string, percent?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -927,7 +962,8 @@ export const MY_WARS: CommonEndpoint<ApiTypes.WebMyWars, Record<string, never>, 
         {},
         (data: unknown) => data as ApiTypes.WebMyWars,
         {},
-        "WebMyWars"
+        "WebMyWars",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: Record<string, never>, render: (data: ApiTypes.WebMyWars) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -954,7 +990,8 @@ export const MY_AUDITS: CommonEndpoint<ApiTypes.WebAudits, Record<string, never>
         {},
         (data: unknown) => data as ApiTypes.WebAudits,
         {type: CacheType.SessionStorage, duration: 30},
-        "WebAudits"
+        "WebAudits",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: Record<string, never>, render: (data: ApiTypes.WebAudits) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -981,7 +1018,8 @@ export const RECORDS: CommonEndpoint<ApiTypes.WebTable, {nation?: string}, {nati
         {"nation":{"name":"nation","optional":true,"type":"DBNation"}},
         (data: unknown) => data as ApiTypes.WebTable,
         {},
-        "WebTable"
+        "WebTable",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {nation?: string}, render: (data: ApiTypes.WebTable) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1008,7 +1046,8 @@ export const LOGOUT: CommonEndpoint<ApiTypes.WebSuccess, Record<string, never>, 
         {},
         (data: unknown) => data as ApiTypes.WebSuccess,
         {},
-        "WebSuccess"
+        "WebSuccess",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: Record<string, never>, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1035,7 +1074,8 @@ export const SCORETIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1?: str
         {"coalition1":{"name":"coalition1","type":"Set\u003cDBNation\u003e"},"coalition2":{"name":"coalition2","type":"Set\u003cDBNation\u003e"},"includeInactives":{"name":"includeInactives","optional":true,"flag":"i","type":"boolean"},"includeApplicants":{"name":"includeApplicants","optional":true,"flag":"a","type":"boolean"},"snapshotDate":{"name":"snapshotDate","optional":true,"flag":"s","type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Generate a graph of nation counts by score between two coalitions`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1062,7 +1102,9 @@ export const SPYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1?: strin
         {"coalition1":{"name":"coalition1","type":"Set\u003cDBNation\u003e"},"coalition2":{"name":"coalition2","type":"Set\u003cDBNation\u003e"},"includeInactives":{"name":"includeInactives","optional":true,"flag":"i","type":"boolean"},"includeApplicants":{"name":"includeApplicants","optional":true,"flag":"a","type":"boolean"},"total":{"name":"total","optional":true,"flag":"t","desc":"Graph the total spies instead of average per nation","type":"boolean"},"barGraph":{"name":"barGraph","optional":true,"flag":"b","type":"boolean"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Generate a graph of spy counts by city count between two coalitions
+Nations which are applicants, in vacation mode or inactive (2 days) are excluded`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, total?: string, barGraph?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1089,7 +1131,10 @@ export const STRENGTHTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1?: 
         {"coalition1":{"name":"coalition1","type":"Set\u003cDBNation\u003e"},"coalition2":{"name":"coalition2","type":"Set\u003cDBNation\u003e"},"includeInactives":{"name":"includeInactives","optional":true,"flag":"i","type":"boolean"},"includeApplicants":{"name":"includeApplicants","optional":true,"flag":"n","type":"boolean"},"col1MMR":{"name":"col1MMR","optional":true,"flag":"a","desc":"Use the score/strength of coalition 1 nations at specific military unit levels","type":"MMRDouble"},"col2MMR":{"name":"col2MMR","optional":true,"flag":"b","desc":"Use the score/strength of coalition 2 nations at specific military unit levels","type":"MMRDouble"},"col1Infra":{"name":"col1Infra","optional":true,"flag":"c","desc":"Use the score of coalition 1 nations at specific average infrastructure levels","type":"Double"},"col2Infra":{"name":"col2Infra","optional":true,"flag":"d","desc":"Use the score of coalition 2 nations at specific average infrastructure levels","type":"Double"},"snapshotDate":{"name":"snapshotDate","optional":true,"flag":"s","type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Generate a graph of nation military strength by score between two coalitions
+1 tank = 1/32 aircraft for strength calculations
+Effective score range is limited to 1.75x with a linear reduction of strength up to 40% to account for up-declares`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {coalition1?: string, coalition2?: string, includeInactives?: string, includeApplicants?: string, col1MMR?: string, col2MMR?: string, col1Infra?: string, col2Infra?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1116,7 +1161,8 @@ export const UNREAD_COUNT: CommonEndpoint<ApiTypes.WebInt, Record<string, never>
         {},
         (data: unknown) => data as ApiTypes.WebInt,
         {},
-        "WebInt"
+        "WebInt",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: Record<string, never>, render: (data: ApiTypes.WebInt) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1143,7 +1189,8 @@ export const SET_OAUTH_CODE: CommonEndpoint<ApiTypes.WebSuccess, {code?: string}
         {"code":{"name":"code","type":"String"}},
         (data: unknown) => data as ApiTypes.WebSuccess,
         {},
-        "WebSuccess"
+        "WebSuccess",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {code?: string}, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1170,7 +1217,8 @@ export const ANNOUNCEMENT_TITLES: CommonEndpoint<ApiTypes.WebAnnouncements, {rea
         {"read":{"name":"read","optional":true,"flag":"r","type":"boolean"}},
         (data: unknown) => data as ApiTypes.WebAnnouncements,
         {},
-        "WebAnnouncements"
+        "WebAnnouncements",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {read?: string}, render: (data: ApiTypes.WebAnnouncements) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1197,7 +1245,8 @@ export const WARATTACKSBYDAY: CommonEndpoint<ApiTypes.WebGraph, {nations?: strin
         {"nations":{"name":"nations","optional":true,"type":"Set\u003cDBNation\u003e"},"cutoff":{"name":"cutoff","optional":true,"desc":"Period of time to graph","type":"Long[Timestamp]"},"allowedTypes":{"name":"allowedTypes","optional":true,"desc":"Restrict to a list of attack types","type":"Set\u003cAttackType\u003e"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Display a graph of the number of attacks by the specified nations per day over a time period`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {nations?: string, cutoff?: string, allowedTypes?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1224,7 +1273,8 @@ export const METRIC_COMPARE_BY_TURN: CommonEndpoint<ApiTypes.WebGraph, {metric?:
         {"metric":{"name":"metric","type":"AllianceMetric"},"alliances":{"name":"alliances","type":"Set\u003cDBAlliance\u003e"},"start":{"name":"start","desc":"Date to start from","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Compare the metric over time between multiple alliances`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {metric?: string, alliances?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1251,7 +1301,8 @@ export const MULTI_BUSTER: CommonEndpoint<ApiTypes.MultiResult, {nation?: string
         {"nation":{"name":"nation","type":"DBNation"},"forceUpdate":{"name":"forceUpdate","optional":true,"type":"Boolean"}},
         (data: unknown) => data as ApiTypes.MultiResult,
         {},
-        "MultiResult"
+        "MultiResult",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {nation?: string, forceUpdate?: string}, render: (data: ApiTypes.MultiResult) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1278,7 +1329,8 @@ export const VIEW_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebAnnouncement, {ann_id
         {"ann_id":{"name":"ann_id","type":"int"}},
         (data: unknown) => data as ApiTypes.WebAnnouncement,
         {type: CacheType.SessionStorage, duration: 2592000},
-        "WebAnnouncement"
+        "WebAnnouncement",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {ann_id?: string}, render: (data: ApiTypes.WebAnnouncement) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1305,7 +1357,8 @@ export const SET_GUILD: CommonEndpoint<ApiTypes.SetGuild, {guild?: string}, {gui
         {"guild":{"name":"guild","type":"Guild"}},
         (data: unknown) => data as ApiTypes.SetGuild,
         {},
-        "SetGuild"
+        "SetGuild",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {guild?: string}, render: (data: ApiTypes.SetGuild) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1332,7 +1385,8 @@ export const METRICBYGROUP: CommonEndpoint<ApiTypes.WebGraph, {metrics?: string,
         {"metrics":{"name":"metrics","type":"Set\u003cTypedFunction\u003cDBNation,Double\u003e\u003e"},"nations":{"name":"nations","type":"Set\u003cDBNation\u003e"},"groupBy":{"name":"groupBy","optional":true,"type":"TypedFunction\u003cDBNation,Double\u003e","def":"getCities"},"includeInactives":{"name":"includeInactives","optional":true,"flag":"i","type":"boolean"},"includeApplicants":{"name":"includeApplicants","optional":true,"flag":"a","type":"boolean"},"total":{"name":"total","optional":true,"flag":"t","type":"boolean"},"snapshotDate":{"name":"snapshotDate","optional":true,"flag":"s","type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Graph a set of nation metrics for the specified nations over a period of time based on daily nation and city snapshots`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {metrics?: string, nations?: string, groupBy?: string, includeInactives?: string, includeApplicants?: string, total?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1359,7 +1413,8 @@ export const MULTI_V2: CommonEndpoint<ApiTypes.AdvMultiReport, {nation?: string,
         {"nation":{"name":"nation","type":"DBNation"},"forceUpdate":{"name":"forceUpdate","optional":true,"type":"Boolean"}},
         (data: unknown) => data as ApiTypes.AdvMultiReport,
         {},
-        "AdvMultiReport"
+        "AdvMultiReport",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {nation?: string, forceUpdate?: string}, render: (data: ApiTypes.AdvMultiReport) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1386,7 +1441,8 @@ export const CITYTIERGRAPH: CommonEndpoint<ApiTypes.WebGraph, {coalition1?: stri
         {"coalition1":{"name":"coalition1","type":"Set\u003cDBNation\u003e"},"coalition2":{"name":"coalition2","type":"Set\u003cDBNation\u003e"},"includeInactives":{"name":"includeInactives","optional":true,"flag":"i","type":"boolean"},"barGraph":{"name":"barGraph","optional":true,"flag":"b","type":"boolean"},"includeApplicants":{"name":"includeApplicants","optional":true,"flag":"a","type":"boolean"},"snapshotDate":{"name":"snapshotDate","optional":true,"flag":"s","type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Generate a bar char comparing the nation at each city count (tiering) between two coalitions`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {coalition1?: string, coalition2?: string, includeInactives?: string, barGraph?: string, includeApplicants?: string, snapshotDate?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1413,7 +1469,8 @@ export const UNPROTECTED: CommonEndpoint<ApiTypes.WebTargets, {nation?: string, 
         {"nation":{"name":"nation","optional":true,"type":"DBNation"},"nations":{"name":"nations","optional":true,"type":"Set\u003cDBNation\u003e","def":"*"},"includeAllies":{"name":"includeAllies","optional":true,"flag":"a","type":"boolean"},"ignoreODP":{"name":"ignoreODP","optional":true,"flag":"o","type":"boolean"},"ignore_dnr":{"name":"ignore_dnr","optional":true,"type":"boolean","def":"false"},"maxRelativeTargetStrength":{"name":"maxRelativeTargetStrength","optional":true,"flag":"s","desc":"The maximum allowed military strength of the target nation relative to you","type":"Double","def":"1.2"},"maxRelativeCounterStrength":{"name":"maxRelativeCounterStrength","optional":true,"flag":"c","desc":"The maximum allowed military strength of counters relative to you","type":"Double","def":"1.2"},"num_results":{"name":"num_results","optional":true,"desc":"Only list targets within range of ALL attackers","type":"int","def":"8"}},
         (data: unknown) => data as ApiTypes.WebTargets,
         {},
-        "WebTargets"
+        "WebTargets",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {nation?: string, nations?: string, includeAllies?: string, ignoreODP?: string, ignore_dnr?: string, maxRelativeTargetStrength?: string, maxRelativeCounterStrength?: string, num_results?: string}, render: (data: ApiTypes.WebTargets) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1440,7 +1497,8 @@ export const TRADEPRICEBYDAYJSON: CommonEndpoint<ApiTypes.WebGraph, {resources?:
         {"resources":{"name":"resources","type":"Set\u003cResourceType\u003e"},"days":{"name":"days","type":"int","min":1.0}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {resources?: string, days?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1467,7 +1525,8 @@ export const WITHDRAW: CommonEndpoint<ApiTypes.WebTransferResult, {receiver?: st
         {"receiver":{"name":"receiver","type":"NationOrAlliance"},"amount":{"name":"amount","type":"Map\u003cResourceType,Double\u003e"},"note":{"name":"note","type":"DepositType"}},
         (data: unknown) => data as ApiTypes.WebTransferResult,
         {},
-        "WebTransferResult"
+        "WebTransferResult",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {receiver?: string, amount?: string, note?: string}, render: (data: ApiTypes.WebTransferResult) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1494,7 +1553,8 @@ export const TRADETOTALBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource?: stri
         {"resource":{"name":"resource","type":"ResourceType"},"start":{"name":"start","type":"long[Timestamp]"},"end":{"name":"end","optional":true,"type":"Long[Timestamp]"}},
         (data: unknown) => data as ApiTypes.WebGraph,
         {},
-        "WebGraph"
+        "WebGraph",
+        `Generate a graph of average trade buy and sell total by day`
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: {resource?: string, start?: string, end?: string}, render: (data: ApiTypes.WebGraph) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1521,7 +1581,8 @@ export const TEST: CommonEndpoint<ApiTypes.WebValue, Record<string, never>, Reco
         {},
         (data: unknown) => data as ApiTypes.WebValue,
         {type: CacheType.LocalStorage, duration: 2592000},
-        "WebValue"
+        "WebValue",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: Record<string, never>, render: (data: ApiTypes.WebValue) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1541,33 +1602,6 @@ export const TEST: CommonEndpoint<ApiTypes.WebValue, Record<string, never>, Reco
     }
 };
 
-export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries?: string}, {queries?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebBulkQuery>(
-        "query",
-        "query",
-        {"queries":{"name":"queries","type":"List\u003cEntry\u003cString,Map\u003cString,Object\u003e\u003e\u003e"}},
-        (data: unknown) => data as ApiTypes.WebBulkQuery,
-        {},
-        "WebBulkQuery"
-    ),
-    useDisplay: ({args, render, renderLoading, renderError}:
-    {args: {queries?: string}, render: (data: ApiTypes.WebBulkQuery) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
-        return useDisplay(QUERY.endpoint.name, combine(QUERY.endpoint.cache, args), args, render, renderLoading, renderError);
-    },
-    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: {queries?: string},
-        showArguments?: string[],
-        label?: ReactNode,
-        message?: ReactNode,
-        handle_response?: (data: ApiTypes.WebBulkQuery) => void,
-        handle_submit?: (args: {queries?: string}) => boolean,
-        handle_loading?: () => void,
-        handle_error?: (error: string) => void,
-        classes?: string}): React.ReactNode => {
-        return useForm(QUERY.endpoint.url, QUERY.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
-    }
-};
-
 export const UNSET_GUILD: CommonEndpoint<ApiTypes.WebSuccess, Record<string, never>, Record<string, never>> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "unset_guild",
@@ -1575,7 +1609,8 @@ export const UNSET_GUILD: CommonEndpoint<ApiTypes.WebSuccess, Record<string, nev
         {},
         (data: unknown) => data as ApiTypes.WebSuccess,
         {},
-        "WebSuccess"
+        "WebSuccess",
+        ``
     ),
     useDisplay: ({args, render, renderLoading, renderError}:
     {args: Record<string, never>, render: (data: ApiTypes.WebSuccess) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
@@ -1595,4 +1630,32 @@ export const UNSET_GUILD: CommonEndpoint<ApiTypes.WebSuccess, Record<string, nev
     }
 };
 
-export const ENDPOINTS = [WARSCOSTRANKINGBYDAY, GLOBALSTATS, TABLE, COMPARESTATS, ALLIANCEMETRICAB, ALLIANCEMETRICBYTURN, NTHBEIGELOOTBYSCORERANGE, ALLIANCESDATABYDAY, MARK_ALL_READ, WARCOSTSBYDAY, ALLIANCESTATS, SET_TOKEN, SESSION, BALANCE, ORBISSTATBYDAY, UNREAD_ANNOUNCEMENT, REGISTER, COMPARETIERSTATS, RADIATIONBYTURN, GLOBALTIERSTATS, BANK_ACCESS, COMMAND, TRADEVOLUMEBYDAY, ANNOUNCEMENTS, UNREGISTER, RAID, READ_ANNOUNCEMENT, TAX_EXPENSE, COMPARESTOCKPILEVALUEBYDAY, MILITARIZATIONTIME, INPUT_OPTIONS, TRADEPRICEBYDAY, LOGIN_MAIL, TRADEMARGINBYDAY, MY_WARS, MY_AUDITS, RECORDS, LOGOUT, SCORETIERGRAPH, SPYTIERGRAPH, STRENGTHTIERGRAPH, UNREAD_COUNT, SET_OAUTH_CODE, ANNOUNCEMENT_TITLES, WARATTACKSBYDAY, METRIC_COMPARE_BY_TURN, MULTI_BUSTER, VIEW_ANNOUNCEMENT, SET_GUILD, METRICBYGROUP, MULTI_V2, CITYTIERGRAPH, UNPROTECTED, TRADEPRICEBYDAYJSON, WITHDRAW, TRADETOTALBYDAY, TEST, QUERY, UNSET_GUILD];
+export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries?: string}, {queries?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebBulkQuery>(
+        "query",
+        "query",
+        {"queries":{"name":"queries","type":"List\u003cEntry\u003cString,Map\u003cString,Object\u003e\u003e\u003e"}},
+        (data: unknown) => data as ApiTypes.WebBulkQuery,
+        {},
+        "WebBulkQuery",
+        ``
+    ),
+    useDisplay: ({args, render, renderLoading, renderError}:
+    {args: {queries?: string}, render: (data: ApiTypes.WebBulkQuery) => React.ReactNode, renderLoading?: () => React.ReactNode, renderError?: (error: string) => React.ReactNode}): React.ReactNode => {
+        return useDisplay(QUERY.endpoint.name, combine(QUERY.endpoint.cache, args), args, render, renderLoading, renderError);
+    },
+    useForm: ({default_values, showArguments = [], label, message, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+        default_values?: {queries?: string},
+        showArguments?: string[],
+        label?: ReactNode,
+        message?: ReactNode,
+        handle_response?: (data: ApiTypes.WebBulkQuery) => void,
+        handle_submit?: (args: {queries?: string}) => boolean,
+        handle_loading?: () => void,
+        handle_error?: (error: string) => void,
+        classes?: string}): React.ReactNode => {
+        return useForm(QUERY.endpoint.url, QUERY.endpoint.args, message, default_values, showArguments, label, handle_response, handle_submit, handle_loading, handle_error, classes);
+    }
+};
+
+export const ENDPOINTS = [WARSCOSTRANKINGBYDAY, GLOBALSTATS, TABLE, COMPARESTATS, ALLIANCEMETRICAB, ALLIANCEMETRICBYTURN, NTHBEIGELOOTBYSCORERANGE, ALLIANCESDATABYDAY, MARK_ALL_READ, WARCOSTSBYDAY, ALLIANCESTATS, SESSION, SET_TOKEN, BALANCE, ORBISSTATBYDAY, UNREAD_ANNOUNCEMENT, REGISTER, COMPARETIERSTATS, RADIATIONBYTURN, GLOBALTIERSTATS, BANK_ACCESS, COMMAND, TRADEVOLUMEBYDAY, ANNOUNCEMENTS, UNREGISTER, RAID, READ_ANNOUNCEMENT, TAX_EXPENSE, COMPARESTOCKPILEVALUEBYDAY, MILITARIZATIONTIME, INPUT_OPTIONS, TRADEPRICEBYDAY, LOGIN_MAIL, TRADEMARGINBYDAY, MY_WARS, MY_AUDITS, RECORDS, LOGOUT, SCORETIERGRAPH, SPYTIERGRAPH, STRENGTHTIERGRAPH, UNREAD_COUNT, SET_OAUTH_CODE, ANNOUNCEMENT_TITLES, WARATTACKSBYDAY, METRIC_COMPARE_BY_TURN, MULTI_BUSTER, VIEW_ANNOUNCEMENT, SET_GUILD, METRICBYGROUP, MULTI_V2, CITYTIERGRAPH, UNPROTECTED, TRADEPRICEBYDAYJSON, WITHDRAW, TRADETOTALBYDAY, TEST, UNSET_GUILD, QUERY];

@@ -49,6 +49,8 @@ export default function EditGraph<U extends { [key: string]: string | string[] |
     const [graph, setGraph] = useState<WebGraph | null>(null);
     const usedArgs = useRef<{ [key: string]: string | string[] | undefined }>(args || {});
     return <div className="container themeDiv bg-opacity-10 p-2 mt-2">
+        <pre>{endpoint.endpoint.desc}</pre>
+        {endpoint.endpoint.desc && <hr className="my-2"/>}
         {endpoint.useForm({
             showArguments: Object.keys(endpoint.endpoint.args),
             classes: "bg-destructive",

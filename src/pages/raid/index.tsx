@@ -252,7 +252,7 @@ export function WebTargetRow({includeStrength, self, target, classes, now }: { i
                                                                                                         to={`https://politicsandwar.com/nation/id=${target.id}`}>{target.nation}</Link>}</td>
             <td className="border border-gray-500/25 p-1">{target.id == self.id ? "" : target.alliance_id === 0 ? "None" :
                 <Link className="text-blue-600 hover:text-blue-800 underline"
-                      to={`https://politicsandwar.com/nation/id=${target.alliance_id}`}>{target.alliance}</Link>}</td>
+                      to={`https://politicsandwar.com/alliance/id=${target.alliance_id}`}>{target.alliance}</Link>}</td>
             <td className="border border-gray-500/25">
                 <div className="flex justify-center items-center text-center">
                     <Color colorId={target.color_id} beigeTurns={target.beige_turns}/>
