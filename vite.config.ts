@@ -41,6 +41,7 @@ export default defineConfig(({ mode }) => {
       'process.env.REPOSITORY_URL': JSON.stringify("https://github.com/xdnw/locutus"),
       'process.env.WIKI_URL': JSON.stringify("https://github.com/xdnw/locutus/wiki"),
       'process.env.BASE_PATH': JSON.stringify('/'),
+      'process.env.GTAG_ID': JSON.stringify('G-4J3KV26E2Z'),
     },
     base: '/', // mode === 'development' ? '/' : '/lc_cmd_react/',
     resolve: {

@@ -17,7 +17,7 @@ import CustomTable from "@/pages/custom_table";
 import NationPicker from "@/pages/nation_picker";
 import GuildPicker from "@/pages/guild_picker";
 import LoginPickerPage from "@/pages/login_picker";
-import {ReactNode, useEffect} from "react";
+import {ReactNode} from "react";
 import Unregister from "@/pages/unregister";
 import GuildMember from "@/pages/guild_member";
 import {hasToken} from "@/utils/Auth.ts";
@@ -26,7 +26,6 @@ import {Announcement} from "@/pages/announcement";
 import BalancePage from "@/pages/balance";
 import Records from "@/pages/records";
 import ViewTable from "@/pages/view_table";
-import TagManager from 'react-gtm-module';
 import RaidSection from "./pages/raid";
 import {ColMilGraph} from "./pages/graphs/col_mil_graph";
 import {ColTierGraph} from "./pages/graphs/col_tier_graph";
@@ -37,16 +36,12 @@ import Alliance from "./pages/a2/alliance";
 import MultiBuster from "./pages/a2/nation/multi";
 import MultiV2 from "./pages/a2/nation/multi_2";
 import ViewCommand from "./pages/command/view_command";
+import ReactGA from "react-ga4";
 
-const tagManagerArgs = {
-  gtmId: 'G-4J3KV26E2Z'
-};
+// process.env.GTAG_ID
+ReactGA.initialize(process.env.GTAG_ID as string);
 
 export default function App() {
-  useEffect(() => {
-    TagManager.initialize(tagManagerArgs);
-  }, []);
-
   return (
     <Router>
     <Routes>
