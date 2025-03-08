@@ -84,7 +84,7 @@ export function getSelectionFromUrl(params: URLSearchParams, current: keyof type
     result[""] = params.get('sel') ?? (current ? DEFAULT_TABS[current]!.selections.All : undefined) ?? "*";
     const ignore: Set<string> = new Set(["type", "sel", "col", "sort"]);
     for (const [key, value] of params.entries()) {
-        if (!ignore.has(key)) {
+        if (!ignore.has(key) && key) {
             result[key] = value;
         }
     }
@@ -112,7 +112,7 @@ export function getSortFromUrl(params: URLSearchParams): OrderIdx | OrderIdx[] |
 export default function CustomTable() {
     const params = getQueryParams();
     // Placeholder data
-    const type = useRef<keyof typeof COMMANDS.placeholders>((getTypeFromUrl(params) ?? "DBNation") as keyof typeof COMMANDS.placeholders);
+    const type = useRef<keyof typeof COMMANDS.placeholders>(getTypeFromUrl(params) ?? "DBNation");
     const selection = useRef<{[key: string]: string}>(getSelectionFromUrl(params, type.current));
     const columns = useRef<Map<string, string | null>>(getColumnsFromUrl(params) ?? new Map(
         (DEFAULT_TABS[type.current]?.columns[Object.keys(DEFAULT_TABS[type.current]?.columns ?? {})[0]]?.value ?? ["{id}"]).map(col => {
