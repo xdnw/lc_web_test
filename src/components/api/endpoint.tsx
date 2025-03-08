@@ -40,6 +40,7 @@ export class ApiEndpoint<T> {
     cache: { cache_type: CacheType, duration?: number, cookie_id: string };
     typeName: string;
     desc: string;
+    argsLower: { [name: string]: string };
 
     constructor(name: string, url: string, args: { [name: string]: IArgument }, cast: (data: unknown) => T, cache: { type?: CacheType, duration?: number }, typeName: string, desc: string) {
         this.name = name;
@@ -48,6 +49,7 @@ export class ApiEndpoint<T> {
         for (const [key, value] of Object.entries(args)) {
             this.args[key] = new Argument(key, value);
         }
+        this.argsLower = Object.fromEntries(Object.entries(args).map(([key, value]) => [key.toLowerCase(), key]));
         this.cast = cast;
         this.cache = { cache_type: cache.type ?? CacheType.None, duration: cache.duration ?? 0, cookie_id: `lc_${name}` };
         this.typeName = typeName;

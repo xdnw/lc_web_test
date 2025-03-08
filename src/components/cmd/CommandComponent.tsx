@@ -8,12 +8,13 @@ import MarkupRenderer from "../ui/MarkupRenderer";
 
 interface CommandProps {
     command: Command,
+    overrideName?: string,
     filterArguments: (arg: Argument) => boolean,
     initialValues: { [key: string]: string },
-    commandStore: CommandStoreType
+    setOutput: (key: string, value: string) => void
 }
 
-export default function CommandComponent({ command, filterArguments, initialValues, commandStore }: CommandProps) {
+export default function CommandComponent({ command, overrideName, filterArguments, initialValues, setOutput }: CommandProps) {
     const groupedArgs: Argument[][] = [];
 
     const argsArr = command.getArguments();
@@ -36,7 +37,7 @@ export default function CommandComponent({ command, filterArguments, initialValu
 
     return (
     <>
-        <h2 className="text-2xl">Command: {command.name}</h2>
+        <h2 className="text-lg">{overrideName ?? command.name}</h2>
         {
             groupedArgs.map((group, index) => {
                 const groupExists = group[0].arg.group != null;
@@ -64,7 +65,7 @@ export default function CommandComponent({ command, filterArguments, initialValu
                                     className="mb-1 bg-accent border border-slate-500 border-opacity-50 rounded-b-sm rounded-tr-sm p-1">
                                     <ArgInput argName={arg.name} breakdown={arg.getTypeBreakdown()} min={arg.arg.min}
                                               max={arg.arg.max} initialValue={initialValues[arg.name]}
-                                              setOutputValue={commandStore((state) => state.setOutput)}/>
+                                              setOutputValue={setOutput}/>
                                 </div>
                             </div>
                         ))}

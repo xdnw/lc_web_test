@@ -54,12 +54,13 @@ export type IOptionData = {
     composite?: string[];
 }
 
-export type ISelector = [string, string | null, string];
+export type ISelector = (string | null)[];
 
 export type IPlaceholder = {
     commands: ICommandGroup;
     selectors: ISelector[];
     columns?: string[];
+    create?: ICommand;
 }
   
 export type ICommandMap = {
@@ -171,7 +172,6 @@ export function getTypeBreakdown(ref: CommandMap, type: string): TypeBreakdown {
 export class Command {
     command: ICommand;
     name: string;
-    ref: CommandMap;
     arguments: Argument[] | null = null;
     charFreq: { [key: string]: number } | null = null;
     descWordFreq: Set<string> | null = null;
@@ -193,10 +193,9 @@ export class Command {
         return this.descShort;
     }
     
-    constructor(name: string, command: ICommand, ref: CommandMap) {
+    constructor(name: string, command: ICommand) {
         this.command = command;
         this.name = name;
-        this.ref = ref;
     }
 
     getCharFrequency(): { [key: string]: number } {
@@ -264,6 +263,7 @@ export const STRIP_PREFIXES = ["get", "is", "can", "has"];
 export class PlaceholderMap<T extends keyof typeof COMMANDS.placeholders> {
     name: string;
     data: typeof COMMANDS.placeholders[T];
+    create: Command | undefined;
 
     constructor(name: T) {
         this.name = name;
@@ -272,6 +272,16 @@ export class PlaceholderMap<T extends keyof typeof COMMANDS.placeholders> {
 
     getCommandsData(): typeof COMMANDS.placeholders[T]['commands'] {
         return this.data.commands;
+    }
+
+    getCreate(): Command | undefined {
+        if (!this.create) {
+            const create = (this.data as IPlaceholder).create;
+            if (create) {
+                this.create = new Command(this.name, create);
+            }
+        }
+        return this.create;
     }
 
     array(): PlaceholderArrayBuilder<T> {
@@ -358,7 +368,7 @@ export class CommandMap {
                 const value = sub[key];
                 const newKey: string = prefix ? `${prefix} ${key}` : key;
                 if (isCommand(value)) {
-                    result[newKey] = new Command(newKey, value, this);
+                    result[newKey] = new Command(newKey, value);
                 } else if (depth < maxDepth) {
                     recurse(value, newKey, depth + 1);
                 }
@@ -899,7 +909,7 @@ export class CommandBuilder {
     }
 
     build(): Command {
-        return new Command(this.name, this.command, this.parent)
+        return new Command(this.name, this.command)
     }
 }
 

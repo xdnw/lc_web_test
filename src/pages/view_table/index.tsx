@@ -21,7 +21,7 @@ function adaptColumns(columns: Map<string, string | null> | undefined): (string 
 export default function ViewTable() {
     const params = useRef(getQueryParams());
     const typeRef = useRef(getTypeFromUrl(params.current));
-    const selRef = useRef(getSelectionFromUrl(params.current));
+    const selRef = useRef(getSelectionFromUrl(params.current, typeRef.current));
     const colRef = useRef<(string | [string, string])[] | undefined>(adaptColumns(getColumnsFromUrl(params.current)));
     const sortRef = useRef<OrderIdx | OrderIdx[]>(getSortFromUrl(params.current) ?? {idx: 0, dir: "asc"});
 

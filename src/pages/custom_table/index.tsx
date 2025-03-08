@@ -24,7 +24,7 @@ import {TABLE} from "../../components/api/endpoints";
 import {Button} from "../../components/ui/button";
 import CopyToClipboard, {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
 import {COMMANDS} from "../../lib/commands";
-import {Command, CM, STRIP_PREFIXES, toPlaceholderName} from "../../utils/Command";
+import {Command, CM, STRIP_PREFIXES, toPlaceholderName, ICommand} from "../../utils/Command";
 import {Tabs, TabsList, TabsTrigger} from "../../components/ui/tabs";
 import {ArrowRightToLine, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ClipboardIcon, Download, Sheet} from "lucide-react";
 import {BlockCopyButton} from "../../components/ui/block-copy-button";
@@ -34,9 +34,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import {useDialog} from "../../components/layout/DialogContext";
 import { Link } from "react-router-dom";
 import {getRenderer, isHtmlRenderer} from "../../components/ui/renderers";
-import {getQueryParams} from "../../lib/utils";
+import {getQueryParams, queryParamsToObject} from "../../lib/utils";
 import {downloadCells, ExportType, ExportTypes} from "../../utils/StringUtil";
 import {DEFAULT_TABS} from "../../lib/layouts";
+import CommandComponent from "../../components/cmd/CommandComponent";
+import {createCommandStoreWithDef} from "../../utils/StateUtil";
 
 DataTable.use(DT);
 
@@ -73,12 +75,20 @@ function downloadTable(api: Api, useClipboard: boolean, type: ExportType): [stri
     return downloadCells(data, useClipboard, type);
 }
 
-export function getTypeFromUrl(params: URLSearchParams): string | undefined {
-    return params.get('type') ?? undefined;
+export function getTypeFromUrl(params: URLSearchParams): keyof typeof COMMANDS.placeholders | undefined {
+    return params.get('type') as keyof typeof COMMANDS.placeholders ?? undefined;
 }
 
-export function getSelectionFromUrl(params: URLSearchParams): string | undefined {
-    return params.get('sel') ?? undefined;
+export function getSelectionFromUrl(params: URLSearchParams, current: keyof typeof COMMANDS.placeholders | undefined): {[key: string]: string} {
+    const result: {[key: string]: string} = {};
+    result[""] = params.get('sel') ?? (current ? DEFAULT_TABS[current]!.selections.All : undefined) ?? "*";
+    const ignore: Set<string> = new Set(["type", "sel", "col", "sort"]);
+    for (const [key, value] of params.entries()) {
+        if (!ignore.has(key)) {
+            result[key] = value;
+        }
+    }
+    return result;
 }
 
 export function getColumnsFromUrl(params: URLSearchParams): Map<string, string | null> | undefined {
@@ -103,7 +113,7 @@ export default function CustomTable() {
     const params = getQueryParams();
     // Placeholder data
     const type = useRef<keyof typeof COMMANDS.placeholders>((getTypeFromUrl(params) ?? "DBNation") as keyof typeof COMMANDS.placeholders);
-    const selection = useRef<string>(getSelectionFromUrl(params) ?? DEFAULT_TABS[type.current]!.selections.All ?? "*");
+    const selection = useRef<{[key: string]: string}>(getSelectionFromUrl(params, type.current));
     const columns = useRef<Map<string, string | null>>(getColumnsFromUrl(params) ?? new Map(
         (DEFAULT_TABS[type.current]?.columns[Object.keys(DEFAULT_TABS[type.current]?.columns ?? {})[0]]?.value ?? ["{id}"]).map(col => {
             if (Array.isArray(col)) {
@@ -136,17 +146,38 @@ export function getUrl(type: string, selection: string, columns: string[], sort?
     })}`;
 }
 
+export function toSelAndModifierString(selAndModifiers: {[key: string]: string}): string | undefined {
+    let sel = undefined;
+    if (Object.keys(selAndModifiers).length === 1) {
+        sel = selAndModifiers[""];
+    } else if (Object.keys(selAndModifiers).length > 1) {
+        sel = JSON.stringify(selAndModifiers);
+    }
+    return sel;
+}
+
 export function getQueryString(
-    {type, sel, columns, sort}: {
+    {type, sel, selAndModifiers, columns, sort}: {
         type: string,
-        sel: string,
+        sel?: string,
+        selAndModifiers?: {[key: string]: string},
         columns: Map<string, string | null>,
         sort: OrderIdx | OrderIdx[]
     }
 ) {
     const params = new URLSearchParams();
     params.set('type', type);
-    params.set('sel', sel);
+    if (sel) params.set('sel', sel);
+    else if (selAndModifiers) {
+        for (const [key, value] of Object.entries(selAndModifiers)) {
+            if (value) {
+                params.append(key, value);
+            } else {
+                // sel = value
+                params.set('sel', value);
+            }
+        }
+    }
     columns.forEach((value, key) => {
         params.append('col', value ? `${key};${value}` : key);
     });
@@ -160,9 +191,9 @@ export function getQueryString(
     return params.toString();
 }
 
-export function StaticTable({type, selection, columns, sort}: { type: string, selection: string, columns: (string | [string, string])[], sort: OrderIdx | OrderIdx[] | null }) {
+export function StaticTable({type, selection, columns, sort}: { type: string, selection: {[key: string]: string}, columns: (string | [string, string])[], sort: OrderIdx | OrderIdx[] | null }) {
     const typeRef = useRef(type);
-    const selectionRef = useRef(selection);
+    const selectionRef = useRef<{[key: string]: string}>(selection);
     const columnsRef = useRef<Map<string, string | null>>(new Map(columns.map(col => {
         if (Array.isArray(col)) {
             return [col[0], col[1]];
@@ -179,7 +210,7 @@ export function StaticTable({type, selection, columns, sort}: { type: string, se
 
 export function TableWithButtons({type, selection, columns, sort, load}: {
     type: React.MutableRefObject<string>,
-    selection: React.MutableRefObject<string>,
+    selection: React.MutableRefObject<{[key: string]: string}>,
     columns: React.MutableRefObject<Map<string, string | null>>,
     sort: React.MutableRefObject<OrderIdx | OrderIdx[]>,
     load: boolean
@@ -280,7 +311,7 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
                     const baseUrlWithoutPath = window.location.protocol + "//" + window.location.host;
                     const url = (`${baseUrlWithoutPath}${process.env.BASE_PATH}#/view_table?${encodeURIComponent(getQueryString({
                         type: type.current,
-                        sel: selection.current,
+                        selAndModifiers: selection.current,
                         columns: columns.current,
                         sort: sort.current
                     }))}`);
@@ -355,7 +386,7 @@ export function TableWith2DData({ columns, data, renderers, sort }: { columns: s
 export function TableExports({table, type, selection, columns}: {
     table: React.RefObject<DataTableRef>,
     type?: React.MutableRefObject<string>,
-    selection?: React.MutableRefObject<string>,
+    selection?: React.MutableRefObject<{[key: string]: string}>,
     columns?: React.MutableRefObject<Map<string, string | null>>,
 }) {
     const { showDialog } = useDialog();
@@ -474,7 +505,7 @@ function LoadTable(
     {type, selection, columns, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender}:
     {
         type: React.MutableRefObject<string>,
-        selection: React.MutableRefObject<string>,
+        selection: React.MutableRefObject<{[key: string]: string}>,
         columns: React.MutableRefObject<Map<string, string | null>>,
         errors: React.MutableRefObject<WebTableError[]>,
         table: React.RefObject<DataTableRef>,
@@ -489,7 +520,7 @@ function LoadTable(
     const { showDialog } = useDialog();
     const url = useRef(`${process.env.BASE_PATH}custom_table?${getQueryString({
         type: type.current,
-        sel: selection.current,
+        selAndModifiers: selection.current,
         columns: columns.current,
         sort: sort.current
     })}`);
@@ -497,7 +528,7 @@ function LoadTable(
         {TABLE.useDisplay({
             args: {
                 type: type.current,
-                selection_str: selection.current,
+                selection_str: toSelAndModifierString(selection.current),
                 columns: Array.from(columns.current.keys()),
             },
             render: (newData) => {
@@ -539,7 +570,7 @@ function DeferTable(
     {type, selection, columns, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender}:
     {
         type: React.MutableRefObject<string>,
-        selection: React.MutableRefObject<string>,
+        selection: React.MutableRefObject<{[key: string]: string}>,
         columns: React.MutableRefObject<Map<string, string | null>>,
         errors: React.MutableRefObject<WebTableError[]>,
         table: React.RefObject<DataTableRef>,
@@ -558,7 +589,7 @@ function DeferTable(
             {TABLE.useForm({
                 default_values: {
                     type: type.current,
-                    selection_str: selection.current,
+                    selection_str: toSelAndModifierString(selection.current),
                     columns: Array.from(columns.current.keys()),
                 },
                 classes: "bg-destructive",
@@ -569,7 +600,7 @@ function DeferTable(
                         return false;
                     }
                     args.type = type.current;
-                    args.selection_str = selection.current;
+                    args.selection_str = toSelAndModifierString(selection.current);
                     args.columns = Array.from(columns.current.keys());
                     return true;
                 },
@@ -660,7 +691,7 @@ export function getColOptions(type: string, filter?: (f: Command) => boolean): [
 
 export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: {
     typeRef: React.MutableRefObject<keyof typeof COMMANDS.placeholders>,
-    selectionRef: React.MutableRefObject<string>,
+    selectionRef: React.MutableRefObject<{[key: string]: string}>,
     columnsRef: React.MutableRefObject<Map<string, string | null>>,
     sortRef: React.MutableRefObject<OrderIdx | OrderIdx[]>,
 }) {
@@ -730,7 +761,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
     function setQueryParam() {
         const params = getQueryString({
             type: typeRef.current,
-            sel: selectionRef.current,
+            selAndModifiers: selectionRef.current,
             columns: columnsRef.current,
             sort: sortRef.current
         });
@@ -743,8 +774,8 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
     function setSelectedTab(valueStr: string) {
         const value = valueStr as keyof typeof COMMANDS.placeholders;
         typeRef.current = value;
-        selectionRef.current = DEFAULT_TABS[value]?.selections[Object.keys(DEFAULT_TABS[value]?.selections ?? {})[0]] || "*";
-        (selInputRef.current as HTMLInputElement).value = selectionRef.current;
+        selectionRef.current = {"": DEFAULT_TABS[value]?.selections[Object.keys(DEFAULT_TABS[value]?.selections ?? {})[0]] || "*"};
+        (selInputRef.current as HTMLInputElement).value = selectionRef.current[""];
         selTemplates.current = Object.keys(DEFAULT_TABS[value]?.selections ?? []);
 
         const colInfo = DEFAULT_TABS[value]?.columns[Object.keys(DEFAULT_TABS[value]?.columns ?? {})[0]];
@@ -842,29 +873,31 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                             size="sm"
                             className="me-1"
                             onClick={() => {
-                                selectionRef.current = DEFAULT_TABS[typeRef.current]?.selections[selection] || "*";
-                                (selInputRef.current as HTMLInputElement).value = selectionRef.current;
-                                setRerender(prevRerender => prevRerender + 1);
-                            }}
-                        >
-                            {selection}
-                        </Button>
-                    ))}
-                    <h2 className="text-lg my-1">Current Selection</h2>
+                                selectionRef.current[""] = DEFAULT_TABS[typeRef.current]?.selections[selection] || "*";
+                                (selInputRef.current as HTMLInputElement).value = selectionRef.current[""];
+                                setQueryParam();
+                        setRerender(prevRerender => prevRerender + 1);
+                    }}
+                    >
+                    {selection}
+                </Button>
+                ))}
+                <h2 className="text-lg my-1">Current Selection</h2>
                     <div className="flex items-center">
                         <input className="px-1 w-full"
                                ref={selInputRef}
-                               type="text" defaultValue={selectionRef.current}
+                               type="text" defaultValue={selectionRef.current[""]}
                                onChange={(e) => {
-                                   selectionRef.current = e.target.value
+                                   selectionRef.current[""] = e.target.value
                                    setQueryParam();
                                }
                                }/>
                         <TooltipProvider>
-                            <BlockCopyButton getText={() => selectionRef.current}
+                            <BlockCopyButton getText={() => selectionRef.current[""]}
                                              className="rounded-[6px] [&_svg]:size-3.5 ml-2" size="sm"/>
                         </TooltipProvider>
                     </div>
+                    {CM.placeholders(typeRef.current).getCreate() && <ModifierComponent modifier={CM.placeholders(typeRef.current).getCreate() as Command} selectionRef={selectionRef} setQueryParam={setQueryParam} />}
                     <a href={`https://github.com/xdnw/locutus/wiki/${toPlaceholderName(typeRef.current)}_placeholders`}
                        className="text-xs text-blue-800 dark:text-blue-400 underline hover:no-underline active:underline"
                        target="_blank" rel="noreferrer"
@@ -1124,4 +1157,19 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
             </div>
         </>
     );
+}
+
+export function ModifierComponent({modifier, selectionRef, setQueryParam}: { modifier: Command, selectionRef: React.MutableRefObject<{[key: string]: string}>, setQueryParam: () => void }) {
+    return <>
+        <CommandComponent overrideName={"Modifier"} command={modifier} filterArguments={() => true} initialValues={selectionRef.current}
+        setOutput={(key: string, value: string) => {
+            if (value === undefined || value === null || value === "") {
+                delete selectionRef.current[key];
+            } else {
+                selectionRef.current[key] = value;
+            }
+            setQueryParam();
+        }}
+        />
+    </>
 }

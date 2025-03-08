@@ -27,7 +27,7 @@ export default function ViewGraph<U extends { [key: string]: string | string[] |
     }) {
     return endpoint.useDisplay({
         // Can (args.current as U) filter out any pairs where the key isn't a key in endpoint.endpoint.args
-        args: Object.fromEntries(Object.entries(args.current).filter(([key]) => key in endpoint.endpoint.args)) as U,
+        args: Object.fromEntries(Object.entries(args.current).filter(([key]) => key in endpoint.endpoint.argsLower)) as U,
         render: (data) => {
             return <>
                 <Button variant="outline" size="sm" className="me-1 no-underline" asChild>

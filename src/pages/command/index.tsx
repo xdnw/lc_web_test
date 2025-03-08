@@ -29,7 +29,9 @@ export default function CommandPage() {
 
     return (
         <>
-            <CommandComponent key={cmdObj.name} command={cmdObj} filterArguments={() => true} initialValues={initialValues} commandStore={commandStore.current} />
+            <CommandComponent key={cmdObj.name} command={cmdObj} filterArguments={() => true} initialValues={initialValues}
+                setOutput={commandStore.current((state) => state.setOutput)}
+            />
             <OutputValuesDisplay name={cmdObj?.name} store={commandStore.current} />
         </>
     );
