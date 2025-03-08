@@ -8,9 +8,10 @@ interface TooltipProps {
     delay?: number;
     lockTime?: number;
     unlockTime?: number;
+    className?: string;
 }
 
-const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, lockTime = 1000, unlockTime = 500 }) => {
+const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, lockTime = 1000, unlockTime = 500, className = "" }) => {
     const [visible, setVisible] = useState(false);
     const [hovering, setHovering] = useState(false);
     const [lockTimestamp, setLockTimestamp] = useState<number | null>(null);
@@ -133,12 +134,11 @@ const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, l
         );
     };
 
-    return (
-        <div
+    return (<div
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             onClick={handleClick}
-            className={styles.tooltipContainer}
+            className={cn(styles.tooltipContainer,className)}
         >
             {children}
             {visible && (

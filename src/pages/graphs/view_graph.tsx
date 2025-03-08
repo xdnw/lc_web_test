@@ -20,6 +20,26 @@ export function ParamViewGraph() {
     </>
 }
 
+export type GraphEndpoint = CommonEndpoint<WebGraph, { [key: string]: string | string[] | undefined }, { [key: string]: string | string[] | undefined }>;
+
+type GraphViewUtilProps<U extends { [key: string]: string | string[] | undefined },
+    V extends { [key: string]: string | string[] | undefined }> = {
+    endpoint: CommonEndpoint<WebGraph, U, V>;
+    args: U;
+};
+
+export function StaticViewGraph
+<U extends { [key: string]: string | string[] | undefined },
+    V extends { [key: string]: string | string[] | undefined }>(
+    { endpoint, args }: GraphViewUtilProps<U, V>
+): JSX.Element {
+    // Cast the endpoint to a GraphEndpoint.
+    const graphEndpoint = endpoint as GraphEndpoint;
+    // Wrap the args in a mutable ref to match ViewGraph prop requirements.
+    const argsRef: MutableRefObject<U> = useRef(args);
+    return <ViewGraph endpoint={graphEndpoint} args={argsRef} />;
+}
+
 export default function ViewGraph<U extends { [key: string]: string | string[] | undefined }, V extends { [key: string]: string | string[] | undefined }>(
     { endpoint, args }: {
         endpoint: CommonEndpoint<WebGraph, U, V>,

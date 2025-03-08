@@ -1,6 +1,5 @@
 import React, {useState, useMemo, useRef, useEffect} from "react";
 import {useDialog} from "../../components/layout/DialogContext";
-import {Color} from "../../components/ui/renderers";
 import { CommonEndpoint } from "@/components/api/endpoint";
 import {Button} from "@/components/ui/button.tsx";
 import {Link, useParams} from "react-router-dom";
@@ -16,6 +15,7 @@ import ArgInput from "../../components/cmd/ArgInput";
 import QueryComponent from "../../components/cmd/QueryComponent";
 import {CommandStoreType, createCommandStore} from "../../utils/StateUtil";
 import {OutputValuesDisplay} from "../command";
+import Color from "../../components/renderer/Color";
 
 type RaidOptions = { [key: string]: { endpoint: (typeof RAID | typeof UNPROTECTED), description: string, default_values: { [key: string]: (string | undefined) } } };
 

@@ -27,7 +27,7 @@ export function LoginPicker() {
                         <b><u>What is discord?</u></b>
                         <p>Discord is a voice, video, and text chat app that's used to communicate and hang out with communities and friends.</p>
                         <p>Discord can be opened in browser or installed on your computer and mobile device.</p>
-                        <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link className='' to="https://discord.com/download"><ExternalLink size={16}/>&nbsp;Download Discord</Link></Button>
+                        <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link to="https://discord.com/download"><ExternalLink size={16}/>&nbsp;Download Discord</Link></Button>
                     </div>
                 </TabsContent>
                 <TabsContent value="mail">

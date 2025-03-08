@@ -6,8 +6,7 @@ import {CM, ICommandMap, IOptionData} from "../../utils/Command";
 import React, {ReactNode} from "react";
 import SimpleChart from "../../pages/graphs/SimpleChart.js";
 import {WebGraph} from "../api/apitypes";
-
-const colors: string[] = COMMANDS.options.NationColor.options;
+import Color from "../renderer/Color.js";
 
 export const RENDERERS: {[key: string]: ObjectColumnRender | undefined} = {
     money: {display: money},
@@ -152,19 +151,4 @@ export function money(f: number): string {
 
 export function color(colorId: number): string {
     return ReactDOMServer.renderToString(<Color colorId={colorId} />);
-}
-
-export function Color({colorId, beigeTurns}: {colorId: number, beigeTurns?: number}) {
-    const color = Number.isInteger(colorId) ? colors[colorId] : colorId + "";
-    return (
-        <div
-            className="w-5 h-5 border border-2 border-black flex items-center justify-center"
-            style={{backgroundColor: `${color.replace("BEIGE", "TAN")}`}}
-            title={`${color}`}
-        >
-            {beigeTurns !== undefined && beigeTurns > 0 && (
-                <span className="text-xs text-black">{beigeTurns}</span>
-            )}
-        </div>
-    );
 }

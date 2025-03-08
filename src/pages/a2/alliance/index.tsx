@@ -1,25 +1,20 @@
-// Extends #nationlist
-// basic stats / link etc.
-// dropdown for more stats
-// wars
-// bank records
-// tier graph
-// link to members
-// link to brackets
-// link to manage etc
-// link to register to Locutus / invite Locutus - if not setup
-//
-//
-//
-// Hover shows ranking/graph
-
 import {useDialog} from "../../../components/layout/DialogContext";
-import {useRef} from "react";
-import {TABLE} from "../../../components/api/endpoints";
+import React, {useRef} from "react";
+import {METRIC_COMPARE_BY_TURN, TABLE} from "../../../components/api/endpoints";
 import {getUrl} from "../../custom_table";
-import { useParams } from "react-router-dom";
+import {Link, useParams } from "react-router-dom";
 import { COMMANDS } from "@/lib/commands";
 import {CM, PlaceholderArrayBuilder} from "../../../utils/Command";
+import {getPwUrl} from "../../../lib/pwutil";
+import { ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Color from "../../../components/renderer/Color";
+import {commafy} from "../../../utils/StringUtil";
+import Timestamp from "../../../components/ui/timestamp";
+import {StaticViewGraph} from "../../graphs/view_graph";
+import { WebGraph } from "@/components/api/apitypes";
+import LazyTooltip from "../../../components/ui/LazyTooltip";
+import {ViewCommand} from "../../command/view_command";
 
 export default function Alliance() {
     // return (
@@ -31,23 +26,11 @@ export default function Alliance() {
     //     </div>
     // );
     const type = "Alliance";
-    const { alliance } = useParams<{ alliance: string }>();
+    const {alliance} = useParams<{ alliance: string }>();
 
-    // "{name}",
-    //  "{id}",
-    //  "{acronym}",
-    //  "{flag}",
-    //  "{forum_link}",
-    //  "{discord_link}",
-    //  "{wiki_link}",
-    //  "{dateCreated}",
-    //  "{color}",
-    //  "{score}",
-    //  "{EstimatedStockpileValue}",
-    //  "{lootValue(1)}",
-    //  "{revenueConverted}"
     const columns = CM.placeholders('DBAlliance')
-        .array().add({cmd: 'getname'})
+        .array()
+        .add({cmd: 'getname'})
         .add({cmd: 'getid'})
         .add({cmd: 'getacronym'})
         .add({cmd: 'getflag'})
@@ -61,34 +44,9 @@ export default function Alliance() {
         .add({cmd: 'getlootvalue', args: {'score': '1'}})
         .add({cmd: 'getrevenueconverted'})
         .build();
-        // show by resource
-
-        // Some metrics (which link to the ranking/by turn data)
-        // Some attributes which link to attribute ranking
-        // Activity (this turn)
-        // - Links to activity commands
-        // Members: {members}/Taxable
-        // Link to members list
-        // Total Value
-        // Projects
-        // Cities
-        // Infra
-        // Land
-        // Average MMR
-        // - MMR by tier
-        // - MMR sheet
-        // - Ranking
-        // - MMR by time
-        // Average spies
-
-        // Spies: Spy tier graph
-        // Wars
-        // Def slots free
-        // Warcost
-        // Projects
-
-    const { showDialog } = useDialog();
+    const {showDialog} = useDialog();
     const url = useRef(getUrl(type, alliance as string, columns));
+
     return <>
         {TABLE.useDisplay({
             args: {
@@ -97,12 +55,96 @@ export default function Alliance() {
                 columns: columns,
             },
             render: (newData) => {
-                return <>
-                    {JSON.stringify(newData)}
-                    <table>
+                if (newData.cells.length != 2) {
+                    return <>{JSON.stringify(newData)}</>
+                }
+                console.log("RERENDER PARENT")
+                // if (true) { // TODO debug rerendering issue with this.
+                //     return <ViewCommand command={"alliance stats attribute_ranking"} args={{attribute: "{score}"}}/>;
+                // }
 
+                const row = newData.cells[1] as (string | number)[];
+                return (<>
+                    <div className="flex items-center space-x-2">
+                        {row[3] && (
+                            <img
+                                src={row[3] as string}
+                                alt="Alliance flag"
+                                className="w-16 h-10"
+                            />
+                        )}
+                        <Link
+                            className="text-2xl font-bolt flex items-center"
+                            to={getPwUrl(`alliance/id=${row[1] as string}`)}
+                        >
+                            {row[0] as string} <ExternalLink/>
+                        </Link>
+                        {/*acronym in (bracket) if present*/}
+                        {row[2] && (
+                            <span className="text-sm text-gray-500">
+                                ({row[2] as string})
+                            </span>
+                        )}
+                    </div>
+                    <div className="mt-1">
+                        {row[4] && <Button variant="outline" size="sm" asChild><Link to={row[4] as string}>Forum</Link></Button>}
+                        {row[5] && <Button variant="outline" size="sm" asChild><Link
+                            to={row[5] as string}>Discord</Link></Button>}
+                        {row[6] && <Button variant="outline" size="sm" asChild><Link
+                            to={row[6] as string}>Wiki</Link></Button>}
+                    </div>
+                    <table>
+                        <tbody>
+                        <tr>
+                            <td className="p-1">Created</td>
+                            <td className="p-1"><Timestamp millis={row[7] as number}/></td>
+                        </tr>
+                        <tr>
+                            <td className="p-1">Color</td>
+                            <td className="p-1 flex items-center">
+                                <Color colorId={row[8] as string}/>
+                                <span>{row[8] as string}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            {/* show over time*/}
+
+                            {/*TODO show ranking */}
+                                <td className="p-1">Score</td>
+                                <td className="p-1">
+                                    <LazyTooltip className={"underline"} content={() => {
+                                        return <>
+                                            <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
+                                            metric: 'score',
+                                            alliances: "aa:" + row[1],
+                                            start: 'timestamp:' + row[7],
+                                        }} /></>
+                                    }} delay={500} lockTime={1000} unlockTime={500}>
+                                        {commafy(row[9] as number)}
+                                    </LazyTooltip>
+                                </td>
+                            </tr>
+                            <tr>
+                                {/* show ranking */}
+                                <td className="p-1">Estimated Stockpile Value</td>
+                                <td className="p-1">${commafy(row[10] as number)}</td>
+                            </tr>
+                            <tr>
+                                {/* show ranking */}
+                                {/* show losses (30d) */}
+                                {/* show losses 30d ranking */}
+                                <td className="p-1">Loot Value</td>
+                                <td className="p-1">${commafy(row[11] as number)}</td>
+                            </tr>
+                            <tr>
+                                {/* show ranking */}
+                                {/* show value over time for total and each rss */}
+                                <td className="p-1">Revenue Converted</td>
+                                <td className="p-1">${commafy(row[12] as number)}</td>
+                            </tr>
+                        </tbody>
                     </table>
-                </>
+                </>);
             }
         })}
     </>

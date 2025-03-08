@@ -26,7 +26,6 @@ export default function ViewCommandPage() {
 export function ViewCommand({ command, args }: { command: string, args: { [key: string]: string } }) {
     const { showDialog } = useDialog();
 
-    // becomes `/command arg1: value1 arg2: value2`
     return <>
         <Button variant="outline" size="sm" asChild>
             <Link to={`${process.env.BASE_PATH}command/${command}?${new URLSearchParams(args).toString()}`}>Edit</Link>
