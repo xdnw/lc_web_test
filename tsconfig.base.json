@@ -49,6 +49,7 @@
     "./node_modules/@types",
     "./@types",
   ],
-  "include": ["src/types/**/*.d.ts", "src/**/*"],
+  "include": ["src/types/**/*.d.ts", "src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
