@@ -17,6 +17,7 @@ export function clamp(value: number, min: number, max: number) {
 
 export function getQueryParams(): URLSearchParams {
   const queryString = window.location.hash.split('?')[1];
+  if (!queryString) return new URLSearchParams();
   try {
     return new URLSearchParams(decodeURIComponent(queryString));
   } catch (e) {
