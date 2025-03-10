@@ -2,79 +2,85 @@ import React, { Component } from 'react';
 import Loading from "@/components/ui/loading.tsx";
 import { WebSuccess } from "@/components/api/apitypes";
 import {DEBUG, deepEqual} from "../../lib/utils";
+import {QueryResult} from "../cmd/DataContext";
+import { JSONValue } from './internaltypes';
 
 interface LoadingWrapperProps<T> {
     index: number;
-    loading: boolean;
-    data: T[] | null;
-    error: string | null;
+    query: QueryResult<T>[];
     render: (data: T) => React.ReactNode;
     renderLoading?: () => React.ReactNode;
     renderError?: (error: string) => React.ReactNode;
 }
 
 interface LoadingWrapperState<T> {
-    data: T[] | null;
+    data: QueryResult<T>[] | null;
+    index: number;
 }
 
 class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapperState<T>> {
     constructor(props: LoadingWrapperProps<T>) {
         super(props);
         this.state = {
-            data: props.data,
+            data: props.query ? props.query.map(f => f.clone()) : null,
+            index: props.index
         };
     }
 
     static getDerivedStateFromProps<T>(nextProps: LoadingWrapperProps<T>, prevState: LoadingWrapperState<T>) {
-        if (nextProps.data !== prevState.data) {
+        if (nextProps.query !== prevState.data) {
             return {
-                data: nextProps.data,
+                data: nextProps.query ? nextProps.query.map(f => f.clone()) : null,
+                index: nextProps.index
             };
         }
         return null;
     }
 
     shouldComponentUpdate(nextProps: LoadingWrapperProps<T>, nextState: LoadingWrapperState<T>) {
-        if (nextProps.loading !== this.props.loading) {
-            if (DEBUG.LOADING_WRAPPER) console.log("RENDER BECAUSE LOADING", this.props.index + " | " + nextProps.loading);
-            return true;
-        }
-        if (nextProps.error !== this.props.error) {
-            if (DEBUG.LOADING_WRAPPER) console.log("RENDER BECAUSE ERROR", this.props.index);
-            return true;
-        }
-        if (nextProps.index == -1) {
-            if (DEBUG.LOADING_WRAPPER) console.log("NO RENDER BECAUSE INDEX IS -1");
+        const prevI = this.state.index;
+        const nextI = nextProps.index;
+        const prevQ = prevI >= 0 && this.state.data && this.state.data.length >= prevI ? this.state.data[prevI] ?? null : null;
+        const nextQ = nextI >= 0 && nextProps.query && nextProps.query.length >= nextI ? nextProps.query[nextI] ?? null : null;
+        if (!prevQ && !nextQ) {
+            // if (DEBUG.LOADING_WRAPPER) console.log("NO RENDER, both queries are null", nextProps.query);
             return false;
         }
-        if (this.props.index != nextProps.index && nextProps.data && nextProps.data.length >= nextProps.index && nextProps.data[nextProps.index]) {
-            if (DEBUG.LOADING_WRAPPER) console.log("RENDER BECAUSE INDEX", this.props.index);
+        const prevLoading = !prevQ || prevQ.loading;
+        const nextLoading = !nextQ || nextQ.loading;
+
+        if (prevLoading !== nextLoading) {
+            if (DEBUG.LOADING_WRAPPER) console.log("RENDER BECAUSE LOADING", this.state.index + " | " + prevLoading + "=>" + nextLoading);
             return true;
         }
-        if (nextProps.data && nextProps.data.length >= nextProps.index && nextProps.data[nextProps.index]) {
-            if (this.props.index == -1 || !this.state.data || this.state.data.length < this.props.index || !this.state.data[this.props.index]) {
-                if (DEBUG.LOADING_WRAPPER) console.log("RENDER BECAUSE PREVIOUS DATA IS NULL");
-                return true;
-            } else if (!deepEqual(nextProps.data[nextProps.index], this.state.data[this.props.index])) {
-                if (DEBUG.LOADING_WRAPPER) console.log("RENDER BECAUSE DATA IS CHANGED");
-                return true;
-            } else {
-                if (DEBUG.LOADING_WRAPPER) console.log("NO RENDER, data is the same");
-            }
-        } else if (this.state.data && this.state.data.length > nextProps.index && this.state.data[this.props.index]) {
-            if (DEBUG.LOADING_WRAPPER) console.log("RENDER BECAUSE PREVIOUS DATA IS NOT NULL AND NEW DATA IS NULL");
+        const prevError = prevQ ? prevQ.error ?? null : null;
+        const nextError = nextQ ? nextQ.error ?? null : null;
+        if (prevError !== nextError) {
+            if (DEBUG.LOADING_WRAPPER) console.log("RENDER BECAUSE ERROR", this.state.index + " | " + prevError + "=>" + nextError);
             return true;
-        } else {
-            if (DEBUG.LOADING_WRAPPER) console.log("NO RENDER, both props are null", nextProps.index, nextProps.data);
         }
+        if ((prevQ != null) !== (nextQ != null)) {
+            if (DEBUG.LOADING_WRAPPER) console.log("RENDER BECAUSE QUERY REFERENCE. NULL: (" + (prevQ != null) + "=>" + (nextQ != null) + ") | loading: (" + prevLoading + "=>" + nextLoading + ") | error: (" + prevError + "=>" + nextError + ")");
+            return true;
+        }
+        const prevData = prevQ ? prevQ.data : undefined;
+        const nextData = nextQ ? nextQ.data : undefined;
+        if (prevData !== nextData && !deepEqual(prevData, nextData)) {
+            if (DEBUG.LOADING_WRAPPER) console.log("RENDER BECAUSE DATA REFERENCE AND NOT EQUAL", this.state.index);
+            return true;
+        }
+        // if (DEBUG.LOADING_WRAPPER) console.log("NO RENDER, data has not changed", this.state.index);
         return false;
     }
 
     render() {
-        const { index, loading, error, render, renderLoading, renderError } = this.props;
+        const { index, query, render, renderLoading, renderError } = this.props;
         const { data } = this.state;
 
-        if (loading) {
+        const queryAtIndex = query != null && query.length >= index ? query[index] : null;
+        const loading = queryAtIndex != null ? queryAtIndex.loading : true;
+
+        if (loading || queryAtIndex == null) {
             if (renderLoading) {
                 if (DEBUG.LOADING_WRAPPER) console.log("RENDER LOADING");
                 return renderLoading();
@@ -82,6 +88,8 @@ class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapper
             if (DEBUG.LOADING_WRAPPER) console.log("LOADING COMPONENT");
             return <Loading />;
         }
+
+        const error = queryAtIndex.error;
         if (error) {
             if (renderError) {
                 if (DEBUG.LOADING_WRAPPER) console.log("RENDER ERROR");
@@ -90,7 +98,7 @@ class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapper
             if (DEBUG.LOADING_WRAPPER) console.log("AN ERROR OCCURED");
             return <div>An error occurred (1): {error}</div>;
         }
-        const elem = data ? data[index] as WebSuccess : null;
+        const elem = queryAtIndex.data;
         if (!elem) {
             // if (renderError) {
             //     return renderError(error ?? "Null");
@@ -98,13 +106,14 @@ class LoadingWrapper<T> extends Component<LoadingWrapperProps<T>, LoadingWrapper
             if (DEBUG.LOADING_WRAPPER) console.log("NULL");
             return null;
         }
-        if (elem?.success === false) {
+        const webSuccess = elem as unknown as WebSuccess;
+        if (webSuccess?.success === false) {
             if (renderError) {
                 if (DEBUG.LOADING_WRAPPER) console.log("RENDER ERROR SUCCESS");
-                return renderError(elem?.message ?? "Null");
+                return renderError(webSuccess?.message ?? "Null");
             }
             if (DEBUG.LOADING_WRAPPER) console.log("RENDER ERROR SUCCESS DEFAULT");
-            return <div>An error occurred (3): {elem?.message ?? "Null"}</div>;
+            return <div>An error occurred (3): {webSuccess?.message ?? "Null"}</div>;
         }
         if (DEBUG.LOADING_WRAPPER) console.log("RENDER ELEM");
         return render(elem as T);

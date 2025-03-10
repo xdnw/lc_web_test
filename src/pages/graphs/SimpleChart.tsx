@@ -367,9 +367,11 @@ class SimpleChart extends Component<ChartProps, ChartState> {
 
         this.chartOptions = {
             spanGaps: true,
+            resizeDelay: 20,
             animation: false,
             responsive: true,
             aspectRatio: this.props.aspectRatio ?? 2,
+            maintainAspectRatio: false,
             normalized: true,
             // parsing: false, faster, but breaks everything, so...
             interaction: {
@@ -435,20 +437,23 @@ class SimpleChart extends Component<ChartProps, ChartState> {
             },
             layout: {
                 padding: this.props.hideLegend ? -100 : undefined
-            }
+            },
         } as ChartOptions<keyof ChartTypeRegistry>;
 
         this.canvasStyle = {
-            display: 'block',
+            display: 'inline-block',
             maxHeight: this.props.maxHeight,
             minHeight: this.props.minHeight,
         };
     }
 
     render() {
+        console.log("CHART RENDER");
         this.initializeChartOptions();
         return (
-            <div className={`bg-white dark:bg-slate-950 relative p-0 m-0 ${this.props.classes}`}>
+            // this.props.aspectRatio ?? 2
+            <div className={`bg-white dark:bg-slate-950 ${this.props.classes} chart-container relative`}
+                 style={{ aspectRatio: this.props.aspectRatio ?? 2, width: '100%', height: '100%' }}>
                 {(() => {
                     switch (this.type) {
                         case 'STACKED_BAR':

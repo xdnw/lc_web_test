@@ -5,9 +5,8 @@ import LoadingWrapper from "@/components/api/loadingwrapper.tsx";
 import ApiForm from "@/components/api/apiform.tsx";
 import ArgInput from "@/components/cmd/ArgInput.tsx";
 import {ArgDescComponent} from "../cmd/CommandComponent";
-import {WebGraph} from "./apitypes";
-import {ENDPOINTS} from "./endpoints";
 import {UNPACKR} from "../../lib/utils";
+import {JSONValue} from "./internaltypes";
 
 interface PlaceholderData {
     type: string;
@@ -51,7 +50,7 @@ export class ApiEndpoint<T> {
         }
         this.argsLower = Object.fromEntries(Object.entries(args).map(([key, value]) => [key.toLowerCase(), key]));
         this.cast = cast;
-        this.cache = { cache_type: cache.type ?? CacheType.None, duration: cache.duration ?? 0, cookie_id: `lc_${name}` };
+        this.cache = { cache_type: cache.type ?? CacheType.LocalStorage, duration: cache.duration ?? 300000, cookie_id: `lc_${name}` };
         this.typeName = typeName;
         this.desc = desc;
     }
@@ -107,19 +106,17 @@ export type CommonEndpoint<T, U extends {[key: string]: string | string[] | unde
     }) => React.ReactNode;
 };
 
-export function useDisplay<T>(
+export function useDisplay<T extends { [key: string]: JSONValue; }>(
     name: string,
     cache: { cache_type: CacheType, duration?: number, cookie_id: string },
     args: {[key: string]: string | string[]}, render: (data: T) => React.ReactNode,
     renderLoading?: () => React.ReactNode,
     renderError?: (error: string) => React.ReactNode): React.ReactNode {
     const [queryId] = useRegisterQuery(name, args, cache);
-    const { data, loading, error } = useData<T>();
+    const { queries } = useData<T>();
     return <LoadingWrapper<T>
         index={queryId}
-    loading={loading}
-    error={error}
-    data={data}
+        query={queries}
     render={render}
     renderLoading={renderLoading}
     renderError={renderError}

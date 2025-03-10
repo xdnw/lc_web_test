@@ -109,13 +109,15 @@ export function formatDate(data: number | null): string {
   return formattedDate.endsWith("00:00") ? formattedDate.slice(0, 10) : formattedDate;
 }
 
+const TURNS_PER_DAY = process.env.TEST ? 24 : 12;
+
 export function formatDaysToDate(value: number) {
-  return formatTurnsToDate(value * 12);
+  return formatTurnsToDate(value * TURNS_PER_DAY);
 }
 
 // Convert the slider (turns) to a time string
 export function formatTurnsToDate(value: number) {
-  const timeMillis = (value / 12) * 60 * 60 * 24 * 1000;
+  const timeMillis = (value / TURNS_PER_DAY) * 60 * 60 * 24 * 1000;
   const date = new Date();
   date.setTime(timeMillis);
   const currentYear = new Date().getFullYear();

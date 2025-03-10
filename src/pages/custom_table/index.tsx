@@ -410,7 +410,7 @@ export function TableExports({table, type, selection, columns}: {
             </DropdownMenuItem>
             {type && selection && columns && <DropdownMenuItem className="cursor-pointer" onClick={() => {
                 const body = <>
-                    <ol className="list-decimal list-inside">
+                    <ul className="list-decimal list-inside">
                         <li className="bg-accent/20 mb-1 p-1 border-primary/5 border-2 rounded">
                             Set the google sheet tab name as the selection:<br/>
                             <CopyToClipboard
@@ -427,7 +427,7 @@ export function TableExports({table, type, selection, columns}: {
                             <CopyToClipboard
                                 text={`/sheet_custom auto`}/>
                         </li>
-                    </ol>
+                    </ul>
                 </>
                 showDialog("Creating custom google sheets", body)
             }}>

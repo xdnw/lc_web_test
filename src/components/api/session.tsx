@@ -35,11 +35,11 @@ export function LoginPicker() {
                         <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link className='' to={`${process.env.BASE_PATH}nation_picker`}><Mail size={16}/>&nbsp;Send In-Game Mail</Link></Button>
                         <hr className="my-2" />
                         <h2 className='text-lg font-extrabold'>Here's what you need to do:</h2>
-                        <ol className="list-decimal list-inside bg-secondary p-3 rounded">
+                        <ul className="list-decimal list-inside bg-secondary p-3 rounded">
                             <li>Click login and select your nation</li>
                             <li>You will be redirected to your in-game mail</li>
                             <li>Click the authentication link you were sent</li>
-                        </ol>
+                        </ul>
                     </div>
                 </TabsContent>
             </Tabs>

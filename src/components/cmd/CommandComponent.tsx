@@ -105,10 +105,12 @@ export function ArgDescComponent(
     <Label className="inline-block rounded-t-sm border border-b-0 border-slate-500 border-opacity-50 bg-accent m-0 p-1 align-top top-0 left-0 me-1 text-xs" style={{marginBottom:"-1px"}}>
         {arg.arg.optional ? <div className="inline-block bg-blue-400 text-blue-800 me-0.5 px-0.5">Optional</div> :
         <div className="inline-block bg-red-400 text-red-800 me-0.5 px-0.5">Required</div>}
-        <div className="inline-block bg-white bg-opacity-20 px-0.5">{arg.name}{showType ? ": " + arg.arg.type : ""}</div>
-        {hide.current ?
-            <ChevronRight onClick={() => setHidden(false)} className="rounded-sm ms-1 cursor-pointer inline-block h-4 w-6 hover:bg-background/50 hover:border hover:border-primary/20 active:bg-background" /> :
-            <ChevronLeft onClick={() => setHidden(true)} className="rounded-sm ms-1 cursor-pointer inline-block h-4 w-6 hover:bg-background/50 hover:border hover:border-primary/20 active:bg-background" />}
+        <div className="inline-block cursor-pointer rounded border border-transparent hover:bg-background/50 hover:border hover:border-primary/20" onClick={() => setHidden(!hide.current)}>
+            <span className="bg-white bg-opacity-20 px-0.5">{arg.name}{showType ? ": " + arg.arg.type : ""}</span>
+            {hide.current ?
+                <ChevronRight className="rounded-sm ms-1 inline-block h-4 w-6 active:bg-background" /> :
+                <ChevronLeft className="rounded-sm ms-1 inline-block h-4 w-6 active:bg-background" />}
+        </div>
         {showDesc && <>
             <br/><p className="font-thin text-xs mb-1"><MarkupRenderer content={arg.arg.desc ?? ""} highlight={false}/></p>
             {desc && <p className="font-thin text-xs"><MarkupRenderer content={desc} highlight={false} /></p>}

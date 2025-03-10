@@ -6,9 +6,11 @@ import { Button, ButtonProps } from "./button.tsx"
 
 export function BlockCopyButton({
     getText,
+    left,
   ...props
 }: {
-    getText: () => string
+    getText: () => string,
+    left?: boolean,
 } & ButtonProps) {
   const [hasCopied, setHasCopied] = React.useState(false)
 
@@ -24,7 +26,7 @@ export function BlockCopyButton({
         <Button
           size="icon"
           variant="outline"
-          className="h-7 w-7 rounded-[6px] [&_svg]:size-3.5 absolute top-1 right-1"
+          className={`h-6 w-6 rounded [&_svg]:size-3.5 absolute ${left ? "left-0.5" : "right-0.5"} top-0.5`}
           onClick={() => {
             navigator.clipboard.writeText(getText())
             setHasCopied(true)

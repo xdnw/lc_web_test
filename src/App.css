@@ -79,3 +79,7 @@ body, html {
 .dark * {
     scrollbar-color: rgba(255, 255, 255, 0.5) transparent; /* Customize the thumb color for dark mode */
 }
+ol {
+    list-style-type: decimal!important;
+    list-style-position: inside!important;;
+}

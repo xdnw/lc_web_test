@@ -57,13 +57,13 @@ export function CompositeQueryComponent(
 ) {
     const toArgs = (f: string) => ({type: f});
     const [queryIds] = useRegisterMultipleQueries(composites, INPUT_OPTIONS, toArgs)
-    const { data } = useData<WebOptions>();
-
-    if (!data) return null;
+    const { queries } = useData<WebOptions>();
+    if (!queries) return null;
+    const data: WebOptions[] = queries.map((query) => query.data as WebOptions);
 
     for (const queryId of queryIds) {
         if (!(data[queryId])) {
-            return null
+            return null;
         }
     }
 

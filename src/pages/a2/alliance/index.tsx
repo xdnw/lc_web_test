@@ -58,11 +58,6 @@ export default function Alliance() {
                 if (newData.cells.length != 2) {
                     return <>{JSON.stringify(newData)}</>
                 }
-                console.log("RERENDER PARENT")
-                // if (true) { // TODO debug rerendering issue with this.
-                //     return <ViewCommand command={"alliance stats attribute_ranking"} args={{attribute: "{score}"}}/>;
-                // }
-
                 const row = newData.cells[1] as (string | number)[];
                 return (<>
                     <div className="flex items-center space-x-2">
@@ -112,13 +107,15 @@ export default function Alliance() {
                             {/*TODO show ranking */}
                                 <td className="p-1">Score</td>
                                 <td className="p-1">
-                                    <LazyTooltip className={"underline"} content={() => {
+                                    <LazyTooltip className={"underline w-1/2"} content={() => {
                                         return <>
+                                            <ViewCommand command={"alliance stats attribute_ranking"} args={{attribute: "{score}", num_results: "5"}}/>
                                             <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
                                             metric: 'score',
                                             alliances: "aa:" + row[1],
                                             start: 'timestamp:' + row[7],
-                                        }} /></>
+                                        }} />
+                                        </>
                                     }} delay={500} lockTime={1000} unlockTime={500}>
                                         {commafy(row[9] as number)}
                                     </LazyTooltip>

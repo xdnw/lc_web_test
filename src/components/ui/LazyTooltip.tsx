@@ -113,7 +113,7 @@ const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, l
         const duration = reverse ? unlockTime : lockTime;
         return (
             <div className="absolute top-0 right-0 mt-1 mr-1">
-                <svg className="w-4 h-4" viewBox="0 0 36 36">
+                <svg className="w-4 h-4 fill-slate-200 dark:fill-slate-900" viewBox="0 0 40 40">
                     <path
                         className="text-gray-200"
                         strokeDasharray="100, 100"

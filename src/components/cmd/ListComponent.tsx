@@ -253,9 +253,9 @@ export default function ListComponent(
                 className={`absolute z-10 ${isFocused ? '' : 'invisible'} inset-x-0 bg-gray-50 dark:bg-gray-600 drop-shadow-2xl shadow-2xl border border-slate-400 dark:border-slate-400 rounded-sm p-0 clusterize-scroll`}
                 ref={scrollRef}
             >
-                <ol className="clusterize-content" ref={contentRef} onClick={handleListClick}>
+                <ul className="clusterize-content" ref={contentRef} onClick={handleListClick}>
                 <li className="clusterize-no-data">Loading data…</li>
-                </ol>
+                </ul>
             </div>
             {isMulti && (
                 <>

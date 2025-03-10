@@ -3,6 +3,7 @@ import Cookies from "js-cookie";
 import {UNPACKR} from "@/lib/utils.ts";
 import {CommonEndpoint} from "../api/endpoint";
 import {DEBUG, deepEqual} from "../../lib/utils";
+import { JSONValue } from '../api/internaltypes';
 type DataProviderProps = {
     children: ReactNode;
     endpoint: string;
@@ -28,25 +29,6 @@ const areObjectsEqual = (obj1: { [key: string]: string | string[] }, obj2: { [ke
     return true;
 };
 
-type JSONValue =
-    | string
-    | number
-    | boolean
-    | null
-    | JSONObject
-    | JSONArray;
-
-interface JSONObject {
-    [key: string]: JSONValue;
-}
-
-interface JSONArray extends Array<JSONValue> {}
-
-interface QueryData {
-    query: { [key: string]: string | string[] };
-    cache?: { cache_type: CacheType, duration?: number, cookie_id: string };
-}
-
 export enum CacheType {
     None = "none",
     Cookie = "cookie",
@@ -54,15 +36,106 @@ export enum CacheType {
     SessionStorage = "session",
 }
 
-export function defaultCache(cookie: string) {
-    return { cache_type: CacheType.LocalStorage, cookie_id: cookie, duration: 2592000 };
+export class QueryResult<T> {
+    id: number;
+    endpoint: string;
+    query: { [key: string]: string | string[] };
+    update_ms: number;
+
+    cache?: { cache_type: CacheType, duration?: number, cookie_id: string };
+    data?: T | null;
+    error?: string | null;
+
+    loading: boolean;
+    refetch: boolean;
+
+    constructor({
+                    id, endpoint, query, update_ms, cache, data, error, loading = true, refetch = false
+                }: {
+        id: number;
+        endpoint: string;
+        query: { [key: string]: string | string[] };
+        update_ms: number;
+        cache?: { cache_type: CacheType, duration?: number, cookie_id: string };
+        data?: T | null;
+        error?: string | null;
+        loading?: boolean;
+        refetch?: boolean;
+    }) {
+        this.id = id;
+        this.endpoint = endpoint;
+        this.query = query;
+        this.update_ms = update_ms;
+        this.cache = cache;
+        this.data = data;
+        this.error = error;
+        this.loading = loading;
+        this.refetch = refetch;
+    }
+
+    set(data: T | null) {
+        this.data = data;
+        this.error = null;
+        this.loading = false;
+        this.refetch = false;
+        this.update_ms = Date.now();
+        return this;
+    }
+
+    update(time: number) {
+        this.update_ms = time;
+        return this;
+    }
+
+    clearCache() {
+        if (this.cache) {
+            if (this.cache.cache_type === CacheType.Cookie) {
+                Cookies.remove(this.cache.cookie_id);
+            } else if (this.cache.cache_type === CacheType.LocalStorage) {
+                localStorage.removeItem(this.cache.cookie_id);
+            } else if (this.cache.cache_type === CacheType.SessionStorage) {
+                sessionStorage.removeItem(this.cache.cookie_id);
+            }
+        }
+        return this;
+    }
+
+    refresh() {
+        this.clearCache();
+        this.refetch = true;
+        this.loading = true;
+        this.data = undefined;
+        return this;
+    }
+
+    get get(): T | undefined | null {
+        // TODO fetches again if its been uncached
+        if (this.data === undefined) {
+
+        }
+        return this.data;
+    }
+
+    clone() {
+        return new QueryResult<T>({
+            id: this.id,
+            endpoint: this.endpoint,
+            query: this.query,
+            update_ms: this.update_ms,
+            cache: this.cache,
+            data: this.data,
+            error: this.error,
+            loading: this.loading,
+            refetch: this.refetch
+        });
+    }
 }
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }) => {
-    const [data, setData] = useState<({ [key: string]: JSONValue } | null)[] | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const queries = useRef<[string, QueryData][]>([]);
+    // const [data, setData] = useState<({ [key: string]: JSONValue } | null)[] | null>(null);
+    // const [loading, setLoading] = useState<boolean>(true);
+    // const [error, setError] = useState<string | null>(null);
+    const queries = useRef<[string, QueryResult<{ [key: string]: JSONValue }>][]>([]);
 
     const [rerender, setRerender] = useState<boolean>(false);
     const newQueryRef = useRef<number>(0);
@@ -74,13 +147,21 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
         if (existingIndex !== -1) {
             newIndex = existingIndex;
         } else {
-            const newQueryData: QueryData = cache ? { query: query, cache: cache } : { query: query };
+            // const newQueryData: QueryData = cache ? { query: query, cache: cache } : { query: query };
             newIndex = queries.current.length;
+            // newIndex, name, query, 0, cache
+
+            const newQueryData: QueryResult<{ [key: string]: JSONValue }> = new QueryResult({
+                id: newIndex,
+                endpoint: name,
+                query: query,
+                update_ms: 0,
+                cache: cache,
+            });
             queries.current.push([name, newQueryData]);
             if (newQueryRef.current == lastQuery.current) {
                 newQueryRef.current++;
-                setLoading(true);
-                setRerender(!rerender);
+                setRerender(f => !f);
             }
         }
         return newIndex;
@@ -92,97 +173,85 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
     }, [setRerender]);
 
     const refetchQueries = useCallback((queryId: number[]) => {
-        if (!data || !queries.current) return;
-        let newData: ({ [key: string]: JSONValue } | null)[] | null = null;
+        if (!queries.current) return;
+        let rerenderFlag = false;
         for (const id of queryId) {
-            if (!data[id]) continue;
-            if (newData === null) {
-                newData = [...data];
-            }
-            newData[id] = null;
-            const query = queries.current[id];
-            const cache = query[1].cache;
-            if (cache) {
-                if (cache.cache_type === CacheType.Cookie) {
-                    Cookies.remove(cache.cookie_id);
-                } else if (cache.cache_type === CacheType.LocalStorage) {
-                    localStorage.removeItem(cache.cookie_id);
-                } else if (cache.cache_type === CacheType.SessionStorage) {
-                    sessionStorage.removeItem(cache.cookie_id);
-                }
-            }
+            const entry = queries.current[id];
+            if (!entry) continue;
+            const query = entry[1];
+            if (!query.data) return;
+            query.refresh();
+            rerenderFlag = true;
         }
-        if (newData) {
-            setData(newData);
+        if (rerenderFlag) {
             newQueryRef.current++;
             setRerender(prev => !prev);
         }
-    }, [data, setRerender]);
+    }, [queries, setRerender]);
 
     useEffect(() => {
         if (DEBUG.LOADING_WRAPPER) console.log("Run queries before ", queries.current.length + " | " + lastQuery.current + " | " + newQueryRef.current);
         if (newQueryRef.current !== lastQuery.current) {
             lastQuery.current = newQueryRef.current;
             if (DEBUG.LOADING_WRAPPER) console.log("Run Queries", queries.current.length);
-            const cachedResults: ({ [key: string]: JSONValue } | null)[] = [];
-            const indexes: number[] = [];
+            const shouldFetch: QueryResult<{ [key: string]: JSONValue }>[] = [];
+            let shouldRerender = false;
+
             for (let i = 0; i < queries.current.length; i++) {
-                if (data && data.length >= i) {
-                    const dataI = data[i];
-                    if (dataI && dataI.success !== false) {
-                        cachedResults.push(dataI);
-                        continue;
-                    }
-                }
-                const query = queries.current[i];
-                const cache = query[1].cache;
+                const entry = queries.current[i];
+                const query = entry[1];
+                if (query.data != undefined) continue;
+                shouldRerender = true;
+
+                const cache = query.cache;
                 if (cache) {
                     if (cache.cache_type === CacheType.Cookie) {
                         const cookieVal = Cookies.get(cache.cookie_id);
                         if (DEBUG.LOADING_WRAPPER) console.log("Cookie value", cookieVal, (cookieVal === undefined));
                         if (cookieVal) {
-                            cachedResults.push(JSON.parse(cookieVal));
+                            const value = JSON.parse(cookieVal) as { [key: string]: JSONValue };
+                            query.set(value);
                             continue;
                         }
                     } else if (cache.cache_type === CacheType.LocalStorage) {
                         const elemWithExpiry = localStorage.getItem(cache.cookie_id);
                         if (elemWithExpiry) {
-                            const parsedElem = JSON.parse(elemWithExpiry);
+                            const parsedElem = JSON.parse(elemWithExpiry) as { expirationTime: number, data: { [key: string]: JSONValue } };
                             if (parsedElem.expirationTime && Date.now() > parsedElem.expirationTime) {
                                 localStorage.removeItem(cache.cookie_id);
                             } else {
-                                cachedResults.push(parsedElem.data);
+                                query.set(parsedElem.data).update(parsedElem.expirationTime - (cache.duration ?? 2592000) * 1000);
                                 continue;
                             }
                         }
                     } else if (cache.cache_type == CacheType.SessionStorage) {
                         const elemWithExpiry = sessionStorage.getItem(cache.cookie_id);
                         if (elemWithExpiry) {
-                            const parsedElem = JSON.parse(elemWithExpiry);
+                            const parsedElem = JSON.parse(elemWithExpiry) as { expirationTime: number, data: { [key: string]: JSONValue } };
                             if (parsedElem.expirationTime && Date.now() > parsedElem.expirationTime) {
                                 sessionStorage.removeItem(cache.cookie_id);
                             } else {
-                                cachedResults.push(parsedElem.data);
+                                query.set(parsedElem.data).update(parsedElem.expirationTime);
                                 continue;
                             }
                         }
                     }
                 }
-                cachedResults.push(null);
-                indexes.push(i);
+                shouldFetch.push(query);
             }
-            if (indexes.length > 0) {
+            if (shouldFetch.length > 0) {
                 const headers: { 'Content-Type': string } = {
                     'Content-Type': 'application/msgpack',
                 };
 
                 const url = `${process.env.API_URL}${endpoint}`;
-                const finalQueries = indexes.map((index) => {
-                    const query = queries.current[index];
-                    return [query[0], query[1].query];
+                const finalQueries = shouldFetch.map((query) => {
+                    return [query.endpoint, query.query];
                 });
                 const formBody = new URLSearchParams({ queries: JSON.stringify(finalQueries) }).toString();
-                console.log("Fetching data from", url, "with queries", finalQueries);
+                console.log("Fetching data from", url, "with queries",
+                    shouldFetch.map((query) => query.query),
+                    "And cache policy", shouldFetch.map((query) => query.cache),);
 
                 fetch(url, {
                     method: 'POST',
@@ -194,62 +263,71 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
                         if (response.ok) {
                             const serializedData = await response.arrayBuffer();
                             const data = new Uint8Array(serializedData);
-                            return UNPACKR.unpack(data);
+                            return UNPACKR.unpack(data) as { results: { [key: string]: JSONValue }[] };
                         } else {
                             throw new Error('Network response was not ok.');
                         }
                     })
                     .then(fetchedData => {
-                        const arr = fetchedData.results;
+                        let updated = false;
+                        const arr = fetchedData.results as { [key: string]: JSONValue }[];
                         if (Array.isArray(arr)) {
-                            for (let i = 0; i < indexes.length; i++) {
+                            for (let i = 0; i < arr.length; i++) {
+                                const now = Date.now();
                                 const val = arr[i];
-                                const index = indexes[i];
+                                console.log("DATA " + JSON.stringify(val));
+                                const query = shouldFetch[i];
                                 if (val.success || val.success !== false) {
-                                    const cache = queries.current[index][1].cache;
+                                    const cache = query.cache;
                                     if (cache) {
                                         const duration = cache.duration ?? 2592000; // 30 days default in seconds
                                         if (cache.cache_type === CacheType.Cookie) {
                                             Cookies.set(cache.cookie_id, JSON.stringify(val), {expires: duration});
                                         } else if (cache.cache_type === CacheType.LocalStorage) {
-                                            const expirationTime = Date.now() + duration * 1000; // Convert to milliseconds
+                                            const expirationTime = now + duration * 1000; // Convert to milliseconds
                                             const dataWithExpiration = {data: val, expirationTime};
                                             localStorage.setItem(cache.cookie_id, JSON.stringify(dataWithExpiration));
                                         } else if (cache.cache_type === CacheType.SessionStorage) {
-                                            const expirationTime = Date.now() + duration * 1000; // Convert to milliseconds
+                                            const expirationTime = now + duration * 1000; // Convert to milliseconds
                                             const dataWithExpiration = {data: val, expirationTime};
                                             sessionStorage.setItem(cache.cookie_id, JSON.stringify(dataWithExpiration));
                                         }
                                     }
                                 }
-                                cachedResults[index] = val;
+                                query.set(val).update(now);
+                                updated = true;
                             }
                         }
-                        setData(cachedResults as { [key: string]: JSONValue }[]);
-                        setLoading(false);
+                        if (updated) {
+                            setRerender(prev => !prev);
+                        }
                     })
                     .catch(error => {
-                        setError(`${error}`);
-                        setLoading(false);
+                        for (const query of shouldFetch) {
+                            query.error = error as string;
+                            query.set(null);
+                        }
+                        setRerender(prev => !prev);
                     });
             } else {
-                setData(cachedResults as { [key: string]: JSONValue }[]);
-                setLoading(false);
+                if (shouldRerender) {
+                    setRerender(prev => !prev);
+                }
             }
         }
     }, [rerender]);
 
     return (
-        <DataContext.Provider value={{ data, loading, error, registerQuery, refetch, refetchQueries }}>
+        <DataContext.Provider value={{
+            queries: queries.current.map(([name, query]) => query),
+            registerQuery, refetch, refetchQueries }}>
             {children}
         </DataContext.Provider>
     );
 };
 
 type DataContextType<T> = {
-    data: T | null;
-    loading: boolean;
-    error: string | null;
+    queries: T;
     registerQuery: (name: string, query: { [key: string]: string | string[] }, cache?: { cache_type: CacheType, duration?: number, cookie_id: string }) => number;
     refetch: () => void;
     refetchQueries: (queryId: number[]) => void;
@@ -257,12 +335,12 @@ type DataContextType<T> = {
 
 const DataContext = createContext<DataContextType<any> | undefined>(undefined);
 
-export const useData = <T,>(): DataContextType<T[]> => {
+export const useData = <T,>(): DataContextType<QueryResult<T>[]> => {
     const context = useContext(DataContext);
     if (context === undefined) {
         throw new Error('useData must be used within a DataProvider');
     }
-    return context as DataContextType<T[]>;
+    return context as DataContextType<QueryResult<T>[]>;
 };
 
 export const useRegisterQuery = (name: string,

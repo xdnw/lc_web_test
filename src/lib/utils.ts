@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge"
 import { Unpackr } from 'msgpackr';
 
 export const DEBUG = {
-  LOADING_WRAPPER: false,
+  LOADING_WRAPPER: true,
 }
 export const UNPACKR = new Unpackr({largeBigIntToFloat: true, mapsAsObjects: true, bundleStrings: true, int64AsType: "number"});
 

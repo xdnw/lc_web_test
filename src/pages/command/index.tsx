@@ -213,9 +213,9 @@ export function OutputValuesDisplay({name, store}: {name: string, store: Command
     return (
         <div className="relative">
             <TooltipProvider>
-                <BlockCopyButton getText={() => textRef.current ? textRef.current.textContent ?? "" : ''}/>
+                <BlockCopyButton left={true} getText={() => textRef.current ? textRef.current.textContent ?? "" : ''}/>
             </TooltipProvider>
-            <p className="bg-accent p-2 mb-1" ref={textRef}>/{name}&nbsp;
+            <p style={{ textIndent: '1.65em' }} className="rounded h-7 p-0.5 mb-1 bg-accent border border-slate-500 border-opacity-50" ref={textRef}>/{name}&nbsp;
                 {
                     Object.entries(output).map(([name, value]) => (
                         <span key={name} className="me-1">
