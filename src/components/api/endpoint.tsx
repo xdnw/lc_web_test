@@ -106,10 +106,11 @@ export type CommonEndpoint<T, U extends {[key: string]: string | string[] | unde
     }) => React.ReactNode;
 };
 
-export function useDisplay<T extends { [key: string]: JSONValue; }>(
+export function useDisplay<T>(
     name: string,
     cache: { cache_type: CacheType, duration?: number, cookie_id: string },
-    args: {[key: string]: string | string[]}, render: (data: T) => React.ReactNode,
+    args: {[key: string]: string | string[]},
+    render: (data: T) => React.ReactNode,
     renderLoading?: () => React.ReactNode,
     renderError?: (error: string) => React.ReactNode): React.ReactNode {
     const [queryId] = useRegisterQuery(name, args, cache);

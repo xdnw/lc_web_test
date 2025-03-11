@@ -19,19 +19,21 @@ const useSessionDisplay = () => {
     const [error, setError] = useState<string | null>(null);
 
     const [queryId] = useRegisterQuery(SESSION.endpoint.name, {}, SESSION.endpoint.cache);
-    const { data, error: dataError, refetchQueries } = useData<WebSession>();
+    const { queries, refetchQueries } = useData<WebSession>();
 
     useEffect(() => {
-        if (data && queryId in data && !deepEqual(data[queryId], session)) {
-            setSession(data[queryId]);
+        const query = queries && queries.length > queryId ? queries[queryId] : null;
+        if (query && query.data && !deepEqual(query.data, session)) {
+            setSession(query.data);
         }
-    }, [data, queryId, session]);
+    }, [queries, queryId, session]);
 
     useEffect(() => {
-        if (dataError && dataError !== error) {
-            setError(dataError);
+        const query = queries && queries.length > queryId ? queries[queryId] : null;
+        if (query && query.error !== error) {
+            setError((query.error as string) ?? null);
         }
-    }, [dataError, error, setError]);
+    }, [queries, error, setError]);
 
     const refetchSession = useCallback(() => {
         refetchQueries([queryId]);
