@@ -109,7 +109,7 @@ export default function Alliance() {
                                 <td className="p-1">
                                     <LazyTooltip className={"underline w-1/2"} content={() => {
                                         return <>
-                                            <ViewCommand command={"alliance stats attribute_ranking"} args={{attribute: "{score}", num_results: "5"}}/>
+                                            <ViewCommand command={"alliance stats attribute_ranking"} args={{attribute: "{score}", num_results: "10", highlight: row[1] + ""}}/>
                                             <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
                                             metric: 'score',
                                             alliances: "aa:" + row[1],

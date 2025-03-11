@@ -20,6 +20,12 @@ body, html {
     background-size: 100% 100vh;
     background-attachment: fixed;
 }
+.dark strong {
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+}
+.light strong {
+    text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+}
 .themeBody::before {
     position: fixed;
     content: "";
