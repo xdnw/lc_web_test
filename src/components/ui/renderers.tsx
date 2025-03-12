@@ -24,6 +24,7 @@ export const RENDERERS: {[key: string]: ObjectColumnRender | undefined} = {
     percent_100: {display: percent_100},
     percent: {display: percent},
     duration_ms: {display: duration_ms},
+    numeric_map: {display: numericMap},
 }
 
 export function percent_100(value: number): string {
@@ -151,4 +152,15 @@ export function money(f: number): string {
 
 export function color(colorId: number): string {
     return ReactDOMServer.renderToString(<Color colorId={colorId} />);
+}
+
+export function numericMap(value: { [key: string]: number } | string): string {
+    if (!value) return "{}";
+    if (typeof value === "string") {
+        value = JSON.parse(value) as { [key: string]: number };
+    }
+    const entries = Object.entries(value).map(([k, v]) => {
+        return `${k}:${commafy((v))}`;
+    });
+    return `{${entries.join(",")}}`;
 }

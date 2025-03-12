@@ -70,6 +70,24 @@ export type ICommandMap = {
     options: { [name: string]: IOptionData | string };
 }
 
+///
+
+export type CommandPath<T> = T extends ICommandGroup
+    ? { [K in keyof T]: [K] | [K, ...CommandPath<T[K]>] }[keyof T]
+    : [];
+
+export type CommandArguments<T, P extends string[]> = P extends [infer K, ...infer Rest]
+    ? K extends keyof T
+        ? Rest extends []
+            ? T[K] extends ICommand
+                ? { [key in keyof T[K]['arguments']]?: string }
+                : never
+            : CommandArguments<T[K], Extract<Rest, string[]>>
+        : never
+    : never;
+
+///
+
 export class Argument {
     name: string;
     arg: IArgument;

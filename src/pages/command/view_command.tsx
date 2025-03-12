@@ -6,6 +6,9 @@ import {WebViewCommand} from "../../components/api/apitypes";
 import {Link, useParams, useSearchParams} from "react-router-dom";
 import {Button} from "../../components/ui/button";
 import CopyToClipboard from "../../components/ui/copytoclipboard";
+import {CommandArguments, CommandPath} from "../../utils/Command";
+import {COMMANDS} from "../../lib/commands";
+import CommandsPage from "../commands";
 
 function toMap(searchParams: URLSearchParams): {[key: string]: string} {
     const map: {[key: string]: string} = {};
@@ -19,27 +22,37 @@ export default function ViewCommandPage() {
     const {command} = useParams<{ command: string }>();
     // useSearchParams();
     const [searchParams] = useSearchParams();
+    if (!command) {
+        return <CommandsPage />
+    }
     // search params to object {[key: string]: string}
-    return <ViewCommand command={command as string} args={toMap(searchParams)} />;
+    return <ViewCommand command={command.split(" ") as CommandPath<typeof COMMANDS['commands']>} args={toMap(searchParams)} />;
 }
 
-export function ViewCommand({ command, args }: { command: string, args: { [key: string]: string } }) {
+export function ViewCommand<P extends CommandPath<typeof COMMANDS['commands']>>(
+    { command, args, className }: {
+        command: P,
+        args: Partial<CommandArguments<typeof COMMANDS['commands'], P>>,
+        className?: string
+    }) {
     const { showDialog } = useDialog();
 
     return <>
         <Button variant="outline" size="sm" asChild>
-            <Link to={`${process.env.BASE_PATH}command/${command}?${new URLSearchParams(args).toString()}`}>Edit</Link>
+            <Link to={`${process.env.BASE_PATH}command/${command.join(" ")}?${new URLSearchParams(args as {[key: string]: string}).toString()}`}>Edit</Link>
         </Button>
         <Button variant="outline" size="sm" asChild className="ms-1">
-            <CopyToClipboard text="Copy Command" copy={`/${command} ${Object.entries(args).map(([key, value]) => `${key}:${value}`).join(" ")}`}
+            <CopyToClipboard text="Copy Command" copy={`/${command.join(" ")} ${Object.entries(args).map(([key, value]) => `${key}:${value as string}`).join(" ")}`}
                          className="no-underline" />
         </Button>
         {COMMAND.useDisplay({
         args: {
-            data: { "": command, ...args } as unknown as string, // hacky way to pass in the raw data
+            data: { "": command.join(" "), ...args } as unknown as string, // hacky way to pass in the raw data
         },
         render: (newData) => {
-            return <MemoizedRenderResponse data={newData} showDialog={showDialog} />;
+            return (<div className={className}>
+            <MemoizedRenderResponse data={newData} showDialog={showDialog} />
+            </div>);
         }
     })}
     </>;

@@ -142,7 +142,7 @@ const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, l
         >
             {children}
             {visible && (
-                <div className={cn(styles.tooltipContent, "bg-secondary p-2 rounded-sm", locked ? "border-2 border-red-500/50" : "border-2 border-blue-500/50")}>
+                <div className={cn(styles.tooltipContent, "w-max whitespace-nowrap bg-secondary p-1 rounded-sm", locked ? "border-2 border-red-500/50" : "border-2 border-blue-500/50")}>
                     {content()}
                     {renderProgressCircle()}
                 </div>

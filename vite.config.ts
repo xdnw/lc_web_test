@@ -20,11 +20,6 @@ export default defineConfig(({ mode }) => {
           }
         ]
       }),
-      // legacy({
-      //   targets: ['defaults', 'not IE 11'],
-      //   polyfills: ['es/object/has-own'],
-      //   modernPolyfills: ['es/object/has-own'],
-      // })
     ],
     define: {
       'global': 'window',
