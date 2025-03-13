@@ -171,7 +171,7 @@ export function getQueryString(
     else if (selAndModifiers) {
         for (const [key, value] of Object.entries(selAndModifiers)) {
             if (value) {
-                params.append(key, value);
+                params.append(key === "" ? "sel" : key, value);
             } else {
                 // sel = value
                 params.set('sel', value);
