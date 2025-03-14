@@ -7,7 +7,6 @@ import CommandPage from "./pages/command";
 import PageView from "./components/layout/page-view";
 import TestInput from "./pages/testinput";
 import AutoComplete from "./pages/testinput/autocomplete";
-import AutoComplete2 from "./pages/testinput/autocomplete2";
 import PlaceholdersList from "@/pages/ph_list";
 import Home from "./pages/home";
 import OAuth2 from "./pages/oauth2";
@@ -99,7 +98,7 @@ export default function App() {
 
           <Route path="/admin" element={<Admin />} />
           <Route path="/autocomplete" element={<AutoComplete />} />
-          <Route path="/auto2" element={<AutoComplete2 />} />
+          {/* <Route path="/auto2" element={<AutoComplete2 />} /> */}
           <Route path="/dnd" element={<DndTest />} />
           <Route path="/testinput" element={<TestInput />} />
         </Routes>
