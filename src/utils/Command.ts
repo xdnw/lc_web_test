@@ -308,7 +308,7 @@ export class PlaceholderMap<T extends keyof typeof COMMANDS.placeholders> {
 }
 
 export class PlaceholderArrayBuilder<T extends keyof typeof COMMANDS.placeholders> {
-    private type: T;
+    private readonly type: T;
     private data: (string | [string, string])[];
 
     constructor(type: T) {

@@ -1,6 +1,6 @@
 import {useDialog} from "../../../components/layout/DialogContext";
 import React, {useRef} from "react";
-import {METRIC_COMPARE_BY_TURN, TABLE} from "../../../components/api/endpoints";
+import {ALLIANCESTATS, METRIC_COMPARE_BY_TURN, TABLE} from "../../../components/api/endpoints";
 import {getUrl} from "../../custom_table";
 import {Link, useParams } from "react-router-dom";
 import { COMMANDS } from "@/lib/commands";
@@ -25,19 +25,18 @@ MMR
 Link to wars
 
 Treaties
+// Activity button?
 
-- View ingame
 - Customize button (customize saves to local storage)
 - color links to color bloc pages (TODO color bloc component does this - from the formatter)
   Graphs for alliances, show current value with graph on hover?
+
   /alliance stats allianceMetricAB
-  /alliance stats metric_compare_by_turn
-  /alliance stats attribute_ranking
-  /alliance stats loot_ranking
   /alliance stats metricsByTurn
   /alliance stats ranking
   /alliance stats rankingTime
-  /nation loot
+
+
   /sheets_ia ActivitySheet
   /sheets_ia activity_date
   /sheets_ia daychange
@@ -48,7 +47,6 @@ Link to guild, or link to add guild
 
 - Member list
 
-/alliance cost
 /alliance edit
 
 If server is offshore server, and this is an account
@@ -66,23 +64,34 @@ export default function Alliance() {
 
     const columns = CM.placeholders('DBAlliance')
         .array()
-        .add({cmd: 'getname'}) // 1
-        .add({cmd: 'getid'}) // 2
-        .add({cmd: 'getacronym'}) // 3
-        .add({cmd: 'getflag'}) // 4
-        .add({cmd: 'getforum_link'}) // 5
-        .add({cmd: 'getdiscord_link'}) // 6
-        .add({cmd: 'getwiki_link'}) // 7
-        .add({cmd: 'getdatecreated'}) // 8
-        .add({cmd: 'getcolor'}) // 9
-        .add({cmd: 'getscore'}) // 10
-        .add({cmd: 'getestimatedstockpilevalue'}) // 11
-        .add({cmd: 'getestimatedstockpile'}) // 12
-        .add({cmd: 'getlootvalue', args: {'score': '1'}}) // 13
-        .add({cmd: 'getrevenueconverted'}) // 14
+        .add({cmd: 'getname'}) // 0
+        .add({cmd: 'getid'}) // 1
+        .add({cmd: 'getacronym'}) // 2
+        .add({cmd: 'getflag'}) // 3
+        .add({cmd: 'getforum_link'}) // 4
+        .add({cmd: 'getdiscord_link'}) // 5
+        .add({cmd: 'getwiki_link'}) // 6
+        .add({cmd: 'getdatecreated'}) // 7
+        .add({cmd: 'getcolor'}) // 8
+        .add({cmd: 'getscore'}) // 9
+        .add({cmd: 'getestimatedstockpilevalue'}) // 10
+        .add({cmd: 'getestimatedstockpile'}) // 11
+        .add({cmd: 'getlootvalue', args: {'score': '1'}}) // 12
+        .add({cmd: 'getrevenueconverted'}) // 13
+        .add({cmd: 'getcostconverted'}) // 14
+        .add({cmd: 'countmembers'}) // 15
+        .add({cmd: 'countnations', args: {"filter": "#position=1"}}) // 16
+        .add({cmd: 'countnations', args: {"filter": "#isTaxable"}}) // 17
+        .add({cmd: 'getnumtreasures'}) // 18
+        .add({cmd: 'countnations', args: {"filter": "#color=gray,#vm_turns=0"}}) // 19 gray (all)
+        .add({cmd: 'countnations', args: {"filter": "#color=gray,#vm_turns=0,#active_m<7200"}}) // 20 gray (active)
+        .add({cmd: 'countnations', args: {"filter": "#cities<10,#FreeOffensiveSlots>0,(#color!=beige|#isblockaded=0)"}}) // 21 C10 without raids
+        .add({cmd: 'getcities'}) // 22
+        .add({cmd: 'gettotal', args: {"attribute": "cityvalue", 'filter': "#position>1,#vm_turns=0"}}) // 23
         .build();
     const {showDialog} = useDialog();
     const url = useRef(getUrl(type, alliance as string, columns));
+
 
     return <>
         {TABLE.useDisplay({
@@ -111,7 +120,6 @@ export default function Alliance() {
                         >
                             {row[0] as string} <ExternalLink/>
                         </Link>
-                        {/*acronym in (bracket) if present*/}
                         {row[2] && (
                             <span className="text-sm text-gray-500">
                                 ({row[2] as string})
@@ -124,12 +132,20 @@ export default function Alliance() {
                             to={row[5] as string}>Discord</Link></Button>}
                         {row[6] && <Button variant="outline" size="sm" asChild><Link
                             to={row[6] as string}>Wiki</Link></Button>}
+                        {row[15] as number > 0 && <Button variant="outline" size="sm" asChild><Link
+                            to={`${process.env.BASE_PATH}nations/AA:${row[1]},#position>1`}>{row[15]}&nbsp;Members</Link></Button>}
+                        {row[17] as number > 0 && <Button variant="outline" size="sm" asChild><Link
+                            to={`${process.env.BASE_PATH}nations/AA:${row[1]},#isTaxable`}>{row[17]}&nbsp;Taxable</Link></Button>}
+                        {row[16] as number > 0 && <Button variant="outline" size="sm" asChild><Link
+                            to={`${process.env.BASE_PATH}nations/AA:${row[1]},#position=1`}>{row[16]}&nbsp;Applicants</Link></Button>}
                     </div>
                     <table>
                         <tbody>
                             <tr>
                                 <td className="p-1">Created</td>
-                                <td className="p-1"><Timestamp millis={row[7] as number}/></td>
+                                <td className="p-1">
+                                    <Timestamp millis={row[7] as number}/>
+                                </td>
                             </tr>
                             <tr>
                                 <td className="p-1">Color</td>
@@ -139,57 +155,222 @@ export default function Alliance() {
                                 </td>
                             </tr>
                             <tr>
+                                <td className="p-1">Rank</td>
+                                <td className="p-1 flex items-center">
+                                    TODO
+                                </td>
+                            </tr>
+                            <tr>
                                 <td className="p-1">Score</td>
                                 <td className="p-1">
                                     <LazyTooltip className={"underline"} content={() => {
                                         return <>
-                                            <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{attribute: "{score}", num_results: "10", highlight: row[1] + ""}}/>
+                                            <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{attribute: "{score}", num_results: "5", highlight: row[1] + ""}}/>
                                             <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
                                             metric: 'score',
                                             alliances: "aa:" + row[1],
                                             start: 'timestamp:' + row[7],
                                         }} />
                                         </>
-                                    }} delay={500} lockTime={1000} unlockTime={500}>
+                                    }} >
                                         {commafy(row[9] as number)}ns
                                     </LazyTooltip>
                                 </td>
                             </tr>
                             <tr>
-                                {/* show ranking */}
                                 <td className="p-1">Estimated Stockpile Value</td>
                                 <td className="p-1">
                                     <LazyTooltip className={"underline"} content={() => {
                                         return <>
-                                            <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{attribute: "{getestimatedstockpilevalue}", num_results: "10", highlight: row[1] + ""}}/>
+                                            <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{attribute: "{getestimatedstockpilevalue}", num_results: "5", highlight: row[1] + ""}}/>
                                             <CopoToClipboardTextArea text={numericMap(row[11] as string)} />
                                         </>
-                                    }} delay={500} lockTime={1000} unlockTime={500}>
+                                    }} >
                                         ${commafy(row[10] as number)}
                                     </LazyTooltip>
                                 </td>
                             </tr>
                             <tr>
-                                {/* show ranking */}
-                                {/* show losses (30d) */}
-                                {/* show losses 30d ranking */}
                                 <td className="p-1">Loot Per Score</td>
-                                {/*/alliance stats loot_ranking time:30d*/}
                                 <td className="p-1">
                                     <LazyTooltip className={"underline"} content={() => {
                                         return <>
-                                            <ViewCommand command={["alliance", "stats", "loot_ranking"]} args={{time: "30d", num_results: "10", highlight: row[1] + ""}}/>
+                                            <ViewCommand command={["alliance", "stats", "loot_ranking"]} args={{time: "30d", num_results: "5", highlight: "AA:" + row[1]}}/>
+                                            <hr/>
+                                            Alliance Loot Losses:
+                                            <ViewCommand command={["stats_war", "warcostranking"]} args={{timeStart: "30d", type: "ATTACKER_LOSSES", allowedAttacks: "A_LOOT", groupByAlliance: "true", num_results: "5", highlight: "AA:" + row[1]}}/>
                                         </>
-                                    }} delay={500} lockTime={1000} unlockTime={500}>
+                                    }} >
+
                                         ${commafy(row[12] as number)}
                                     </LazyTooltip>
                                 </td>
                             </tr>
                             <tr>
-                                {/* show ranking */}
-                                {/* show value over time for total and each rss */}
                                 <td className="p-1">Revenue Converted</td>
-                                <td className="p-1">${commafy(row[13] as number)}</td>
+                                <td className="p-1">
+                                    <LazyTooltip className={"underline"} content={() => {
+                                        return <>
+                                            <ViewCommand command={["trade", "findproducer"]} args={{resources: "*", includeNegative: "true", num_results: "5", highlight: row[1] + ""}}/>
+                                            <StaticViewGraph endpoint={ALLIANCESTATS} args={{
+                                                metrics: 'revenue',
+                                                coalition: "aa:" + row[1],
+                                                start: 'timestamp:' + row[7],
+                                                end: "0"
+                                            }} />
+                                            <ViewCommand command={["alliance", "revenue"]} args={{nations: "AA:" + row[1]}}/>
+                                        </>
+                                    }} >
+                                        ${commafy(row[13] as number)}
+                                    </LazyTooltip>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Alliance Value</td>
+                                <td className="p-1">
+                                    <LazyTooltip className={"underline"} content={() => {
+                                        return <>
+                                            <ViewCommand command={["alliance", "cost"]} args={{nations: "AA:" + row[1]}}/>
+                                        </>
+                                    }} >
+                                        ${commafy(row[14] as number)}
+                                    </LazyTooltip>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Gray (non VM)</td>
+                                <td className="p-1 flex items-center">
+                                    <Button variant="outline" size="sm" asChild><Link to={`${process.env.BASE_PATH}nations/AA:${row[1]},#color=gray,#vm_turns=0`}>{row[19]}&nbsp;All</Link></Button>
+                                    <Button variant="outline" size="sm" asChild><Link to={`${process.env.BASE_PATH}nations/AA:${row[1]},#color=gray,#vm_turns=0,#active_m<7200`}>{row[20]}&nbsp;Active (5d)</Link></Button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">&#91;C10 without raids</td>
+                                <td className="p-1 flex items-center">
+                                    <Button variant="outline" size="sm" asChild><Link
+                                        to={`${process.env.BASE_PATH}nations/AA:${row[1]},#cities<10,#FreeOffensiveSlots>0,(#color!=beige|#isblockaded=0)`}>{row[21]}&nbsp;Nations</Link></Button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Treasures</td>
+                                <td className="p-1 flex items-center">
+                                    <LazyTooltip className={"underline"} content={() => {
+                                        return <>
+                                            <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{attribute: "{numtreasures}", num_results: "5", highlight: row[1] + ""}}/>
+                                            <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
+                                                metric: 'treasures',
+                                                alliances: "aa:" + row[1],
+                                                start: 'timestamp:' + row[7],
+                                            }} />
+                                        </>
+                                    }} >
+                                    {commafy(row[18] as number)} ({Math.sqrt((row[18] as number) * 4).toFixed(2)}%)
+                                    </LazyTooltip>
+                                    {row[18] as number >= 0 && <Button variant="outline" size="sm" asChild><Link
+                                        to={`${process.env.BASE_PATH}treasures/AA:${row[1]},#treasure`}>View</Link></Button>}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Cities</td>
+                                <td className="p-1 flex items-center">
+                                    <LazyTooltip className={"underline"} content={() => {
+                                        return <>
+                                            <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{attribute: "{numtreasures}", num_results: "5", highlight: row[1] + ""}}/>
+                                            <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
+                                                metric: 'treasures',
+                                                alliances: "aa:" + row[1],
+                                                start: 'timestamp:' + row[7],
+                                            }} />
+                                        </>
+                                    }} >
+                                        {commafy(row[22] as number)} (${commafy(row[22] as number * 4)})
+                                    </LazyTooltip>
+                                    TODO num cities + city value
+                                    TODO ranking
+                                    TODO city tier graph
+                                    TODO cities over time
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Avg Infra</td>
+                                <td className="p-1 flex items-center">
+                                    TODO avg infra + infra value
+                                    TODO infra by tier
+                                    TODO avg infra over time
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Avg Land</td>
+                                <td className="p-1 flex items-center">
+                                    TODO avg land + land value
+                                    TODO land by tier
+                                    TODO avg land over time
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">MMR</td>
+                                <td className="p-1 flex items-center">
+                                    TODO (non tooltip) unit= | build=
+                                    TODO MMR over time + MMR tier graph
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Soldier %</td>
+                                <td className="p-1 flex items-center">
+                                    TODO unit tier graph, unit over time
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Tank %</td>
+                                <td className="p-1 flex items-center">
+                                    TODO unit tier graph, unit over time
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Aircraft %</td>
+                                <td className="p-1 flex items-center">
+                                    TODO unit tier graph, unit over time
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Ships %</td>
+                                <td className="p-1 flex items-center">
+                                    TODO unit tier graph, unit over time
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Missiles</td>
+                                <td className="p-1 flex items-center">
+                                    TODO num missiles (... avg)
+                                    TODO MLP tier graph
+                                    TODO missiles over time
+                                    TODO ranking
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Nukes</td>
+                                <td className="p-1 flex items-center">
+                                    TODO num nukes (... avg)
+                                    TODO nuke tier graph
+                                    TODO NRF tier graph
+                                    TODO nuke over time
+                                    TODO ranking
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Spies</td>
+                                <td className="p-1 flex items-center">
+                                    TODO Spy tier graph
+                                    TODO avg spies over time
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="p-1">Active Wars</td>
+                                <td className="p-1 flex items-center">
+                                    TODO Off: 5, Def: 5 (10 Total)
+                                    TODO Wars by tier
+                                    TODO strength tier graph
+                                </td>
                             </tr>
                         </tbody>
                     </table>

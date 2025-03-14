@@ -4,7 +4,6 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
-// import legacy from '@vitejs/plugin-legacy';
 
 export default defineConfig(({ mode }) => {
   const tsconfigPath = mode === 'development' ? './tsconfig.dev.json' : './tsconfig.prod.json';

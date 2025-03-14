@@ -33,9 +33,9 @@ export function CopoToClipboardTextArea({ text, className }: { text: ReactNode, 
     return (
         <>
             <div className="relative font-mono">
-                <div ref={textareaRef} className={`text-sm bg-background p-1 ${className} rounded text-primary`}>
+                <code ref={textareaRef} className={`text-sm bg-background p-1 ${className} rounded text-primary break-words max-w-full`}>
                     {text}
-                </div>
+                </code>
                 <TooltipProvider>
                     <BlockCopyButton
                         getText={() => textareaRef.current ? textareaRef.current.textContent ?? "" : ''}/>

@@ -9,11 +9,13 @@ export default function Timestamp({ millis }: { millis: number }) {
     const tsFunc = useCallback(() => {
         return <div className="pe-8">
             {new Date(millis).toLocaleString()}
-            <TooltipProvider><BlockCopyButton getText={() => "timestamp:" + millis}/></TooltipProvider>
+            <TooltipProvider>
+                <BlockCopyButton getText={() => "timestamp:" + millis}/>
+            </TooltipProvider>
             </div>
     }, [millis]);
     return <>
-        <LazyTooltip content={tsFunc} delay={500} lockTime={1000} unlockTime={500}>
+        <LazyTooltip content={tsFunc} >
             <kbd>{formatTimeRelative(millis, 5)}</kbd>
         </LazyTooltip>
     </>
