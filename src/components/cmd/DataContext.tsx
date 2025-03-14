@@ -250,8 +250,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
                 });
                 const formBody = new URLSearchParams({ queries: JSON.stringify(finalQueries) }).toString();
                 console.log("Fetching data from", url, "with queries",
-                    shouldFetch.map((query) => query.query),
-                    "And cache policy", shouldFetch.map((query) => query.cache),);
+                    shouldFetch.map((query) => query.endpoint + "/" + JSON.stringify(query.query)),
+                    "And cache policy", shouldFetch.map((query) => JSON.stringify(query.cache)),);
 
                 fetch(url, {
                     method: 'POST',

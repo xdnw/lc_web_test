@@ -6,7 +6,7 @@ import {X} from "lucide-react";
 
 interface TooltipProps {
     children: ReactNode;
-    content: () => ReactNode;
+    content: ReactNode;
     delay?: number;
     lockTime?: number;
     unlockTime?: number;
@@ -186,7 +186,7 @@ const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, l
                         className="absolute top-0 right-0 p-1 text-red-500">
                         <X/>
                     </Button>
-                    {content()}
+                    {content}
                     {renderProgressCircle()}
                 </div>
             )}

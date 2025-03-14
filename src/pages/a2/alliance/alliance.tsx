@@ -1,9 +1,8 @@
 import {useDialog} from "../../../components/layout/DialogContext";
-import React, {useRef} from "react";
+import {useRef} from "react";
 import {ALLIANCESTATS, METRIC_COMPARE_BY_TURN, TABLE} from "../../../components/api/endpoints";
 import {getUrl} from "../../custom_table";
 import {Link, useParams } from "react-router-dom";
-import { COMMANDS } from "@/lib/commands";
 import {CM} from "../../../utils/Command";
 import {getPwUrl} from "../../../lib/pwutil";
 import { ExternalLink } from "lucide-react";
@@ -12,7 +11,6 @@ import Color from "../../../components/renderer/Color";
 import {commafy} from "../../../utils/StringUtil";
 import Timestamp from "../../../components/ui/timestamp";
 import {StaticViewGraph} from "../../graphs/view_graph";
-import { WebGraph } from "@/components/api/apitypes";
 import LazyTooltip from "../../../components/ui/LazyTooltip";
 import {ViewCommand} from "../../command/view_command";
 import {CopoToClipboardTextArea} from "../../../components/ui/copytoclipboard";
@@ -58,6 +56,8 @@ If meets requirements of being an offshore
 /offshore markAsOffshore
  */
 
+
+
 export default function Alliance() {
     const type = "Alliance";
     const {alliance} = useParams<{ alliance: string }>();
@@ -92,7 +92,6 @@ export default function Alliance() {
     const {showDialog} = useDialog();
     const url = useRef(getUrl(type, alliance as string, columns));
 
-
     return <>
         {TABLE.useDisplay({
             args: {
@@ -106,40 +105,47 @@ export default function Alliance() {
                 }
                 const row = newData.cells[1] as (string | number)[];
                 return (<>
-                    <div className="flex items-center space-x-2">
-                        {row[3] && (
-                            <img
-                                src={row[3] as string}
-                                alt="Alliance flag"
-                                className="w-16 h-10"
-                            />
-                        )}
-                        <Link
-                            className="text-2xl font-bolt flex items-center"
-                            to={getPwUrl(`alliance/id=${row[1] as string}`)}
-                        >
-                            {row[0] as string} <ExternalLink/>
-                        </Link>
-                        {row[2] && (
-                            <span className="text-sm text-gray-500">
-                                ({row[2] as string})
-                            </span>
-                        )}
-                    </div>
-                    <div className="mt-1">
-                        {row[4] && <Button variant="outline" size="sm" asChild><Link to={row[4] as string}>Forum</Link></Button>}
-                        {row[5] && <Button variant="outline" size="sm" asChild><Link
-                            to={row[5] as string}>Discord</Link></Button>}
-                        {row[6] && <Button variant="outline" size="sm" asChild><Link
-                            to={row[6] as string}>Wiki</Link></Button>}
-                        {row[15] as number > 0 && <Button variant="outline" size="sm" asChild><Link
-                            to={`${process.env.BASE_PATH}nations/AA:${row[1]},#position>1`}>{row[15]}&nbsp;Members</Link></Button>}
-                        {row[17] as number > 0 && <Button variant="outline" size="sm" asChild><Link
-                            to={`${process.env.BASE_PATH}nations/AA:${row[1]},#isTaxable`}>{row[17]}&nbsp;Taxable</Link></Button>}
-                        {row[16] as number > 0 && <Button variant="outline" size="sm" asChild><Link
-                            to={`${process.env.BASE_PATH}nations/AA:${row[1]},#position=1`}>{row[16]}&nbsp;Applicants</Link></Button>}
-                    </div>
+                TEST
                     <table>
+                    <thead>
+                        <tr>
+                            <th colSpan={6}>
+                                <div className="flex items-center space-x-2">
+                                    {row[3] && (
+                                        <img
+                                            src={row[3] as string}
+                                            alt="Alliance flag"
+                                            className="w-16 h-10"
+                                        />
+                                    )}
+                                    <Link
+                                        className="text-2xl font-bolt flex items-center"
+                                        to={getPwUrl(`alliance/id=${row[1] as string}`)}
+                                    >
+                                        {row[0] as string} <ExternalLink/>
+                                    </Link>
+                                    {row[2] && (
+                                        <span className="text-sm text-gray-500">
+                                            ({row[2] as string})
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="mt-1">
+                                    {row[4] && <Button variant="outline" size="sm" asChild><Link to={row[4] as string}>Forum</Link></Button>}
+                                    {row[5] && <Button variant="outline" size="sm" asChild><Link
+                                        to={row[5] as string}>Discord</Link></Button>}
+                                    {row[6] && <Button variant="outline" size="sm" asChild><Link
+                                        to={row[6] as string}>Wiki</Link></Button>}
+                                    {row[15] as number > 0 && <Button variant="outline" size="sm" asChild><Link
+                                        to={`${process.env.BASE_PATH}nations/AA:${row[1]},#position>1`}>{row[15]}&nbsp;Members</Link></Button>}
+                                    {row[17] as number > 0 && <Button variant="outline" size="sm" asChild><Link
+                                        to={`${process.env.BASE_PATH}nations/AA:${row[1]},#isTaxable`}>{row[17]}&nbsp;Taxable</Link></Button>}
+                                    {row[16] as number > 0 && <Button variant="outline" size="sm" asChild><Link
+                                        to={`${process.env.BASE_PATH}nations/AA:${row[1]},#position=1`}>{row[16]}&nbsp;Applicants</Link></Button>}
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
                         <tbody>
                             <tr>
                                 <td className="p-1">Created</td>
