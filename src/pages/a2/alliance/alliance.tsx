@@ -106,10 +106,25 @@ export default function Alliance() {
                 const row = newData.cells[1] as (string | number)[];
                 return (<>
                 TEST
-                    <table>
+                    <table className="display text-xs compact font-mono dataTable">
                     <thead>
                         <tr>
-                            <th colSpan={6}>
+                            <div className="mt-1 flex flex-wrap gap-1 justify-start">
+                            {row[4] && <Button variant="outline" size="sm" asChild><Link to={row[4] as string}>Forum</Link></Button>}
+                            {row[5] && <Button variant="outline" size="sm" asChild><Link
+                                to={row[5] as string}>Discord</Link></Button>}
+                            {row[6] && <Button variant="outline" size="sm" asChild><Link
+                                to={row[6] as string}>Wiki</Link></Button>}
+                            {row[15] as number > 0 && <Button variant="outline" size="sm" asChild><Link
+                                to={`${process.env.BASE_PATH}nations/AA:${row[1]},#position>1`}>{row[15]}&nbsp;Members</Link></Button>}
+                            {row[17] as number > 0 && <Button variant="outline" size="sm" asChild><Link
+                                to={`${process.env.BASE_PATH}nations/AA:${row[1]},#isTaxable`}>{row[17]}&nbsp;Taxable</Link></Button>}
+                            {row[16] as number > 0 && <Button variant="outline" size="sm" asChild><Link
+                                to={`${process.env.BASE_PATH}nations/AA:${row[1]},#position=1`}>{row[16]}&nbsp;Applicants</Link></Button>}
+                            </div>
+                        </tr>
+                        <tr>
+                            <th colSpan={2}>
                                 <div className="flex items-center space-x-2">
                                     {row[3] && (
                                         <img
@@ -129,19 +144,6 @@ export default function Alliance() {
                                             ({row[2] as string})
                                         </span>
                                     )}
-                                </div>
-                                <div className="mt-1">
-                                    {row[4] && <Button variant="outline" size="sm" asChild><Link to={row[4] as string}>Forum</Link></Button>}
-                                    {row[5] && <Button variant="outline" size="sm" asChild><Link
-                                        to={row[5] as string}>Discord</Link></Button>}
-                                    {row[6] && <Button variant="outline" size="sm" asChild><Link
-                                        to={row[6] as string}>Wiki</Link></Button>}
-                                    {row[15] as number > 0 && <Button variant="outline" size="sm" asChild><Link
-                                        to={`${process.env.BASE_PATH}nations/AA:${row[1]},#position>1`}>{row[15]}&nbsp;Members</Link></Button>}
-                                    {row[17] as number > 0 && <Button variant="outline" size="sm" asChild><Link
-                                        to={`${process.env.BASE_PATH}nations/AA:${row[1]},#isTaxable`}>{row[17]}&nbsp;Taxable</Link></Button>}
-                                    {row[16] as number > 0 && <Button variant="outline" size="sm" asChild><Link
-                                        to={`${process.env.BASE_PATH}nations/AA:${row[1]},#position=1`}>{row[16]}&nbsp;Applicants</Link></Button>}
                                 </div>
                             </th>
                         </tr>
@@ -169,8 +171,8 @@ export default function Alliance() {
                             <tr>
                                 <td className="p-1">Score</td>
                                 <td className="p-1">
-                                    <LazyTooltip className={"underline"} content={() => {
-                                        return <>
+                                    <LazyTooltip className={"underline"} content={
+                                        <>
                                             <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{attribute: "{score}", num_results: "5", highlight: row[1] + ""}}/>
                                             <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
                                             metric: 'score',
@@ -178,7 +180,7 @@ export default function Alliance() {
                                             start: 'timestamp:' + row[7],
                                         }} />
                                         </>
-                                    }} >
+                                    } >
                                         {commafy(row[9] as number)}ns
                                     </LazyTooltip>
                                 </td>
@@ -186,12 +188,11 @@ export default function Alliance() {
                             <tr>
                                 <td className="p-1">Estimated Stockpile Value</td>
                                 <td className="p-1">
-                                    <LazyTooltip className={"underline"} content={() => {
-                                        return <>
+                                    <LazyTooltip className={"underline"} content={<>
                                             <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{attribute: "{getestimatedstockpilevalue}", num_results: "5", highlight: row[1] + ""}}/>
                                             <CopoToClipboardTextArea text={numericMap(row[11] as string)} />
                                         </>
-                                    }} >
+                                    } >
                                         ${commafy(row[10] as number)}
                                     </LazyTooltip>
                                 </td>
@@ -199,14 +200,13 @@ export default function Alliance() {
                             <tr>
                                 <td className="p-1">Loot Per Score</td>
                                 <td className="p-1">
-                                    <LazyTooltip className={"underline"} content={() => {
-                                        return <>
+                                    <LazyTooltip className={"underline"} content={<>
                                             <ViewCommand command={["alliance", "stats", "loot_ranking"]} args={{time: "30d", num_results: "5", highlight: "AA:" + row[1]}}/>
                                             <hr/>
                                             Alliance Loot Losses:
                                             <ViewCommand command={["stats_war", "warcostranking"]} args={{timeStart: "30d", type: "ATTACKER_LOSSES", allowedAttacks: "A_LOOT", groupByAlliance: "true", num_results: "5", highlight: "AA:" + row[1]}}/>
                                         </>
-                                    }} >
+                                    } >
 
                                         ${commafy(row[12] as number)}
                                     </LazyTooltip>
@@ -215,8 +215,7 @@ export default function Alliance() {
                             <tr>
                                 <td className="p-1">Revenue Converted</td>
                                 <td className="p-1">
-                                    <LazyTooltip className={"underline"} content={() => {
-                                        return <>
+                                    <LazyTooltip className={"underline"} content={<>
                                             <ViewCommand command={["trade", "findproducer"]} args={{resources: "*", includeNegative: "true", num_results: "5", highlight: row[1] + ""}}/>
                                             <StaticViewGraph endpoint={ALLIANCESTATS} args={{
                                                 metrics: 'revenue',
@@ -226,7 +225,7 @@ export default function Alliance() {
                                             }} />
                                             <ViewCommand command={["alliance", "revenue"]} args={{nations: "AA:" + row[1]}}/>
                                         </>
-                                    }} >
+                                    } >
                                         ${commafy(row[13] as number)}
                                     </LazyTooltip>
                                 </td>
@@ -234,11 +233,10 @@ export default function Alliance() {
                             <tr>
                                 <td className="p-1">Alliance Value</td>
                                 <td className="p-1">
-                                    <LazyTooltip className={"underline"} content={() => {
-                                        return <>
+                                    <LazyTooltip className={"underline"} content={<>
                                             <ViewCommand command={["alliance", "cost"]} args={{nations: "AA:" + row[1]}}/>
                                         </>
-                                    }} >
+                                    } >
                                         ${commafy(row[14] as number)}
                                     </LazyTooltip>
                                 </td>
@@ -260,8 +258,7 @@ export default function Alliance() {
                             <tr>
                                 <td className="p-1">Treasures</td>
                                 <td className="p-1 flex items-center">
-                                    <LazyTooltip className={"underline"} content={() => {
-                                        return <>
+                                    <LazyTooltip className={"underline"} content={<>
                                             <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{attribute: "{numtreasures}", num_results: "5", highlight: row[1] + ""}}/>
                                             <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
                                                 metric: 'treasures',
@@ -269,18 +266,17 @@ export default function Alliance() {
                                                 start: 'timestamp:' + row[7],
                                             }} />
                                         </>
-                                    }} >
+                                    } >
                                     {commafy(row[18] as number)} ({Math.sqrt((row[18] as number) * 4).toFixed(2)}%)
                                     </LazyTooltip>
-                                    {row[18] as number >= 0 && <Button variant="outline" size="sm" asChild><Link
+                                    {row[18] as number >= 0 && <Button className="ms-1" variant="outline" size="sm" asChild><Link
                                         to={`${process.env.BASE_PATH}treasures/AA:${row[1]},#treasure`}>View</Link></Button>}
                                 </td>
                             </tr>
                             <tr>
                                 <td className="p-1">Cities</td>
                                 <td className="p-1 flex items-center">
-                                    <LazyTooltip className={"underline"} content={() => {
-                                        return <>
+                                    <LazyTooltip className={"underline"} content={<>
                                             <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{attribute: "{numtreasures}", num_results: "5", highlight: row[1] + ""}}/>
                                             <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
                                                 metric: 'treasures',
@@ -288,7 +284,7 @@ export default function Alliance() {
                                                 start: 'timestamp:' + row[7],
                                             }} />
                                         </>
-                                    }} >
+                                    } >
                                         {commafy(row[22] as number)} (${commafy(row[22] as number * 4)})
                                     </LazyTooltip>
                                     TODO num cities + city value
