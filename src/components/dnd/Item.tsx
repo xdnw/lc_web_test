@@ -99,7 +99,7 @@ export const Item = React.memo(
                         styles.Wrapper,
                         fadeIn && "animate-fadeIn",
                         sorting && "z-10",
-                        dragOverlay && "z-[999] scale-[1.05] shadow-lg"
+                        dragOverlay && "z-999 scale-[1.05] shadow-lg"
                     )}
                     style={
                         {
@@ -127,7 +127,7 @@ export const Item = React.memo(
                 >
                     <div
                         className={cn(
-                            "relative flex flex-grow items-center p-4 bg-white shadow-md outline-none rounded-md box-border list-none transform origin-center transition-shadow",
+                            "relative flex grow items-center p-4 bg-white shadow-md outline-hidden rounded-md box-border list-none transform origin-center transition-shadow",
                             dragging && "opacity-50 z-0",
                             handle && "cursor-grab",
                             dragOverlay && "animate-pop",

@@ -59,7 +59,7 @@ export function AuditComponent({ audits }: { audits: WebAudits }) {
     };
 
     return (
-        <div className="themeDiv bg-opacity-10 p-2 mt-2 rounded">
+        <div className="bg-light/10 border border-light/10 p-2 mt-2 rounded">
         <div className="relative">
                 <h1 className="text-2xl font-bold">Audits</h1>
                 <Button
@@ -126,7 +126,7 @@ export function DismissAnnouncements({ setUnreadCount }: { setUnreadCount: (valu
 }
 
 export function BankSection() {
-    return <div className="themeDiv bg-opacity-10 p-2 rounded mt-2">
+    return <div className="bg-light/10 border border-light/10 p-2 rounded mt-2">
         <h1 className="text-2xl font-bold">Banking</h1>
         {BANK_ACCESS.useDisplay({
             args: {},
@@ -197,7 +197,7 @@ export function WarsComponent({ wars }: { wars: ApiTypes.WebMyWars }) {
     }
 
     return (
-        <div className="themeDiv bg-opacity-10 p-2 rounded mt-2">
+        <div className="bg-light/10 border border-light/10 p-2 rounded mt-2">
             <div className="w-full">
                 <a href="https://politicsandwar.com/nation/war/"
                    className="text-2xl mt-2 font-bold underline hover:no-underline">
@@ -570,7 +570,7 @@ export function OddsSuccess({odds, success}: { odds: number, success: number }) 
 
     return (
         <div
-            className={`flex-grow ${successClasses[success]}`}
+            className={`grow ${successClasses[success]}`}
             style={{width: `${odds}%`}}
             aria-valuenow={odds}
             aria-valuemin={0}

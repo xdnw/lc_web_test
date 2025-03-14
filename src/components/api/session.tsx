@@ -8,7 +8,7 @@ import {useSession} from "./SessionContext";
 
 export function LoginPicker() {
     return (
-        <div className="themeDiv bg-opacity-10 p-2 ">
+        <div className="themeDiv p-2 ">
             <Tabs defaultValue="discord">
                 <TabsList className='w-full'>
                     <TabsTrigger value="discord" className='w-full'>
@@ -59,7 +59,7 @@ export default function SessionInfo() {
             <LoginPicker/>
         </>
     }
-    return <div className="themeDiv bg-opacity-10 p-2 rounded relative">
+    return <div className="bg-light/10 border border-light/10 p-2 rounded relative">
         <table className="table-auto w-full border-separate border-spacing-y-1">
             <tbody>
             <tr className="bg-secondary">

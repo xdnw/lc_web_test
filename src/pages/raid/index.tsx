@@ -103,7 +103,7 @@ export default function RaidSection() {
     // WebEnemyInfo = alliance ids, alliance names
     // war find options
 
-    return <div className="themeDiv bg-opacity-10 p-2 rounded mt-2">
+    return <div className="bg-light/10 border border-light/10 p-2 rounded mt-2">
         <h1 className="text-2xl mt-2 font-bold">War / Raiding</h1>
         {((!session || !session?.nation) && !nation) && <PickNation nation={nationOverride}/>}
         <div className="p-2 my-1 relative">
@@ -236,7 +236,7 @@ export function RaidOutput({ output, dismiss }: { output: WebTargets | boolean |
                 <tbody>
                 {[targets.self, ...targets.targets].map((target, index) => (
                     <WebTargetRow key={index} includeStrength={targets.include_strength} now={now_ms} self={targets.self} target={target}
-                                  classes={`even:bg-black/10 even:dark:bg-white/5 ${target.id === targets.self.id ? "border border-2 border-blue-500/50 bg-blue-500/20" : ""}`}/>
+                                  classes={`even:bg-black/10 dark:even:bg-white/5 ${target.id === targets.self.id ? "border border-2 border-blue-500/50 bg-blue-500/20" : ""}`}/>
                 ))}
                 </tbody>
             </table>

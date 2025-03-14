@@ -2923,7 +2923,7 @@ const emojis: { [key: string]: string } = {
     "helmet_with_white_cross": "⛑️",
     "military_helmet": "🪖",
     "crown": "👑",
-    "ring": "💍",
+    "ring-3": "💍",
     "pouch": "👝",
     "purse": "👛",
     "handbag": "👜",

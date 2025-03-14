@@ -23,7 +23,7 @@ export default function MmrInput(
             }}
           >
             <InputOTPGroup>
-              <InputOTPSlot index={0} />
+              <InputOTPSlot className="" index={0} />
               <InputOTPSlot index={1} />
               <InputOTPSlot index={2} />
               <InputOTPSlot index={3} />

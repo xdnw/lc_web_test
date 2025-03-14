@@ -23,7 +23,7 @@ export default function TextInput(
                         setIsValid(new RegExp(filter).test(e.target.value));
                     }
                 }} 
-                className={`${!isValid ? 'border border-2 border-red-500' : ''}`}
+                className={`${!isValid ? 'border border-2 border-red-500 relative' : ''}`}
                 placeholder="Type here..." />
     )
 }

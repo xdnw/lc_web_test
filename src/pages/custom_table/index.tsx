@@ -39,6 +39,7 @@ import {downloadCells, ExportType, ExportTypes} from "../../utils/StringUtil";
 import {DEFAULT_TABS} from "../../lib/layouts";
 import CommandComponent from "../../components/cmd/CommandComponent";
 import {createCommandStoreWithDef} from "../../utils/StateUtil";
+import { Input } from "@/components/ui/input";
 
 DataTable.use(DT);
 
@@ -130,7 +131,7 @@ export default function CustomTable() {
             <div className="">
                 <PlaceholderTabs selectionRef={selection} columnsRef={columns} typeRef={type} sortRef={sort}/>
             </div>
-            <div className="themeDiv bg-opacity-10 p-2 rounded mt-2">
+            <div className="bg-light/10 border border-light/10 p-2 rounded mt-2">
                 <TableWithButtons type={type} selection={selection} columns={columns} sort={sort} load={false}/>
             </div>
         </>
@@ -858,7 +859,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                     </TabsList>
                 </div>
             </Tabs>
-            <div className="themeDiv bg-opacity-10 rounded mt-2">
+            <div className="bg-light/10 border border-light/10 rounded mt-2">
                 <Button variant="ghost" size="md"
                         className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 rounded-t justify-start"
                         onClick={() => setCollapseSelections(!collapseSelections)}>
@@ -884,7 +885,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                 ))}
                 <h2 className="text-lg my-1">Current Selection</h2>
                     <div className="flex items-center">
-                        <input className="px-1 w-full"
+                        <Input className="relative px-1 w-full"
                                ref={selInputRef}
                                type="text" defaultValue={selectionRef.current[""]}
                                onChange={(e) => {
@@ -904,7 +905,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                     >View All {toPlaceholderName(typeRef.current)} Filters</a>
                 </div>
             </div>
-            <div className="themeDiv bg-opacity-10 rounded mt-2">
+            <div className="bg-light/10 border border-light/10 rounded mt-2">
                 <Button variant="ghost" size="md"
                         className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 rounded-t justify-start"
                         onClick={() => setCollapseColumns(!collapseColumns)}>
@@ -1050,7 +1051,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                     <h2 className="text-lg mt-1 mb-0 p-0">Add Custom</h2>
                     <span className="text-sm opacity-50">type or paste in the placeholder, then press Enter | Use tab for multiple | Use semicolon ;BLAH for column alias</span>
                     <div className="flex w-full">
-                        <input type="text" className="px-1 flex-grow"
+                        <Input type="text" className="relative px-1 grow"
                                placeholder="Custom column placeholders..."
                                ref={colInputRef}
                                onPaste={handlePaste}
@@ -1127,7 +1128,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                             <input
                                 ref={filterRef}
                                 type="text"
-                                className="px-1 w-full mb-2"
+                                className="relative px-1 w-full mb-2"
                                 placeholder="Filter options"
                                 onChange={(e) => {
                                     filter.current = e.target.value.toLowerCase();

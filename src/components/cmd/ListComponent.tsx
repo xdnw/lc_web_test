@@ -180,12 +180,12 @@ export default function ListComponent(
         const scrollElement = scrollRef.current;
         const selectElement = selectRef.current?.controlRef;
         scrollElement?.addEventListener('focus', handleFocus, true);
-        scrollElement?.addEventListener('blur', handleBlur, true);
+        scrollElement?.addEventListener('blur-sm', handleBlur, true);
         selectElement?.addEventListener('mousedown', handleClick);
 
         return () => {
             scrollElement?.removeEventListener('focus', handleFocus, true);
-            scrollElement?.removeEventListener('blur', handleBlur, true);
+            scrollElement?.removeEventListener('blur-sm', handleBlur, true);
             selectElement?.removeEventListener('mousedown', handleClick);
         };
     }, [scrollRef, selectRef, handleFocus, handleBlur, handleClick]);

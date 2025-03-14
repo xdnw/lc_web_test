@@ -51,7 +51,7 @@ export const Container = forwardRef<HTMLDivElement, ContainerProps>(
                     } as React.CSSProperties
                 }
                 className={cn(
-                    "relative flex flex-col overflow-hidden box-border appearance-none outline-none min-w-[350px] m-2 rounded min-h-[200px] transition-colors duration-350 bg-[rgba(246,246,246,1)] border border-[rgba(0,0,0,0.05)] text-base",
+                    "relative flex flex-col overflow-hidden box-border appearance-none outline-hidden min-w-[350px] m-2 rounded min-h-[200px] transition-colors duration-350 bg-[rgba(246,246,246,1)] border border-[rgba(0,0,0,0.05)] text-base",
                     unstyled && "overflow-visible bg-transparent border-none",
                     horizontal && "w-full [&>ul]:grid-auto-flow-col",
                     hover && "bg-[rgb(235,235,235,1)]",

@@ -99,7 +99,7 @@ export default function CmdList({ commands, prefix }: {commands: Command[], pref
     return (
         <div>
             <div className="flex w-full items-center pb-1">
-                <Input type="search" placeholder="Description" onKeyUp={handleKeyUp} className="flex-grow" />
+                <Input className="relative" type="search" placeholder="Description" onKeyUp={handleKeyUp} className="grow" />
                 <Button type="submit" size={'sm'} variant='outline' onClick={semanticSearch} aria-label='search' className='me-1'>🔍</Button>
                 <Button type="button" size={'sm'} variant='outline' onClick={() => setShowFilters(!showFilters)}>Filter {showFilters ? "▲" : "▼"}</Button>
             </div>

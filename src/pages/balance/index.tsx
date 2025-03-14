@@ -74,7 +74,7 @@ function RenderBalance({ balance }: {balance: WebBalance}) {
                                 {canWithdraw && <td className="border border-gray-200">
                                     <input
                                         type="number"
-                                        className="px-1 w-20"
+                                        className="px-1 w-20 relative"
                                         value={amount[index]}
                                         onChange={(e) => {
                                             const newAmount = [...amount];

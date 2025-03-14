@@ -10,7 +10,7 @@ import {WebSession} from "../../components/api/apitypes";
 export default function Unregister() {
     return (
         <>
-            <div className="themeDiv bg-opacity-10 p-2 relative rounded mb-4">
+            <div className="bg-light/10 border border-light/10 p-2 relative rounded mb-4">
             {SESSION.useDisplay({
                 args: {},
                 render: (session) => (<UnregisterComponent session={session} />

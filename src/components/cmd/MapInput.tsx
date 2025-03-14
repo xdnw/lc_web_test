@@ -38,7 +38,7 @@ export default function MapInput(
     const [addValue, setAddValue] = useState("");
     return (
         <>
-          <div className="mb-1 border-b-2 border-gray-500">
+          <div className="relative mb-1 border-b-2 border-gray-500">
             <p>Map:</p>
             {value.map((v, i) => {
                 const key = Object.keys(v)[0];
@@ -60,7 +60,7 @@ export default function MapInput(
                 );
             })}
             </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex space-x-2">
             <div className="w-1/2">
               <p>Key: </p>
               <ArgInput argName="key" breakdown={children[0]} min={undefined} max={undefined} initialValue={addKey} setOutputValue={(key, value) => {
@@ -74,23 +74,25 @@ export default function MapInput(
                       setAddValue(value);
                   }}/>
               </div>
-              <Button onClick={() => {
-                const keyCopy = addKey;
-                const valueCopy = addValue;
-                if (keyCopy === "") {
-                    showDialog("Key cannot be empty", <></>);
-                    return;
-                }
-                if (valueCopy === "") {
-                    showDialog("Value cannot be empty", <></>);
-                    return;
-                }
-                const newValue = [...value, {[keyCopy]: valueCopy}];
-                setValue(newValue);
-                setOutputValue(argName, toMapString(newValue));
-                setAddKey("");
-                setAddValue("");
-            }}>Add</Button>
+              <div className="flex flex-col justify-end grow">
+                    <Button size="sm" className="" onClick={() => {
+                    const keyCopy = addKey;
+                    const valueCopy = addValue;
+                    if (keyCopy === "") {
+                        showDialog("Key cannot be empty", <></>);
+                        return;
+                    }
+                    if (valueCopy === "") {
+                        showDialog("Value cannot be empty", <></>);
+                        return;
+                    }
+                    const newValue = [...value, {[keyCopy]: valueCopy}];
+                    setValue(newValue);
+                    setOutputValue(argName, toMapString(newValue));
+                    setAddKey("");
+                    setAddValue("");
+                }}>Add</Button>
+                </div>
           </div>
         </>
       );

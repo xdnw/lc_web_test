@@ -64,7 +64,7 @@ export default function NumberInput(
                        }
                        setValue(myStr);
                    }} placeholder="Type here..."
-                   className={`${!isValid ? 'border border-2 border-red-500 dark:border-red-800' : ''} ${className} px-0 w-full px-1`}
+                   className={`${!isValid ? 'border border-2 border-red-500 dark:border-red-800' : ''} ${className} relative px-0 w-full px-1`}
             />
             <span className={`${noteText ? noteText + " px-1" : ""}`}>{noteText}</span>
             {validText && <p className="text-xs font-bold text-red-900 bg-red-500 dark:text-red-300 dark:bg-red-800 rounded-t-sm absolute bottom-full right-0 p-1 ">{validText}</p>}

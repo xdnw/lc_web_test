@@ -11,7 +11,7 @@ export default function MultiV2() {
     const { nation } = useParams<{ nation: string }>();
     const [collapse, setCollapse] = React.useState(true);
     return <>
-        <div className="themeDiv bg-opacity-10 mb-2 rounded">
+        <div className="bg-light/10 border border-light/10 mb-2 rounded">
         <Button variant="ghost" size="md"
                 className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 justify-start"
                 onClick={() => setCollapse(f => !f)}>
@@ -85,13 +85,13 @@ export default function MultiV2() {
                 const networkRenderers = ["normal", "normal", 'duration_day', 'comma', 'comma', 'percent', 'percent', "normal", "normal", 'duration_ms', 'percent', 'percent', "normal", "normal", "normal", 'percent_100'];
                 return (
                     <>
-                        <div className='themeDiv bg-opacity-10 p-2'>
+                        <div className='bg-light/10 border border-light/10 p-2'>
                             <TableWith2DData columns={selfColumns} data={selfData} renderers={selfRenderers}/>
                             <hr className="my-1"/>
                             {newData.dateFetched < Date.now() - 1000 * 60 * 60 * 24 && <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link to={`?update=true`}>Update</Link></Button>}
                         </div>
                         <hr className="my-2"/>
-                        <div className="themeDiv bg-opacity-10 rounded-t">
+                        <div className="bg-light/10 border border-light/10 rounded-t">
                             <h2 className="text-2xl w-full border-b border-secondary px-2 bg-primary/10">Shared Networks (Unique IDs)</h2>
                             <div className="p-2">
                                 <TableWith2DData columns={networkColumns} data={networkData} renderers={networkRenderers} sort={{idx: 5, dir: "desc"}}/>

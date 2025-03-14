@@ -102,11 +102,11 @@ export function ArgDescComponent(
     }, [hide, setShowType, setShowDesc, setShowExamples]);
 
     return (
-    <Label className="inline-block rounded-t-sm border border-b-0 border-slate-500 border-opacity-50 bg-accent m-0 p-1 align-top top-0 left-0 me-1 text-xs" style={{marginBottom:"-1px"}}>
+    <Label className="inline-block rounded-t-sm border border-slate-500 border-b-0 bg-accent m-0 p-1 align-top top-0 left-0 me-1 text-xs" style={{marginBottom:"-1px"}}>
         {arg.arg.optional ? <div className="inline-block bg-blue-400 text-blue-800 me-0.5 px-0.5">Optional</div> :
         <div className="inline-block bg-red-400 text-red-800 me-0.5 px-0.5">Required</div>}
         <div className="inline-block cursor-pointer rounded border border-transparent hover:bg-background/50 hover:border hover:border-primary/20" onClick={() => setHidden(!hide.current)}>
-            <span className="bg-white bg-opacity-20 px-0.5">{arg.name}{showType ? ": " + arg.arg.type : ""}</span>
+            <span className="bg-white/20 px-0.5">{arg.name}{showType ? ": " + arg.arg.type : ""}</span>
             {hide.current ?
                 <ChevronRight className="rounded-sm ms-1 inline-block h-4 w-6 active:bg-background" /> :
                 <ChevronLeft className="rounded-sm ms-1 inline-block h-4 w-6 active:bg-background" />}

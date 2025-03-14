@@ -33,7 +33,7 @@ const GuildPicker = () => {
                 <ChevronLeft className="h-4 w-4" />Home
             </Link>
         </Button>
-        <div className="themeDiv bg-opacity-10 p-2 m-0 mt-2">
+        <div className="bg-light/10 border border-light/10 p-2 m-0 mt-2">
             {session?.guild && <SelectedGuildInfo id={session?.guild} name={session?.guild_name} icon={session?.guild_icon} />}
             <GuildForm handleResponse={handleResponse} />
             <hr className="my-2" />

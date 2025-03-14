@@ -23,7 +23,7 @@ export function ParamEditGraph() {
 }
 
 export function PickAnEndpoint() {
-    return <div className="container themeDiv bg-opacity-10 p-2 rounded mt-2">
+    return <div className="container bg-light/10 border border-light/10 p-2 rounded mt-2">
         <h1 className="text-xl font-bold mb-2">Pick a Graph Option</h1>
         <p className="mb-2">Please select one of the options below</p>
         <ul className="list-disc pl-5">
@@ -48,7 +48,7 @@ export default function EditGraph<U extends { [key: string]: string | string[] |
 }) {
     const [graph, setGraph] = useState<WebGraph | null>(null);
     const usedArgs = useRef<{ [key: string]: string | string[] | undefined }>(args || {});
-    return <div className="container themeDiv bg-opacity-10 p-2 mt-2">
+    return <div className="container bg-light/10 border border-light/10 p-2 mt-2">
         <pre className="whitespace-pre-wrap">{endpoint.endpoint.desc}</pre>
         {endpoint.endpoint.desc && <hr className="my-2"/>}
         {endpoint.useForm({

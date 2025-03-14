@@ -21,14 +21,14 @@ export default function CityRanges(
 
     return (
         <div className="flex w-full items-center">
-            <div className="flex items-center w-1/2 flex-grow">
+            <div className="flex items-center w-1/2 grow">
                 <span className="mr-2">c</span>
                 <NumberInput
                     argName={argName}
                     min={0}
                     max={100}
                     initialValue={value[0] ? value[0] + "" : ""}
-                    className="flex-grow"
+                    className="grow"
                     setOutputValue={(name, t) => {
                         setValue([t ? parseInt(t) : null, value[1]]);
                         if (!t || value[1] == null) setOutputValue(argName, "");
@@ -37,14 +37,14 @@ export default function CityRanges(
                     isFloat={false}
                 />
             </div>
-            <div className="flex items-center w-1/2 flex-grow">
+            <div className="flex items-center w-1/2 grow">
                 <span className="mx-2">-</span>
                 <NumberInput
                     argName={argName}
                     min={0}
                     max={100}
                     initialValue={value[1] ? value[1] + "" : ""}
-                    className="flex-grow"
+                    className="grow"
                     setOutputValue={(name, t) => {
                         setValue([value[0], t ? parseInt(t) : null]);
                         if (value[0] == null || !t) setOutputValue(argName, "");

@@ -4,11 +4,14 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import tailwindcss from "@tailwindcss/vite";
+
 
 export default defineConfig(({ mode }) => {
   const tsconfigPath = mode === 'development' ? './tsconfig.dev.json' : './tsconfig.prod.json';
   return {
     plugins: [
+      tailwindcss(),
       react(),
       tsconfigPaths({ projects: [tsconfigPath] }),
       viteStaticCopy({

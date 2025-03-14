@@ -39,7 +39,7 @@ export default function StringInput(
                                setValidText("");
                            }
                        }}
-                       className={`${!isValid ? 'border border-2 border-red-500 dark:border-red-800' : ''} px-0 w-full px-1`}
+                       className={`${!isValid ? 'border border-2 border-red-500 dark:border-red-800' : ''} relative px-0 w-full px-1`}
                        pattern={filter ? filter : ".*"}
                        placeholder="Type here..."/>
                 {validText && <p className="text-xs font-bold text-red-900 bg-red-500 dark:text-red-300 dark:bg-red-800 rounded-t-sm absolute bottom-full right-0 p-1 ">{validText}</p>}

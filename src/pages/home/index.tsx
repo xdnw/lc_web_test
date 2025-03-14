@@ -82,7 +82,7 @@ export default function Home() {
 
     return <>
         <LoginPickerPage/>
-        <div className="themeDiv bg-opacity-10 rounded p-2 mt-4">
+        <div className="bg-light/10 border border-light/10 rounded p-2 mt-4">
             <h1 className="text-2xl font-bold">Featured Content</h1>
             <div className="flex flex-wrap">
                 {Object.keys(_cardTemplates).map((key) => {

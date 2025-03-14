@@ -16,7 +16,7 @@ export default function PageView({ children }: {children: ReactNode}): ReactElem
                     <div className="min-h-screen themeBody">
                         <Navbar />
                         <div className="flex flex-col" style={{minHeight: 'calc(100vh - 245.5px)'}}>
-                            <div className="mt-1 p-1 flex-grow">
+                            <div className="mt-1 p-1 grow">
                                 {children}
                             </div>
                         </div>

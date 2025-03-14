@@ -212,10 +212,11 @@ export function OutputValuesDisplay({name, store}: {name: string, store: Command
 
     return (
         <div className="relative">
+            <div className='flex items-center'>
             <TooltipProvider>
-                <BlockCopyButton left={true} getText={() => textRef.current ? textRef.current.textContent ?? "" : ''}/>
+                <BlockCopyButton className="rounded-[5px] [&_svg]:size-3.5 mr-1 mb-1" size="sm" left={true} getText={() => textRef.current ? textRef.current.textContent ?? "" : ''}/>
             </TooltipProvider>
-            <p style={{ textIndent: '1.65em' }} className="rounded h-7 p-0.5 mb-1 bg-accent border border-slate-500 border-opacity-50" ref={textRef}>/{name}&nbsp;
+            <p className="w-full rounded h-6 pl-1 mb-1 bg-accent border border-slate-500 border-opacity-50" ref={textRef}>/{name}&nbsp;
                 {
                     Object.entries(output).map(([name, value]) => (
                         <span key={name} className="me-1">
@@ -224,6 +225,7 @@ export function OutputValuesDisplay({name, store}: {name: string, store: Command
                     ))
                 }
             </p>
+            </div>
             <Button variant="outline" size="sm"
                     onClick={runCommandCallback}
             >Run Command</Button>

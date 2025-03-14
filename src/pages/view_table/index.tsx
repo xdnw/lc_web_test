@@ -26,7 +26,7 @@ export default function ViewTable() {
     const sortRef = useRef<OrderIdx | OrderIdx[]>(getSortFromUrl(params.current) ?? {idx: 0, dir: "asc"});
 
     if (!typeRef.current || !selRef.current || !colRef.current) {
-        return <div className="container themeDiv bg-opacity-10 p-2">
+        return <div className="container bg-light/10 border border-light/10 p-2">
             No table data selected. Visit the table editor to create one.<br />
             <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link className='' to={`${process.env.BASE_PATH}custom_table`}>Table Editor</Link></Button>
         </div>;

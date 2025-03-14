@@ -202,7 +202,7 @@ export function Embed({json, responseRef, showDialog}:
                 const url = URL.createObjectURL(blob);
                 return (
                     <div key={key} className="m-0.5 file-item flex items-center p-2 border-background/50 border-2 rounded-sm bg-accent max-w-96">
-                        <span className="file-name flex-grow text-foreground-light dark:text-foreground-dark">{key}</span>
+                        <span className="file-name grow text-foreground-light dark:text-foreground-dark">{key}</span>
                         <Button variant="outline" size="sm" onClick={() => {
                             const a = document.createElement('a');
                             a.href = url;
@@ -213,7 +213,7 @@ export function Embed({json, responseRef, showDialog}:
                 );
             })}
             {json.tables && json.tables.map((data, index) => (
-                <ThemedChart key={index} graph={data} classes="max-w-screen-sm"/>
+                <ThemedChart key={index} graph={data} classes="max-w-(--breakpoint-sm)"/>
             ))}
             <div className="emptyTxt"></div>
         </div>
