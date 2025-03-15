@@ -1,3 +1,5 @@
+import reactCompiler from 'eslint-plugin-react-compiler'
+
 module.exports = {
   root: true,
   env: { browser: true, es2020: true },
@@ -26,8 +28,10 @@ module.exports = {
     'jsx-a11y',
     'unused-imports',
     'react-refresh',
+    'react-compiler'
   ],
   rules: {
+    'react-compiler/react-compiler': 'error',
     // styling rules
     'indent': 'off',
     'linebreak-style': 'off',

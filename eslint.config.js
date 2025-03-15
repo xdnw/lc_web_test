@@ -1,6 +1,8 @@
-import reactCompiler from 'eslint-plugin-react-compiler'
+// eslint.config.js
+import reactCompiler from 'eslint-plugin-react-compiler';
+import { Linter } from 'eslint';
 
-module.exports = {
+const config = new Linter.Config({
     root: true,
     env: { browser: true, es2020: true },
     extends: [
@@ -13,8 +15,8 @@ module.exports = {
     ignorePatterns: ['dist', '.eslintrc.cjs', '*.js'],
     parser: '@typescript-eslint/parser',
     parserOptions: {
-        "ecmaFeatures": {
-            "jsx": true
+        ecmaFeatures: {
+            jsx: true,
         },
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -28,18 +30,10 @@ module.exports = {
         'jsx-a11y',
         'unused-imports',
         'react-refresh',
-        'react-compiler'
+        'react-compiler',
     ],
     rules: {
         'react-compiler/react-compiler': 'error',
-        // slow
-        // @typescript-eslint/no-unsafe-assignment | 8842.505 | 44.9%
-        // @typescript-eslint/no-misused-promises | 7695.065 | 39.0%
-        // @typescript-eslint/no-unsafe-argument | 1005.073 | 5.1%
-        '@typescript-eslint/no-unsafe-assignment': 'off',
-        '@typescript-eslint/no-misused-promises': 'off',
-        '@typescript-eslint/no-unsafe-argument': 'off',
-
         // styling rules
         'indent': 'off',
         'linebreak-style': 'off',
@@ -175,8 +169,6 @@ module.exports = {
             { allowConstantExport: true },
         ],
         '@typescript-eslint/explicit-module-boundary-types': 'off',
-        'react/prop-types': 'off',
-        'react/react-in-jsx-scope': 'off',
         'unused-imports/no-unused-imports': 'error',
         'unused-imports/no-unused-vars': [
             'warn',
@@ -188,4 +180,4 @@ module.exports = {
             version: '18.2.0',
         },
     },
-}
+});

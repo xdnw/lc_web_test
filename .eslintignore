@@ -4,3 +4,4 @@ build/
 src/lib/commands.ts
 *.js
 vite.config.ts
+vite.config.js
