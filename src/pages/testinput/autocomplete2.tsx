@@ -115,7 +115,7 @@
 //     );
 // }
 // //
-// // function findCompletion(cmdMap: CommandMap, rtaRef: React.MutableRefObject<ReactTextareaAutocomplete<ItemType> | null>, textAreaRef: React.MutableRefObject<HTMLTextAreaElement | null>, type: string) {
+// // function findCompletion(cmdMap: CommandMap, rtaRef: React.RefObject<ReactTextareaAutocomplete<ItemType> | null>, textAreaRef: React.RefObject<HTMLTextAreaElement | null>, type: string) {
 // //     return {
 // //         dataProvider: (token: string) => {
 // //             console.log("Current token " + token);

@@ -1,7 +1,0 @@
-node_modules/
-dist/
-build/
-src/lib/commands.ts
-*.js
-vite.config.ts
-vite.config.js

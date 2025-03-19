@@ -63,7 +63,6 @@ export default function ArgInput({ argName, breakdown, min, max, initialValue, s
     if (breakdown.element === 'Class' && breakdown.annotations && breakdown.annotations.includes("PlaceholderType")) {
         return <ListComponentBreakdown breakdown={breakdown} argName={argName} isMulti={false} initialValue={initialValue} setOutputValue={setOutputValue}/>
     }
-    /* eslint-disable no-fallthrough */
     switch (breakdown.element.toLowerCase()) {
         case 'map': {
             return <MapInput argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} children={breakdown.child!} />
@@ -137,7 +136,6 @@ export default function ArgInput({ argName, breakdown, min, max, initialValue, s
             return <UnknownType breakdown={breakdown} argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
         }
     }
-    /* eslint-enable no-fallthrough */
 }
 
 export function UnknownType({ breakdown, argName, initialValue, setOutputValue }: { breakdown: TypeBreakdown, argName: string, initialValue: string, setOutputValue: (key: string, value: string) => void }) {

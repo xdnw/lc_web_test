@@ -1,4 +1,4 @@
-import React, {Component, createRef, CSSProperties, MutableRefObject, RefObject, useRef, useState} from 'react';
+import React, {Component, createRef, CSSProperties, RefObject, useRef, useState} from 'react';
 // import Worker from '@/workers/chartWorker.ts?worker';
 import {
     Chart as ChartJS,
@@ -121,7 +121,7 @@ export function ChartWithButtons({graph, endpointName, usedArgs}:
 {
     graph: WebGraph,
     endpointName?: string,
-    usedArgs?: MutableRefObject<{ [key: string]: string | string[] | undefined }>
+    usedArgs?: RefObject<{ [key: string]: string | string[] | undefined }>
 }) {
     const { showDialog } = useDialog();
     return <>

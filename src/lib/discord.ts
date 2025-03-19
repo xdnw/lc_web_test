@@ -101,7 +101,7 @@ function formatTimestamp(timestamp: number, style: string): string {
             return date.toLocaleString(undefined, { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         case 'F': // Long Date/Time
             return date.toLocaleString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        case 'R': // Relative Time
+        case 'R': { // Relative Time
             const now = new Date();
             const diff = now.getTime() - date.getTime();
             const seconds = Math.floor(diff / 1000);
@@ -114,6 +114,7 @@ function formatTimestamp(timestamp: number, style: string): string {
             if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
             if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
             return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
+        }
         default:
             return date.toLocaleString();
     }

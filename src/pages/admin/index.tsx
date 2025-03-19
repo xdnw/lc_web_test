@@ -4,12 +4,12 @@ import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { hashWithMD5, loadWeights, toVector } from '@/utils/Embedding';
-import React, { useRef } from 'react';
+import React, { RefObject, useRef } from 'react';
 import {CM} from "@/utils/Command.ts";
 import {CommandWeights} from "../../utils/Embedding";
 
 export default function Admin() {
-    const textareaRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [progress, setProgress] = React.useState(0);
     const [progressText, setProgressText] = React.useState("");
     const [isSetupRunning, setIsSetupRunning] = React.useState(false);

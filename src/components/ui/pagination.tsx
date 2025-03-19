@@ -194,4 +194,4 @@ const RenderItems = <T,>({ items, render, parent: Parent }: { items: T[], render
     return <>{items.map((item, index) => <React.Fragment key={index}>{render(item)}</React.Fragment>)}</>;
 };
 
-const MemoizedRenderItems = React.memo(RenderItems) as <T>(props: { items: T[], render: (item: T) => React.ReactNode, parent?: React.ComponentType<{ children: React.ReactNode }>}) => JSX.Element;
+const MemoizedRenderItems = React.memo(RenderItems) as <T>(props: { items: T[], render: (item: T) => React.ReactNode, parent?: React.ComponentType<{ children: React.ReactNode }>}) => React.ReactNode;

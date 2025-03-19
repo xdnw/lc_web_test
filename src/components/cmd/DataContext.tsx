@@ -110,9 +110,9 @@ export class QueryResult<T> {
 
     get get(): T | undefined | null {
         // TODO fetches again if its been uncached
-        if (this.data === undefined) {
+        // if (this.data === undefined) {
 
-        }
+        // }
         return this.data;
     }
 

@@ -210,10 +210,10 @@ export function StaticTable({type, selection, columns, sort}: { type: string, se
 }
 
 export function TableWithButtons({type, selection, columns, sort, load}: {
-    type: React.MutableRefObject<string>,
-    selection: React.MutableRefObject<{[key: string]: string}>,
-    columns: React.MutableRefObject<Map<string, string | null>>,
-    sort: React.MutableRefObject<OrderIdx | OrderIdx[]>,
+    type: React.RefObject<string>,
+    selection: React.RefObject<{[key: string]: string}>,
+    columns: React.RefObject<Map<string, string | null>>,
+    sort: React.RefObject<OrderIdx | OrderIdx[]>,
     load: boolean
 }) {
     const table = useRef<DataTableRef>(null);
@@ -303,7 +303,7 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
                       setRerender={setRerender}
                 />
             }
-            <TableExports table={table} type={type} selection={selection} columns={columns} />
+            <TableExports table={table as React.RefObject<DataTableRef>} type={type} selection={selection} columns={columns} />
             <Button
                 variant="outline"
                 size="sm"
@@ -341,7 +341,7 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
                     }}>
                 View {errors.current.length} Errors</Button>
             <MyTable key={rerender}
-                     table={table}
+                     table={table as React.RefObject<DataTableRef>}
                      data={data}
                      columnsInfo={columnsInfo}
                      sort={sort}
@@ -360,7 +360,7 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
 // }
 
 export function TableWith2DData({ columns, data, renderers, sort }: { columns: string[], data: (string | number | number[] | boolean)[][], renderers?: (string | undefined)[], sort?: OrderIdx | OrderIdx[] }) {
-    const table = null;
+    const table = useRef<DataTableRef>(null);
     const sort2 = useRef<OrderIdx | OrderIdx[]>(sort ?? {idx: 0, dir: "asc"});
     const dataRef = data;
     const visibleColumns = Array.from(Array(data.length).keys());
@@ -372,9 +372,9 @@ export function TableWith2DData({ columns, data, renderers, sort }: { columns: s
     }));
     return useMemo(() => (
         <>
-            <TableExports table={{ current: table }} />
+            <TableExports table={table} />
             <MyTable
-                table={{ current: table }}
+                table={table}
                 data={{ current: dataRef }}
                 columnsInfo={{ current: columnsInfo }}
                 sort={sort2}
@@ -385,10 +385,10 @@ export function TableWith2DData({ columns, data, renderers, sort }: { columns: s
     ), [data]);
 }
 export function TableExports({table, type, selection, columns}: {
-    table: React.RefObject<DataTableRef>,
-    type?: React.MutableRefObject<string>,
-    selection?: React.MutableRefObject<{[key: string]: string}>,
-    columns?: React.MutableRefObject<Map<string, string | null>>,
+    table: React.RefObject<DataTableRef | null>,
+    type?: React.RefObject<string>,
+    selection?: React.RefObject<{[key: string]: string}>,
+    columns?: React.RefObject<Map<string, string | null>>,
 }) {
     const { showDialog } = useDialog();
 
@@ -454,15 +454,15 @@ function formatColName(str: string): string {
 
 function setTableVars(
     newData: WebTable,
-    errors: React.MutableRefObject<WebTableError[]>,
-    table: React.RefObject<DataTableRef>,
-    data: React.MutableRefObject<(string | number | number[])[][]>,
-    columnsInfo: React.MutableRefObject<ConfigColumns[]>,
-    sort: React.MutableRefObject<OrderIdx | OrderIdx[]>,
-    searchSet: React.MutableRefObject<Set<number>>,
-    visibleColumns: React.MutableRefObject<number[]>,
+    errors: React.RefObject<WebTableError[]>,
+    table: React.RefObject<DataTableRef | null>,
+    data: React.RefObject<(string | number | number[])[][]>,
+    columnsInfo: React.RefObject<ConfigColumns[]>,
+    sort: React.RefObject<OrderIdx | OrderIdx[]>,
+    searchSet: React.RefObject<Set<number>>,
+    visibleColumns: React.RefObject<number[]>,
     setRerender: React.Dispatch<React.SetStateAction<number>>,
-    columns: React.MutableRefObject<Map<string, string | null>>
+    columns: React.RefObject<Map<string, string | null>>
 ) {
     errors.current = newData.errors ?? [];
 
@@ -505,16 +505,16 @@ function setTableVars(
 function LoadTable(
     {type, selection, columns, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender}:
     {
-        type: React.MutableRefObject<string>,
-        selection: React.MutableRefObject<{[key: string]: string}>,
-        columns: React.MutableRefObject<Map<string, string | null>>,
-        errors: React.MutableRefObject<WebTableError[]>,
-        table: React.RefObject<DataTableRef>,
-        data: React.MutableRefObject<(string | number | number[])[][]>,
-        columnsInfo: React.MutableRefObject<ConfigColumns[]>,
-        sort: React.MutableRefObject<OrderIdx | OrderIdx[]>,
-        searchSet: React.MutableRefObject<Set<number>>,
-        visibleColumns: React.MutableRefObject<number[]>,
+        type: React.RefObject<string>,
+        selection: React.RefObject<{[key: string]: string}>,
+        columns: React.RefObject<Map<string, string | null>>,
+        errors: React.RefObject<WebTableError[]>,
+        table: React.RefObject<DataTableRef | null>,
+        data: React.RefObject<(string | number | number[])[][]>,
+        columnsInfo: React.RefObject<ConfigColumns[]>,
+        sort: React.RefObject<OrderIdx | OrderIdx[]>,
+        searchSet: React.RefObject<Set<number>>,
+        visibleColumns: React.RefObject<number[]>,
         setRerender: React.Dispatch<React.SetStateAction<number>>
     }
 ) {
@@ -570,16 +570,16 @@ function LoadTable(
 function DeferTable(
     {type, selection, columns, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender}:
     {
-        type: React.MutableRefObject<string>,
-        selection: React.MutableRefObject<{[key: string]: string}>,
-        columns: React.MutableRefObject<Map<string, string | null>>,
-        errors: React.MutableRefObject<WebTableError[]>,
-        table: React.RefObject<DataTableRef>,
-        data: React.MutableRefObject<(string | number | number[])[][]>,
-        columnsInfo: React.MutableRefObject<ConfigColumns[]>,
-        sort: React.MutableRefObject<OrderIdx | OrderIdx[]>,
-        searchSet: React.MutableRefObject<Set<number>>,
-        visibleColumns: React.MutableRefObject<number[]>,
+        type: React.RefObject<string>,
+        selection: React.RefObject<{[key: string]: string}>,
+        columns: React.RefObject<Map<string, string | null>>,
+        errors: React.RefObject<WebTableError[]>,
+        table: React.RefObject<DataTableRef | null>,
+        data: React.RefObject<(string | number | number[])[][]>,
+        columnsInfo: React.RefObject<ConfigColumns[]>,
+        sort: React.RefObject<OrderIdx | OrderIdx[]>,
+        searchSet: React.RefObject<Set<number>>,
+        visibleColumns: React.RefObject<number[]>,
         setRerender: React.Dispatch<React.SetStateAction<number>>
     }
 ) {
@@ -638,12 +638,12 @@ function getReactSlots(columnsInfo: ConfigColumns[]): { [key: number]: ((data: u
 
 export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColumns}:
 {
-    table: React.RefObject<DataTableRef>,
-    data: React.MutableRefObject<(string | number | boolean | number[])[][]>,
-    columnsInfo: React.MutableRefObject<ConfigColumns[]>,
-    sort: React.MutableRefObject<OrderIdx | OrderIdx[]>,
-    searchSet: React.MutableRefObject<Set<number>>,
-    visibleColumns: React.MutableRefObject<number[]>,
+    table: React.RefObject<DataTableRef | null>,
+    data: React.RefObject<(string | number | boolean | number[])[][]>,
+    columnsInfo: React.RefObject<ConfigColumns[]>,
+    sort: React.RefObject<OrderIdx | OrderIdx[]>,
+    searchSet: React.RefObject<Set<number>>,
+    visibleColumns: React.RefObject<number[]>,
     // reactColumns: ((data: object) => ReactNode)[],
 }) {
 
@@ -691,10 +691,10 @@ export function getColOptions(type: string, filter?: (f: Command) => boolean): [
 }
 
 export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: {
-    typeRef: React.MutableRefObject<keyof typeof COMMANDS.placeholders>,
-    selectionRef: React.MutableRefObject<{[key: string]: string}>,
-    columnsRef: React.MutableRefObject<Map<string, string | null>>,
-    sortRef: React.MutableRefObject<OrderIdx | OrderIdx[]>,
+    typeRef: React.RefObject<keyof typeof COMMANDS.placeholders>,
+    selectionRef: React.RefObject<{[key: string]: string}>,
+    columnsRef: React.RefObject<Map<string, string | null>>,
+    sortRef: React.RefObject<OrderIdx | OrderIdx[]>,
 }) {
     const { showDialog } = useDialog();
     const addButton = useRef<HTMLButtonElement>(null);
@@ -1160,7 +1160,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
     );
 }
 
-export function ModifierComponent({modifier, selectionRef, setQueryParam}: { modifier: Command, selectionRef: React.MutableRefObject<{[key: string]: string}>, setQueryParam: () => void }) {
+export function ModifierComponent({modifier, selectionRef, setQueryParam}: { modifier: Command, selectionRef: React.RefObject<{[key: string]: string}>, setQueryParam: () => void }) {
     return <>
         <CommandComponent overrideName={"Modifier"} command={modifier} filterArguments={() => true} initialValues={selectionRef.current}
         setOutput={(key: string, value: string) => {

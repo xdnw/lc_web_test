@@ -78,7 +78,7 @@ function timestamp(stringISO?: string): string {
 export function CmdButton({button, responseRef, showDialog}:
 {
     button: ButtonInfoCmd,
-    responseRef: React.RefObject<HTMLDivElement>,
+    responseRef: React.RefObject<HTMLDivElement | null>,
     showDialog: (title: string, message: React.ReactNode, quote?: boolean) => void
 }): ReactNode {
     return (
@@ -100,7 +100,7 @@ export function HrefButton({button}: {button: ButtonInfoHref}): ReactNode {
 export function Embed({json, responseRef, showDialog}:
 {
     json: DiscordEmbed,
-    responseRef: React.RefObject<HTMLDivElement>,
+    responseRef: React.RefObject<HTMLDivElement | null>,
     showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
 }) {
     console.log("BUTTONS ARE", json.buttons);
@@ -243,7 +243,7 @@ export default function MarkupRenderer({content, highlight, embed, showDialog}: 
     );
 }
 
-export function EmbedFields({fields}: {fields: Field[]}): JSX.Element {
+export function EmbedFields({fields}: {fields: Field[]}): ReactNode {
         const createEmbedFields = () => {
         let colNum = 1;
         let num = 0;

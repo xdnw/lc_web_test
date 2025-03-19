@@ -40,7 +40,7 @@ export default function CommandPage() {
 export function commandButtonAction({name, command, responseRef, showDialog}: {
     name: string,
     command: string,
-    responseRef: React.RefObject<HTMLDivElement>,
+    responseRef: React.RefObject<HTMLDivElement | null>,
     showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
 }) {
     const cmdInfo = getCommandAndBehavior(command);
@@ -128,7 +128,7 @@ function runCommand({command, values, onResponse}: {
 
 function handleDialog({json, responseRef, showDialog}: {
     json: { [key: string]: string | object | object[] | number | number[] | string[] },
-    responseRef: React.RefObject<HTMLDivElement>,
+    responseRef: React.RefObject<HTMLDivElement | null>,
     showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
 }): boolean {
     if (json['error'] && json['title']) {
@@ -167,7 +167,7 @@ function handleDialog({json, responseRef, showDialog}: {
 export function handleResponse(
     {json, responseRef, showDialog}: {
         json: { [key: string]: string | object | object[] | number | number[] | string[] },
-        responseRef: React.RefObject<HTMLDivElement>,
+        responseRef: React.RefObject<HTMLDivElement | null>,
         showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
     }) {
     if (handleDialog({json, responseRef, showDialog})) {
@@ -186,23 +186,27 @@ export function RenderResponse({jsonArr, showDialog}: {
     showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
 }) {
     const responseRef = useRef<HTMLDivElement>(null);
-    return <div ref={responseRef}>
-        {
-            jsonArr.map((json, i) => {
-                if (handleDialog({json, responseRef, showDialog})) {
-                    return <div key={i}></div>;
-                }
-                return <div key={i}>
-                    <Embed json={json as unknown as DiscordEmbed} responseRef={responseRef} showDialog={showDialog} />
-                </div>;
-            })
-        }
-    </div>;
+    return (
+        <div ref={responseRef}>
+            {
+                jsonArr.map((json, i) => {
+                    if (handleDialog({json, responseRef, showDialog})) {
+                        return <div key={i}></div>;
+                    }
+                    return (
+                        <div key={i}>
+                            <Embed json={json as unknown as DiscordEmbed} responseRef={responseRef} showDialog={showDialog} />
+                        </div>
+                    );
+                })
+            }
+        </div>
+    );
 }
 
 export function OutputValuesDisplay({name, store}: {name: string, store: CommandStoreType}) {
     const output = store((state) => state.output);
-    const textRef: React.RefObject<HTMLParagraphElement> = useRef(null);
+    const textRef = useRef<HTMLParagraphElement>(null);
     const responseRef = useRef<HTMLDivElement>(null);
     const { showDialog } = useDialog();
 
@@ -213,32 +217,26 @@ export function OutputValuesDisplay({name, store}: {name: string, store: Command
     return (
         <div className="relative">
             <div className='flex items-center'>
-            <TooltipProvider>
-                <BlockCopyButton className="rounded-[5px] [&_svg]:size-3.5 mr-1 mb-1" size="sm" left={true} getText={() => textRef.current ? textRef.current.textContent ?? "" : ''}/>
-            </TooltipProvider>
-            <p className="w-full rounded h-6 pl-1 mb-1 bg-accent border border-slate-500 border-opacity-50" ref={textRef}>/{name}&nbsp;
-                {
-                    Object.entries(output).map(([name, value]) => (
-                        <span key={name} className="me-1">
-                        {name}: {value}
-                    </span>
-                    ))
+                <TooltipProvider>
+                    <BlockCopyButton className="rounded-[5px] [&_svg]:size-3.5 mr-1 mb-1" size="sm" left={true} getText={() => textRef.current ? textRef.current.textContent ?? "" : ''}/>
+                </TooltipProvider>
+                <p className="w-full rounded h-6 pl-1 mb-1 bg-accent border border-slate-500 border-opacity-50" ref={textRef}>/{name}&nbsp;
+                    {
+                        Object.entries(output).map(([name, value]) => (
+                            <span key={name} className="me-1">
+                                {name}: {value}
+                            </span>
+                        ))
+                    }
+                </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={runCommandCallback}>Run Command</Button>
+            <Button variant="outline" size="sm" className="ms-1" onClick={() => {
+                if (responseRef.current) {
+                    responseRef.current.innerHTML = "";
                 }
-            </p>
-            </div>
-            <Button variant="outline" size="sm"
-                    onClick={runCommandCallback}
-            >Run Command</Button>
-            {/* clear responseRef */}
-            <Button variant="outline" size="sm" className="ms-1"
-                    onClick={() => {
-                        if (responseRef.current) {
-                            responseRef.current.innerHTML = "";
-                        }
-                    }}>Clear</Button>
-            <div ref={responseRef}>
-
-            </div>
+            }}>Clear</Button>
+            <div ref={responseRef}></div>
         </div>
     );
 }

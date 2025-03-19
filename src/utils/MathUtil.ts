@@ -52,7 +52,6 @@ export const operators: {
     // Why Math.pow() instead of **?
     // -2 ** 2 => "SyntaxError: Unary operator used immediately before exponentiation expression..."
     // Math.pow(-2, 2) => -4
-    // eslint-disable-next-line prefer-exponentiation-operator, no-restricted-properties
     func: (x, y) => `${minus0Hack(Math.pow(Number(x), Number(y)))}`,
     precedence: 3,
     associativity: 'right',
@@ -165,13 +164,12 @@ export function evalReversePolishNotation(tokens: string[]) {
   for (const token of tokens) {
     const op = ops[token];
 
-    // eslint-disable-next-line unicorn/no-negated-condition
     if (op !== undefined) {
       const parameters = [];
       for (let i = 0; i < op.arity; i++) {
         parameters.push(stack.pop()!);
       }
-      stack.push(op.func(...parameters.reverse()));
+      stack.push(op.func(...parameters.slice().reverse()));
     } else {
       stack.push(token);
     }

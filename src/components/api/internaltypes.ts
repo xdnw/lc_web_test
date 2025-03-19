@@ -30,4 +30,4 @@ export interface JSONObject {
     [key: string]: JSONValue;
 }
 
-export interface JSONArray extends Array<JSONValue> {}
+export type JSONArray = Array<JSONValue>;

@@ -1,6 +1,6 @@
 import {CommonEndpoint} from "../../components/api/endpoint";
 import {WebGraph} from "../../components/api/apitypes";
-import React, {MutableRefObject, useMemo, useRef} from "react";
+import React, {RefObject, useMemo, useRef} from "react";
 import {Link, useParams} from "react-router-dom";
 import {PickAnEndpoint} from "./edit_graph";
 import {getQueryParams, queryParamsToObject} from "../../lib/utils";
@@ -32,18 +32,18 @@ export function StaticViewGraph
 <U extends { [key: string]: string | string[] | undefined },
     V extends { [key: string]: string | string[] | undefined }>(
     { endpoint, args }: GraphViewUtilProps<U, V>
-): JSX.Element {
+): React.ReactNode {
     // Cast the endpoint to a GraphEndpoint.
     const graphEndpoint = endpoint as GraphEndpoint;
     // Wrap the args in a mutable ref to match ViewGraph prop requirements.
-    const argsRef: MutableRefObject<U> = useRef(args);
+    const argsRef: React.RefObject<U> = useRef(args);
     return <ViewGraph endpoint={graphEndpoint} args={argsRef} />;
 }
 
 export default function ViewGraph<U extends { [key: string]: string | string[] | undefined }, V extends { [key: string]: string | string[] | undefined }>(
     { endpoint, args }: {
         endpoint: CommonEndpoint<WebGraph, U, V>,
-        args: MutableRefObject<{ [key: string]: string | string[] | undefined }>
+        args: React.RefObject<{ [key: string]: string | string[] | undefined }>
     }) {
     return endpoint.useDisplay({
         // Can (args.current as U) filter out any pairs where the key isn't a key in endpoint.endpoint.args

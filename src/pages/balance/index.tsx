@@ -45,7 +45,7 @@ function RenderBalance({ balance }: {balance: WebBalance}) {
     const toggleBreakdown = () => {
         setShowBreakdown(!showBreakdown);
     };
-    const textRef: React.RefObject<HTMLParagraphElement> = useRef(null);
+    const textRef = useRef<HTMLParagraphElement>(null);
     const qualifiedId = balance.is_aa ? "AA:" + balance.id : balance.id;
 
     if (loading) return <Loading />;

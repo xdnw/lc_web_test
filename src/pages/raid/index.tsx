@@ -17,7 +17,13 @@ import {CommandStoreType, createCommandStore} from "../../utils/StateUtil";
 import {OutputValuesDisplay} from "../command";
 import Color from "../../components/renderer/Color";
 
-type RaidOptions = { [key: string]: { endpoint: (typeof RAID | typeof UNPROTECTED), description: string, default_values: { [key: string]: (string | undefined) } } };
+type RaidOption = {
+    endpoint: typeof RAID | typeof UNPROTECTED;
+    description: string;
+    default_values: { [key: string]: string | undefined };
+};
+  
+type RaidOptions = { [key: string]: RaidOption };
 
 export default function RaidSection() {
 
@@ -129,7 +135,7 @@ export default function RaidSection() {
     </div>;
 }
 
-export function PickNation({nation}: { nation: React.MutableRefObject<string | undefined> }) {
+export function PickNation({nation}: { nation: string }) {
     const [pickedNation, setPickedNation] = useState<string | undefined>(undefined);
     return (
         <>
@@ -148,31 +154,27 @@ export function PickNation({nation}: { nation: React.MutableRefObject<string | u
     );
 }
 
-export function RaidButton({optionKey, options, setRaidOutput, loading, setDesc, nation}: {
-    optionKey: string;
-    options: RaidOptions,
+export function RaidButton({option, endpoint, setRaidOutput, loading, setDesc, nation}: {
+    option: RaidOption,
+    endpoint: typeof RAID | typeof UNPROTECTED,
     setRaidOutput: (value: WebTargets | boolean | string | null) => void,
     loading: boolean,
     setDesc: (value: string) => void,
-    nation: React.MutableRefObject<string | undefined>
+    nation: string
 }) {
     const { showDialog } = useDialog();
-    return options[optionKey].endpoint.useForm({
-        default_values: options[optionKey].default_values as { [key: string]: string },
-        label: optionKey,
+    return endpoint.useForm({
+        default_values: option.default_values as { [key: string]: string },
+        label: option.description,
         handle_submit: (data) => {
-            if (nation.current) {
-                data.nation = nation.current;
-            } else {
-                delete data.nation;
-            }
+            data.nation = nation;
             return true;
         },
         handle_response: (data) => {
             setRaidOutput(data);
         },
         handle_loading: () => {
-            setDesc(options[optionKey].description);
+            setDesc(option.description);
             setRaidOutput(true);
         },
         handle_error: (error) => {

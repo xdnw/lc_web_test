@@ -3,7 +3,6 @@ import Loading from "@/components/ui/loading.tsx";
 import { WebSuccess } from "@/components/api/apitypes";
 import {DEBUG, deepEqual} from "../../lib/utils";
 import {QueryResult} from "../cmd/DataContext";
-import { JSONValue } from './internaltypes';
 
 interface LoadingWrapperProps<T> {
     index: number;

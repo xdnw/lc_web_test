@@ -1,4 +1,4 @@
-import { ComponentType, useEffect, useState, FC } from "react";
+import React, { ComponentType, useEffect, useState, FC } from "react";
 import {JSX} from "react/jsx-runtime";
 import IntrinsicAttributes = JSX.IntrinsicAttributes;
 
