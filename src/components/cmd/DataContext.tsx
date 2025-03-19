@@ -1,9 +1,10 @@
 import React, { useCallback, createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react';
 import Cookies from "js-cookie";
-import {UNPACKR} from "@/lib/utils.ts";
-import {CommonEndpoint} from "../api/endpoint";
-import {DEBUG, deepEqual} from "../../lib/utils";
+import { UNPACKR } from "@/lib/utils.ts";
+import { CommonEndpoint } from "../api/endpoint";
+import { DEBUG, deepEqual } from "../../lib/utils";
 import { JSONValue } from '../api/internaltypes';
+import { CacheType } from '../api/apitypes';
 type DataProviderProps = {
     children: ReactNode;
     endpoint: string;
@@ -29,13 +30,6 @@ const areObjectsEqual = (obj1: { [key: string]: string | string[] }, obj2: { [ke
     return true;
 };
 
-export enum CacheType {
-    None = "none",
-    Cookie = "cookie",
-    LocalStorage = "local",
-    SessionStorage = "session",
-}
-
 export class QueryResult<T> {
     id: number;
     endpoint: string;
@@ -50,8 +44,8 @@ export class QueryResult<T> {
     refetch: boolean;
 
     constructor({
-                    id, endpoint, query, update_ms, cache, data, error, loading = true, refetch = false
-                }: {
+        id, endpoint, query, update_ms, cache, data, error, loading = true, refetch = false
+    }: {
         id: number;
         endpoint: string;
         query: { [key: string]: string | string[] };
@@ -282,14 +276,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
                                     if (cache) {
                                         const duration = cache.duration ?? 2592000; // 30 days default in seconds
                                         if (cache.cache_type === CacheType.Cookie) {
-                                            Cookies.set(cache.cookie_id, JSON.stringify(val), {expires: duration});
+                                            Cookies.set(cache.cookie_id, JSON.stringify(val), { expires: duration });
                                         } else if (cache.cache_type === CacheType.LocalStorage) {
                                             const expirationTime = now + duration * 1000; // Convert to milliseconds
-                                            const dataWithExpiration = {data: val, expirationTime};
+                                            const dataWithExpiration = { data: val, expirationTime };
                                             localStorage.setItem(cache.cookie_id, JSON.stringify(dataWithExpiration));
                                         } else if (cache.cache_type === CacheType.SessionStorage) {
                                             const expirationTime = now + duration * 1000; // Convert to milliseconds
-                                            const dataWithExpiration = {data: val, expirationTime};
+                                            const dataWithExpiration = { data: val, expirationTime };
                                             sessionStorage.setItem(cache.cookie_id, JSON.stringify(dataWithExpiration));
                                         }
                                     }
@@ -320,7 +314,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
     return (
         <DataContext.Provider value={{
             queries: queries.current.map(([name, query]) => query),
-            registerQuery, refetch, refetchQueries }}>
+            registerQuery, refetch, refetchQueries
+        }}>
             {children}
         </DataContext.Provider>
     );
@@ -344,8 +339,8 @@ export const useData = <T,>(): DataContextType<QueryResult<T>[]> => {
 };
 
 export const useRegisterQuery = (name: string,
-                                 query: { [key: string]: string | string[] },
-                                 cache: { cache_type: CacheType, duration?: number, cookie_id: string } | undefined = undefined): [number, React.Dispatch<React.SetStateAction<number>>] => {
+    query: { [key: string]: string | string[] },
+    cache: { cache_type: CacheType, duration?: number, cookie_id: string } | undefined = undefined): [number, React.Dispatch<React.SetStateAction<number>>] => {
     const { registerQuery } = useData();
     const hasRun = useRef<{ hasRun: boolean, query?: { [key: string]: string | string[] } }>({ hasRun: false });
     const [queryId, setQueryId] = useState(-1);
@@ -377,7 +372,7 @@ export function useRegisterMultipleQueries<T, U extends { [key: string]: string 
         if (!hasRun.current) {
             const ids = composites.map((element) => {
                 const args = getArgs(element);
-                return registerQuery(endpoint.endpoint.name, args as { [key: string]: string | string[]}, endpoint.endpoint.cache);
+                return registerQuery(endpoint.endpoint.name, args as { [key: string]: string | string[] }, endpoint.endpoint.cache);
             });
             setQueryIds(ids);
             hasRun.current = true;

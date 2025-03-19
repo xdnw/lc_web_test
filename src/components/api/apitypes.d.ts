@@ -356,7 +356,13 @@ export interface WebTaxBracket {
     rssRate: number;
 }
 
-export type CacheType = "None" | "Cookie" | "LocalStorage" | "SessionStorage";
+// export type CacheType = "None" | "Cookie" | "LocalStorage" | "SessionStorage";
+export enum CacheType {
+    None = "none",
+    Cookie = "cookie",
+    LocalStorage = "local",
+    SessionStorage = "session",
+}
 
 export type GraphType = "STACKED_BAR" | "SIDE_BY_SIDE_BAR" | "HORIZONTAL_BAR" | "LINE" | "STACKED_LINE" | "FILLED_LINE" | "SCATTER";
 

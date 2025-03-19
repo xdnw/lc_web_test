@@ -9,7 +9,7 @@
     "deploy": "gh-pages -d dist",
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint . --max-warnings 0 --cache --cache-location .eslintcache",
+    "lint": "eslint . --max-warnings 0 --cache",
     "preview": "vite preview"
   },
   "dependencies": {
