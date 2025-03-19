@@ -1,4 +1,4 @@
-// name: string, query: { [key: string]: string | string[] }, 
+// endpoint: string, query: { [key: string]: string | string[] }, 
 // cache?: { cache_type: CacheType, duration?: number, cookie_id: string }
 // returns a promise of QueryResult
 
@@ -230,8 +230,11 @@ export function BulkQuery<T>({ endpoint, query, cache, batch_wait_ms }: {
     return new Promise((resolve, reject) => {
         pendingQueries.push({ endpoint, query, cache, resolve, reject });
         const waitTime = batch_wait_ms ?? 50;
-        if (!batchTimer) {
-            batchTimer = setTimeout(dispatchBatch, waitTime);
+
+        // Clear and reset the timer if a new query is added.
+        if (batchTimer) {
+            clearTimeout(batchTimer);
         }
+        batchTimer = setTimeout(dispatchBatch, waitTime);
     });
 }
