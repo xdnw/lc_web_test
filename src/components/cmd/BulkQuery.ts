@@ -1,10 +1,12 @@
-import { CacheType} from "../api/apitypes";
+import { CacheType } from "../api/apitypes";
 import { UNPACKR } from "@/lib/utils";
 import { JSONValue } from "../api/internaltypes";
 import Cookies from "js-cookie";
 import { hashString } from "@/utils/StringUtil";
 import { Argument, IArgument } from "@/utils/Command";
 import { ReactNode } from "react";
+import { DisplayProps } from "../api/bulkwrapper";
+import { ApiFormInputsProps } from "../api/apiform";
 
 export class QueryResult<T> {
     endpoint: string;
@@ -101,7 +103,7 @@ interface PendingQuery<T> {
     reject: (error: Error) => void;
 }
 
-function cacheData({cache, val}: {cache: { cache_type: CacheType; duration?: number; cookie_id: string }; val: JSONValue}) {
+function cacheData({ cache, val }: { cache: { cache_type: CacheType; duration?: number; cookie_id: string }; val: JSONValue }) {
     const duration = cache.duration ?? 5000; // 30 days default in seconds
     const now = Date.now();
     const expirationTime = now + duration * 1000; // Convert to milliseconds
@@ -252,7 +254,7 @@ function dispatchBatch() {
                     update_ms: Date.now(),
                     cache: pq.cache,
                     data: null,
-                    error: "Invalid response format\n" + ((fetchedData as unknown as {message: string}).message ?? JSON.stringify(fetchedData)).replace("\\n", "\n")
+                    error: "Invalid response format\n" + ((fetchedData as unknown as { message: string }).message ?? JSON.stringify(fetchedData)).replace("\\n", "\n")
                 })));
             }
         })
@@ -288,26 +290,26 @@ export function fetchSingle<T>(endpoint: string, query: { [key: string]: string 
         body: urlParams.toString(),
         credentials: 'include',
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
-        }
-        return response.arrayBuffer();
-    })
-    .then(serializedData => {
-        return UNPACKR.unpack(new Uint8Array(serializedData)) as T;
-    })
-    .catch((error: unknown) => {
-        if (error instanceof Error) {
-            throw error;
-        } else {
-            throw new Error("Fetch error: " + JSON.stringify(error));
-        }
-    });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+            }
+            return response.arrayBuffer();
+        })
+        .then(serializedData => {
+            return UNPACKR.unpack(new Uint8Array(serializedData)) as T;
+        })
+        .catch((error: unknown) => {
+            if (error instanceof Error) {
+                throw error;
+            } else {
+                throw new Error("Fetch error: " + JSON.stringify(error));
+            }
+        });
 }
 
 export function fillOutCache(endpoint: string, query: { [key: string]: string | string[] }, cache: { cache_type?: CacheType; duration?: number; cookie_id?: string } | undefined) {
-    const copy: { cache_type?: CacheType; duration?: number; cookie_id?: string } = cache ? { ...cache } : { };
+    const copy: { cache_type?: CacheType; duration?: number; cookie_id?: string } = cache ? { ...cache } : {};
     if (!copy.cache_type) {
         copy.cache_type = 'Memory';
     }
@@ -414,13 +416,13 @@ export class ApiEndpoint<T> {
     }
 }
 
-export type CommonEndpoint<T, U extends {[key: string]: string | string[] | undefined}, V extends {[key: string]: string | string[] | undefined}> = {
+export type CommonEndpoint<T, U extends { [key: string]: string | string[] | undefined }, V extends { [key: string]: string | string[] | undefined }> = {
     endpoint: ApiEndpoint<T>;
     displayProps: (params: {
         args: U;
         handle_loading?: () => void;
         handle_error?: (error: string) => void;
-    }) => DisplayProps;
+    }) => DisplayProps<T>;
     formProps: (params: {
         default_values?: V;
         showArguments?: string[];
@@ -430,5 +432,5 @@ export type CommonEndpoint<T, U extends {[key: string]: string | string[] | unde
         handle_loading?: () => void;
         handle_error?: (error: string) => void;
         classes?: string;
-    }) => FormProps;
+    }) => ApiFormInputsProps<T, { [key: string]: string }>;
 };
