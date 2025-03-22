@@ -36,6 +36,7 @@ import MultiBuster from "./pages/a2/nation/multi";
 import MultiV2 from "./pages/a2/nation/multi_2";
 import ViewCommand from "./pages/command/view_command";
 import ReactGA from "react-ga4";
+import TestSuspense from "./pages/testinput/testsuspense";
 
 // process.env.GTAG_ID
 ReactGA.initialize(process.env.GTAG_ID as string);
@@ -90,6 +91,7 @@ export default function App() {
 
           {/* testing pages */}
           {/*<Route path="/alliance" element={<Alliance />} />*/}
+          <Route path="/test" element={<TestSuspense />} />
           <Route path="/view_command/:command" element={<ViewCommand />} />
           <Route path="/alliance/:alliance" element={<Alliance />} />
           <Route path="/multi/:nation" element={<MultiBuster />} />
@@ -97,6 +99,7 @@ export default function App() {
 
 
           <Route path="/admin" element={<Admin />} />
+
           <Route path="/autocomplete" element={<AutoComplete />} />
           {/* <Route path="/auto2" element={<AutoComplete2 />} /> */}
           <Route path="/dnd" element={<DndTest />} />

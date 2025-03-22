@@ -83,11 +83,11 @@ export class QueryResult<T> {
 
     clearCache() {
         if (this.cache) {
-            if (this.cache.cache_type === CacheType.Cookie) {
+            if (this.cache.cache_type === 'Cookie') {
                 Cookies.remove(this.cache.cookie_id);
-            } else if (this.cache.cache_type === CacheType.LocalStorage) {
+            } else if (this.cache.cache_type === 'LocalStorage') {
                 localStorage.removeItem(this.cache.cookie_id);
-            } else if (this.cache.cache_type === CacheType.SessionStorage) {
+            } else if (this.cache.cache_type === 'SessionStorage') {
                 sessionStorage.removeItem(this.cache.cookie_id);
             }
         }
@@ -199,7 +199,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
 
                 const cache = query.cache;
                 if (cache) {
-                    if (cache.cache_type === CacheType.Cookie) {
+                    if (cache.cache_type === 'Cookie') {
                         const cookieVal = Cookies.get(cache.cookie_id);
                         if (DEBUG.LOADING_WRAPPER) console.log("Cookie value", cookieVal, (cookieVal === undefined));
                         if (cookieVal) {
@@ -207,7 +207,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
                             query.set(value);
                             continue;
                         }
-                    } else if (cache.cache_type === CacheType.LocalStorage) {
+                    } else if (cache.cache_type === 'LocalStorage') {
                         const elemWithExpiry = localStorage.getItem(cache.cookie_id);
                         if (elemWithExpiry) {
                             const parsedElem = JSON.parse(elemWithExpiry) as { expirationTime: number, data: { [key: string]: JSONValue } };
@@ -218,7 +218,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
                                 continue;
                             }
                         }
-                    } else if (cache.cache_type == CacheType.SessionStorage) {
+                    } else if (cache.cache_type == 'SessionStorage') {
                         const elemWithExpiry = sessionStorage.getItem(cache.cookie_id);
                         if (elemWithExpiry) {
                             const parsedElem = JSON.parse(elemWithExpiry) as { expirationTime: number, data: { [key: string]: JSONValue } };
@@ -275,13 +275,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, endpoint }
                                     const cache = query.cache;
                                     if (cache) {
                                         const duration = cache.duration ?? 2592000; // 30 days default in seconds
-                                        if (cache.cache_type === CacheType.Cookie) {
+                                        if (cache.cache_type === 'Cookie') {
                                             Cookies.set(cache.cookie_id, JSON.stringify(val), { expires: duration });
-                                        } else if (cache.cache_type === CacheType.LocalStorage) {
+                                        } else if (cache.cache_type === 'LocalStorage') {
                                             const expirationTime = now + duration * 1000; // Convert to milliseconds
                                             const dataWithExpiration = { data: val, expirationTime };
                                             localStorage.setItem(cache.cookie_id, JSON.stringify(dataWithExpiration));
-                                        } else if (cache.cache_type === CacheType.SessionStorage) {
+                                        } else if (cache.cache_type === 'SessionStorage') {
                                             const expirationTime = now + duration * 1000; // Convert to milliseconds
                                             const dataWithExpiration = { data: val, expirationTime };
                                             sessionStorage.setItem(cache.cookie_id, JSON.stringify(dataWithExpiration));

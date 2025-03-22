@@ -6,41 +6,62 @@ import DOMPurify from "dompurify";
 import {Button} from "@/components/ui/button.tsx";
 import {UNPACKR} from "@/lib/utils.ts";
 import {useDialog} from "../layout/DialogContext";
+import { QueryResult } from "../cmd/BulkQuery";
+import EndpointWrapper from "./bulkwrapper";
 
 interface FormInputsProps {
     setOutputValue: (name: string, value: string) => void;
 }
 
+// requireLogin?: boolean;
+// message: ReactNode;
+// endpoint: string;
+// cache_duration: number;
+// label?: ReactNode;
+// required?: string[];
+// default_values?: { [key: string]: string | string[] };
+// form_inputs: React.ComponentType<FormInputsProps> | undefined;
+// handle_submit?: (data: A) => boolean;
+// handle_loading?: () => void;
+// handle_error?: (error: string) => void;
+// classes?: string;
+
 interface ApiFormProps<T, A extends { [key: string]: string }> {
     requireLogin?: boolean;
     message: ReactNode;
     endpoint: string;
+    cache_duration: number;
     label?: ReactNode;
     required?: string[];
     default_values?: { [key: string]: string | string[] };
     form_inputs: React.ComponentType<FormInputsProps> | undefined;
-    handle_response?: (data: T) => void;
     handle_submit?: (data: A) => boolean;
     handle_loading?: () => void;
     handle_error?: (error: string) => void;
     classes?: string;
+    readonly children: (data: QueryResult<T>) => ReactNode;
 }
 
 function ApiForm<T, A extends { [key: string]: string }>({
      requireLogin = false,
      message,
      endpoint,
+     cache_duration,
      label = "submit",
      required = [],
      default_values,
      form_inputs: FormInputs,
-     handle_response,
      handle_submit,
      handle_loading,
      handle_error,
-     classes
+     classes,
+     children
  }: ApiFormProps<T, A>) {
-    const commandStore = useRef(default_values && Object.keys(default_values).length ? createCommandStoreWithDef(default_values) : createCommandStore());
+    const [commandStore] = useState(() =>
+        default_values && Object.keys(default_values).length
+            ? createCommandStoreWithDef(default_values)
+            : createCommandStore()
+    );
 
     if (requireLogin && !hasToken()) {
         return <>
@@ -53,18 +74,18 @@ function ApiForm<T, A extends { [key: string]: string }>({
     return <>
         {message}
         {message && required && required.length > 0 && <hr className="my-2"/> }
-        {FormInputs && <>
-            <FormInputs setOutputValue={commandStore.current((state) => state.setOutput)} />
-        </>}
+        {FormInputs && <FormInputs setOutputValue={commandStore((state) => state.setOutput)} />}
         <ApiFormHandler endpoint={endpoint}
-                        store={commandStore.current}
+                        store={commandStore}
                         label={label}
                         required={required}
-                        handle_response={handle_response}
+                        cache_duration={cache_duration}
                         handle_submit={handle_submit}
                         handle_loading={handle_loading}
                         handle_error={handle_error}
-                        classes={classes}/>
+                        classes={classes}>
+            {children}
+        </ApiFormHandler>
     </>
 }
 
@@ -80,98 +101,22 @@ const areEqual = <T, A extends { [key: string]: string }>(prevProps: ApiFormProp
 
 export default React.memo(ApiForm, areEqual) as typeof ApiForm;
 
-export function ApiFormHandler<T, A extends {[key: string]: string}>({store, endpoint, label, required, handle_response, handle_submit, handle_loading, handle_error, classes}: {
+export function ApiFormHandler<T, A extends {[key: string]: string}>({store, endpoint, label, cache_duration, required, handle_submit, handle_loading, handle_error, classes, children}: {
     store: CommandStoreType,
     endpoint: string,
+    cache_duration: number,
     label: ReactNode,
     required?: string[],
-    handle_response?: (data: T) => void
     handle_submit?: (data: A) => boolean,
     handle_loading?: () => void,
     handle_error?: (error: string) => void,
     classes?: string,
+    readonly children: (data: QueryResult<T>) => ReactNode;
 }) {
     const output = store((state) => state.output);
     const [submit, setSubmit] = useState(false);
     const { showDialog } = useDialog();
     const missing = required ? required.filter(field => !output[field]) : [];
-
-    useEffect(() => {
-        if (submit && missing.length === 0) {
-            if (handle_submit) {
-                if (!handle_submit(output as A)) {
-                    setSubmit(false);
-                    return;
-                }
-            }
-            if (handle_loading) {
-                handle_loading();
-            }
-            const formBody = new URLSearchParams();
-            Object.entries(output).forEach(([key, value]) => {
-                if (Array.isArray(value)) {
-                    value.forEach(val => formBody.append(key, val as string));
-                } else {
-                    formBody.append(key, value);
-                }
-            });
-            const url = `${process.env.API_URL}${endpoint}`;
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/msgpack',
-                },
-                credentials: 'include',
-                body: formBody.toString(),
-            })
-            .then(async response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const serializedData = await response.arrayBuffer();
-                const data = new Uint8Array(serializedData);
-                const result = UNPACKR.unpack(data);
-                return result ?? {};
-            })
-            .then(data => {
-                if (data.success || data.success !== false) {
-                    console.log("SUCCESS DATA", data);
-                    if (data?.url) {
-                        console.log("URL", data.url);
-                        if (!data.url.startsWith("https://politicsandwar.com/") && !data.url.startsWith(`${process.env.EXTERNAL_URL}`)) {
-                            showDialog("Invalid URL returned", `${DOMPurify.sanitize(data.url)}`, true);
-                        } else {
-                            window.location.href = data.url;
-                        }
-                    }
-                    if (handle_response) {
-                        console.log("HANDLING RESPONSE", data);
-                        if (data != null) {
-                            handle_response(data);
-                        } else if (handle_error) {
-                            handle_error("No response data");
-                        } else {
-                            showDialog("Success", "Success (no response)", false);
-                        }
-                    } else {
-                        showDialog("Success", "Success (no response)", false);
-                    }
-                } else if (handle_error) {
-                    handle_error(data.message || "An error occurred");
-                } else {
-                    showDialog(data.title ?? "Failed to handle form submission", data.message || "An error occurred", true);
-                }
-            })
-            .catch(error => {
-                if (handle_error) {
-                    handle_error(error.message);
-                } else {
-                    showDialog("Failed to submit form: Fetch error", `${error.message}`, true);
-                }
-            })
-            .finally(() => setSubmit(false));
-        }
-    }, [submit, output, missing, handle_submit, handle_loading, handle_error, handle_response, endpoint, showDialog]);
 
     if (missing.length) {
         return <>
@@ -181,6 +126,9 @@ export function ApiFormHandler<T, A extends {[key: string]: string}>({store, end
 
     return (
         <>
+        <EndpointWrapper endpoint={endpoint} query={output} cache_duration={cache_duration} batch_wait_ms={0}>
+            {children}
+        </EndpointWrapper>
             <Button variant="outline" size="sm" className={`border-red-800/70 me-1 ${submit && "disabled cursor-wait"} ${classes ? classes : ""}`} onClick={() => setSubmit(true)}>{label}</Button>
         </>
     );

@@ -1,21 +1,16 @@
-// endpoint: string, query: { [key: string]: string | string[] }, 
-// cache?: { cache_type: CacheType, duration?: number, cookie_id: string }
-// returns a promise of QueryResult
-
-import Cookies from "node_modules/@types/js-cookie";
-import { CacheType } from "../api/apitypes";
+import { CacheType} from "../api/apitypes";
 import { UNPACKR } from "@/lib/utils";
 import { JSONValue } from "../api/internaltypes";
-
-// QueryResult<T> constructor({
-//     id, endpoint, query, update_ms, cache, data, error, loading = true, refetch = false
-// }
+import Cookies from "js-cookie";
+import { hashString } from "@/utils/StringUtil";
+import { Argument, IArgument } from "@/utils/Command";
+import { ReactNode } from "react";
 
 export class QueryResult<T> {
     endpoint: string;
     query: { [key: string]: string | string[] };
     update_ms: number;
-    cache?: { cache_type: CacheType; duration?: number; cookie_id: string };
+    cache?: { cache_type: CacheType; duration?: number; };
     data?: T | null;
     error?: string | null;
 
@@ -42,14 +37,25 @@ export class QueryResult<T> {
     }
 }
 
-export function loadFromCache<T>({ cache }: { cache: { cache_type: CacheType; duration?: number; cookie_id: string } }): T | null {
+const cacheKeyMap = new Map<string, object>();
+const memoryWeakMap = new WeakMap<object, object>();
+function getCacheKey(key: string): object {
+    let keyObj = cacheKeyMap.get(key);
+    if (!keyObj) {
+        keyObj = {};
+        cacheKeyMap.set(key, keyObj);
+    }
+    return keyObj;
+}
+
+export function loadFromCache<T>({ cache }: { cache: { cache_type?: CacheType; duration?: number; cookie_id: string } }): T | null {
     if (cache) {
-        if (cache.cache_type === CacheType.Cookie) {
+        if (cache.cache_type === 'Cookie') {
             const cookieVal = Cookies.get(cache.cookie_id);
             if (cookieVal) {
                 return JSON.parse(cookieVal) as T;
             }
-        } else if (cache.cache_type === CacheType.LocalStorage) {
+        } else if (cache.cache_type === 'LocalStorage') {
             const elemWithExpiry = localStorage.getItem(cache.cookie_id);
             if (elemWithExpiry) {
                 const parsedElem = JSON.parse(elemWithExpiry) as { expirationTime: number, data: T };
@@ -59,7 +65,7 @@ export function loadFromCache<T>({ cache }: { cache: { cache_type: CacheType; du
                     return parsedElem.data;
                 }
             }
-        } else if (cache.cache_type == CacheType.SessionStorage) {
+        } else if (cache.cache_type === 'SessionStorage') {
             const elemWithExpiry = sessionStorage.getItem(cache.cookie_id);
             if (elemWithExpiry) {
                 const parsedElem = JSON.parse(elemWithExpiry) as { expirationTime: number, data: T };
@@ -67,6 +73,18 @@ export function loadFromCache<T>({ cache }: { cache: { cache_type: CacheType; du
                     sessionStorage.removeItem(cache.cookie_id);
                 } else {
                     return parsedElem.data;
+                }
+            }
+        } else if (cache.cache_type === 'Memory') {
+            const keyObj = getCacheKey(cache.cookie_id);
+            if (keyObj) {
+                const parsedElem = memoryWeakMap.get(keyObj) as { expirationTime: number, data: T };
+                if (parsedElem) {
+                    if (parsedElem.expirationTime && Date.now() > parsedElem.expirationTime) {
+                        memoryWeakMap.delete(keyObj);
+                    } else {
+                        return parsedElem.data;
+                    }
                 }
             }
         }
@@ -80,14 +98,32 @@ interface PendingQuery<T> {
     query: { [key: string]: string | string[] };
     cache?: { cache_type: CacheType; duration?: number; cookie_id: string };
     resolve: (result: QueryResult<T>) => void;
-    reject: (error: any) => void;
+    reject: (error: Error) => void;
+}
+
+function cacheData({cache, val}: {cache: { cache_type: CacheType; duration?: number; cookie_id: string }; val: JSONValue}) {
+    const duration = cache.duration ?? 5000; // 30 days default in seconds
+    const now = Date.now();
+    const expirationTime = now + duration * 1000; // Convert to milliseconds
+    const dataWithExpiration = { data: val, expirationTime: expirationTime };
+    if (cache.cache_type === 'Cookie') {
+        Cookies.set(cache.cookie_id, JSON.stringify(val), { expires: duration });
+    } else if (cache.cache_type === 'LocalStorage') {
+        localStorage.setItem(cache.cookie_id, JSON.stringify(dataWithExpiration));
+    } else if (cache.cache_type === 'SessionStorage') {
+        sessionStorage.setItem(cache.cookie_id, JSON.stringify(dataWithExpiration));
+    } else if (cache.cache_type === 'Memory') {
+        const keyObj = getCacheKey(cache.cookie_id);
+        memoryWeakMap.set(keyObj, dataWithExpiration);
+    }
 }
 
 // A global list to hold pending queries.
-const pendingQueries: PendingQuery<any>[] = [];
+const pendingQueries: PendingQuery<unknown>[] = [];
 let batchTimer: ReturnType<typeof setTimeout> | null = null;
 
 function dispatchBatch() {
+    console.log("dispatchBatch");
     // First, check pending queries for cache hits and resolve them immediately.
     // Iterate backwards so removals don't affect the loop.
     for (let i = pendingQueries.length - 1; i >= 0; i--) {
@@ -121,6 +157,38 @@ function dispatchBatch() {
     const queriesToFetch = pendingQueries.splice(0, pendingQueries.length);
     batchTimer = null;
 
+    if (queriesToFetch.length === 0) {
+        const single = queriesToFetch[0];
+        const myPromise: Promise<unknown> = fetchSingle(single.endpoint, single.query, single.cache);
+        myPromise.then((result: unknown) => {
+            const possibleError = result as { error: string };
+            if (possibleError.error) {
+                const queryResult = new QueryResult({
+                    endpoint: single.endpoint,
+                    query: single.query,
+                    update_ms: Date.now(),
+                    cache: single.cache,
+                    data: null,
+                    error: possibleError.error
+                });
+                single.resolve(queryResult);
+                return;
+            }
+            const queryResult = new QueryResult({
+                endpoint: single.endpoint,
+                query: single.query,
+                update_ms: Date.now(),
+                cache: single.cache,
+                data: result,
+                error: null
+            });
+            single.resolve(queryResult);
+        }).catch((error: Error) => {
+            single.reject(error);
+        });
+        return;
+    }
+
     // Map each pending query into a simpler structure for the batched request.
     const finalQueries = queriesToFetch.map(q => ([q.endpoint, q.query]));
 
@@ -128,7 +196,7 @@ function dispatchBatch() {
     const formBody = new URLSearchParams({ queries: JSON.stringify(finalQueries) }).toString();
 
     // Build the URL for the batched endpoint.
-    const url = `${process.env.API_URL}/query`;
+    const url = `${process.env.API_URL}query`;
 
     const headers: { 'Content-Type': string } = {
         'Content-Type': 'application/msgpack',
@@ -153,32 +221,20 @@ function dispatchBatch() {
             const arr = fetchedData.results as { [key: string]: JSONValue }[];
             if (Array.isArray(arr)) {
                 for (let i = 0; i < arr.length; i++) {
-                    const now = Date.now();
                     let val: { [key: string]: JSONValue; } | null = arr[i];
                     const query = queriesToFetch[i];
                     let error = val.success === false ? val.error ?? "Unknown Error (1)" : null;
                     if (val && !error) {
                         const cache = query.cache;
                         if (cache) {
-                            const duration = cache.duration ?? 2592000; // 30 days default in seconds
-                            if (cache.cache_type === CacheType.Cookie) {
-                                Cookies.set(cache.cookie_id, JSON.stringify(val), { expires: duration });
-                            } else if (cache.cache_type === CacheType.LocalStorage) {
-                                const expirationTime = now + duration * 1000; // Convert to milliseconds
-                                const dataWithExpiration = { data: val, expirationTime };
-                                localStorage.setItem(cache.cookie_id, JSON.stringify(dataWithExpiration));
-                            } else if (cache.cache_type === CacheType.SessionStorage) {
-                                const expirationTime = now + duration * 1000; // Convert to milliseconds
-                                const dataWithExpiration = { data: val, expirationTime };
-                                sessionStorage.setItem(cache.cookie_id, JSON.stringify(dataWithExpiration));
-                            }
+                            cacheData({ cache, val });
                         }
                     } else {
                         val = null;
                         error = error ?? "Unknown Error (2)";
                     }
                     const pq = queriesToFetch[i];
-                    const result: QueryResult<any> = new QueryResult({
+                    const result: QueryResult<unknown> = new QueryResult({
                         endpoint: pq.endpoint,
                         query: pq.query,
                         update_ms: Date.now(),
@@ -190,13 +246,78 @@ function dispatchBatch() {
                 }
             } else {
                 console.error("Invalid response format:", fetchedData);
-                // Reject all queries with an error.
-                queriesToFetch.forEach(pq => pq.reject(new Error("Invalid response format")));
+                queriesToFetch.forEach(pq => pq.resolve(new QueryResult({
+                    endpoint: pq.endpoint,
+                    query: pq.query,
+                    update_ms: Date.now(),
+                    cache: pq.cache,
+                    data: null,
+                    error: "Invalid response format\n" + ((fetchedData as unknown as {message: string}).message ?? JSON.stringify(fetchedData)).replace("\\n", "\n")
+                })));
             }
         })
         .catch(error => {
             queriesToFetch.forEach(pq => pq.reject(error));
         });
+}
+
+export function fetchSingle<T>(endpoint: string, query: { [key: string]: string | string[] }, cache: { cache_type?: CacheType; duration?: number; cookie_id?: string } | undefined): Promise<T> {
+    console.log("fetchSingle", endpoint, query, cache);
+    // check cache
+    const cachedData = cache && cache.cache_type && cache.cookie_id ? loadFromCache<T>({ cache: cache as { cache_type: CacheType; duration?: number; cookie_id: string } }) : null;
+    if (cachedData != null) {
+        return Promise.resolve(cachedData);
+    }
+
+    const url = `${process.env.API_URL}${endpoint}`;
+    const urlParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(query)) {
+        if (Array.isArray(value)) {
+            for (const val of value) {
+                urlParams.append(key, val);
+            }
+        } else {
+            urlParams.append(key, value);
+        }
+    }
+    return fetch(url, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/msgpack',
+        },
+        body: urlParams.toString(),
+        credentials: 'include',
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+        }
+        return response.arrayBuffer();
+    })
+    .then(serializedData => {
+        return UNPACKR.unpack(new Uint8Array(serializedData)) as T;
+    })
+    .catch((error: unknown) => {
+        if (error instanceof Error) {
+            throw error;
+        } else {
+            throw new Error("Fetch error: " + JSON.stringify(error));
+        }
+    });
+}
+
+export function fillOutCache(endpoint: string, query: { [key: string]: string | string[] }, cache: { cache_type?: CacheType; duration?: number; cookie_id?: string } | undefined) {
+    const copy: { cache_type?: CacheType; duration?: number; cookie_id?: string } = cache ? { ...cache } : { };
+    if (!copy.cache_type) {
+        copy.cache_type = 'Memory';
+    }
+    if (!copy.duration) {
+        copy.duration = 30000;
+    }
+    if (!copy.cookie_id) {
+        copy.cookie_id = `${endpoint}-${hashString(JSON.stringify(query))}`;
+    }
+    return copy as { cache_type: CacheType; duration: number; cookie_id: string };
 }
 
 /**
@@ -209,12 +330,13 @@ function dispatchBatch() {
  *    batch_wait_ms: Optional wait time to batch queries, defaulting to 50ms.
  * @returns Promise<QueryResult<T>>
  */
-export function BulkQuery<T>({ endpoint, query, cache, batch_wait_ms }: {
+export function fetchBulk<T>({ endpoint, query, cache, batch_wait_ms }: {
     endpoint: string;
     query: { [key: string]: string | string[] };
     cache?: { cache_type: CacheType; duration?: number; cookie_id: string };
     batch_wait_ms?: number;
 }): Promise<QueryResult<T>> {
+    console.log("fetchBulk", endpoint, query, cache, batch_wait_ms);
     // check cache
     const cachedData = cache ? loadFromCache<T>({ cache }) : null;
     if (cachedData != null) {
@@ -228,7 +350,7 @@ export function BulkQuery<T>({ endpoint, query, cache, batch_wait_ms }: {
     }
 
     return new Promise((resolve, reject) => {
-        pendingQueries.push({ endpoint, query, cache, resolve, reject });
+        pendingQueries.push({ endpoint, query, cache, resolve: resolve as unknown as (result: QueryResult<unknown>) => void, reject });
         const waitTime = batch_wait_ms ?? 50;
 
         // Clear and reset the timer if a new query is added.
@@ -238,3 +360,75 @@ export function BulkQuery<T>({ endpoint, query, cache, batch_wait_ms }: {
         batchTimer = setTimeout(dispatchBatch, waitTime);
     });
 }
+
+///
+interface PlaceholderData {
+    type: string;
+    fields: {
+        [key: string]: boolean | { [key: string]: string };
+    };
+}
+
+export class AbstractBuilder {
+    protected data: PlaceholderData = {
+        type: "",
+        fields: {}
+    };
+
+    set(field: string, value: boolean | { [key: string]: string }): this {
+        this.data.fields[field] = value;
+        return this;
+    }
+
+    build(): PlaceholderData {
+        return this.data;
+    }
+}
+
+export class ApiEndpoint<T> {
+    name: string;
+    url: string;
+    args: { [name: string]: Argument };
+    cast: (data: unknown) => T;
+    cache_duration: number;
+    typeName: string;
+    desc: string;
+    argsLower: { [name: string]: string };
+
+    constructor(name: string, url: string, args: { [name: string]: IArgument }, cast: (data: unknown) => T, cache_duration: number, typeName: string, desc: string) {
+        this.name = name;
+        this.url = url;
+        this.args = {};
+        for (const [key, value] of Object.entries(args)) {
+            this.args[key] = new Argument(key, value);
+        }
+        this.argsLower = Object.fromEntries(Object.entries(args).map(([key, value]) => [key.toLowerCase(), key]));
+        this.cast = cast;
+        this.cache_duration = cache_duration ?? 5000;
+        this.typeName = typeName;
+        this.desc = desc;
+    }
+
+    async call(params: { [key: string]: string }): Promise<T> {
+        return fetchSingle<T>(this.url, params, undefined);
+    }
+}
+
+export type CommonEndpoint<T, U extends {[key: string]: string | string[] | undefined}, V extends {[key: string]: string | string[] | undefined}> = {
+    endpoint: ApiEndpoint<T>;
+    displayProps: (params: {
+        args: U;
+        handle_loading?: () => void;
+        handle_error?: (error: string) => void;
+    }) => DisplayProps;
+    formProps: (params: {
+        default_values?: V;
+        showArguments?: string[];
+        label?: ReactNode;
+        message?: ReactNode;
+        handle_submit?: (args: U) => boolean;
+        handle_loading?: () => void;
+        handle_error?: (error: string) => void;
+        classes?: string;
+    }) => FormProps;
+};

@@ -1,7 +1,7 @@
-import {CacheType} from "@/components/cmd/DataContext.tsx";
 import React, {ReactNode} from "react";
 import type * as ApiTypes from "@/components/api/apitypes.d.ts";
 import {useForm, useDisplay, ApiEndpoint, combine, CommonEndpoint} from "@/components/api/endpoint.tsx";
+import { CacheType } from "@/components/api/apitypes.d.ts";
 export const WARSCOSTRANKINGBYDAY: CommonEndpoint<ApiTypes.WebGraph, {type?: string, mode?: string, time_start?: string, time_end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}, {type?: string, mode?: string, time_start?: string, time_end?: string, coalition1?: string, coalition2?: string, coalition3?: string, coalition4?: string, coalition5?: string, coalition6?: string, coalition7?: string, coalition8?: string, coalition9?: string, coalition10?: string, running_total?: string, allowedWarStatus?: string, allowedWarTypes?: string, allowedAttackTypes?: string, allowedVictoryTypes?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebGraph>(
         "warscostrankingbyday",
@@ -317,7 +317,7 @@ export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>,
         "session",
         {},
         (data: unknown) => data as ApiTypes.WebSession,
-        {type: CacheType.LocalStorage, duration: 2592000},
+        {type: 'LocalStorage', duration: 2592000},
         "WebSession",
         ``
     ),
@@ -653,7 +653,7 @@ export const ANNOUNCEMENTS: CommonEndpoint<ApiTypes.WebAnnouncements, Record<str
         "announcements",
         {},
         (data: unknown) => data as ApiTypes.WebAnnouncements,
-        {type: CacheType.SessionStorage, duration: 30},
+        {type: 'SessionStorage', duration: 30},
         "WebAnnouncements",
         ``
     ),
@@ -849,7 +849,7 @@ export const INPUT_OPTIONS: CommonEndpoint<ApiTypes.WebOptions, {type?: string},
         "input_options",
         {"type":{"name":"type","type":"String"}},
         (data: unknown) => data as ApiTypes.WebOptions,
-        {type: CacheType.LocalStorage, duration: 30},
+        {type: 'LocalStorage', duration: 30},
         "WebOptions",
         ``
     ),
@@ -989,7 +989,7 @@ export const MY_AUDITS: CommonEndpoint<ApiTypes.WebAudits, Record<string, never>
         "my_audits",
         {},
         (data: unknown) => data as ApiTypes.WebAudits,
-        {type: CacheType.SessionStorage, duration: 30},
+        {type: 'SessionStorage', duration: 30},
         "WebAudits",
         ``
     ),
@@ -1328,7 +1328,7 @@ export const VIEW_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebAnnouncement, {ann_id
         "view_announcement",
         {"ann_id":{"name":"ann_id","type":"int"}},
         (data: unknown) => data as ApiTypes.WebAnnouncement,
-        {type: CacheType.SessionStorage, duration: 2592000},
+        {type: 'SessionStorage', duration: 2592000},
         "WebAnnouncement",
         ``
     ),
@@ -1580,7 +1580,7 @@ export const TEST: CommonEndpoint<ApiTypes.WebValue, Record<string, never>, Reco
         "test",
         {},
         (data: unknown) => data as ApiTypes.WebValue,
-        {type: CacheType.LocalStorage, duration: 2592000},
+        {type: 'LocalStorage', duration: 2592000},
         "WebValue",
         ``
     ),

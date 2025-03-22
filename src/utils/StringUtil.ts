@@ -1,6 +1,16 @@
 import {Command} from "@/utils/Command.ts";
 import {TableNumberFormat, TimeFormat} from "../components/api/apitypes";
 
+export function hashString(str: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+      hash ^= str.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0; // Convert to unsigned 32-bit integer.
+}
+
+
 export interface ExportType {
   delimiter: string,
   ext: string,
