@@ -1,5 +1,5 @@
 import {CommonEndpoint} from "../../components/api/endpoint";
-import {WebGraph} from "../../components/api/apitypes";
+import {WebGraph} from "../../lib/apitypes";
 import {useRef, useState} from "react";
 import {Link, useParams} from "react-router-dom";
 import {ChartWithButtons} from "./SimpleChart";

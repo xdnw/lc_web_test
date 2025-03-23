@@ -1,7 +1,7 @@
 import ListComponent from "./ListComponent";
-import {INPUT_OPTIONS} from "@/components/api/endpoints.tsx";
+import {INPUT_OPTIONS} from "@/lib/endpoints";
 import {useData, useRegisterMultipleQueries} from "./DataContext";
-import {WebOptions} from "../api/apitypes";
+import {WebOptions} from "../../lib/apitypes";
 import {useRef} from "react";
 
 export default function QueryComponent(

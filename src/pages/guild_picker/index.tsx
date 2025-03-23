@@ -3,13 +3,13 @@ import Cookies from 'js-cookie';
 import { clearStorage } from "@/utils/Auth.ts";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button.tsx";
-import {SESSION, SET_GUILD} from "@/components/api/endpoints.tsx";
+import {SESSION, SET_GUILD} from "@/lib/endpoints";
 import {ChevronLeft} from "lucide-react";
 import {useData} from "@/components/cmd/DataContext.tsx";
 import {useDialog} from "../../components/layout/DialogContext";
-import {SetGuild} from "../../components/api/apitypes";
+import {SetGuild} from "../../lib/apitypes";
 import {useSession} from "../../components/api/SessionContext";
-import {UNSET_GUILD} from "../../components/api/endpoints";
+import {UNSET_GUILD} from "../../lib/endpoints";
 
 
 const GuildPicker = () => {

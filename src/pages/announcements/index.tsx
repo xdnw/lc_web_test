@@ -3,13 +3,13 @@ import {
     ANNOUNCEMENT_TITLES,
     READ_ANNOUNCEMENT,
     UNREAD_ANNOUNCEMENT,
-} from "@/components/api/endpoints.tsx";
+} from "@/lib/endpoints";
 import {PaginatedList} from "@/components/ui/pagination.tsx";
 import {useRef, useState} from "react";
 import {ChevronLeft} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {useDialog} from "../../components/layout/DialogContext";
-import {WebAnnouncement} from "../../components/api/apitypes";
+import {WebAnnouncement} from "../../lib/apitypes";
 
 export default function Announcements() {
     const [currentPage, setCurrentPage] = useState<number>(1);

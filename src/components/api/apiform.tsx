@@ -6,14 +6,14 @@ import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button.tsx";
 import { UNPACKR } from "@/lib/utils.ts";
 import { useDialog } from "../layout/DialogContext";
-import { QueryResult } from "../cmd/BulkQuery";
+import { QueryResult } from "../../lib/BulkQuery";
 import EndpointWrapper from "./bulkwrapper";
 import { Argument } from "@/utils/Command";
 import ArgInput from "../cmd/ArgInput";
 import { ArgDescComponent } from "../cmd/CommandComponent";
 
-export interface ApiFormInputsProps<T, A extends { [key: string]: string }> {
-    url: string;
+export interface ApiFormInputsProps<T, A extends { [key: string]: string | string[] | undefined }> {
+    endpoint: string;
     args: { [name: string]: Argument };
     cache_duration: number;
     message?: React.ReactNode;
@@ -22,14 +22,13 @@ export interface ApiFormInputsProps<T, A extends { [key: string]: string }> {
     label?: React.ReactNode;
     handle_submit?: (args: A) => boolean;
     handle_loading?: () => void;
-    handle_error?: (error: string) => void;
+    handle_error?: (error: Error) => void;
     classes?: string;
-    children: (data: QueryResult<T>) => React.ReactNode;
 }
 
-export function ApiFormInputs<T, A extends { [key: string]: string }>(props: ApiFormInputsProps<T, A>) {
-    const { url, args, cache_duration, message, default_values, showArguments, label, handle_submit, handle_loading, handle_error, classes, children } = props;
-
+export function ApiFormInputs<T, A extends { [key: string]: string }>({
+    endpoint, args, cache_duration, message, default_values, showArguments, label, handle_submit, handle_loading, handle_error, classes, children
+}: ApiFormInputsProps<T, A> & {readonly children: (data: QueryResult<T>) => React.ReactNode;}) {
     const required = useMemo(() => {
         const req: string[] = [];
         for (const [key, value] of Object.entries(args)) {
@@ -75,7 +74,7 @@ export function ApiFormInputs<T, A extends { [key: string]: string }>(props: Api
             required={required}
             cache_duration={cache_duration}
             message={message}
-            endpoint={url}
+            endpoint={endpoint}
             label={label}
             default_values={default_values}
             form_inputs={renderFormInputs}
@@ -104,7 +103,7 @@ interface ApiFormProps<T, A extends { [key: string]: string }> {
     form_inputs: React.ComponentType<FormInputsProps> | undefined;
     handle_submit?: (data: A) => boolean;
     handle_loading?: () => void;
-    handle_error?: (error: string) => void;
+    handle_error?: (error: Error) => void;
     classes?: string;
     readonly children: (data: QueryResult<T>) => ReactNode;
 }
@@ -176,7 +175,7 @@ export function ApiFormHandler<T, A extends { [key: string]: string }>({ store, 
     required?: string[],
     handle_submit?: (data: A) => boolean,
     handle_loading?: () => void,
-    handle_error?: (error: string) => void,
+    handle_error?: (error: Error) => void,
     classes?: string,
     readonly children: (data: QueryResult<T>) => ReactNode;
 }) {
@@ -196,7 +195,7 @@ export function ApiFormHandler<T, A extends { [key: string]: string }>({ store, 
             START PRE
             <pre>{JSON.stringify(output)}</pre>
             END PRE
-            {submit && <EndpointWrapper endpoint={endpoint} query={output} cache_duration={cache_duration} batch_wait_ms={10}>
+            {submit && <EndpointWrapper endpoint={endpoint} query={output} cache_duration={cache_duration} batch_wait_ms={10} is_post={true}>
                 {children}
             </EndpointWrapper>}
             <Button variant="outline" size="sm" className={`border-red-800/70 me-1 ${submit && "disabled cursor-wait"} ${classes ? classes : ""}`} onClick={() => setSubmit(true)}>{label}</Button>

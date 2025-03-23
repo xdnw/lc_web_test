@@ -1,6 +1,6 @@
 import {useDialog} from "../../../components/layout/DialogContext";
 import {useRef} from "react";
-import {ALLIANCESTATS, METRIC_COMPARE_BY_TURN, TABLE} from "../../../components/api/endpoints";
+import {ALLIANCESTATS, METRIC_COMPARE_BY_TURN, TABLE} from "../../../lib/endpoints";
 import {getUrl} from "../../custom_table";
 import {Link, useParams } from "react-router-dom";
 import {CM} from "../../../utils/Command";

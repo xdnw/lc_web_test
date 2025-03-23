@@ -4,12 +4,12 @@ import {Link, useParams} from "react-router-dom";
 import Cookies from 'js-cookie';
 import {clearStorage} from "@/utils/Auth.ts";
 import {Button} from "@/components/ui/button.tsx";
-import {SET_TOKEN} from "@/components/api/endpoints.tsx";
+import {SET_TOKEN} from "@/lib/endpoints";
 import {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
 import { useDialog } from "@/components/layout/DialogContext";
 import {useSession} from "../../components/api/SessionContext";
 import {useData, useRegisterQuery} from "../../components/cmd/DataContext";
-import {WebSession} from "../../components/api/apitypes";
+import {WebSession} from "../../lib/apitypes";
 import {useEffect, useState} from "react";
 
 export function LoginComponent() {

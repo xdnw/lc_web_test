@@ -1,5 +1,5 @@
-import {WebGraph} from "../components/api/apitypes";
-import {ENDPOINTS} from "../components/api/endpoints";
+import {WebGraph} from "../lib/apitypes";
+import {ENDPOINTS} from "../lib/endpoints";
 import {CommonEndpoint} from "../components/api/endpoint";
 
 type EndpointArgs = { [key: string]: string | string[] | undefined };

@@ -3,7 +3,7 @@
 import {useCallback} from "react";
 import {Button} from "@/components/ui/button.tsx";
 import {Link} from "react-router-dom";
-import {LOGOUT} from "@/components/api/endpoints.tsx";
+import {LOGOUT} from "@/lib/endpoints";
 import {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
 import {useDialog} from "../../components/layout/DialogContext";
 

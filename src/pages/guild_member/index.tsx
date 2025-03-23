@@ -6,14 +6,14 @@ import {
     MARK_ALL_READ,
     MY_AUDITS, MY_WARS,
     UNREAD_COUNT,
-} from "@/components/api/endpoints.tsx";
+} from "@/lib/endpoints";
 import {Link} from "react-router-dom";
 import {formatDuration, formatSi} from "@/utils/StringUtil.ts";
 import {COMMANDS} from "@/lib/commands.ts";
-import * as ApiTypes from "@/components/api/apitypes";
+import * as ApiTypes from "@/lib/apitypes";
 import {clamp} from "@/lib/utils.ts";
 import {ChevronDown, ChevronUp, ExternalLink, Plane, Sailboat, Settings, Shield} from "lucide-react";
-import {WebAudits, WebBankAccess} from "@/components/api/apitypes";
+import {WebAudits, WebBankAccess} from "@/lib/apitypes";
 import {useDialog} from "../../components/layout/DialogContext";
 import RaidSection from "../raid";
 import {IOptionData} from "../../utils/Command";

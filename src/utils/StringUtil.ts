@@ -1,5 +1,5 @@
 import {Command} from "@/utils/Command.ts";
-import {TableNumberFormat, TimeFormat} from "../components/api/apitypes";
+import {TableNumberFormat, TimeFormat} from "../lib/apitypes";
 
 export function hashString(str: string): number {
   let hash = 2166136261;

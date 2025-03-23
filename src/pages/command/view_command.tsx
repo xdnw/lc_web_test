@@ -1,8 +1,8 @@
-import {COMMAND} from "../../components/api/endpoints";
+import {COMMAND} from "../../lib/endpoints";
 import {useDialog} from "../../components/layout/DialogContext";
 import React, {memo, useEffect, useMemo, useRef, useState} from "react";
 import {handleResponse, RenderResponse} from "./index";
-import {WebViewCommand} from "../../components/api/apitypes";
+import {WebViewCommand} from "../../lib/apitypes";
 import {Link, useParams, useSearchParams} from "react-router-dom";
 import {Button} from "../../components/ui/button";
 import CopyToClipboard from "../../components/ui/copytoclipboard";

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Loading from "@/components/ui/loading.tsx";
-import { WebSuccess } from "@/components/api/apitypes";
+import { WebSuccess } from "@/lib/apitypes";
 import {DEBUG, deepEqual} from "../../lib/utils";
 import {QueryResult} from "../cmd/DataContext";
 

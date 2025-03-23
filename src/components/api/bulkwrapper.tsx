@@ -1,12 +1,13 @@
 import { ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { fetchBulk, fillOutCache, QueryResult } from "../cmd/BulkQuery";
-import { CacheType } from "./apitypes";
+import { CommonEndpoint, fetchBulk, fillOutCache, QueryResult } from "../../lib/BulkQuery";
+import { CacheType } from "../../lib/apitypes";
 import { deepEqual } from "@/lib/utils";
 import { ErrorBoundary } from "react-error-boundary";
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import Loading from "../ui/loading";
 import { Button } from "../ui/button";
 import { useDialog } from "../layout/DialogContext";
+import { suspenseQueryOptions } from "@/lib/queries";
 
 
 export function useDeepCompareMemo<T>(value: T): T {
@@ -47,44 +48,52 @@ export function renderEndpointFallback({
 export interface DisplayProps<T> {
     readonly endpoint: string;
     readonly query: { readonly [key: string]: string | string[] };
+    readonly is_post: boolean;
     readonly cache_duration: number;
-    readonly batch_wait_ms?: number;
-    readonly children: (data: QueryResult<T>) => ReactNode;
     readonly onError?: (error: Error) => void;
 }
 
-export default function EndpointWrapper<T>({
+export default function EndpointWrapper<T, A extends { [key: string]: string | string[] | undefined }, B extends { [key: string]: string | string[] | undefined }>({
     endpoint,
-    query,
-    cache_duration = 5000,
+    args,
+    handle_error,
     batch_wait_ms,
-    onError,
+    isPostOverride,
     children,
-}: DisplayProps<T>) {
-    console.log("MOUNT ENDPOINT WRAPPER");
-    const stableQuery = useDeepCompareMemo(query);
+}: {
+    readonly endpoint: CommonEndpoint<T, A, B>;
+    readonly args: A;
+    readonly handle_error?: (error: Error) => void;
+    readonly batch_wait_ms?: number;
+    readonly isPostOverride?: boolean;
+    readonly children: (data: Omit<QueryResult<T>, 'data'> & {
+        data: NonNullable<QueryResult<T>['data']>;
+    }) => ReactNode;
+}) {
+    const stableQuery: { [k: string]: string | string[] } = useDeepCompareMemo(args ? 
+    (Object.fromEntries(Object.entries(args).filter(([_, value]) => value !== undefined)) as { [k: string]: string | string[] }): {});
 
-    // memoize the fallback render to avoid recreating the function on every render
     const fallbackRender = useCallback(
         (fallbackProps: { error: Error; resetErrorBoundary: () => void }) =>
             renderEndpointFallback({
                 ...fallbackProps,
-                endpoint,
+                endpoint: endpoint.endpoint.name,
                 query: stableQuery,
             }),
-        [endpoint, stableQuery]
+        [endpoint.endpoint.name, stableQuery]
     );
 
     return (
-        <ErrorBoundary fallbackRender={fallbackRender} onError={onError ?? console.error}>
+        <ErrorBoundary fallbackRender={fallbackRender} onError={handle_error ?? console.error}>
             <Suspense fallback={<Loading />}>
                 <BulkQueryWrapper
-                    endpoint={endpoint}
+                    endpoint={endpoint.endpoint.name}
                     query={stableQuery}
-                    cache_duration={cache_duration}
+                    is_post={isPostOverride ?? endpoint.endpoint.isPost}
+                    cache_duration={endpoint.endpoint.cache_duration}
                     batch_wait_ms={batch_wait_ms}
                 >
-                    {children}
+                {(data) => children(data as Omit<QueryResult<T>, 'data'> & {data: NonNullable<QueryResult<T>['data']>;})}
                 </BulkQueryWrapper>
             </Suspense>
         </ErrorBoundary>
@@ -120,48 +129,21 @@ export function ErrorBoundaryFallback({
     );
 }
 
-class BackendError extends Error {
-    constructor(message: string) {
-        super(message);
-        this.name = "BackendError";
-    }
-}
-
 export function BulkQueryWrapper<T>({
     endpoint,
     query,
+    is_post,
     cache_duration,
     batch_wait_ms,
     children,
 }: {
     readonly endpoint: string;
     readonly query: { readonly [key: string]: string | string[] };
+    readonly is_post: boolean;
     readonly cache_duration: number;
     readonly batch_wait_ms?: number;
     readonly children: (data: QueryResult<T>) => ReactNode;
 }) {
-    const { data } = useSuspenseQuery<QueryResult<T>>({
-            queryKey: [endpoint, query],
-            queryFn: async (meta) => {
-                console.log("Fetching bulk data...");
-                const keys = meta.queryKey as [string, { [key: string]: string }];
-                const result = await fetchBulk<T>({ 
-                    endpoint: keys[0], 
-                    query: keys[1], 
-                    cache: undefined, 
-                    batch_wait_ms: batch_wait_ms ?? 200 
-                });
-                if (result.error) {
-                    throw new BackendError(result.error);
-                }
-                return result;
-            },
-            refetchOnReconnect: true,
-            refetchOnWindowFocus: true,
-            refetchOnMount: true,
-            staleTime: cache_duration ?? 5000,
-            retry: (failureCount, err) =>
-                (!(err instanceof BackendError) && failureCount < 3) || failureCount < 1,
-    });
+    const { data } = useSuspenseQuery<QueryResult<T>>(suspenseQueryOptions(endpoint, query, is_post, cache_duration, batch_wait_ms));
     return children(data);
 }

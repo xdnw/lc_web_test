@@ -1,4 +1,4 @@
-import {LOGIN_MAIL} from "@/components/api/endpoints.tsx";
+import {LOGIN_MAIL} from "@/lib/endpoints";
 
 export default function NationPicker() {
     return (

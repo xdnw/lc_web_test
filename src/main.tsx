@@ -19,6 +19,13 @@ persistQueryClient({
   queryClient,
   persister: localStoragePersister,
   maxAge: 1000 * 60 * 60 * 24 * 30,  // 30 days
+  // TODO FIXME add caching by endpoint cache mode
+//   dehydrateOptions: { 
+//     shouldDehydrateQuery: (query) => {
+//         // Only persist queries whose key includes 'persist'
+//         return query.queryKey.some(key => typeof key === 'string' && key.includes('persist'));
+//     },
+// },
 });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

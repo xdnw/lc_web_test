@@ -1,4 +1,4 @@
-import { MULTI_V2} from "../../../components/api/endpoints";
+import { MULTI_V2} from "../../../lib/endpoints";
 import {getQueryParams} from "../../../lib/utils";
 import {Link, useParams} from "react-router-dom";
 import {TableWith2DData} from "../../custom_table";

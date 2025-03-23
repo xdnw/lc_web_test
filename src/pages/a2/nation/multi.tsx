@@ -1,5 +1,5 @@
 import {Link, useParams} from "react-router-dom";
-import {MULTI_BUSTER} from "../../../components/api/endpoints";
+import {MULTI_BUSTER} from "../../../lib/endpoints";
 import {TableWith2DData} from "../../custom_table";
 import {getQueryParams} from "../../../lib/utils";
 import Timestamp from "../../../components/ui/timestamp";

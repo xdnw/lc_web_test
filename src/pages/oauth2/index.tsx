@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 import {clearStorage} from "@/utils/Auth.ts";
 import {Link} from "react-router-dom";
 import {Button} from "@/components/ui/button.tsx";
-import {SET_OAUTH_CODE} from "@/components/api/endpoints.tsx";
+import {SET_OAUTH_CODE} from "@/lib/endpoints";
 import {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
 import {useDialog} from "../../components/layout/DialogContext";
 import {useSession} from "../../components/api/SessionContext";

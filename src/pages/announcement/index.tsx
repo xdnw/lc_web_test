@@ -1,5 +1,5 @@
 import {Link, useParams} from "react-router-dom";
-import {VIEW_ANNOUNCEMENT} from "@/components/api/endpoints.tsx";
+import {VIEW_ANNOUNCEMENT} from "@/lib/endpoints";
 import MarkupRenderer from "@/components/ui/MarkupRenderer.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {ChevronLeft} from "lucide-react";

@@ -1,0 +1,79 @@
+import { UseQueryOptions, UseSuspenseQueryOptions } from "@tanstack/react-query";
+import { fetchBulk, QueryResult } from "./BulkQuery";
+
+export function suspenseQueryOptions<T>(
+    endpoint: string, 
+    query: { readonly [key: string]: string | string[] },
+    is_post: boolean,
+    cache_duration?: number,
+    batch_wait_ms?: number
+): UseSuspenseQueryOptions<QueryResult<T>, Error, QueryResult<T>, readonly unknown[]> {
+    return bulkQueryOptions(endpoint, query, is_post, cache_duration, batch_wait_ms) as UseSuspenseQueryOptions<QueryResult<T>, Error, QueryResult<T>, readonly unknown[]>;
+}
+
+export function bulkQueryOptions<T>(
+    endpoint: string, 
+    query: { readonly [key: string]: string | string[] },
+    is_post: boolean,
+    cache_duration?: number,
+    batch_wait_ms?: number,
+): UseQueryOptions<QueryResult<T>, Error, QueryResult<T>, readonly unknown[]> {
+    return {
+        queryKey: [endpoint, query],
+        queryFn: async (meta) => {
+            const keys = meta.queryKey as [string, { [key: string]: string }];
+            const result = await fetchBulk<T>({ 
+                endpoint: keys[0], 
+                query: keys[1], 
+                cache: undefined, 
+                batch_wait_ms: batch_wait_ms ?? 200 
+            });
+            if (result.error) {
+                throw new BackendError(result.error);
+            }
+            return result;
+        },
+        refetchOnReconnect: !is_post,
+        refetchOnWindowFocus: !is_post,
+        refetchOnMount: !is_post,
+        staleTime: cache_duration ?? 5000,
+        retry: (failureCount, err) => 
+            !is_post && (!(err instanceof BackendError) && failureCount < 3) || failureCount < 1,
+    };
+}
+
+export function singleQueryOptions<T>(
+    endpoint: string, 
+    query: { readonly [key: string]: string | string[] },
+    cache_duration?: number,
+    batch_wait_ms?: number
+): UseQueryOptions<QueryResult<T>, Error, QueryResult<T>, readonly unknown[]> {
+    return {
+        queryKey: [endpoint, query],
+        queryFn: async (meta) => {
+            const keys = meta.queryKey as [string, { [key: string]: string }];
+            const result = await fetchBulk<T>({ 
+                endpoint: keys[0], 
+                query: keys[1], 
+                cache: undefined, 
+                batch_wait_ms: batch_wait_ms ?? 200 
+            });
+            if (result.error) {
+                throw new BackendError(result.error);
+            }
+            return result;
+        },
+        refetchOnReconnect: false,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        staleTime: cache_duration ?? 5000,
+        retry: (failureCount, err) => false,
+    };
+}
+
+class BackendError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "BackendError";
+    }
+}

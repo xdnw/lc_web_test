@@ -1,4 +1,4 @@
-import {BALANCE, WITHDRAW} from "@/components/api/endpoints.tsx";
+import {BALANCE, WITHDRAW} from "@/lib/endpoints";
 import {Link, useParams} from "react-router-dom";
 import {COMMANDS} from "@/lib/commands.ts";
 import React, {ReactNode, useRef, useState} from "react";
@@ -8,7 +8,7 @@ import {ChevronDown, ChevronLeft, ChevronUp} from "lucide-react";
 import {BlockCopyButton} from "@/components/ui/block-copy-button.tsx";
 import {TooltipProvider} from "@/components/ui/tooltip.tsx";
 import Loading from "@/components/ui/loading.tsx";
-import {WebBalance, WebTransferResult} from "../../components/api/apitypes";
+import {WebBalance, WebTransferResult} from "../../lib/apitypes";
 import {IOptionData} from "../../utils/Command";
 
 export default function BalancePage() {

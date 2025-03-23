@@ -7,8 +7,8 @@ import {
 import {Button} from "@/components/ui/button.tsx";
 import {Settings} from "lucide-react";
 import {Link} from "react-router-dom";
-import {SESSION} from "@/components/api/endpoints.tsx";
-import {WebSession} from "@/components/api/apitypes";
+import {SESSION} from "@/lib/endpoints";
+import {WebSession} from "@/lib/apitypes";
 import {useSession} from "../api/SessionContext";
 import LoggedOutDropdown from "./logged-out-dropdown";
 

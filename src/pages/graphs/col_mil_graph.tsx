@@ -1,5 +1,5 @@
-import {GLOBALSTATS} from "../../components/api/endpoints";
-import {CoalitionGraphs} from "../../components/api/apitypes";
+import {GLOBALSTATS} from "../../lib/endpoints.js";
+import {CoalitionGraphs} from "../../lib/apitypes.js";
 import React from "react";
 import {CoalitionGraphComponent} from "./SimpleChart.js";
 

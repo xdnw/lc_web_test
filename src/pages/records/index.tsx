@@ -1,10 +1,13 @@
-import { memo, useRef, useState, useEffect } from "react";
-import { RECORDS } from "@/components/api/endpoints.tsx";
+import { memo, useRef, useState, useEffect, ReactNode } from "react";
+import { RECORDS } from "@/lib/endpoints";
 import Loading from "@/components/ui/loading.tsx";
 import { PaginatedList } from "@/components/ui/pagination.tsx";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
+import EndpointWrapper from "@/components/api/bulkwrapper";
+import { QueryResult } from "@/lib/BulkQuery";
+import { WebTable } from "@/lib/apitypes";
 
 const Records = () => {
     const location = useLocation();
@@ -29,9 +32,9 @@ const Records = () => {
                     <ChevronLeft className="h-4 w-4" />Back
                 </Link>
             </Button>
-            {RECORDS.useDisplay({
-                args: {},
-                render: (table) => {
+            <EndpointWrapper<WebTable> {...RECORDS.displayProps({args: {}})} >
+                {data => {
+                    const table = data.data;
                     if (entries.current === null) {
                         header.current = table.cells.shift() as string[];
                         entries.current = table.cells;
@@ -69,9 +72,16 @@ const Records = () => {
                             onPageChange={setCurrentPage}
                         />
                     );
+                }
+                }
+            </EndpointWrapper>
+            {/* {RECORDS.useDisplay({
+                args: {},
+                render: (table) => {
+                    
                 },
                 renderLoading: () => <Loading />,
-            })}
+            })} */}
         </>
     );
 };

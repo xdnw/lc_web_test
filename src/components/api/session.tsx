@@ -4,7 +4,11 @@ import { getDiscordAuthUrl } from '@/utils/Auth';
 import { Button } from '../ui/button.tsx';
 import { Link } from 'react-router-dom';
 import {Mail, ExternalLink, KeyRound, ChevronRight} from 'lucide-react';
-import {useSession} from "./SessionContext";
+import { bulkQueryOptions } from '@/lib/queries.ts';
+import { SESSION } from '@/lib/endpoints.ts';
+import { QueryResult } from '@/lib/BulkQuery.ts';
+import { WebSession } from '@/lib/apitypes.js';
+import { useQuery } from '@tanstack/react-query';
 
 export function LoginPicker() {
     return (
@@ -48,17 +52,18 @@ export function LoginPicker() {
 }
 
 export default function SessionInfo() {
-    const {session, error } = useSession();
+    const {data, error } = useQuery<QueryResult<WebSession>>(bulkQueryOptions(SESSION.endpoint.name, {}, true, SESSION.endpoint.cache_duration));
 
-    if (!session) {
+    if (!data?.data || data.error) {
         return <>
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                 <strong className="font-bold">Error:&nbsp;</strong>
-                <span className="block sm:inline">Could not fetch login data. {error}</span>
+                <span className="block sm:inline">Could not fetch login data. {error?.message ?? data?.error ?? "Unknown Error"}</span>
             </div>
             <LoginPicker/>
         </>
     }
+    const session = data.data;
     return <div className="bg-light/10 border border-light/10 p-2 rounded relative">
         <table className="table-auto w-full border-separate border-spacing-y-1">
             <tbody>

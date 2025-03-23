@@ -1,12 +1,12 @@
-import { CacheType } from "../api/apitypes";
+import { CacheType } from "./apitypes";
 import { UNPACKR } from "@/lib/utils";
-import { JSONValue } from "../api/internaltypes";
+import { JSONValue } from "./internaltypes";
 import Cookies from "js-cookie";
 import { hashString } from "@/utils/StringUtil";
 import { Argument, IArgument } from "@/utils/Command";
 import { ReactNode } from "react";
-import { DisplayProps } from "../api/bulkwrapper";
-import { ApiFormInputsProps } from "../api/apiform";
+import { DisplayProps } from "../components/api/bulkwrapper";
+import { ApiFormInputsProps } from "../components/api/apiform";
 
 export class QueryResult<T> {
     endpoint: string;
@@ -393,11 +393,13 @@ export class ApiEndpoint<T> {
     args: { [name: string]: Argument };
     cast: (data: unknown) => T;
     cache_duration: number;
+    cache_type: CacheType;
     typeName: string;
     desc: string;
     argsLower: { [name: string]: string };
+    isPost: boolean;
 
-    constructor(name: string, url: string, args: { [name: string]: IArgument }, cast: (data: unknown) => T, cache_duration: number, typeName: string, desc: string) {
+    constructor(name: string, url: string, args: { [name: string]: IArgument }, cast: (data: unknown) => T, cache_duration: number, cacheType: CacheType, typeName: string, desc: string, isPost: boolean) {
         this.name = name;
         this.url = url;
         this.args = {};
@@ -407,8 +409,10 @@ export class ApiEndpoint<T> {
         this.argsLower = Object.fromEntries(Object.entries(args).map(([key, value]) => [key.toLowerCase(), key]));
         this.cast = cast;
         this.cache_duration = cache_duration ?? 5000;
+        this.cache_type = cacheType;
         this.typeName = typeName;
         this.desc = desc;
+        this.isPost = isPost;
     }
 
     async call(params: { [key: string]: string }): Promise<T> {
@@ -418,19 +422,14 @@ export class ApiEndpoint<T> {
 
 export type CommonEndpoint<T, U extends { [key: string]: string | string[] | undefined }, V extends { [key: string]: string | string[] | undefined }> = {
     endpoint: ApiEndpoint<T>;
-    displayProps: (params: {
-        args: U;
-        handle_loading?: () => void;
-        handle_error?: (error: string) => void;
-    }) => DisplayProps<T>;
-    formProps: (params: {
+    formProps: ({default_values, showArguments, label, message, handle_submit, handle_loading, handle_error, classes}: {
         default_values?: V;
         showArguments?: string[];
         label?: ReactNode;
         message?: ReactNode;
         handle_submit?: (args: U) => boolean;
         handle_loading?: () => void;
-        handle_error?: (error: string) => void;
+        handle_error?: (error: Error) => void;
         classes?: string;
-    }) => ApiFormInputsProps<T, { [key: string]: string }>;
+    }) => ApiFormInputsProps<T, U>;
 };

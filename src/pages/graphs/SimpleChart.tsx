@@ -16,7 +16,7 @@ import {
 } from 'chart.js';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Bar, Line, Scatter } from 'react-chartjs-2';
-import {WebGraph, GraphType, CoalitionGraph} from '../../components/api/apitypes';
+import {WebGraph, GraphType, CoalitionGraph} from '../../lib/apitypes';
 import chroma from 'chroma-js';
 import distinctColors from 'distinct-colors'
 import {

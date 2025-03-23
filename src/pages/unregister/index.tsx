@@ -3,9 +3,9 @@ import {Link} from "react-router-dom";
 import {clearStorage, getDiscordAuthUrl} from "@/utils/Auth.ts";
 import {Button} from "@/components/ui/button.tsx";
 import CopyToClipboard from "@/components/ui/copytoclipboard.tsx";
-import {SESSION, UNREGISTER} from "@/components/api/endpoints.tsx";
+import {SESSION, UNREGISTER} from "@/lib/endpoints";
 import {useDialog} from "../../components/layout/DialogContext";
-import {WebSession} from "../../components/api/apitypes";
+import {WebSession} from "../../lib/apitypes";
 
 export default function Unregister() {
     return (

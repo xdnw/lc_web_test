@@ -5,7 +5,7 @@ import ReactDOMServer from 'react-dom/server';
 import {CM, ICommandMap, IOptionData} from "../../utils/Command";
 import React, {ReactNode} from "react";
 import SimpleChart from "../../pages/graphs/SimpleChart.js";
-import {WebGraph} from "../api/apitypes";
+import {WebGraph} from "../../lib/apitypes.js";
 import Color from "../renderer/Color.js";
 
 export const RENDERERS: {[key: string]: ObjectColumnRender | undefined} = {
