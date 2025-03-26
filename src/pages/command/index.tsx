@@ -93,6 +93,8 @@ function runCommand({command, values, onResponse}: {
         }
     });
 
+    console.log("runCommand", command, values);
+
     fetch(url.toString(), {
         method: 'GET',
         credentials: 'include', // Ensure cookies are included

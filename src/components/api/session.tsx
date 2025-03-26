@@ -52,7 +52,7 @@ export function LoginPicker() {
 }
 
 export default function SessionInfo() {
-    const {data, error } = useQuery<QueryResult<WebSession>>(bulkQueryOptions(SESSION.endpoint.name, {}, true, SESSION.endpoint.cache_duration));
+    const {data, error } = useQuery<QueryResult<WebSession>>(bulkQueryOptions(SESSION.endpoint, {}, true));
 
     if (!data?.data || data.error) {
         return <>

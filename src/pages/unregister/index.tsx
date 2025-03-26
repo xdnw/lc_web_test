@@ -6,15 +6,17 @@ import CopyToClipboard from "@/components/ui/copytoclipboard.tsx";
 import {SESSION, UNREGISTER} from "@/lib/endpoints";
 import {useDialog} from "../../components/layout/DialogContext";
 import {WebSession} from "../../lib/apitypes";
+import EndpointWrapper from "@/components/api/bulkwrapper";
 
 export default function Unregister() {
     return (
         <>
             <div className="bg-light/10 border border-light/10 p-2 relative rounded mb-4">
-            {SESSION.useDisplay({
-                args: {},
-                render: (session) => (<UnregisterComponent session={session} />
-            )})}
+            <EndpointWrapper endpoint={SESSION} args={{}}>
+                {({data: session}) => {
+                    return <UnregisterComponent session={session} />
+                }}
+            </EndpointWrapper>
             </div>
             <SessionInfo />
     </>);

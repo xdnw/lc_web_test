@@ -1,8 +1,11 @@
 import ListComponent from "./ListComponent";
 import {INPUT_OPTIONS} from "@/lib/endpoints";
-import {useData, useRegisterMultipleQueries} from "./DataContext";
 import {WebOptions} from "../../lib/apitypes";
-import {useRef} from "react";
+import {useRef, useState} from "react";
+import EndpointWrapper from "../api/bulkwrapper";
+import { useQueries } from "@tanstack/react-query";
+import { bulkQueryOptions } from "@/lib/queries";
+import { QueryResult } from "@/lib/BulkQuery";
 
 export default function QueryComponent(
     {element, multi, argName, initialValue, setOutputValue}:
@@ -14,21 +17,27 @@ export default function QueryComponent(
         setOutputValue: (name: string, value: string) => void
     }
 ) {
-    return <>
-        {INPUT_OPTIONS.useDisplay({
-                args: {type: element},
-                render: (options) => {
-                    const key = options.key_numeric ?? options.key_string ?? [];
-                    const labelled = key.map((o, i) => ({
-                        label: options.text ? options.text[i] : o + "",
-                        value: o + "",
-                        subtext: options.subtext ? options.subtext[i] : undefined,
-                        color: options.color ? options.color[i] : undefined
-                    }));
-                    return <ListComponent argName={argName} options={labelled} isMulti={multi} initialValue={initialValue}
-                                       setOutputValue={setOutputValue}/>
-                }})}
-    </>;
+    /*
+    endpoint,
+    args,
+    handle_error,
+    batch_wait_ms,
+    isPostOverride,
+    children,
+    */
+    return <EndpointWrapper endpoint={INPUT_OPTIONS} args={{type: element}} handle_error={console.error} batch_wait_ms={10}>
+        {({data: options}) => {
+            const key = options.key_numeric ?? options.key_string ?? [];
+            const labelled = key.map((o, i) => ({
+                label: options.text ? options.text[i] : o + "",
+                value: o + "",
+                subtext: options.subtext ? options.subtext[i] : undefined,
+                color: options.color ? options.color[i] : undefined
+            }));
+            return <ListComponent argName={argName} options={labelled} isMulti={multi} initialValue={initialValue}
+                                  setOutputValue={setOutputValue}/>
+        }}
+    </EndpointWrapper>
 }
 
 function combineAndLabelData(data: WebOptions[], queryIds: number[]): {label: string, value: string, subtext?: string, color?: string}[] {
@@ -55,20 +64,38 @@ export function CompositeQueryComponent(
         setOutputValue: (name: string, value: string) => void
     }
 ) {
-    const toArgs = (f: string) => ({type: f});
-    const [queryIds] = useRegisterMultipleQueries(composites, INPUT_OPTIONS, toArgs)
-    const { queries } = useData<WebOptions>();
-    if (!queries) return null;
-    const data: WebOptions[] = queries.map((query) => query.data as WebOptions);
+    const queries = useQueries({
+        queries: composites.map(composite => (bulkQueryOptions<WebOptions>(
+            INPUT_OPTIONS.endpoint,
+            { type: composite },
+            false
+        )))
+    });
 
-    for (const queryId of queryIds) {
-        if (!(data[queryId])) {
-            return null;
-        }
+    if (queries.some(query => query.isLoading)) {
+        return <div>Loading...</div>;
     }
 
-    return <CombinedCompositeComponent data={data} queryIds={queryIds} multi={multi} argName={argName} initialValue={initialValue} setOutputValue={setOutputValue} />
+    if (queries.some(query => query?.data?.data === undefined)) {
+        return <div>No Data...</div>;
+    }
+
+    if (queries.some(query => query.error)) {
+        return <div>Error loading options: {JSON.stringify(queries.map(query => query.error))}</div>;
+    }
+
+    const data: WebOptions[] = queries.map(query => query.data!.data!);
+    const queryIds: number[] = composites.map((_, idx) => idx);
+
+    return <CombinedCompositeComponent
+                data={data}
+                queryIds={queryIds}
+                multi={multi}
+                argName={argName}
+                initialValue={initialValue}
+                setOutputValue={setOutputValue} />;
 }
+
 
 function CombinedCompositeComponent(
     {data, queryIds, argName, multi, initialValue, setOutputValue}:
@@ -81,7 +108,8 @@ function CombinedCompositeComponent(
         setOutputValue: (name: string, value: string) => void
     }
 ) {
-    const combined = useRef(combineAndLabelData(data, queryIds));
-    return <ListComponent argName={argName} options={combined.current} isMulti={multi} initialValue={initialValue}
+    const [combined] = useState(() => combineAndLabelData(data, queryIds));
+
+    return <ListComponent argName={argName} options={combined} isMulti={multi} initialValue={initialValue}
                           setOutputValue={setOutputValue}/>
 }

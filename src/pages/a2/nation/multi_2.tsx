@@ -6,6 +6,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import {renderLink} from "./multi";
 import {ChevronDown, ChevronUp} from "lucide-react";
+import EndpointWrapper from "@/components/api/bulkwrapper";
 
 export default function MultiV2() {
     const { nation } = useParams<{ nation: string }>();
@@ -41,30 +42,25 @@ export default function MultiV2() {
             </p>
         </div>
         </div>
-        {MULTI_V2.useDisplay({
-            args: {
-                nation: nation,
-                forceUpdate: getQueryParams().get("update") ?? 'false'
-            },
-            render: (newData) => {
-
+        <EndpointWrapper endpoint={MULTI_V2} args={{nation: nation, forceUpdate: getQueryParams().get("update") ?? 'false'}}>
+            {({data}) => {
                 const selfColumns: string[] = ["Nation", "Alliance", "Age", "Cities", "Last Active", "% Online", "Discord", "Discord Linked", "IRL Verified", "Customization", "Updated"];
                 const selfData = [[
-                    renderLink(newData.nationId, newData.nation, 'nation', newData.banned ? "BANNED" : undefined, undefined),
-                    renderLink(newData.allianceId, newData.alliance, 'alliance', undefined, undefined),
-                    newData.age,
-                    newData.cities,
-                    newData.lastActive,
-                    newData.percentOnline,
-                    newData.discord,
-                    newData.discord_linked,
-                    newData.irl_verified,
-                    newData.customization,
-                    newData.dateFetched]];
+                    renderLink(data.nationId, data.nation, 'nation', data.banned ? "BANNED" : undefined, undefined),
+                    renderLink(data.allianceId, data.alliance, 'alliance', undefined, undefined),
+                    data.age,
+                    data.cities,
+                    data.lastActive,
+                    data.percentOnline,
+                    data.discord,
+                    data.discord_linked,
+                    data.irl_verified,
+                    data.customization,
+                    data.dateFetched]];
                 const selfRenderers = ["normal", "normal", 'duration_day', 'comma', 'diff_ms', 'percent', "normal", "normal", "normal", 'percent_100', 'diff_ms'];
 
                 const networkColumns = ["Nation", "Alliance", "Age", "Cities", "Shared IPs", "Shared IP %", "Shared Nation %", "Same IP", "Banned", "Login Diff", "Same Activity %", "% Online", "Discord", "Discord Linked", "IRL Verified", "Customization"];
-                const networkData = newData.rows.map(row => [
+                const networkData = data.rows.map(row => [
                     renderLink(row.id, row.Nation, 'nation', row.banned ? "BANNED" : undefined, "multi_v2"),
                     renderLink(row.alliance_id, row.alliance, 'alliance', undefined, undefined),
                     row.age,
@@ -88,7 +84,7 @@ export default function MultiV2() {
                         <div className='bg-light/10 border border-light/10 p-2'>
                             <TableWith2DData columns={selfColumns} data={selfData} renderers={selfRenderers}/>
                             <hr className="my-1"/>
-                            {newData.dateFetched < Date.now() - 1000 * 60 * 60 * 24 && <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link to={`?update=true`}>Update</Link></Button>}
+                            {data.dateFetched < Date.now() - 1000 * 60 * 60 * 24 && <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link to={`?update=true`}>Update</Link></Button>}
                         </div>
                         <hr className="my-2"/>
                         <div className="bg-light/10 border border-light/10 rounded-t">
@@ -100,6 +96,7 @@ export default function MultiV2() {
                     </>
                 );
             }
-        })}
+        }
+        </EndpointWrapper>
     </>
 }

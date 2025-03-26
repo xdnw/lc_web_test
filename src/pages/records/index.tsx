@@ -32,9 +32,8 @@ const Records = () => {
                     <ChevronLeft className="h-4 w-4" />Back
                 </Link>
             </Button>
-            <EndpointWrapper<WebTable> {...RECORDS.displayProps({args: {}})} >
-                {data => {
-                    const table = data.data;
+            <EndpointWrapper endpoint={RECORDS} args={{}}>
+                {({data: table}) => {
                     if (entries.current === null) {
                         header.current = table.cells.shift() as string[];
                         entries.current = table.cells;
@@ -75,13 +74,6 @@ const Records = () => {
                 }
                 }
             </EndpointWrapper>
-            {/* {RECORDS.useDisplay({
-                args: {},
-                render: (table) => {
-                    
-                },
-                renderLoading: () => <Loading />,
-            })} */}
         </>
     );
 };

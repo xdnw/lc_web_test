@@ -6,6 +6,7 @@ import {Link} from "react-router-dom";
 import {LOGOUT} from "@/lib/endpoints";
 import {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
 import {useDialog} from "../../components/layout/DialogContext";
+import EndpointWrapper from "@/components/api/bulkwrapper";
 
 export function LogoutComponent() {
     const { showDialog } = useDialog();
@@ -23,29 +24,25 @@ export function LogoutComponent() {
         });
     }, []);
 
-    return LOGOUT.useDisplay({
-        args: {},
-        render: (logout) => {
+    return <EndpointWrapper endpoint={LOGOUT} args={{}}
+    handle_error={(error) => {
+        console.log("Logout failed");
+        logoutCallback();
+        showDialog("Logout Failed", <>
+            Failed to logout. Please try again, try a different login method, or contact support.
+            <div className="relative overflow-auto">
+                <CopoToClipboardTextArea text={error.message}/>
+            </div>
+        </>, false);
+    }}>
+        {({data}) => {
             console.log("Logout successful");
             logoutCallback();
             return <>Logged out Successfully!<br/>
                 <Button variant="outline" size="sm" className='border-slate-600' asChild>
                     <Link to={`${process.env.BASE_PATH}home`}>Return Home</Link></Button></>
-        },
-        renderError: (error) => {
-            console.log("Logout failed");
-            logoutCallback();
-            showDialog("Logout Failed", <>
-                Failed to logout. Please try again, try a different login method, or contact support.
-                <div className="relative overflow-auto">
-                    <CopoToClipboardTextArea text={error}/>
-                </div>
-            </>, false);
-            return (<>
-                Logout failed!
-            </>);
-        }
-    });
+        }}
+    </EndpointWrapper>
 }
 
 export default function LogoutPage() {

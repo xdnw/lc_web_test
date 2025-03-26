@@ -7,6 +7,7 @@ import {getQueryParams, queryParamsToObject} from "../../lib/utils";
 import {ChartWithButtons} from "./SimpleChart";
 import {getGraphEndpoints} from "../../utils/GraphUtil";
 import {Button} from "../../components/ui/button";
+import EndpointWrapper from "@/components/api/bulkwrapper";
 
 export function ParamViewGraph() {
     const {type} = useParams<{ type: string }>();
@@ -45,16 +46,15 @@ export default function ViewGraph<U extends { [key: string]: string | string[] |
         endpoint: CommonEndpoint<WebGraph, U, V>,
         args: React.RefObject<{ [key: string]: string | string[] | undefined }>
     }) {
-    return endpoint.useDisplay({
-        // Can (args.current as U) filter out any pairs where the key isn't a key in endpoint.endpoint.args
-        args: Object.fromEntries(Object.entries(args.current).filter(([key]) => key in endpoint.endpoint.argsLower)) as U,
-        render: (data) => {
-            return <>
-                <Button variant="outline" size="sm" className="me-1 no-underline" asChild>
-                <Link to={`${process.env.BASE_PATH}edit_graph/${endpoint.endpoint.name}`}>Edit</Link>
-                </Button>
-                <ChartWithButtons graph={data} endpointName={endpoint.endpoint.name} usedArgs={args}/>
-            </>
+    return <EndpointWrapper<WebGraph, U, V> endpoint={endpoint} args={Object.fromEntries(Object.entries(args.current).filter(([key]) => key in endpoint.endpoint.argsLower)) as U}>
+        {({data}) => {
+                return <>
+                    <Button variant="outline" size="sm" className="me-1 no-underline" asChild>
+                        <Link to={`${process.env.BASE_PATH}edit_graph/${endpoint.endpoint.name}`}>Edit</Link>
+                    </Button>
+                    <ChartWithButtons graph={data} endpointName={endpoint.endpoint.name} usedArgs={args}/>
+                </>
+            }
         }
-    })
+    </EndpointWrapper>;
 }

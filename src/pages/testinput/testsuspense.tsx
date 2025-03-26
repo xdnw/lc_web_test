@@ -1,9 +1,14 @@
 import EndpointWrapper, { BulkQueryWrapper } from "@/components/api/bulkwrapper";
+import { TABLE } from "@/lib/endpoints";
 import { Suspense, useEffect, useState } from "react";
 import { FallbackProps, ErrorBoundary } from "react-error-boundary";
 export default function TestSuspense() {
-    const [endpoint] = useState("table");
-    const [rawQuery] = useState({
+    const [endpoint] = useState(TABLE);
+    const [rawQuery] = useState<{
+        type?: string;
+        selection_str?: string;
+        columns?: string[] | string;
+    }>({
         type: "DBNation",
         selection_str: "Borg",
         columns: ["{markdownUrl}", "{cities}"]
@@ -13,8 +18,8 @@ export default function TestSuspense() {
             <div>
                 Hello World
             </div>
-            <EndpointWrapper endpoint={endpoint} query={rawQuery} cache={{ cache: "Cookie", duration: 5000 }}>
-                {data => JSON.stringify(data)}
+            <EndpointWrapper endpoint={endpoint} args={rawQuery}>
+                {({data}) => JSON.stringify(data)}
             </EndpointWrapper>
         </>
     );

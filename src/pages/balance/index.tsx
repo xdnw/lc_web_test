@@ -9,17 +9,17 @@ import {BlockCopyButton} from "@/components/ui/block-copy-button.tsx";
 import {TooltipProvider} from "@/components/ui/tooltip.tsx";
 import Loading from "@/components/ui/loading.tsx";
 import {WebBalance, WebTransferResult} from "../../lib/apitypes";
-import {IOptionData} from "../../utils/Command";
+import EndpointWrapper from "@/components/api/bulkwrapper";
+import { ApiFormInputs } from "@/components/api/apiform";
 
 export default function BalancePage() {
     const {category} = useParams(); // TODO
 
-    return BALANCE.useDisplay({
-        args: {},
-        render: (data) => {
+    return <EndpointWrapper endpoint={BALANCE} args={{}}>
+        {({data}) => {
             return <RenderBalance balance={data} />;
-        }
-    })
+        }}
+    </EndpointWrapper>
 }
 
 const rssTypes: string[] = COMMANDS.options.ResourceType.options;
@@ -133,31 +133,23 @@ function RenderBalance({ balance }: {balance: WebBalance}) {
 }
 
 export function WithdrawForm({ balance, amount, setLoading, setReactMessage }: {balance: WebBalance, amount: number[], setLoading: (loading: boolean) => void, setReactMessage: (message: ReactNode | null) => void}) {
-    return WITHDRAW.useForm({
-        default_values: {
+    return <ApiFormInputs 
+        endpoint={WITHDRAW}
+        default_values={{
             receiver: (balance.is_aa ? "AA:" : "") + balance.id,
             amount: toResourceString(amount),
             note: balance.is_aa ? "IGNORE" : "DEPOSIT",
-        },
-        handle_submit: (data) => {
-            data.amount = toResourceString(amount); // Ensure the latest amount is used
-            return true;
-        },
-        handle_response: (data) => {
-            setLoading(false);
-            setReactMessage(<TransferSuccess message={data} />);
-        },
-        handle_loading: () => {
-            console.log("loading");
-            setLoading(true);
-        },
-        handle_error: (error) => {
-            setLoading(false);
-            setReactMessage(<TransferError message={error} />);
-        },
-        classes: "w-10 p-0 row-span-full h-50 flex items-center justify-center bg-destructive",
-        label: <span className="transform rotate-90 flex items-center"><ChevronUp/>Withdraw</span>
-    });
+        }}
+        label={<span className="transform rotate-90 flex items-center"><ChevronUp/>Withdraw</span>}
+        handle_error={(error) => setReactMessage(<TransferError message={error.message} />)}
+        classes="w-10 p-0 row-span-full h-50 flex items-center justify-center bg-destructive"
+    >
+    {({data}) => {
+        setLoading(false);
+        setReactMessage(<TransferSuccess message={data} />);
+        return <></>
+    }}
+    </ApiFormInputs>
 }
 
 export function TransferSuccess({ message }: { message: WebTransferResult }) {

@@ -17,6 +17,7 @@ import {WebAudits, WebBankAccess} from "@/lib/apitypes";
 import {useDialog} from "../../components/layout/DialogContext";
 import RaidSection from "../raid";
 import {IOptionData} from "../../utils/Command";
+import EndpointWrapper from "@/components/api/bulkwrapper";
 
 export default function GuildMember() {
     return (
@@ -32,10 +33,11 @@ export default function GuildMember() {
 }
 
 export function AuditSection() {
-    return MY_AUDITS.useDisplay({
-        args: {},
-        render: (audits) => (<AuditComponent audits={audits} />)
-    });
+    return <EndpointWrapper endpoint={MY_AUDITS} args={{}}>
+        {({data}) => {
+            return (<AuditComponent audits={data} />);
+        }}
+    </EndpointWrapper>;
 }
 
 export function AuditComponent({ audits }: { audits: WebAudits }) {
@@ -90,11 +92,10 @@ export function AnnouncementSection() {
     const countRef = useRef(-1);
     const [rerender, setRerender] = useState(false);
 
-    return UNREAD_COUNT.useDisplay({
-        args: {},
-        render: (count) => {
+    return <EndpointWrapper endpoint={UNREAD_COUNT} args={{}}>
+        {({data}) => {
             if (countRef.current === -1) {
-                countRef.current = count.value;
+                countRef.current = data.value;
             }
             return (
                 <div className={`${countRef.current === 0 ? "text-primary/80 border-secondary" : "text-red-500 border-red-500/25"} border w-full mb-1 p-1 relative bg-accent rounded`}>
@@ -108,8 +109,8 @@ export function AnnouncementSection() {
                     }} />}
                 </div>
             );
-        }
-    });
+        }}
+    </EndpointWrapper>;
 }
 
 export function DismissAnnouncements({ setUnreadCount }: { setUnreadCount: (value: number) => void }) {
@@ -128,11 +129,11 @@ export function DismissAnnouncements({ setUnreadCount }: { setUnreadCount: (valu
 export function BankSection() {
     return <div className="bg-light/10 border border-light/10 p-2 rounded mt-2">
         <h1 className="text-2xl font-bold">Banking</h1>
-        {BANK_ACCESS.useDisplay({
-            args: {},
-            render: (access) => (<BankAccess access={access} />),
-            renderError: (error) => (<div>{error}</div>)
-        })}
+        <EndpointWrapper endpoint={BANK_ACCESS} args={{}}>
+            {({data}) => {
+                return <BankAccess access={data} />;
+            }}
+        </EndpointWrapper>
     </div>;
 }
 
@@ -180,10 +181,11 @@ export function GrantSection() {
 }
 
 export function MyWarsSection() {
-    return MY_WARS.useDisplay({
-        args: {},
-        render: (wars) => (<WarsComponent wars={wars} />)
-    });
+    return <EndpointWrapper endpoint={MY_WARS} args={{}}>
+        {({ data }) => {
+            return (<WarsComponent wars={data} />)
+        }}
+    </EndpointWrapper>;
 }
 
 export function WarsComponent({ wars }: { wars: ApiTypes.WebMyWars }) {

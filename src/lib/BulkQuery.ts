@@ -5,8 +5,6 @@ import Cookies from "js-cookie";
 import { hashString } from "@/utils/StringUtil";
 import { Argument, IArgument } from "@/utils/Command";
 import { ReactNode } from "react";
-import { DisplayProps } from "../components/api/bulkwrapper";
-import { ApiFormInputsProps } from "../components/api/apiform";
 
 export class QueryResult<T> {
     endpoint: string;
@@ -26,7 +24,7 @@ export class QueryResult<T> {
             endpoint: string;
             query: { [key: string]: string | string[] };
             update_ms: number;
-            cache?: { cache_type: CacheType; duration?: number; cookie_id: string };
+            cache?: { cache_type: CacheType; duration?: number};
             data?: T | null;
             error?: string | null;
         }) {
@@ -36,6 +34,17 @@ export class QueryResult<T> {
         this.cache = cache;
         this.data = data ?? null;
         this.error = error ?? null;
+    }
+
+    clone(): QueryResult<T> {
+        return new QueryResult({
+            endpoint: this.endpoint,
+            query: this.query,
+            update_ms: this.update_ms,
+            cache: this.cache,
+            data: this.data,
+            error: this.error
+        });
     }
 }
 
@@ -204,6 +213,8 @@ function dispatchBatch() {
         'Content-Type': 'application/msgpack',
     };
 
+    console.log("dispatchBatch", url, finalQueries);
+
     fetch(url, {
         method: 'POST',
         headers: headers,
@@ -282,6 +293,9 @@ export function fetchSingle<T>(endpoint: string, query: { [key: string]: string 
             urlParams.append(key, value);
         }
     }
+
+    console.log("fetchSingle", endpoint, query);
+
     return fetch(url, {
         method: "POST",
         headers: {
@@ -422,14 +436,4 @@ export class ApiEndpoint<T> {
 
 export type CommonEndpoint<T, U extends { [key: string]: string | string[] | undefined }, V extends { [key: string]: string | string[] | undefined }> = {
     endpoint: ApiEndpoint<T>;
-    formProps: ({default_values, showArguments, label, message, handle_submit, handle_loading, handle_error, classes}: {
-        default_values?: V;
-        showArguments?: string[];
-        label?: ReactNode;
-        message?: ReactNode;
-        handle_submit?: (args: U) => boolean;
-        handle_loading?: () => void;
-        handle_error?: (error: Error) => void;
-        classes?: string;
-    }) => ApiFormInputsProps<T, U>;
 };

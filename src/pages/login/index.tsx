@@ -11,6 +11,7 @@ import {useSession} from "../../components/api/SessionContext";
 import {useData, useRegisterQuery} from "../../components/cmd/DataContext";
 import {WebSession} from "../../lib/apitypes";
 import {useEffect, useState} from "react";
+import EndpointWrapper from "@/components/api/bulkwrapper";
 
 export function LoginComponent() {
     const { token } = useParams<{ token: string }>();
@@ -27,26 +28,21 @@ export function LoginComponent() {
 
     }, [loggedIn, refetchSession]);
 
-    return SET_TOKEN.useDisplay({
-        args: {"token": token ?? ""},
-        render: (login) => {
-            setLoggedIn(true);
-            return <>Logged in Successfully!<br/>
-                <Button variant="outline" size="sm" className='border-slate-600' asChild>
-                    <Link to={`${process.env.BASE_PATH}home`}>Return Home</Link></Button></>
-        },
-        renderError: (error) => {
-            showDialog("Login Failed", <>
-                Failed to set login token. Please try again, try a different login method, or contact support.
-                <div className="relative overflow-auto">
-                    <CopoToClipboardTextArea text={error}/>
-                </div>
-            </>, false);
-            return (<>
-                Login failed!
-            </>);
-        }
-    });
+    return <EndpointWrapper endpoint={SET_TOKEN} args={{token: token ?? ""}} handle_error={(error) => {
+        showDialog("Login Failed", <>
+            Failed to set login token. Please try again, try a different login method, or contact support.
+            <div className="relative overflow-auto">
+                <CopoToClipboardTextArea text={error.message}/>
+            </div>
+        </>, false);
+    }}>
+    {({data}) => {
+        setLoggedIn(true);
+        return <>Logged in Successfully!<br/>
+            <Button variant="outline" size="sm" className='border-slate-600' asChild>
+                <Link to={`${process.env.BASE_PATH}home`}>Return Home</Link></Button></>
+    }}
+    </EndpointWrapper>;
 }
 
 export default function LoginPage() {

@@ -9,14 +9,20 @@ import {Settings} from "lucide-react";
 import {Link} from "react-router-dom";
 import {SESSION} from "@/lib/endpoints";
 import {WebSession} from "@/lib/apitypes";
-import {useSession} from "../api/SessionContext";
 import LoggedOutDropdown from "./logged-out-dropdown";
+import { bulkQueryOptions } from "@/lib/queries";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "../ui/loading";
 
 export default function LoggedInDropdown() {
-    const { session, error, setSession, refetchSession } = useSession();
-    if (!session) {
+    const { data, isFetching } = useQuery(bulkQueryOptions(SESSION.endpoint, {}));
+    if (isFetching || !data) {
+        return <Loading/>;
+    }
+    if (!data.data) {
         return <LoggedOutDropdown/>
     }
+    const session = data.data;
     return (
     <DropdownMenu>
         <DropdownMenuTrigger asChild>

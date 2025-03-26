@@ -40,6 +40,7 @@ import {DEFAULT_TABS} from "../../lib/layouts";
 import CommandComponent from "../../components/cmd/CommandComponent";
 import {createCommandStoreWithDef} from "../../utils/StateUtil";
 import { Input } from "@/components/ui/input";
+import EndpointWrapper from "@/components/api/bulkwrapper";
 
 DataTable.use(DT);
 
@@ -525,31 +526,28 @@ function LoadTable(
         columns: columns.current,
         sort: sort.current
     })}`);
-    return <>
-        {TABLE.useDisplay({
-            args: {
-                type: type.current,
-                selection_str: toSelAndModifierString(selection.current),
-                columns: Array.from(columns.current.keys()),
-            },
-            render: (newData) => {
-                try {
-                    setTableVars(newData, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender, columns);
-                } catch (e) {
-                    console.error(e);
-                    const errorMessage = e instanceof Error ? <>
-                        {e.message}
-                        <CopoToClipboardTextArea text={e.stack + ""} />
-                    </> : e + "";
-                    showDialog("Failed to update table", errorMessage, true);
-                }
-                return <Button variant="outline"
-                               size="sm"
-                               className="me-1"
-                               asChild><Link to={url.current}>Edit Table</Link></Button>
+    return <EndpointWrapper endpoint={TABLE} args={{
+        type: type.current,
+        selection_str: toSelAndModifierString(selection.current),
+        columns: Array.from(columns.current.keys()),
+    }}>{({data: newData}) => {
+        try {
+            setTableVars(newData, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender, columns);
+        } catch (e) {
+            console.error(e);
+            const errorMessage = e instanceof Error ? <>
+                {e.message}
+                <CopoToClipboardTextArea text={e.stack + ""} />
+            </> : e + "";
+            showDialog("Failed to update table", errorMessage, true);
+        }
+        return <Button variant="outline"
+                        size="sm"
+                        className="me-1"
+                        asChild><Link to={url.current}>Edit Table</Link></Button>
             }
-        })}
-    </>
+        }
+    </EndpointWrapper>
 }
 
 /**

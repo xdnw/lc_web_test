@@ -1,10 +1,10 @@
 import { UseQueryOptions, UseSuspenseQueryOptions } from "@tanstack/react-query";
-import { fetchBulk, QueryResult } from "./BulkQuery";
+import { ApiEndpoint, fetchBulk, QueryResult } from "./BulkQuery";
 
 export function suspenseQueryOptions<T>(
-    endpoint: string, 
+    endpoint: ApiEndpoint<T>, 
     query: { readonly [key: string]: string | string[] },
-    is_post: boolean,
+    is_post?: boolean,
     cache_duration?: number,
     batch_wait_ms?: number
 ): UseSuspenseQueryOptions<QueryResult<T>, Error, QueryResult<T>, readonly unknown[]> {
@@ -12,12 +12,13 @@ export function suspenseQueryOptions<T>(
 }
 
 export function bulkQueryOptions<T>(
-    endpoint: string, 
+    endpoint: ApiEndpoint<T>, 
     query: { readonly [key: string]: string | string[] },
-    is_post: boolean,
+    is_post?: boolean,
     cache_duration?: number,
     batch_wait_ms?: number,
 ): UseQueryOptions<QueryResult<T>, Error, QueryResult<T>, readonly unknown[]> {
+    const isPostFinal = is_post ?? endpoint.isPost;
     return {
         queryKey: [endpoint, query],
         queryFn: async (meta) => {
@@ -33,17 +34,17 @@ export function bulkQueryOptions<T>(
             }
             return result;
         },
-        refetchOnReconnect: !is_post,
-        refetchOnWindowFocus: !is_post,
-        refetchOnMount: !is_post,
-        staleTime: cache_duration ?? 5000,
+        refetchOnReconnect: !isPostFinal,
+        refetchOnWindowFocus: !isPostFinal,
+        refetchOnMount: !isPostFinal,
+        staleTime: cache_duration ?? endpoint.cache_duration ?? 5000,
         retry: (failureCount, err) => 
-            !is_post && (!(err instanceof BackendError) && failureCount < 3) || failureCount < 1,
+            !isPostFinal && (!(err instanceof BackendError) && failureCount < 3) || failureCount < 1,
     };
 }
 
 export function singleQueryOptions<T>(
-    endpoint: string, 
+    endpoint: ApiEndpoint<T>, 
     query: { readonly [key: string]: string | string[] },
     cache_duration?: number,
     batch_wait_ms?: number
@@ -66,7 +67,7 @@ export function singleQueryOptions<T>(
         refetchOnReconnect: false,
         refetchOnWindowFocus: false,
         refetchOnMount: false,
-        staleTime: cache_duration ?? 5000,
+        staleTime: cache_duration ?? endpoint.cache_duration ?? 5000,
         retry: (failureCount, err) => false,
     };
 }

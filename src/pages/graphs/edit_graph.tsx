@@ -32,7 +32,7 @@ export function PickAnEndpoint() {
                     <Link className="text-blue-600 hover:text-blue-800 underline"
                           to={`${process.env.BASE_PATH}edit_graph/${endpoint.endpoint.name}`}>
                         {endpoint.endpoint.url.split(/(?=[A-Z])/)
-                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
                             .join(' ')}
                     </Link>
                 </li>

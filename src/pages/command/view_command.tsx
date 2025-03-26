@@ -9,6 +9,7 @@ import CopyToClipboard from "../../components/ui/copytoclipboard";
 import {CommandArguments, CommandPath} from "../../utils/Command";
 import {COMMANDS} from "../../lib/commands";
 import CommandsPage from "../commands";
+import EndpointWrapper from "@/components/api/bulkwrapper";
 
 function toMap(searchParams: URLSearchParams): {[key: string]: string} {
     const map: {[key: string]: string} = {};
@@ -45,16 +46,13 @@ export function ViewCommand<P extends CommandPath<typeof COMMANDS['commands']>>(
             <CopyToClipboard text="Copy Command" copy={`/${command.join(" ")} ${Object.entries(args).map(([key, value]) => `${key}:${value as string}`).join(" ")}`}
                          className="no-underline" />
         </Button>
-        {COMMAND.useDisplay({
-        args: {
-            data: { "": command.join(" "), ...args } as unknown as string, // hacky way to pass in the raw data
-        },
-        render: (newData) => {
-            return (<div className={className}>
-            <MemoizedRenderResponse data={newData} showDialog={showDialog} />
-            </div>);
-        }
-    })}
+        <EndpointWrapper endpoint={COMMAND} args={{data: { "": command.join(" "), ...args } as unknown as string}}>
+            {({data}) => {
+                return (<div className={className}>
+                    <MemoizedRenderResponse data={data} showDialog={showDialog} />
+                </div>);
+            }}
+        </EndpointWrapper>
     </>;
 }
 

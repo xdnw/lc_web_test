@@ -4,40 +4,42 @@ import { hasToken } from "@/utils/Auth.ts";
 import { Link } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button.tsx";
-import { UNPACKR } from "@/lib/utils.ts";
+import { deepEqual, UNPACKR } from "@/lib/utils.ts";
 import { useDialog } from "../layout/DialogContext";
-import { QueryResult } from "../../lib/BulkQuery";
-import EndpointWrapper from "./bulkwrapper";
+import { CommonEndpoint, fetchSingle, QueryResult } from "../../lib/BulkQuery";
+import EndpointWrapper, { useDeepCompareMemo } from "./bulkwrapper";
 import { Argument } from "@/utils/Command";
 import ArgInput from "../cmd/ArgInput";
 import { ArgDescComponent } from "../cmd/CommandComponent";
+import { singleQueryOptions } from "@/lib/queries";
 
-export interface ApiFormInputsProps<T, A extends { [key: string]: string | string[] | undefined }> {
-    endpoint: string;
-    args: { [name: string]: Argument };
-    cache_duration: number;
-    message?: React.ReactNode;
-    default_values?: { [key: string]: string | string[] };
-    showArguments?: string[];
-    label?: React.ReactNode;
-    handle_submit?: (args: A) => boolean;
-    handle_loading?: () => void;
+export function ApiFormInputs<T, A extends { [key: string]: string | string[] | undefined }, B extends { [key: string]: string | string[] | undefined }>({
+    endpoint, message, default_values, showArguments, label, handle_error, classes, children
+}: {
+    readonly endpoint: CommonEndpoint<T, A, B>;
+    message?: ReactNode;
+    default_values?: B;
+    showArguments?: (keyof A)[];
+    label?: ReactNode;
     handle_error?: (error: Error) => void;
     classes?: string;
-}
-
-export function ApiFormInputs<T, A extends { [key: string]: string }>({
-    endpoint, args, cache_duration, message, default_values, showArguments, label, handle_submit, handle_loading, handle_error, classes, children
-}: ApiFormInputsProps<T, A> & {readonly children: (data: QueryResult<T>) => React.ReactNode;}) {
+    handle_response?: (data: QueryResult<T>) => void;
+    readonly children?: (data: Omit<QueryResult<T>, 'data'> & {
+        data: NonNullable<QueryResult<T>['data']>;
+    }) => ReactNode;
+}) {
     const required = useMemo(() => {
         const req: string[] = [];
-        for (const [key, value] of Object.entries(args)) {
+        for (const [key, value] of Object.entries(endpoint.endpoint.args)) {
             if (!value.arg.optional && (!default_values || !Object.prototype.hasOwnProperty.call(default_values, key))) {
                 req.push(key);
             }
         }
         return req;
-    }, [args, default_values]);
+    }, [endpoint, default_values]);
+
+    const stableDefaults = useDeepCompareMemo(default_values ? 
+        (Object.fromEntries(Object.entries(default_values).filter(([_, value]) => value !== undefined)) as { [k: string]: string | string[] }): {});
 
     const renderFormInputs = useCallback((props: { setOutputValue: (name: string, value: string) => void }) => {
         if ((!required || required.length === 0) && (!showArguments || showArguments.length === 0)) {
@@ -45,8 +47,8 @@ export function ApiFormInputs<T, A extends { [key: string]: string }>({
         }
         return (
             <>
-                {Object.values(args)
-                    .filter(arg => !default_values || !Object.prototype.hasOwnProperty.call(default_values, arg.name))
+                {Object.values(endpoint.endpoint.args)
+                    .filter(arg => !stableDefaults || !Object.prototype.hasOwnProperty.call(stableDefaults, arg.name))
                     .map((arg, index) => (
                         <div key={index} className="relative">
                             <ArgDescComponent arg={arg} />
@@ -66,24 +68,22 @@ export function ApiFormInputs<T, A extends { [key: string]: string }>({
                 <hr className="my-2" />
             </>
         );
-    }, [args, default_values]);
+    }, [endpoint, stableDefaults]);
 
     return (
         <ApiForm
             requireLogin={false}
             required={required}
-            cache_duration={cache_duration}
             message={message}
             endpoint={endpoint}
             label={label}
-            default_values={default_values}
+            default_values={stableDefaults}
             form_inputs={renderFormInputs}
-            handle_loading={handle_loading}
             handle_error={handle_error}
-            handle_submit={handle_submit}
+            handle_response={handle_response}
             classes={classes}
         >
-            {children}
+        {(data) => children ? children(data) : null}
         </ApiForm>
     );
 }
@@ -92,37 +92,33 @@ interface FormInputsProps {
     setOutputValue: (name: string, value: string) => void;
 }
 
-interface ApiFormProps<T, A extends { [key: string]: string }> {
-    requireLogin?: boolean;
-    message: ReactNode;
-    endpoint: string;
-    cache_duration: number;
-    label?: ReactNode;
-    required?: string[];
-    default_values?: { [key: string]: string | string[] };
-    form_inputs: React.ComponentType<FormInputsProps> | undefined;
-    handle_submit?: (data: A) => boolean;
-    handle_loading?: () => void;
-    handle_error?: (error: Error) => void;
-    classes?: string;
-    readonly children: (data: QueryResult<T>) => ReactNode;
-}
-
-function ApiForm<T, A extends { [key: string]: string }>({
+function ApiForm<T, A extends { [key: string]: string | string[] | undefined }, B extends { [key: string]: string | string[] | undefined }>({
     requireLogin = false,
     message,
     endpoint,
-    cache_duration,
     label = "submit",
     required = [],
     default_values,
     form_inputs: FormInputs,
-    handle_submit,
-    handle_loading,
     handle_error,
     classes,
+    handle_response,
     children
-}: ApiFormProps<T, A>) {
+}: {
+    requireLogin?: boolean;
+    message: ReactNode;
+    readonly endpoint: CommonEndpoint<T, A, B>;
+    label?: ReactNode;
+    required?: string[];
+    default_values?: { [k: string]: string | string[] };
+    form_inputs: React.ComponentType<FormInputsProps> | undefined;
+    handle_error?: (error: Error) => void;
+    classes?: string;
+    handle_response?: (data: QueryResult<T>) => void;
+    readonly children?: (data: Omit<QueryResult<T>, 'data'> & {
+        data: NonNullable<QueryResult<T>['data']>;
+    }) => ReactNode;
+}) {
     const [commandStore] = useState(() =>
         default_values && Object.keys(default_values).length
             ? createCommandStoreWithDef(default_values)
@@ -145,44 +141,45 @@ function ApiForm<T, A extends { [key: string]: string }>({
             store={commandStore}
             label={label}
             required={required}
-            cache_duration={cache_duration}
-            handle_submit={handle_submit}
-            handle_loading={handle_loading}
             handle_error={handle_error}
             classes={classes}>
-            {children}
+            {(data) => children ? children(data) : null}
         </ApiFormHandler>
     </>
 }
 
-const areEqual = <T, A extends { [key: string]: string }>(prevProps: ApiFormProps<T, A>, nextProps: ApiFormProps<T, A>) => {
-    const keys = Object.keys(prevProps) as (keyof ApiFormProps<T, A>)[];
-    for (const key of keys) {
-        if (prevProps[key] !== nextProps[key]) {
-            return false;
-        }
-    }
-    return true;
-};
+export default React.memo(ApiForm, deepEqual) as typeof ApiForm;
 
-export default React.memo(ApiForm, areEqual) as typeof ApiForm;
-
-export function ApiFormHandler<T, A extends { [key: string]: string }>({ store, endpoint, label, cache_duration, required, handle_submit, handle_loading, handle_error, classes, children }: {
+export function ApiFormHandler<T, A extends { [key: string]: string | string[] | undefined }, B extends { [key: string]: string | string[] | undefined }>({
+    store, endpoint, label, required, handle_error, classes, children 
+}: {
     store: CommandStoreType,
-    endpoint: string,
-    cache_duration: number,
+    readonly endpoint: CommonEndpoint<T, A, B>;
     label: ReactNode,
     required?: string[],
-    handle_submit?: (data: A) => boolean,
-    handle_loading?: () => void,
     handle_error?: (error: Error) => void,
     classes?: string,
-    readonly children: (data: QueryResult<T>) => ReactNode;
+    handle_response?: (data: QueryResult<T>) => void;
+    readonly children?: (data: Omit<QueryResult<T>, 'data'> & {
+        data: NonNullable<QueryResult<T>['data']>;
+    }) => ReactNode;
 }) {
-    const output = store((state) => state.output);
     const [submit, setSubmit] = useState(false);
-    const { showDialog } = useDialog();
-    const missing = required ? required.filter(field => !output[field]) : [];
+    const [missing, setMissing] = useState<string[]>([]);
+    // TODO tanstack query, the args will be from the store, but can change at any time
+    // On button press, store the args in a state, then call refetch on the query with the new args (so they are not subject to change)
+    // enabled: false
+
+    const submitForm = useCallback(() => {
+        const query = store((state) => state.output);
+        setArgs(query);
+        // todo refetch
+    }, []);
+
+    useEffect(() => {
+        const missing = required ? required.filter(field => !store((state) => state.output)[field]) : [];
+        setMissing(missing);
+    }, [store, required]);
 
     if (missing.length) {
         return <>
@@ -193,12 +190,12 @@ export function ApiFormHandler<T, A extends { [key: string]: string }>({ store, 
     return (
         <>
             START PRE
-            <pre>{JSON.stringify(output)}</pre>
+            <pre>{JSON.stringify(store((state) => state.output))}</pre>
             END PRE
-            {submit && <EndpointWrapper endpoint={endpoint} query={output} cache_duration={cache_duration} batch_wait_ms={10} is_post={true}>
-                {children}
+            {submit && <EndpointWrapper<T, A, B> endpoint={endpoint} args={store((state) => state.output) as A} handle_error={handle_error} batch_wait_ms={10} isPostOverride={true}>
+            {(data) => children ? children(data) : null}
             </EndpointWrapper>}
-            <Button variant="outline" size="sm" className={`border-red-800/70 me-1 ${submit && "disabled cursor-wait"} ${classes ? classes : ""}`} onClick={() => setSubmit(true)}>{label}</Button>
+            <Button variant="outline" size="sm" className={`border-red-800/70 me-1 ${submit && "disabled cursor-wait"} ${classes}`} onClick={submitForm}>{label}</Button>
         </>
     );
 }

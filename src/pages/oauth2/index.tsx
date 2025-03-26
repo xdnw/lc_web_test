@@ -9,6 +9,7 @@ import {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
 import {useDialog} from "../../components/layout/DialogContext";
 import {useSession} from "../../components/api/SessionContext";
 import {useEffect, useState} from "react";
+import EndpointWrapper from '@/components/api/bulkwrapper';
 
 export function OAuth2Component() {
     const fullUrl = window.location.href;
@@ -28,27 +29,20 @@ export function OAuth2Component() {
 
     }, [loggedIn, refetchSession]);
 
-    return SET_OAUTH_CODE.useDisplay({
-        args: {"code": code ?? ""},
-        render: (oauth2) => {
-            setLoggedIn(true);
-            return <>Logged in Successfully via OAuth2!<br/>
-                <Button variant="outline" size="sm" className='border-slate-600' asChild>
-                    <Link to={`${process.env.BASE_PATH}home`}>Return Home</Link></Button>
-            </>
-        },
-        renderError: (error) => {
-            showDialog("Login Failed", <>
-                Failed to set login OAuth2 Code. Please try again, try a different login method, or contact support.
-                <div className="relative overflow-auto">
-                    <CopoToClipboardTextArea text={error}/>
-                </div>
-            </>, false);
-            return (<>
-                Login failed!
-            </>);
-        }
-    });
+    return <EndpointWrapper endpoint={SET_OAUTH_CODE} args={{code: code ?? ""}} handle_error={(error) => {
+        showDialog("Login Failed", <>Failed to set login OAuth2 Code. Please try again, try a different login method, or contact support.
+            <div className="relative overflow-auto">
+                <CopoToClipboardTextArea text={error.message}/>
+            </div>
+        </>, false);
+    }}>
+    {({data}) => {
+        setLoggedIn(true);
+        return <>Logged in Successfully via OAuth2!<br/>
+            <Button variant="outline" size="sm" className='border-slate-600' asChild>
+                <Link to={`${process.env.BASE_PATH}home`}>Return Home</Link></Button></>
+    }
+    }</EndpointWrapper>;
 }
 
 export default function OAuth2Page() {

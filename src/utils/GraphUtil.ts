@@ -1,6 +1,6 @@
+import { CommonEndpoint } from "@/lib/BulkQuery";
 import {WebGraph} from "../lib/apitypes";
 import {ENDPOINTS} from "../lib/endpoints";
-import {CommonEndpoint} from "../components/api/endpoint";
 
 type EndpointArgs = { [key: string]: string | string[] | undefined };
 type GraphEndpoint = CommonEndpoint<WebGraph, EndpointArgs, EndpointArgs>;

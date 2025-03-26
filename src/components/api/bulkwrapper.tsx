@@ -1,5 +1,5 @@
 import { ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { CommonEndpoint, fetchBulk, fillOutCache, QueryResult } from "../../lib/BulkQuery";
+import { ApiEndpoint, CommonEndpoint, fetchBulk, fillOutCache, QueryResult } from "../../lib/BulkQuery";
 import { CacheType } from "../../lib/apitypes";
 import { deepEqual } from "@/lib/utils";
 import { ErrorBoundary } from "react-error-boundary";
@@ -44,15 +44,6 @@ export function renderEndpointFallback({
         />
     );
 }
-
-export interface DisplayProps<T> {
-    readonly endpoint: string;
-    readonly query: { readonly [key: string]: string | string[] };
-    readonly is_post: boolean;
-    readonly cache_duration: number;
-    readonly onError?: (error: Error) => void;
-}
-
 export default function EndpointWrapper<T, A extends { [key: string]: string | string[] | undefined }, B extends { [key: string]: string | string[] | undefined }>({
     endpoint,
     args,
@@ -87,7 +78,7 @@ export default function EndpointWrapper<T, A extends { [key: string]: string | s
         <ErrorBoundary fallbackRender={fallbackRender} onError={handle_error ?? console.error}>
             <Suspense fallback={<Loading />}>
                 <BulkQueryWrapper
-                    endpoint={endpoint.endpoint.name}
+                    endpoint={endpoint.endpoint}
                     query={stableQuery}
                     is_post={isPostOverride ?? endpoint.endpoint.isPost}
                     cache_duration={endpoint.endpoint.cache_duration}
@@ -137,7 +128,7 @@ export function BulkQueryWrapper<T>({
     batch_wait_ms,
     children,
 }: {
-    readonly endpoint: string;
+    readonly endpoint: ApiEndpoint<T>;
     readonly query: { readonly [key: string]: string | string[] };
     readonly is_post: boolean;
     readonly cache_duration: number;
