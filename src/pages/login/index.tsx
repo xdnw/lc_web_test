@@ -1,47 +1,46 @@
-import {Link, useParams} from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 
 import Cookies from 'js-cookie';
-import {clearStorage} from "@/utils/Auth.ts";
-import {Button} from "@/components/ui/button.tsx";
-import {SET_TOKEN} from "@/lib/endpoints";
-import {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
+import { Button } from "@/components/ui/button.tsx";
+import { SESSION, SET_TOKEN } from "@/lib/endpoints";
+import { CopoToClipboardTextArea } from "../../components/ui/copytoclipboard";
 import { useDialog } from "@/components/layout/DialogContext";
-import {useSession} from "../../components/api/SessionContext";
-import {useData, useRegisterQuery} from "../../components/cmd/DataContext";
-import {WebSession} from "../../lib/apitypes";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import EndpointWrapper from "@/components/api/bulkwrapper";
+import { useSession } from "@/components/api/SessionContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function LoginComponent() {
     const { token } = useParams<{ token: string }>();
     const { showDialog } = useDialog();
     const { refetchSession } = useSession();
-    const [ loggedIn, setLoggedIn ] = useState(false);
+    const [loggedIn, setLoggedIn] = useState(false);
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         if (loggedIn) {
             Cookies.set('lc_token_exists', Math.random().toString(36).substring(2));
-            clearStorage('lc_session');
+            queryClient.removeQueries({ queryKey: [SESSION.endpoint.name] });
             refetchSession();
         }
 
-    }, [loggedIn, refetchSession]);
+    }, [loggedIn, refetchSession, queryClient]);
 
-    return <EndpointWrapper endpoint={SET_TOKEN} args={{token: token ?? ""}} handle_error={(error) => {
+    return <EndpointWrapper endpoint={SET_TOKEN} args={{ token: token ?? "" }} handle_error={(error) => {
         showDialog("Login Failed", <>
             Failed to set login token. Please try again, try a different login method, or contact support.
             <div className="relative overflow-auto">
-                <CopoToClipboardTextArea text={error.message}/>
+                <CopoToClipboardTextArea text={error.message} />
             </div>
         </>, false);
     }}>
-    {({data}) => {
-        setLoggedIn(true);
-        return <>Logged in Successfully!<br/>
-            <Button variant="outline" size="sm" className='border-slate-600' asChild>
-                <Link to={`${process.env.BASE_PATH}home`}>Return Home</Link></Button></>
-    }}
+        {({ data }) => {
+            setLoggedIn(true);
+            return <>Logged in Successfully!<br />
+                <Button variant="outline" size="sm" className='border-slate-600' asChild>
+                    <Link to={`${process.env.BASE_PATH}home`}>Return Home</Link></Button></>
+        }}
     </EndpointWrapper>;
 }
 

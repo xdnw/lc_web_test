@@ -1,4 +1,4 @@
-import React, {Component, createRef, CSSProperties, RefObject, useRef, useState} from 'react';
+import React, { Component, createRef, CSSProperties, RefObject, useRef, useState } from 'react';
 // import Worker from '@/workers/chartWorker.ts?worker';
 import {
     Chart as ChartJS,
@@ -16,7 +16,7 @@ import {
 } from 'chart.js';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Bar, Line, Scatter } from 'react-chartjs-2';
-import {WebGraph, GraphType, CoalitionGraph} from '../../lib/apitypes';
+import { WebGraph, GraphType, CoalitionGraph } from '../../lib/apitypes';
 import chroma from 'chroma-js';
 import distinctColors from 'distinct-colors'
 import {
@@ -24,16 +24,16 @@ import {
     ExportType,
     ExportTypes, formatDate, getNumberFormatCallback, getTimeFormatCallback, isTime, toMillisFunction,
 } from "../../utils/StringUtil";
-import {Button} from "../../components/ui/button";
-import {deepEqual} from "../../lib/utils";
+import { Button } from "../../components/ui/button";
+import { deepEqual } from "../../lib/utils";
 import { ChartJSOrUndefined } from 'node_modules/react-chartjs-2/dist/types';
-import {Link} from "react-router-dom";
-import {useTheme} from "../../components/ui/theme-provider";
-import {ArrowRightToLine, ClipboardIcon, Download} from "lucide-react";
-import {useDialog} from "../../components/layout/DialogContext";
-import {invertData} from "../../utils/MathUtil";
+import { Link } from "react-router-dom";
+import { useTheme } from "../../components/ui/theme-provider";
+import { ArrowRightToLine, ClipboardIcon, Download } from "lucide-react";
+import { useDialog } from "../../components/layout/DialogContext";
+import { invertData } from "../../utils/MathUtil";
 
-export function CoalitionGraphComponent({graph, type}: { graph: CoalitionGraph, type: GraphType }) {
+export function CoalitionGraphComponent({ graph, type }: { graph: CoalitionGraph, type: GraphType }) {
     const [showAlliances, setShowAlliances] = useState(false);
 
     return (
@@ -46,8 +46,8 @@ export function CoalitionGraphComponent({graph, type}: { graph: CoalitionGraph, 
             )}
             <div className="themeDiv bg-opacity-10 rounded mt-2">
                 <Button variant="ghost" size="md"
-                        className="text-xl w-full border-b border-secondary px-2 bg-primary/10 rounded-b justify-start"
-                        onClick={() => setShowAlliances(!showAlliances)}
+                    className="text-xl w-full border-b border-secondary px-2 bg-primary/10 rounded-b justify-start"
+                    onClick={() => setShowAlliances(!showAlliances)}
                 >
                     {showAlliances ? 'Hide' : 'Show'} Alliance Graphs
                 </Button>
@@ -61,7 +61,7 @@ export function CoalitionGraphComponent({graph, type}: { graph: CoalitionGraph, 
                                     </Link>
                                 </h3>
                                 <div className={`${!showAlliances ? 'hidden' : ''}`}>
-                                    <ThemedChart graph={graph.by_alliance[allianceId]} type={type} aspectRatio={1}/>
+                                    <ThemedChart graph={graph.by_alliance[allianceId]} type={type} aspectRatio={1} />
                                 </div>
                             </div>
                         })}
@@ -117,12 +117,12 @@ function getQueryString(params: { [key: string]: string | string[] | undefined }
         .join("&");
 }
 
-export function ChartWithButtons({graph, endpointName, usedArgs}:
-{
-    graph: WebGraph,
-    endpointName?: string,
-    usedArgs?: RefObject<{ [key: string]: string | string[] | undefined }>
-}) {
+export function ChartWithButtons({ graph, endpointName, usedArgs }:
+    {
+        graph: WebGraph,
+        endpointName?: string,
+        usedArgs?: { [key: string]: string | string[] | undefined }
+    }) {
     const { showDialog } = useDialog();
     return <>
         <DropdownMenu modal={false}>
@@ -162,15 +162,15 @@ export function ChartWithButtons({graph, endpointName, usedArgs}:
             Share
         </Button>}
         <div className="w-full pt mt-1">
-            <ThemedChart graph={graph}/>
+            <ThemedChart graph={graph} />
         </div>
     </>
 }
 
-export function ThemedChart({graph, type, aspectRatio, hideLegend, hideDots, minHeight, maxHeight, classes}: ChartProps) {
+export function ThemedChart({ graph, type, aspectRatio, hideLegend, hideDots, minHeight, maxHeight, classes }: ChartProps) {
     const { theme } = useTheme()
     console.log("Creating themed chart");
-    return <SimpleChart graph={graph} type={type} theme={theme} aspectRatio={aspectRatio} hideLegend={hideLegend} hideDots={hideDots} minHeight={minHeight} maxHeight={maxHeight}  classes={classes} />;
+    return <SimpleChart graph={graph} type={type} theme={theme} aspectRatio={aspectRatio} hideLegend={hideLegend} hideDots={hideDots} minHeight={minHeight} maxHeight={maxHeight} classes={classes} />;
 }
 
 const COLOR_CACHE: { [key: string]: chroma.Color[] } = {};
@@ -205,18 +205,18 @@ class SimpleChart extends Component<ChartProps, ChartState> {
     }
 
     // componentDidMount() {
-        // this.workerRef = new Worker();
-        // this.workerRef.onmessage = (event: MessageEvent) => {
-        //     const { type, options, canvas } = event.data;
-        //     if (type === 'chartCreated') {
-        //         console.log('Chart created:', canvas);
-        //     }
-        // };
-        // if (this.chartRef.current) {
-        //     const canvas = this.chartRef.current.canvas;
-        //     const offscreenCanvas = canvas.transferControlToOffscreen();
-        //     this.workerRef.postMessage({ type: 'createChart', options: this.chartOptions, canvas: offscreenCanvas }, [offscreenCanvas]);
-        // }
+    // this.workerRef = new Worker();
+    // this.workerRef.onmessage = (event: MessageEvent) => {
+    //     const { type, options, canvas } = event.data;
+    //     if (type === 'chartCreated') {
+    //         console.log('Chart created:', canvas);
+    //     }
+    // };
+    // if (this.chartRef.current) {
+    //     const canvas = this.chartRef.current.canvas;
+    //     const offscreenCanvas = canvas.transferControlToOffscreen();
+    //     this.workerRef.postMessage({ type: 'createChart', options: this.chartOptions, canvas: offscreenCanvas }, [offscreenCanvas]);
+    // }
     // }
 
     onHover = (evt: ChartEvent, activeElements: ActiveElement[], chart: Chart) => {
@@ -421,12 +421,12 @@ class SimpleChart extends Component<ChartProps, ChartState> {
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(context: TooltipItem<keyof ChartTypeRegistry>) {
+                        label: function (context: TooltipItem<keyof ChartTypeRegistry>) {
                             const label = context.dataset.label || '';
                             const value = context.parsed.y;
                             return `${label}: ${yCallback(value)}`;
                         },
-                        title: function(context: TooltipItem<keyof ChartTypeRegistry>[]) {
+                        title: function (context: TooltipItem<keyof ChartTypeRegistry>[]) {
                             return timeFormatFunc(context[0].parsed.x);
                         }
                     }
@@ -453,7 +453,7 @@ class SimpleChart extends Component<ChartProps, ChartState> {
         return (
             // this.props.aspectRatio ?? 2
             <div className={`bg-white dark:bg-slate-950 ${this.props.classes} chart-container relative`}
-                 style={{ aspectRatio: this.props.aspectRatio ?? 2, width: '100%', height: '100%' }}>
+                style={{ aspectRatio: this.props.aspectRatio ?? 2, width: '100%', height: '100%' }}>
                 {(() => {
                     switch (this.type) {
                         case 'STACKED_BAR':
