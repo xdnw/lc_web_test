@@ -15,32 +15,33 @@
 
  */
 
-import React, {ReactNode, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DataTable, { DataTableRef } from 'datatables.net-react';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
 import 'datatables.net-colreorder-dt';
-import DT, {Api, ConfigColumns, ObjectColumnRender, OrderIdx} from 'datatables.net';
-import {TABLE} from "../../lib/endpoints";
-import {Button} from "../../components/ui/button";
-import CopyToClipboard, {CopoToClipboardTextArea} from "../../components/ui/copytoclipboard";
-import {COMMANDS} from "../../lib/commands";
-import {Command, CM, STRIP_PREFIXES, toPlaceholderName, ICommand} from "../../utils/Command";
-import {Tabs, TabsList, TabsTrigger} from "../../components/ui/tabs";
-import {ArrowRightToLine, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ClipboardIcon, Download, Sheet} from "lucide-react";
-import {BlockCopyButton} from "../../components/ui/block-copy-button";
-import {TooltipProvider} from "../../components/ui/tooltip";
-import { WebTable, WebTableError} from "../../lib/apitypes";
+import DT, { Api, ConfigColumns, ObjectColumnRender, OrderIdx } from 'datatables.net';
+import { TABLE } from "../../lib/endpoints";
+import { Button } from "../../components/ui/button";
+import CopyToClipboard, { CopoToClipboardTextArea } from "../../components/ui/copytoclipboard";
+import { COMMANDS } from "../../lib/commands";
+import { Command, CM, STRIP_PREFIXES, toPlaceholderName, ICommand } from "../../utils/Command";
+import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
+import { ArrowRightToLine, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ClipboardIcon, Download, Sheet } from "lucide-react";
+import { BlockCopyButton } from "../../components/ui/block-copy-button";
+import { TooltipProvider } from "../../components/ui/tooltip";
+import { WebTable, WebTableError } from "../../lib/apitypes";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import {useDialog} from "../../components/layout/DialogContext";
+import { useDialog } from "../../components/layout/DialogContext";
 import { Link } from "react-router-dom";
-import {getRenderer, isHtmlRenderer} from "../../components/ui/renderers";
-import {getQueryParams, queryParamsToObject} from "../../lib/utils";
-import {downloadCells, ExportType, ExportTypes} from "../../utils/StringUtil";
-import {DEFAULT_TABS} from "../../lib/layouts";
+import { getRenderer, isHtmlRenderer } from "../../components/ui/renderers";
+import { getQueryParams, queryParamsToObject } from "../../lib/utils";
+import { downloadCells, ExportType, ExportTypes } from "../../utils/StringUtil";
+import { DEFAULT_TABS } from "../../lib/layouts";
 import CommandComponent from "../../components/cmd/CommandComponent";
-import {createCommandStoreWithDef} from "../../utils/StateUtil";
+import { createCommandStoreWithDef } from "../../utils/StateUtil";
 import { Input } from "@/components/ui/input";
 import EndpointWrapper from "@/components/api/bulkwrapper";
+import { ApiFormInputs } from "@/components/api/apiform";
 
 DataTable.use(DT);
 
@@ -63,7 +64,7 @@ function downloadTable(api: Api, useClipboard: boolean, type: ExportType): [stri
     // Iterate column objects (not the element)
     api.columns().every((index) => {
         const col = api.column(index);
-        const render = col.init().render as {isEnum: boolean, options: string[]} | undefined;
+        const render = col.init().render as { isEnum: boolean, options: string[] } | undefined;
         if (render && render.isEnum && render.options) {
             data.forEach((row, rowIndex) => {
                 if (rowIndex > 0) { // Skip header row
@@ -81,8 +82,8 @@ export function getTypeFromUrl(params: URLSearchParams): keyof typeof COMMANDS.p
     return params.get('type') as keyof typeof COMMANDS.placeholders ?? undefined;
 }
 
-export function getSelectionFromUrl(params: URLSearchParams, current: keyof typeof COMMANDS.placeholders | undefined): {[key: string]: string} {
-    const result: {[key: string]: string} = {};
+export function getSelectionFromUrl(params: URLSearchParams, current: keyof typeof COMMANDS.placeholders | undefined): { [key: string]: string } {
+    const result: { [key: string]: string } = {};
     result[""] = params.get('sel') ?? (current ? DEFAULT_TABS[current]!.selections.All : undefined) ?? "*";
     const ignore: Set<string> = new Set(["type", "sel", "col", "sort"]);
     for (const [key, value] of params.entries()) {
@@ -94,7 +95,7 @@ export function getSelectionFromUrl(params: URLSearchParams, current: keyof type
 }
 
 export function getColumnsFromUrl(params: URLSearchParams): Map<string, string | null> | undefined {
-    const urlCols: {[key: string]: string | null} = Object.fromEntries(
+    const urlCols: { [key: string]: string | null } = Object.fromEntries(
         params.getAll('col').map(colParam => {
             const [key, value] = colParam.split(';');
             return [key, value || null];
@@ -115,7 +116,7 @@ export default function CustomTable() {
     const params = getQueryParams();
     // Placeholder data
     const type = useRef<keyof typeof COMMANDS.placeholders>(getTypeFromUrl(params) ?? "DBNation");
-    const selection = useRef<{[key: string]: string}>(getSelectionFromUrl(params, type.current));
+    const selection = useRef<{ [key: string]: string }>(getSelectionFromUrl(params, type.current));
     const columns = useRef<Map<string, string | null>>(getColumnsFromUrl(params) ?? new Map(
         (DEFAULT_TABS[type.current]?.columns[Object.keys(DEFAULT_TABS[type.current]?.columns ?? {})[0]]?.value ?? ["{id}"]).map(col => {
             if (Array.isArray(col)) {
@@ -130,10 +131,10 @@ export default function CustomTable() {
     return (
         <>
             <div className="">
-                <PlaceholderTabs selectionRef={selection} columnsRef={columns} typeRef={type} sortRef={sort}/>
+                <PlaceholderTabs selectionRef={selection} columnsRef={columns} typeRef={type} sortRef={sort} />
             </div>
             <div className="bg-light/10 border border-light/10 p-2 rounded mt-2">
-                <TableWithButtons type={type} selection={selection} columns={columns} sort={sort} load={false}/>
+                <TableWithButtons type={type} selection={selection} columns={columns} sort={sort} load={false} />
             </div>
         </>
     );
@@ -144,11 +145,11 @@ export function getUrl(type: string, selection: string, columns: string[], sort?
         type: type,
         sel: selection,
         columns: new Map(columns.map(col => [col, null])),
-        sort: sort ? sort : {idx: 0, dir: "asc"}
+        sort: sort ? sort : { idx: 0, dir: "asc" }
     })}`;
 }
 
-export function toSelAndModifierString(selAndModifiers: {[key: string]: string}): string | undefined {
+export function toSelAndModifierString(selAndModifiers: { [key: string]: string }): string | undefined {
     let sel = undefined;
     if (Object.keys(selAndModifiers).length === 1) {
         sel = selAndModifiers[""];
@@ -159,10 +160,10 @@ export function toSelAndModifierString(selAndModifiers: {[key: string]: string})
 }
 
 export function getQueryString(
-    {type, sel, selAndModifiers, columns, sort}: {
+    { type, sel, selAndModifiers, columns, sort }: {
         type: string,
         sel?: string,
-        selAndModifiers?: {[key: string]: string},
+        selAndModifiers?: { [key: string]: string },
         columns: Map<string, string | null>,
         sort: OrderIdx | OrderIdx[]
     }
@@ -193,9 +194,9 @@ export function getQueryString(
     return params.toString();
 }
 
-export function StaticTable({type, selection, columns, sort}: { type: string, selection: {[key: string]: string}, columns: (string | [string, string])[], sort: OrderIdx | OrderIdx[] | null }) {
+export function StaticTable({ type, selection, columns, sort }: { type: string, selection: { [key: string]: string }, columns: (string | [string, string])[], sort: OrderIdx | OrderIdx[] | null }) {
     const typeRef = useRef(type);
-    const selectionRef = useRef<{[key: string]: string}>(selection);
+    const selectionRef = useRef<{ [key: string]: string }>(selection);
     const columnsRef = useRef<Map<string, string | null>>(new Map(columns.map(col => {
         if (Array.isArray(col)) {
             return [col[0], col[1]];
@@ -203,16 +204,16 @@ export function StaticTable({type, selection, columns, sort}: { type: string, se
             return [col, null];
         }
     })));
-    const sortRef = useRef<OrderIdx | OrderIdx[]>(sort ?? {idx: 0, dir: "asc"});
+    const sortRef = useRef<OrderIdx | OrderIdx[]>(sort ?? { idx: 0, dir: "asc" });
 
     return useMemo(() => (
         <TableWithButtons type={typeRef} selection={selectionRef} columns={columnsRef} sort={sortRef} load={true} />
     ), []);
 }
 
-export function TableWithButtons({type, selection, columns, sort, load}: {
+export function TableWithButtons({ type, selection, columns, sort, load }: {
     type: React.RefObject<string>,
-    selection: React.RefObject<{[key: string]: string}>,
+    selection: React.RefObject<{ [key: string]: string }>,
     columns: React.RefObject<Map<string, string | null>>,
     sort: React.RefObject<OrderIdx | OrderIdx[]>,
     load: boolean
@@ -291,17 +292,17 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
                     setRerender={setRerender}
                 /> :
                 <DeferTable
-                      type={type}
-                      selection={selection}
-                      columns={columns}
-                      errors={errors}
-                      table={table}
-                      data={data}
-                      columnsInfo={columnsInfo}
-                      sort={sort}
-                      searchSet={searchSet}
-                      visibleColumns={visibleColumns}
-                      setRerender={setRerender}
+                    type={type}
+                    selection={selection}
+                    columns={columns}
+                    errors={errors}
+                    table={table}
+                    data={data}
+                    columnsInfo={columnsInfo}
+                    sort={sort}
+                    searchSet={searchSet}
+                    visibleColumns={visibleColumns}
+                    setRerender={setRerender}
                 />
             }
             <TableExports table={table as React.RefObject<DataTableRef>} type={type} selection={selection} columns={columns} />
@@ -327,27 +328,27 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
                 Share
             </Button>
             <Button variant="outline" size="sm" className={`ms-1 bg-destructive ${errors.current.length == 0 ? "hidden" : ""}`}
-                    onClick={() => {
-                        const title = errors.current.length > 0 ? "Errors updating table" : "No errors";
-                        const body = errors.current.length > 0 ? <>
-                            Errors updating the table may prevent some data from being displayed.
-                            Click the buttons below to highlight the errors in the table.
-                            {errors.current.map((error, index) => (
-                                <Button key={index} variant="destructive" className="my-1 h-auto break-words w-full justify-start size-sm whitespace-normal" onClick={() => highlightRowOrColumn(error.col, error.row)}>
-                                    [col:{(error.col || 0) + 1}{error.row ? `row:${error.row + 1}` : ""}] {error.msg}
-                                </Button>
-                            ))}
-                        </> : "No errors";
-                        showDialog(title, body);
-                    }}>
+                onClick={() => {
+                    const title = errors.current.length > 0 ? "Errors updating table" : "No errors";
+                    const body = errors.current.length > 0 ? <>
+                        Errors updating the table may prevent some data from being displayed.
+                        Click the buttons below to highlight the errors in the table.
+                        {errors.current.map((error, index) => (
+                            <Button key={index} variant="destructive" className="my-1 h-auto break-words w-full justify-start size-sm whitespace-normal" onClick={() => highlightRowOrColumn(error.col, error.row)}>
+                                [col:{(error.col || 0) + 1}{error.row ? `row:${error.row + 1}` : ""}] {error.msg}
+                            </Button>
+                        ))}
+                    </> : "No errors";
+                    showDialog(title, body);
+                }}>
                 View {errors.current.length} Errors</Button>
             <MyTable key={rerender}
-                     table={table as React.RefObject<DataTableRef>}
-                     data={data}
-                     columnsInfo={columnsInfo}
-                     sort={sort}
-                     searchSet={searchSet}
-                     visibleColumns={visibleColumns}
+                table={table as React.RefObject<DataTableRef>}
+                data={data}
+                columnsInfo={columnsInfo}
+                sort={sort}
+                searchSet={searchSet}
+                visibleColumns={visibleColumns}
             />
         </>
     );
@@ -362,7 +363,7 @@ export function TableWithButtons({type, selection, columns, sort, load}: {
 
 export function TableWith2DData({ columns, data, renderers, sort }: { columns: string[], data: (string | number | number[] | boolean)[][], renderers?: (string | undefined)[], sort?: OrderIdx | OrderIdx[] }) {
     const table = useRef<DataTableRef>(null);
-    const sort2 = useRef<OrderIdx | OrderIdx[]>(sort ?? {idx: 0, dir: "asc"});
+    const sort2 = useRef<OrderIdx | OrderIdx[]>(sort ?? { idx: 0, dir: "asc" });
     const dataRef = data;
     const visibleColumns = Array.from(Array(data.length).keys());
     const searchSet = new Set<number>();
@@ -385,10 +386,10 @@ export function TableWith2DData({ columns, data, renderers, sort }: { columns: s
         </>
     ), [data]);
 }
-export function TableExports({table, type, selection, columns}: {
+export function TableExports({ table, type, selection, columns }: {
     table: React.RefObject<DataTableRef | null>,
     type?: React.RefObject<string>,
-    selection?: React.RefObject<{[key: string]: string}>,
+    selection?: React.RefObject<{ [key: string]: string }>,
     columns?: React.RefObject<Map<string, string | null>>,
 }) {
     const { showDialog } = useDialog();
@@ -414,20 +415,20 @@ export function TableExports({table, type, selection, columns}: {
                 const body = <>
                     <ul className="list-decimal list-inside">
                         <li className="bg-accent/20 mb-1 p-1 border-primary/5 border-2 rounded">
-                            Set the google sheet tab name as the selection:<br/>
+                            Set the google sheet tab name as the selection:<br />
                             <CopyToClipboard
-                                text={`${toPlaceholderName(type.current)}:${selection.current}`}/>
+                                text={`${toPlaceholderName(type.current)}:${selection.current}`} />
                         </li>
                         <li className="bg-accent/20 mb-1 p-1 border-primary/5 border-2 rounded">
-                            Set the columns as the first row of cells in the sheet tab:<br/>
+                            Set the columns as the first row of cells in the sheet tab:<br />
                             <CopyToClipboard
-                                text={`${Array.from(columns.current.keys()).join("\t")}`}/>
+                                text={`${Array.from(columns.current.keys()).join("\t")}`} />
                         </li>
                         <li className="bg-accent/20 mb-1 p-1 border-primary/5 border-2 rounded">
                             Run the discord command, with the sheet url, to autofill the remaining
-                            cells:<br/>
+                            cells:<br />
                             <CopyToClipboard
-                                text={`/sheet_custom auto`}/>
+                                text={`/sheet_custom auto`} />
                         </li>
                     </ul>
                 </>
@@ -504,20 +505,20 @@ function setTableVars(
 }
 
 function LoadTable(
-    {type, selection, columns, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender}:
-    {
-        type: React.RefObject<string>,
-        selection: React.RefObject<{[key: string]: string}>,
-        columns: React.RefObject<Map<string, string | null>>,
-        errors: React.RefObject<WebTableError[]>,
-        table: React.RefObject<DataTableRef | null>,
-        data: React.RefObject<(string | number | number[])[][]>,
-        columnsInfo: React.RefObject<ConfigColumns[]>,
-        sort: React.RefObject<OrderIdx | OrderIdx[]>,
-        searchSet: React.RefObject<Set<number>>,
-        visibleColumns: React.RefObject<number[]>,
-        setRerender: React.Dispatch<React.SetStateAction<number>>
-    }
+    { type, selection, columns, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender }:
+        {
+            type: React.RefObject<string>,
+            selection: React.RefObject<{ [key: string]: string }>,
+            columns: React.RefObject<Map<string, string | null>>,
+            errors: React.RefObject<WebTableError[]>,
+            table: React.RefObject<DataTableRef | null>,
+            data: React.RefObject<(string | number | number[])[][]>,
+            columnsInfo: React.RefObject<ConfigColumns[]>,
+            sort: React.RefObject<OrderIdx | OrderIdx[]>,
+            searchSet: React.RefObject<Set<number>>,
+            visibleColumns: React.RefObject<number[]>,
+            setRerender: React.Dispatch<React.SetStateAction<number>>
+        }
 ) {
     const { showDialog } = useDialog();
     const url = useRef(`${process.env.BASE_PATH}custom_table?${getQueryString({
@@ -530,7 +531,7 @@ function LoadTable(
         type: type.current,
         selection_str: toSelAndModifierString(selection.current),
         columns: Array.from(columns.current.keys()),
-    }}>{({data: newData}) => {
+    }}>{({ data: newData }) => {
         try {
             setTableVars(newData, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender, columns);
         } catch (e) {
@@ -542,10 +543,10 @@ function LoadTable(
             showDialog("Failed to update table", errorMessage, true);
         }
         return <Button variant="outline"
-                        size="sm"
-                        className="me-1"
-                        asChild><Link to={url.current}>Edit Table</Link></Button>
-            }
+            size="sm"
+            className="me-1"
+            asChild><Link to={url.current}>Edit Table</Link></Button>
+    }
         }
     </EndpointWrapper>
 }
@@ -566,44 +567,35 @@ function LoadTable(
  * @constructor
  */
 function DeferTable(
-    {type, selection, columns, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender}:
-    {
-        type: React.RefObject<string>,
-        selection: React.RefObject<{[key: string]: string}>,
-        columns: React.RefObject<Map<string, string | null>>,
-        errors: React.RefObject<WebTableError[]>,
-        table: React.RefObject<DataTableRef | null>,
-        data: React.RefObject<(string | number | number[])[][]>,
-        columnsInfo: React.RefObject<ConfigColumns[]>,
-        sort: React.RefObject<OrderIdx | OrderIdx[]>,
-        searchSet: React.RefObject<Set<number>>,
-        visibleColumns: React.RefObject<number[]>,
-        setRerender: React.Dispatch<React.SetStateAction<number>>
-    }
+    { type, selection, columns, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender }:
+        {
+            type: React.RefObject<string>,
+            selection: React.RefObject<{ [key: string]: string }>,
+            columns: React.RefObject<Map<string, string | null>>,
+            errors: React.RefObject<WebTableError[]>,
+            table: React.RefObject<DataTableRef | null>,
+            data: React.RefObject<(string | number | number[])[][]>,
+            columnsInfo: React.RefObject<ConfigColumns[]>,
+            sort: React.RefObject<OrderIdx | OrderIdx[]>,
+            searchSet: React.RefObject<Set<number>>,
+            visibleColumns: React.RefObject<number[]>,
+            setRerender: React.Dispatch<React.SetStateAction<number>>
+        }
 ) {
     const { showDialog } = useDialog();
 
     return (
         <>
-            {TABLE.useForm({
-                default_values: {
+            <ApiFormInputs
+                endpoint={TABLE}
+                default_values={{
                     type: type.current,
                     selection_str: toSelAndModifierString(selection.current),
                     columns: Array.from(columns.current.keys()),
-                },
-                classes: "bg-destructive",
-                label: "Generate Table",
-                handle_submit: (args): boolean => {
-                    if (columns.current.size === 0) {
-                        showDialog("Failed to update table", "Please select at least one column.");
-                        return false;
-                    }
-                    args.type = type.current;
-                    args.selection_str = toSelAndModifierString(selection.current);
-                    args.columns = Array.from(columns.current.keys());
-                    return true;
-                },
-                handle_response: (newData) => {
+                }}
+                classes="bg-destructive"
+                label="Generate Table"
+                handle_response={({ data: newData }) => {
                     try {
                         setTableVars(newData, errors, table, data, columnsInfo, sort, searchSet, visibleColumns, setRerender, columns);
                     } catch (e) {
@@ -614,14 +606,14 @@ function DeferTable(
                         </> : e + "";
                         showDialog("Failed to update table", errorMessage, true);
                     }
-                }
-            })}
+                }}
+            />
         </>
     );
 }
 
 // export type DataTableSlots = {     [p: string]: DataTableSlot     [p: number]: DataTableSlot }
-function getReactSlots(columnsInfo: ConfigColumns[]): { [key: number]: ((data: unknown, row: unknown, rowData: object[]) => ReactNode)} | undefined {
+function getReactSlots(columnsInfo: ConfigColumns[]): { [key: number]: ((data: unknown, row: unknown, rowData: object[]) => ReactNode) } | undefined {
     const reactSlots: { [key: number]: (data: unknown, row: unknown, rowData: object[]) => ReactNode } = {};
     for (let i = 0; i < columnsInfo.length; i++) {
         const col = columnsInfo[i];
@@ -634,24 +626,24 @@ function getReactSlots(columnsInfo: ConfigColumns[]): { [key: number]: ((data: u
     return reactSlots ? reactSlots : undefined;
 }
 
-export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColumns}:
-{
-    table: React.RefObject<DataTableRef | null>,
-    data: React.RefObject<(string | number | boolean | number[])[][]>,
-    columnsInfo: React.RefObject<ConfigColumns[]>,
-    sort: React.RefObject<OrderIdx | OrderIdx[]>,
-    searchSet: React.RefObject<Set<number>>,
-    visibleColumns: React.RefObject<number[]>,
-    // reactColumns: ((data: object) => ReactNode)[],
-}) {
+export function MyTable({ table, data, columnsInfo, sort, searchSet, visibleColumns }:
+    {
+        table: React.RefObject<DataTableRef | null>,
+        data: React.RefObject<(string | number | boolean | number[])[][]>,
+        columnsInfo: React.RefObject<ConfigColumns[]>,
+        sort: React.RefObject<OrderIdx | OrderIdx[]>,
+        searchSet: React.RefObject<Set<number>>,
+        visibleColumns: React.RefObject<number[]>,
+        // reactColumns: ((data: object) => ReactNode)[],
+    }) {
 
     return (
         <DataTable
             slots={getReactSlots(columnsInfo.current)}
             ref={table}
             data={data.current}
-            columns={[{data: null, title: "#", orderable: false, searchable: false, className: 'dt-center'},
-                ...columnsInfo.current]}
+            columns={[{ data: null, title: "#", orderable: false, searchable: false, className: 'dt-center' },
+            ...columnsInfo.current]}
             options={{
                 paging: true,
                 lengthMenu: [[15, 25, 50, 100, -1], [15, 25, 50, 100, "All"]],
@@ -670,12 +662,12 @@ export function MyTable({table, data, columnsInfo, sort, searchSet, visibleColum
                     }
                 } as (row: Node, data: (string | number)[] | object, index: number) => void,
             }}
-            className="display table-auto divide-y w-full border-separate border-spacing-y-1 text-xs compact font-mono"/>
+            className="display table-auto divide-y w-full border-separate border-spacing-y-1 text-xs compact font-mono" />
     );
 }
 
 export function getColOptions(type: string, filter?: (f: Command) => boolean): [string, string][] {
-    const commands: {[key: string]: Command} = CM.getPlaceholderCommands(type);
+    const commands: { [key: string]: Command } = CM.getPlaceholderCommands(type);
     const result: [string, string][] = [];
     for (const [key, value] of Object.entries(commands)) {
         if (filter && !filter(value)) {
@@ -690,7 +682,7 @@ export function getColOptions(type: string, filter?: (f: Command) => boolean): [
 
 export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: {
     typeRef: React.RefObject<keyof typeof COMMANDS.placeholders>,
-    selectionRef: React.RefObject<{[key: string]: string}>,
+    selectionRef: React.RefObject<{ [key: string]: string }>,
     columnsRef: React.RefObject<Map<string, string | null>>,
     sortRef: React.RefObject<OrderIdx | OrderIdx[]>,
 }) {
@@ -773,7 +765,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
     function setSelectedTab(valueStr: string) {
         const value = valueStr as keyof typeof COMMANDS.placeholders;
         typeRef.current = value;
-        selectionRef.current = {"": DEFAULT_TABS[value]?.selections[Object.keys(DEFAULT_TABS[value]?.selections ?? {})[0]] || "*"};
+        selectionRef.current = { "": DEFAULT_TABS[value]?.selections[Object.keys(DEFAULT_TABS[value]?.selections ?? {})[0]] || "*" };
         (selInputRef.current as HTMLInputElement).value = selectionRef.current[""];
         selTemplates.current = Object.keys(DEFAULT_TABS[value]?.selections ?? []);
 
@@ -788,7 +780,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
         colTemplates.current = Object.keys(DEFAULT_TABS[value]?.columns ?? []);
         colOptions.current = getColOptions(value);
 
-        sortRef.current = colInfo?.sort || {idx: 0, dir: 'asc'};
+        sortRef.current = colInfo?.sort || { idx: 0, dir: 'asc' };
 
         filter.current = "";
         const filterElem = filterRef.current;
@@ -859,9 +851,9 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
             </Tabs>
             <div className="bg-light/10 border border-light/10 rounded mt-2">
                 <Button variant="ghost" size="md"
-                        className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 rounded-t justify-start"
-                        onClick={() => setCollapseSelections(!collapseSelections)}>
-                    Selection {collapseSelections ? <ChevronDown/> : <ChevronUp/>}
+                    className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 rounded-t justify-start"
+                    onClick={() => setCollapseSelections(!collapseSelections)}>
+                    Selection {collapseSelections ? <ChevronDown /> : <ChevronUp />}
                 </Button>
                 <div className={`transition-all duration-200 ease-in-out ${collapseSelections ? 'max-h-0 opacity-0 overflow-hidden' : 'p-2 opacity-100'}`}>
                     <h2 className="text-lg mb-1">Templates</h2>
@@ -875,39 +867,39 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                                 selectionRef.current[""] = DEFAULT_TABS[typeRef.current]?.selections[selection] || "*";
                                 (selInputRef.current as HTMLInputElement).value = selectionRef.current[""];
                                 setQueryParam();
-                        setRerender(prevRerender => prevRerender + 1);
-                    }}
-                    >
-                    {selection}
-                </Button>
-                ))}
-                <h2 className="text-lg my-1">Current Selection</h2>
+                                setRerender(prevRerender => prevRerender + 1);
+                            }}
+                        >
+                            {selection}
+                        </Button>
+                    ))}
+                    <h2 className="text-lg my-1">Current Selection</h2>
                     <div className="flex items-center">
                         <Input className="relative px-1 w-full"
-                               ref={selInputRef}
-                               type="text" defaultValue={selectionRef.current[""]}
-                               onChange={(e) => {
-                                   selectionRef.current[""] = e.target.value
-                                   setQueryParam();
-                               }
-                               }/>
+                            ref={selInputRef}
+                            type="text" defaultValue={selectionRef.current[""]}
+                            onChange={(e) => {
+                                selectionRef.current[""] = e.target.value
+                                setQueryParam();
+                            }
+                            } />
                         <TooltipProvider>
                             <BlockCopyButton getText={() => selectionRef.current[""]}
-                                             className="rounded-[6px] [&_svg]:size-3.5 ml-2" size="sm"/>
+                                className="rounded-[6px] [&_svg]:size-3.5 ml-2" size="sm" />
                         </TooltipProvider>
                     </div>
                     {CM.placeholders(typeRef.current).getCreate() && <ModifierComponent modifier={CM.placeholders(typeRef.current).getCreate() as Command} selectionRef={selectionRef} setQueryParam={setQueryParam} />}
                     <a href={`https://github.com/xdnw/locutus/wiki/${toPlaceholderName(typeRef.current)}_placeholders`}
-                       className="text-xs text-blue-800 dark:text-blue-400 underline hover:no-underline active:underline"
-                       target="_blank" rel="noreferrer"
+                        className="text-xs text-blue-800 dark:text-blue-400 underline hover:no-underline active:underline"
+                        target="_blank" rel="noreferrer"
                     >View All {toPlaceholderName(typeRef.current)} Filters</a>
                 </div>
             </div>
             <div className="bg-light/10 border border-light/10 rounded mt-2">
                 <Button variant="ghost" size="md"
-                        className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 rounded-t justify-start"
-                        onClick={() => setCollapseColumns(!collapseColumns)}>
-                    Columns {collapseColumns ? <ChevronDown/> : <ChevronUp/>}
+                    className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 rounded-t justify-start"
+                    onClick={() => setCollapseColumns(!collapseColumns)}>
+                    Columns {collapseColumns ? <ChevronDown /> : <ChevronUp />}
                 </Button>
                 <div
                     className={`transition-all duration-200 ease-in-out ${collapseColumns ? 'max-h-0 opacity-0 overflow-hidden' : 'p-2 opacity-100'}`}>
@@ -927,7 +919,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                                         return [col, null];
                                     }
                                 }));
-                                sortRef.current = colInfo?.sort || {idx: 0, dir: 'asc'};
+                                sortRef.current = colInfo?.sort || { idx: 0, dir: 'asc' };
                                 setQueryParam();
                                 setRerender(prevRerender => prevRerender + 1);
                             }}
@@ -936,190 +928,190 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                         </Button>
                     ))}
                     <h2 className="text-lg mt-1 pb-0 mb-0">Current Columns</h2>
-                    <span className="text-sm opacity-50 p-0 m-0">left-click to remove | middle-click to sort | shift+middle to sort by multiple | right click and type/backspace to edit alias | clipboard button to copy</span><br/>
+                    <span className="text-sm opacity-50 p-0 m-0">left-click to remove | middle-click to sort | shift+middle to sort by multiple | right click and type/backspace to edit alias | clipboard button to copy</span><br />
                     <div className="inline-flex flex-wrap">
-                    {Array.from(columnsRef.current).map((colInfo, index) => (
-                    <span key={`spw-${index}`} className="inline-flex items-center bg-background rounded me-1 mb-1">
-                        <ChevronLeft className="cursor-pointer w-4 h-6 rounded-s hover:bg-accent" onClick={() => moveColumn(index, -1)} />
-                        <Button
-                            key={colInfo[0]}
-                            id={"btn-" + colInfo[0]}
-                            variant="outline"
-                            size="sm"
-                            className="rounded-none border-r-input/50 border-l-input/50 inline-block"
-                            onContextMenu={(e) => {
-                                e.preventDefault();
-                                e.currentTarget.focus();
-                            }}
-                            onClick={() => {
-                                const index = Array.from(columnsRef.current).indexOf(colInfo);
-                                if (index !== -1) {
-                                    if (Array.isArray(sortRef.current)) {
-                                        sortRef.current = sortRef.current
-                                            .filter(sortItem => sortItem.idx !== index + 1)
-                                            .map(sortItem => ({
-                                                ...sortItem,
-                                                idx: sortItem.idx > index + 1 ? sortItem.idx - 1 : sortItem.idx
-                                            }));
-                                    } else {
-                                        if (sortRef.current.idx === index + 1) {
-                                            sortRef.current = {idx: 0, dir: 'asc'};
-                                        } else if (sortRef.current.idx > index + 1) {
-                                            sortRef.current = {...sortRef.current, idx: sortRef.current.idx - 1};
-                                        }
-                                    }
-                                }
-                                columnsRef.current.delete(colInfo[0]);
-                                setQueryParam();
-                                setRerender(prevRerender => prevRerender + 1);
-                                return false;
-                            }}
-                            onMouseDown={(e) => {
-                                if (e.button === 1) {
-                                    e.preventDefault();
-                                    const val: OrderIdx | OrderIdx[] = sortRef.current;
-                                    if (Array.isArray(val)) {
-                                        const sortIndex = val.findIndex(sortItem => sortItem.idx === index + 1);
-                                        if (sortIndex !== -1) {
-                                            if (val[sortIndex].dir === 'asc') {
-                                                val[sortIndex].dir = 'desc';
+                        {Array.from(columnsRef.current).map((colInfo, index) => (
+                            <span key={`spw-${index}`} className="inline-flex items-center bg-background rounded me-1 mb-1">
+                                <ChevronLeft className="cursor-pointer w-4 h-6 rounded-s hover:bg-accent" onClick={() => moveColumn(index, -1)} />
+                                <Button
+                                    key={colInfo[0]}
+                                    id={"btn-" + colInfo[0]}
+                                    variant="outline"
+                                    size="sm"
+                                    className="rounded-none border-r-input/50 border-l-input/50 inline-block"
+                                    onContextMenu={(e) => {
+                                        e.preventDefault();
+                                        e.currentTarget.focus();
+                                    }}
+                                    onClick={() => {
+                                        const index = Array.from(columnsRef.current).indexOf(colInfo);
+                                        if (index !== -1) {
+                                            if (Array.isArray(sortRef.current)) {
+                                                sortRef.current = sortRef.current
+                                                    .filter(sortItem => sortItem.idx !== index + 1)
+                                                    .map(sortItem => ({
+                                                        ...sortItem,
+                                                        idx: sortItem.idx > index + 1 ? sortItem.idx - 1 : sortItem.idx
+                                                    }));
                                             } else {
-                                                val.splice(sortIndex, 1);
-                                            }
-                                        } else {
-                                            if (e.shiftKey && val.length > 0) {
-                                                val.push({idx: index + 1, dir: 'asc'});
-                                            } else {
-                                                sortRef.current = {idx: index + 1, dir: 'asc'};
+                                                if (sortRef.current.idx === index + 1) {
+                                                    sortRef.current = { idx: 0, dir: 'asc' };
+                                                } else if (sortRef.current.idx > index + 1) {
+                                                    sortRef.current = { ...sortRef.current, idx: sortRef.current.idx - 1 };
+                                                }
                                             }
                                         }
-                                    } else if (val.idx !== index + 1) {
-                                        if (e.shiftKey && val.idx !== 0) {
-                                            sortRef.current = [{idx: val.idx, dir: val.dir}, {
-                                                idx: index + 1,
-                                                dir: 'asc'
-                                            }];
-                                        } else {
-                                            sortRef.current = {idx: index + 1, dir: 'asc'};
+                                        columnsRef.current.delete(colInfo[0]);
+                                        setQueryParam();
+                                        setRerender(prevRerender => prevRerender + 1);
+                                        return false;
+                                    }}
+                                    onMouseDown={(e) => {
+                                        if (e.button === 1) {
+                                            e.preventDefault();
+                                            const val: OrderIdx | OrderIdx[] = sortRef.current;
+                                            if (Array.isArray(val)) {
+                                                const sortIndex = val.findIndex(sortItem => sortItem.idx === index + 1);
+                                                if (sortIndex !== -1) {
+                                                    if (val[sortIndex].dir === 'asc') {
+                                                        val[sortIndex].dir = 'desc';
+                                                    } else {
+                                                        val.splice(sortIndex, 1);
+                                                    }
+                                                } else {
+                                                    if (e.shiftKey && val.length > 0) {
+                                                        val.push({ idx: index + 1, dir: 'asc' });
+                                                    } else {
+                                                        sortRef.current = { idx: index + 1, dir: 'asc' };
+                                                    }
+                                                }
+                                            } else if (val.idx !== index + 1) {
+                                                if (e.shiftKey && val.idx !== 0) {
+                                                    sortRef.current = [{ idx: val.idx, dir: val.dir }, {
+                                                        idx: index + 1,
+                                                        dir: 'asc'
+                                                    }];
+                                                } else {
+                                                    sortRef.current = { idx: index + 1, dir: 'asc' };
+                                                }
+                                            } else if (val.dir === 'asc') {
+                                                sortRef.current = { idx: index + 1, dir: 'desc' };
+                                            } else {
+                                                sortRef.current = { idx: 0, dir: 'asc' };
+                                            }
+                                            setQueryParam();
+                                            setRerender(prevRerender => prevRerender + 1);
+                                            return false;
                                         }
-                                    } else if (val.dir === 'asc') {
-                                        sortRef.current = {idx: index + 1, dir: 'desc'};
-                                    } else {
-                                        sortRef.current = {idx: 0, dir: 'asc'};
-                                    }
-                                    setQueryParam();
-                                    setRerender(prevRerender => prevRerender + 1);
-                                    return false;
-                                }
-                            }}
-                        >
-                            {colInfo[0]}
-                            <span key={`colspan-${index}`} className="text-xs opacity-50">{colInfo[1] && colInfo[1] !== colInfo[0] ? `\u00A0as ${colInfo[1]}` : "​"}</span>
-                            {Array.isArray(sortRef.current) ? (
-                                sortRef.current.map((sortItem, sortIndex) => (
-                                    sortItem.idx === index + 1 && (
-                                        <span key={`sort-${index}-${sortIndex}`} className="bg-red-400 dark:bg-red-900 text-xs ml-1">
-                {sortItem.dir} ({sortIndex + 1})
-            </span>
-                                    )
-                                ))
-                            ) : (
-                                sortRef.current.idx === index + 1 && (
-                                    <span key={`sort-${index}`} className="bg-red-400 dark:bg-red-900 text-xs ml-1">
-            {sortRef.current.dir}
-        </span>
-                                )
-                            )}
-                        </Button>
-                            <ChevronRight className="cursor-pointer inline-block w-4 rounded-e hover:bg-accent align-middle" onClick={() => moveColumn(index, 1)} />
+                                    }}
+                                >
+                                    {colInfo[0]}
+                                    <span key={`colspan-${index}`} className="text-xs opacity-50">{colInfo[1] && colInfo[1] !== colInfo[0] ? `\u00A0as ${colInfo[1]}` : "​"}</span>
+                                    {Array.isArray(sortRef.current) ? (
+                                        sortRef.current.map((sortItem, sortIndex) => (
+                                            sortItem.idx === index + 1 && (
+                                                <span key={`sort-${index}-${sortIndex}`} className="bg-red-400 dark:bg-red-900 text-xs ml-1">
+                                                    {sortItem.dir} ({sortIndex + 1})
+                                                </span>
+                                            )
+                                        ))
+                                    ) : (
+                                        sortRef.current.idx === index + 1 && (
+                                            <span key={`sort-${index}`} className="bg-red-400 dark:bg-red-900 text-xs ml-1">
+                                                {sortRef.current.dir}
+                                            </span>
+                                        )
+                                    )}
+                                </Button>
+                                <ChevronRight className="cursor-pointer inline-block w-4 rounded-e hover:bg-accent align-middle" onClick={() => moveColumn(index, 1)} />
                             </span>
-                    ))}
-                            <TooltipProvider>
-                                <BlockCopyButton getText={() => {
-                                    return Array.from(columnsRef.current).map(([key, value]) => value ? `${key};${value}` : key).join("\n");
-                                }} className="rounded [&_svg]:size-3.5 me-1" size="sm"/>
-                            </TooltipProvider>
-                            <Button variant="destructive" size="sm" className="rounded" onClick={() => {
-                                columnsRef.current = new Map();
-                                sortRef.current = {idx: 0, dir: 'asc'};
-                                setQueryParam();
-                                setRerender(prevRerender => prevRerender + 1);
-                            }}>X</Button>
+                        ))}
+                        <TooltipProvider>
+                            <BlockCopyButton getText={() => {
+                                return Array.from(columnsRef.current).map(([key, value]) => value ? `${key};${value}` : key).join("\n");
+                            }} className="rounded [&_svg]:size-3.5 me-1" size="sm" />
+                        </TooltipProvider>
+                        <Button variant="destructive" size="sm" className="rounded" onClick={() => {
+                            columnsRef.current = new Map();
+                            sortRef.current = { idx: 0, dir: 'asc' };
+                            setQueryParam();
+                            setRerender(prevRerender => prevRerender + 1);
+                        }}>X</Button>
                     </div>
                     <h2 className="text-lg mt-1 mb-0 p-0">Add Custom</h2>
                     <span className="text-sm opacity-50">type or paste in the placeholder, then press Enter | Use tab for multiple | Use semicolon ;BLAH for column alias</span>
                     <div className="flex w-full">
                         <Input type="text" className="relative px-1 grow"
-                               placeholder="Custom column placeholders..."
-                               ref={colInputRef}
-                               onPaste={handlePaste}
-                               onKeyDown={(e) => {
-                                   if (e.key === "Enter") {
-                                       e.preventDefault();
-                                       if (colInputRef.current?.value) {
-                                           const button = addButton.current;
-                                           if (button) {
-                                               button.click();
-                                           }
-                                       }
-                                   } else if (e.key === "Tab") {
-                                       e.preventDefault();
-                                       const input = colInputRef.current;
-                                       if (input) {
-                                           const start = input.selectionStart;
-                                           const end = input.selectionEnd;
-                                           if (start !== null && end !== null) {
-                                               const value = input.value;
-                                               input.value = value.substring(0, start) + "\t" + value.substring(end);
-                                               input.selectionStart = input.selectionEnd = start + 1;
-                                           }
-                                       }
-                                   }
-                               }}
+                            placeholder="Custom column placeholders..."
+                            ref={colInputRef}
+                            onPaste={handlePaste}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    if (colInputRef.current?.value) {
+                                        const button = addButton.current;
+                                        if (button) {
+                                            button.click();
+                                        }
+                                    }
+                                } else if (e.key === "Tab") {
+                                    e.preventDefault();
+                                    const input = colInputRef.current;
+                                    if (input) {
+                                        const start = input.selectionStart;
+                                        const end = input.selectionEnd;
+                                        if (start !== null && end !== null) {
+                                            const value = input.value;
+                                            input.value = value.substring(0, start) + "\t" + value.substring(end);
+                                            input.selectionStart = input.selectionEnd = start + 1;
+                                        }
+                                    }
+                                }
+                            }}
                         />
                         <Button variant="outline" size="sm"
-                                ref={addButton}
-                                className="bg-destructive ml-2"
-                                onClick={() => {
-                                    const elem = (colInputRef.current as HTMLInputElement);
-                                    const value = elem.value;
-                                    if (value === "") {
-                                        showDialog("Column name cannot be empty", "Please enter a column name before adding");
-                                        return;
+                            ref={addButton}
+                            className="bg-destructive ml-2"
+                            onClick={() => {
+                                const elem = (colInputRef.current as HTMLInputElement);
+                                const value = elem.value;
+                                if (value === "") {
+                                    showDialog("Column name cannot be empty", "Please enter a column name before adding");
+                                    return;
+                                }
+                                // split by tab
+                                const values = value.split("\t");
+                                const errors = [];
+                                for (const val of values) {
+                                    if (val === "") continue;
+                                    const aliasSplit = val.split(";");
+                                    if (!aliasSplit[0]) continue;
+                                    if (!aliasSplit[0].includes("{") && !aliasSplit[0].includes("}")) {
+                                        aliasSplit[0] = "{" + aliasSplit[0] + "}";
                                     }
-                                    // split by tab
-                                    const values = value.split("\t");
-                                    const errors = [];
-                                    for (const val of values) {
-                                        if (val === "") continue;
-                                        const aliasSplit = val.split(";");
-                                        if (!aliasSplit[0]) continue;
-                                        if (!aliasSplit[0].includes("{") && !aliasSplit[0].includes("}")) {
-                                            aliasSplit[0] = "{" + aliasSplit[0] + "}";
-                                        }
-                                        if (columnsRef.current.has(aliasSplit[0]) && columnsRef.current.get(aliasSplit[0]) === (aliasSplit[1] ?? null)) {
-                                            errors.push("Column `" + val + "` is already added");
-                                            continue;
-                                        }
-                                        columnsRef.current.set(aliasSplit[0], aliasSplit[1] || null);
+                                    if (columnsRef.current.has(aliasSplit[0]) && columnsRef.current.get(aliasSplit[0]) === (aliasSplit[1] ?? null)) {
+                                        errors.push("Column `" + val + "` is already added");
+                                        continue;
                                     }
-                                    elem.value = "";
-                                    if (errors.length > 0) {
-                                        showDialog("Errors adding columns", errors.join("\n"));
-                                    }
-                                    setQueryParam();
-                                    setRerender(prevRerender => prevRerender + 1);
-                                }}>Add</Button>
+                                    columnsRef.current.set(aliasSplit[0], aliasSplit[1] || null);
+                                }
+                                elem.value = "";
+                                if (errors.length > 0) {
+                                    showDialog("Errors adding columns", errors.join("\n"));
+                                }
+                                setQueryParam();
+                                setRerender(prevRerender => prevRerender + 1);
+                            }}>Add</Button>
                     </div>
                     <a href={`https://github.com/xdnw/locutus/wiki/${typeRef.current}_placeholders`}
-                       className="text-xs text-blue-800 dark:text-blue-400 underline hover:no-underline active:underline"
-                       target="_blank" rel="noreferrer"
+                        className="text-xs text-blue-800 dark:text-blue-400 underline hover:no-underline active:underline"
+                        target="_blank" rel="noreferrer"
                     >View All {typeRef.current} Placeholders</a>
                     <div className="bg-secondary rounded">
                         <Button variant="ghost" size="sm"
-                                className="text-lg w-full border-b border-secondary px-2 bg-primary/10 rounded justify-start"
-                                onClick={() => setCollapseColOptions(!collapseColOptions)}>
-                            Add Simple {collapseColOptions ? <ChevronDown/> : <ChevronUp/>}
+                            className="text-lg w-full border-b border-secondary px-2 bg-primary/10 rounded justify-start"
+                            onClick={() => setCollapseColOptions(!collapseColOptions)}>
+                            Add Simple {collapseColOptions ? <ChevronDown /> : <ChevronUp />}
                         </Button>
                         <div
                             className={`transition-all duration-200 ease-in-out ${collapseColOptions ? 'max-h-0 opacity-0 overflow-hidden' : 'p-2 opacity-100'}`}>
@@ -1134,21 +1126,21 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                                 }}
                             />
                             {colOptions.current.filter(([key, value]) => !filter.current || key.toLowerCase().includes(filter.current) || value.toLowerCase().includes(filter.current)).map((option) =>
-                                (
-                                    <Button
-                                        key={option[0]}
-                                        variant="outline"
-                                        size="sm"
-                                        className={`me-1 mb-1 ${columnsRef.current.has("{" + option[0] + "}") ? "hidden" : ""}`}
-                                        onClick={() => {
-                                            columnsRef.current.set("{" + option[0] + "}", null);
-                                            setQueryParam();
-                                            setRerender(prevRerender => prevRerender + 1);
-                                        }}
-                                    >
-                                        {option[0]}:&nbsp;<span key={option[0] + "-span"} className="text-xs opacity-50">{option[1]}</span>
-                                    </Button>
-                                )
+                            (
+                                <Button
+                                    key={option[0]}
+                                    variant="outline"
+                                    size="sm"
+                                    className={`me-1 mb-1 ${columnsRef.current.has("{" + option[0] + "}") ? "hidden" : ""}`}
+                                    onClick={() => {
+                                        columnsRef.current.set("{" + option[0] + "}", null);
+                                        setQueryParam();
+                                        setRerender(prevRerender => prevRerender + 1);
+                                    }}
+                                >
+                                    {option[0]}:&nbsp;<span key={option[0] + "-span"} className="text-xs opacity-50">{option[1]}</span>
+                                </Button>
+                            )
                             )}
                         </div>
                     </div>
@@ -1158,17 +1150,17 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
     );
 }
 
-export function ModifierComponent({modifier, selectionRef, setQueryParam}: { modifier: Command, selectionRef: React.RefObject<{[key: string]: string}>, setQueryParam: () => void }) {
+export function ModifierComponent({ modifier, selectionRef, setQueryParam }: { modifier: Command, selectionRef: React.RefObject<{ [key: string]: string }>, setQueryParam: () => void }) {
     return <>
         <CommandComponent overrideName={"Modifier"} command={modifier} filterArguments={() => true} initialValues={selectionRef.current}
-        setOutput={(key: string, value: string) => {
-            if (value === undefined || value === null || value === "") {
-                delete selectionRef.current[key];
-            } else {
-                selectionRef.current[key] = value;
-            }
-            setQueryParam();
-        }}
+            setOutput={(key: string, value: string) => {
+                if (value === undefined || value === null || value === "") {
+                    delete selectionRef.current[key];
+                } else {
+                    selectionRef.current[key] = value;
+                }
+                setQueryParam();
+            }}
         />
     </>
 }

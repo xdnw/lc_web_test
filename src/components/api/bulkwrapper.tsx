@@ -61,8 +61,8 @@ export default function EndpointWrapper<T, A extends { [key: string]: string | s
         data: NonNullable<QueryResult<T>['data']>;
     }) => ReactNode;
 }) {
-    const stableQuery: { [k: string]: string | string[] } = useDeepCompareMemo(args ? 
-    (Object.fromEntries(Object.entries(args).filter(([_, value]) => value !== undefined)) as { [k: string]: string | string[] }): {});
+    const stableQuery: { [k: string]: string | string[] } = useDeepCompareMemo(args ?
+        (Object.fromEntries(Object.entries(args).filter(([_, value]) => value !== undefined)) as { [k: string]: string | string[] }) : {});
 
     const fallbackRender = useCallback(
         (fallbackProps: { error: Error; resetErrorBoundary: () => void }) =>
@@ -84,7 +84,7 @@ export default function EndpointWrapper<T, A extends { [key: string]: string | s
                     cache_duration={endpoint.endpoint.cache_duration}
                     batch_wait_ms={batch_wait_ms}
                 >
-                {(data) => children(data as Omit<QueryResult<T>, 'data'> & {data: NonNullable<QueryResult<T>['data']>;})}
+                    {(data) => children(data as Omit<QueryResult<T>, 'data'> & { data: NonNullable<QueryResult<T>['data']>; })}
                 </BulkQueryWrapper>
             </Suspense>
         </ErrorBoundary>
@@ -105,10 +105,10 @@ export function ErrorBoundaryFallback({
 }) {
     const queryClient = useQueryClient();
 
-    const handleRetry = () => {
+    const handleRetry = useCallback(() => {
         queryClient.removeQueries({ queryKey: [endpoint, query] });
         resetErrorBoundary();
-    };
+    }, [queryClient, endpoint, query, resetErrorBoundary]);
 
     return (
         <>
