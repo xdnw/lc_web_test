@@ -1,11 +1,10 @@
-import { CommonEndpoint } from "../../components/api/endpoint";
 import { WebGraph } from "../../lib/apitypes";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ChartWithButtons } from "./SimpleChart";
 import { getGraphEndpoints } from "../../utils/GraphUtil";
 import { ApiFormInputs } from "@/components/api/apiform";
-import { QueryResult } from "@/lib/BulkQuery";
+import { CommonEndpoint, QueryResult } from "@/lib/BulkQuery";
 import React from "react";
 
 
@@ -50,6 +49,7 @@ function EditGraph<U extends { [key: string]: string | string[] | undefined }, V
         args?: U
     }) {
     const [graph, setGraph] = useState<WebGraph | null>(null);
+
     // Memoize initial state to avoid re-initializing on re-renders
     const initialArgs = useMemo(() => args || {} as U, [args]);
     const [usedArgs, setUsedArgs] = useState<U>(initialArgs);
@@ -58,9 +58,9 @@ function EditGraph<U extends { [key: string]: string | string[] | undefined }, V
     const defaultValues = useMemo(() => ({ ...args } as V), [args]);
 
     // Wrap handler in useCallback to prevent recreation on each render
-    const handleResponse = useCallback(({ data: newData }: Omit<QueryResult<WebGraph>, 'data'> & { data: NonNullable<QueryResult<WebGraph>['data']>; }) => {
+    const handleResponse = useCallback(({ data: newData, query }: Omit<QueryResult<WebGraph>, 'data'> & { data: NonNullable<QueryResult<WebGraph>['data']>; }) => {
         setGraph(newData);
-        setUsedArgs(endpoint.getLastQueryArgs() as U);
+        setUsedArgs(query as U);
         console.log("Setting graph", newData);
     }, [endpoint]);
 

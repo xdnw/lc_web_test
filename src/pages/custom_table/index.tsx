@@ -704,7 +704,13 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
     const colOptions = useRef<[string, string][]>(getColOptions(typeRef.current));
     const filter = useRef("");
 
-    function moveColumn(from: number, amount: number) {
+    // Memoize filtered column options instead of doing this on every render
+    const filteredOptions = useMemo(() => 
+        colOptions.current.filter(([key, value]) => 
+        !filter.current || key.toLowerCase().includes(filter.current) || value.toLowerCase().includes(filter.current)
+        ), [rerender, filter.current]);
+
+    const moveColumn = useCallback((from: number, amount: number) => {
         const columnsArray = Array.from(columnsRef.current);
         const to = from + amount;
 
@@ -747,9 +753,9 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
         }
         setQueryParam();
         setRerender(prevRerender => prevRerender + 1);
-    }
+    }, []);
 
-    function setQueryParam() {
+    const setQueryParam = useCallback(() => {
         const params = getQueryString({
             type: typeRef.current,
             selAndModifiers: selectionRef.current,
@@ -760,9 +766,9 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
         const [basePath] = currentHash.split('?');
         const newHash = `${basePath}?${params}`;
         window.history.replaceState(null, '', `${window.location.pathname}${newHash}`);
-    }
+    }, []);
 
-    function setSelectedTab(valueStr: string) {
+    const setSelectedTab = useCallback((valueStr: string) => {
         const value = valueStr as keyof typeof COMMANDS.placeholders;
         typeRef.current = value;
         selectionRef.current = { "": DEFAULT_TABS[value]?.selections[Object.keys(DEFAULT_TABS[value]?.selections ?? {})[0]] || "*" };
@@ -791,7 +797,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
         setQueryParam();
 
         setRerender(prevRerender => prevRerender + 1);
-    }
+    }, []);
 
     const handlePaste = useMemo(() => (event: React.ClipboardEvent<HTMLInputElement>) => {
         event.preventDefault();
@@ -1125,7 +1131,7 @@ export function PlaceholderTabs({ typeRef, selectionRef, columnsRef, sortRef }: 
                                     setRerender(prevRerender => prevRerender + 1);
                                 }}
                             />
-                            {colOptions.current.filter(([key, value]) => !filter.current || key.toLowerCase().includes(filter.current) || value.toLowerCase().includes(filter.current)).map((option) =>
+                            {filteredOptions.map((option) =>
                             (
                                 <Button
                                     key={option[0]}

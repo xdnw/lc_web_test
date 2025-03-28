@@ -365,6 +365,8 @@ export function fetchBulk<T>({ endpoint, query, cache, batch_wait_ms }: {
         }));
     }
 
+    console.log("Queuing query", endpoint, query, cache, batch_wait_ms);
+    
     return new Promise((resolve, reject) => {
         pendingQueries.push({ endpoint, query, cache, resolve: resolve as unknown as (result: QueryResult<unknown>) => void, reject });
         const waitTime = batch_wait_ms ?? 50;

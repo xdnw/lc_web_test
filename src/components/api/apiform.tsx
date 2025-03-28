@@ -178,11 +178,17 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
     const [fetchTrigger, setFetchTrigger] = useState(0); // Counter to trigger fetches
     const isInitialMount = useRef(true);
 
-    // Check for missing required fields
-    useEffect(() => {
-        const missing = required ? required.filter(field => !store((state) => state.output)[field]) : [];
-        setMissing(missing);
-    }, [store, required]);
+     // Keep a ref to the current output state
+     const outputRef = useRef<{ [key: string]: string | string[] }>({});
+    
+     // Update the ref whenever store output changes
+     useEffect(() => {
+         outputRef.current = store.getState().output;
+         
+         // Also check for missing required fields here
+         const missing = required ? required.filter(field => !outputRef.current[field]) : [];
+         setMissing(missing);
+     }, [store, required]);
 
     // Configure the query with manual control
     const { data, isFetching, refetch } = useQuery({
@@ -200,6 +206,10 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
 
         // Only proceed if we have queryArgs and a non-zero fetchTrigger
         if (queryArgs && fetchTrigger > 0) {
+            console.log("Refetching with args:", queryArgs, "fetchTrigger:", fetchTrigger);
+            // Reset fetchTrigger to 0 after refetching
+            setFetchTrigger(0);
+            // Call refetch and handle the response
             refetch().then((observer) => {
                 const queryResult = observer.data as QueryResult<T>;
                 if (queryResult.error) {
@@ -218,7 +228,7 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
     }, [queryArgs, fetchTrigger, refetch, handle_error, handle_response]);
 
     const submitForm = useCallback(() => {
-        const args = store((state) => state.output) as A;
+        const args = outputRef.current as A;
         setQueryArgs(args as { readonly [key: string]: string | string[] });
         // Increment fetchTrigger to trigger useEffect after state update
         setFetchTrigger(prev => prev + 1);

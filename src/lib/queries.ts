@@ -20,7 +20,7 @@ export function bulkQueryOptions<T>(
 ): UseQueryOptions<QueryResult<T>, Error, QueryResult<T>, readonly unknown[]> {
     const isPostFinal = is_post ?? endpoint.isPost;
     return {
-        queryKey: [endpoint, query],
+        queryKey: [endpoint.name, query],
         queryFn: async (meta) => {
             const keys = meta.queryKey as [string, { [key: string]: string }];
             const result = await fetchBulk<T>({ 
@@ -50,8 +50,9 @@ export function singleQueryOptions<T>(
     batch_wait_ms?: number
 ): UseQueryOptions<QueryResult<T>, Error, QueryResult<T>, readonly unknown[]> {
     return {
-        queryKey: [endpoint, query],
+        queryKey: [endpoint.name, query],
         queryFn: async (meta) => {
+            console.log("Fetching single query", meta.queryKey);
             const keys = meta.queryKey as [string, { [key: string]: string }];
             const result = await fetchBulk<T>({ 
                 endpoint: keys[0], 
