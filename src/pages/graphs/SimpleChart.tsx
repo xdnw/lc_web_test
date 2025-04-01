@@ -1,5 +1,5 @@
 import React, { Component, createRef, CSSProperties, RefObject, useRef, useState } from 'react';
-// import Worker from '@/workers/chartWorker.ts?worker';
+import LazyIcon from "@/components/ui/LazyIcon";
 import {
     Chart as ChartJS,
     Decimation,
@@ -29,7 +29,6 @@ import { deepEqual } from "../../lib/utils";
 import { ChartJSOrUndefined } from 'node_modules/react-chartjs-2/dist/types';
 import { Link } from "react-router-dom";
 import { useTheme } from "../../components/ui/theme-provider";
-import { ArrowRightToLine, ClipboardIcon, Download } from "lucide-react";
 import { useDialog } from "../../components/layout/DialogContext";
 import { invertData } from "../../utils/MathUtil";
 
@@ -125,31 +124,31 @@ export function ChartWithButtons({ graph, endpointName, usedArgs }:
     }) {
     const { showDialog } = useDialog();
     return <>
-        <DropdownMenu modal={false}>
+        <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="me-1">Export</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
                 <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadGraph(graph, false, true, ExportTypes.CSV))}>
-                    <kbd className="bg-accent rounded flex items-center space-x-1"><Download className="h-4 w-4" /> <span>,</span></kbd>&nbsp;Download CSV
+                    <kbd className="bg-accent rounded flex items-center space-x-1"><LazyIcon name="Download" className="h-4 w-4" /> <span>,</span></kbd>&nbsp;Download CSV
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadGraph(graph, true, true, ExportTypes.CSV))}>
-                    <kbd className="bg-accent rounded flex items-center space-x-1"><ClipboardIcon className="h-4 w-4" /> <span>,</span></kbd>&nbsp;Copy CSV
+                    <kbd className="bg-accent rounded flex items-center space-x-1"><LazyIcon name="ClipboardIcon" className="h-4 w-4" /> <span>,</span></kbd>&nbsp;Copy CSV
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadGraph(graph, false, true, ExportTypes.TSV))}>
-                    <kbd className="bg-accent rounded flex items-center space-x-1"><Download className="h-4 w-3" /><ArrowRightToLine className="h-4 w-3" /></kbd>&nbsp;Download TSV
+                    <kbd className="bg-accent rounded flex items-center space-x-1"><LazyIcon name="Download" className="h-4 w-3" /><LazyIcon name="ArrowRightToLine" className="h-4 w-3" /></kbd>&nbsp;Download TSV
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadGraph(graph, true, true, ExportTypes.TSV))}>
-                    <kbd className="bg-accent rounded flex items-center space-x-1"><ClipboardIcon className="h-4 w-3" /><ArrowRightToLine className="h-4 w-3" /></kbd>&nbsp;Copy TSV
+                    <kbd className="bg-accent rounded flex items-center space-x-1"><LazyIcon name="ClipboardIcon" className="h-4 w-3" /><LazyIcon name="ArrowRightToLine" className="h-4 w-3" /></kbd>&nbsp;Copy TSV
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
         {endpointName && <Button
             variant="outline"
             size="sm"
-            className=""
+           
             onClick={() => {
-                const queryStr = getQueryString(usedArgs!.current);
+                const queryStr = getQueryString(usedArgs || {});
                 const baseUrlWithoutPath = window.location.protocol + "//" + window.location.host;
                 const url = (`${baseUrlWithoutPath}${process.env.BASE_PATH}#/view_graph/${endpointName}?${queryStr}`);
                 navigator.clipboard.writeText(url).then(() => {

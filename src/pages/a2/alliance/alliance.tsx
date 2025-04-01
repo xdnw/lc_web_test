@@ -1,11 +1,9 @@
 import {useDialog} from "../../../components/layout/DialogContext";
 import {useRef} from "react";
 import {ALLIANCESTATS, METRIC_COMPARE_BY_TURN, TABLE} from "../../../lib/endpoints";
-import {getUrl} from "../../custom_table";
 import {Link, useParams } from "react-router-dom";
 import {CM} from "../../../utils/Command";
 import {getPwUrl} from "../../../lib/pwutil";
-import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Color from "../../../components/renderer/Color";
 import {commafy} from "../../../utils/StringUtil";
@@ -16,6 +14,7 @@ import {ViewCommand} from "../../command/view_command";
 import {CopoToClipboardTextArea} from "../../../components/ui/copytoclipboard";
 import {numericMap} from "../../../components/ui/renderers";
 import EndpointWrapper from "@/components/api/bulkwrapper";
+import LazyIcon from "@/components/ui/LazyIcon";
 
 /*
 # Alliance extends NationList extends Alliances
@@ -134,7 +133,7 @@ export default function Alliance() {
                                     className="text-2xl font-bolt flex items-center"
                                     to={getPwUrl(`alliance/id=${row[1] as string}`)}
                                 >
-                                    {row[0] as string} <ExternalLink/>
+                                    {row[0] as string} <LazyIcon name="ExternalLink"/>
                                 </Link>
                                 {row[2] && (
                                     <span className="text-sm text-gray-500">

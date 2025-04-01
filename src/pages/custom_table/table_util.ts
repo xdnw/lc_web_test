@@ -1,0 +1,216 @@
+import DataTable, { DataTableRef } from 'datatables.net-react';
+import DT, { Api, ConfigColumns, ObjectColumnRender, OrderIdx } from 'datatables.net';
+import { COMMANDS } from "../../lib/commands";
+import { downloadCells, ExportType } from "../../utils/StringUtil";
+import { DEFAULT_TABS } from "../../lib/layouts";
+import { WebTable, WebTableError } from '@/lib/apitypes';
+import { getRenderer, isHtmlRenderer } from '@/components/ui/renderers';
+import { ReactNode } from 'react';
+import { CM, Command, STRIP_PREFIXES } from '@/utils/Command';
+import { TableInfo } from './AbstractTable';
+
+export function setTableVars(
+    newData: WebTable,
+    sort: OrderIdx | OrderIdx[],
+    columns: Map<string, string | null>,
+): TableInfo {
+    const errors: WebTableError[] = newData.errors ?? [];
+
+    // const elem = api.table().container() as HTMLElement;
+    const header: string[] = columns.size > 0 ? Array.from(columns).map(([key, value]) => value ?? key) : newData.cells[0] as string[];
+    const body = newData.cells.slice(1);
+    const renderFuncNames = newData.renderers;
+    const newColumnsInfo: ConfigColumns[] = header.map((col: string, index: number) => ({
+        title: formatColName(col),
+        data: index,
+        render: renderFuncNames ? getRenderer(renderFuncNames[index]) : undefined,
+    }));
+    // columns
+    const columnsInfo = newColumnsInfo;
+    // data
+    const data = body;
+    // visibleColumns
+    const visibleColumns = Array.from(Array(header.length).keys());
+    // searchSet
+    const searchSet: Set<number> = new Set<number>();
+
+    // // set table options sort to sortRef.current
+    // api.order(sort);
+
+    // // Check if the number of columns is different
+    // if (true || api.columns().count() !== header.length + 1) {
+    //     api.destroy(false);
+    //     console.log("Body", body);
+    // } else {
+    //     // Update the header
+    //     api.columns().header().each((elem: HTMLElement, index: number) => {
+    //         elem.innerText = index == 0 ? '#' : formatColName(header[index - 1]);
+    //     });
+    //     // Add new rows
+    //     api.clear().rows.add(body).draw();
+    // }
+    return {
+        errors: errors,
+        columnsInfo: columnsInfo,
+        data: data,
+        visibleColumns: visibleColumns,
+        searchSet: searchSet,
+        sort: sort
+    };
+}
+
+export function getReactSlots(columnsInfo: ConfigColumns[]): { [key: number]: ((data: unknown, row: unknown, rowData: object[]) => ReactNode) } | undefined {
+    const reactSlots: { [key: number]: (data: unknown, row: unknown, rowData: object[]) => ReactNode } = {};
+    for (let i = 0; i < columnsInfo.length; i++) {
+        const col = columnsInfo[i];
+        if (col.render && isHtmlRenderer(col.render as ObjectColumnRender)) {
+            const tmpRender = ((col.render as ObjectColumnRender).display) as ((data: object) => ReactNode);
+            col.render = undefined;
+            reactSlots[i + 1] = (data, row, rowData: object[]) => tmpRender(rowData[i]);
+        }
+    }
+    return reactSlots ? reactSlots : undefined;
+}
+
+export function getColOptions(type: string, filter?: (f: Command) => boolean): [string, string][] {
+    const commands: { [key: string]: Command } = CM.getPlaceholderCommands(type);
+    const result: [string, string][] = [];
+    for (const [key, value] of Object.entries(commands)) {
+        if (filter && !filter(value)) {
+            continue;
+        }
+        if (!value.hasRequiredArgument()) {
+            result.push([value.name, value.command.desc]);
+        }
+    }
+    return result;
+}
+
+export function formatColName(str: string): string {
+    if (str.includes("{")) {
+        for (const prefix of STRIP_PREFIXES) {
+            if (str.includes("{" + prefix)) {
+                str = str.replace("{" + prefix, "{");
+            }
+        }
+        return str.replace("{", "").replace("}", "");
+    } else {
+        return str;
+    }
+}
+
+export function downloadTable(api: Api, useClipboard: boolean, type: ExportType): [string, string] {
+    // Get the header
+    const header = api.columns().header().toArray().slice(1).map((headerCell: HTMLElement) => headerCell.innerText);
+
+    // Get the rows
+    const rows = api.rows().data().toArray().map((row: (string | number)[]) => {
+        return header.map((_, index) => row[index]);
+    });
+
+    // Combine header and rows
+    const data = [header, ...rows];
+
+    api.columns().every((index) => {
+        const col = api.column(index);
+        const render = col.init().render as { isEnum: boolean, options: string[] } | undefined;
+        if (render && render.isEnum && render.options) {
+            data.forEach((row, rowIndex) => {
+                if (rowIndex > 0) { // Skip header row
+                    const enumId = row[index - 1] as number;
+                    row[index - 1] = render.options[enumId];
+                }
+            });
+        }
+    });
+
+    return downloadCells(data, useClipboard, type);
+}
+
+export function getTypeFromUrl(params: URLSearchParams): keyof typeof COMMANDS.placeholders | undefined {
+    return params.get('type') as keyof typeof COMMANDS.placeholders ?? undefined;
+}
+
+export function getSelectionFromUrl(params: URLSearchParams, current: keyof typeof COMMANDS.placeholders | undefined): { [key: string]: string } {
+    const result: { [key: string]: string } = {};
+    result[""] = params.get('sel') ?? (current ? DEFAULT_TABS[current]!.selections.All : undefined) ?? "*";
+    const ignore: Set<string> = new Set(["type", "sel", "col", "sort"]);
+    for (const [key, value] of params.entries()) {
+        if (!ignore.has(key) && key) {
+            result[key] = value;
+        }
+    }
+    return result;
+}
+
+export function getColumnsFromUrl(params: URLSearchParams): Map<string, string | null> | undefined {
+    const urlCols: { [key: string]: string | null } = Object.fromEntries(
+        params.getAll('col').map(colParam => {
+            const [key, value] = colParam.split(';');
+            return [key, value || null];
+        })
+    );
+    return Object.keys(urlCols).length > 0 ? new Map(Object.entries(urlCols)) : undefined;
+}
+
+export function getSortFromUrl(params: URLSearchParams): OrderIdx | OrderIdx[] | undefined {
+    const urlSort = params.getAll('sort').map(sortParam => {
+        const [idx, dir] = sortParam.split(';');
+        return { idx: parseInt(idx, 10), dir: dir as 'asc' | 'desc' };
+    });
+    return urlSort.length > 0 ? urlSort : undefined;
+}
+
+export function getUrl(type: string, selection: string, columns: string[], sort?: OrderIdx | OrderIdx[]): string {
+    return `${process.env.BASE_PATH}custom_table?${getQueryString({
+        type: type,
+        sel: selection,
+        columns: new Map(columns.map(col => [col, null])),
+        sort: sort ? sort : { idx: 0, dir: "asc" }
+    })}`;
+}
+
+export function toSelAndModifierString(selAndModifiers: { [key: string]: string }): string | undefined {
+    let sel = undefined;
+    if (Object.keys(selAndModifiers).length === 1) {
+        sel = selAndModifiers[""];
+    } else if (Object.keys(selAndModifiers).length > 1) {
+        sel = JSON.stringify(selAndModifiers);
+    }
+    return sel;
+}
+
+export function getQueryString(
+    { type, sel, selAndModifiers, columns, sort }: {
+        type: string,
+        sel?: string,
+        selAndModifiers?: { [key: string]: string },
+        columns: Map<string, string | null>,
+        sort: OrderIdx | OrderIdx[]
+    }
+) {
+    const params = new URLSearchParams();
+    params.set('type', type);
+    if (sel) params.set('sel', sel);
+    else if (selAndModifiers) {
+        for (const [key, value] of Object.entries(selAndModifiers)) {
+            if (value) {
+                params.append(key === "" ? "sel" : key, value);
+            } else {
+                // sel = value
+                params.set('sel', value);
+            }
+        }
+    }
+    columns.forEach((value, key) => {
+        params.append('col', value ? `${key};${value}` : key);
+    });
+    if (Array.isArray(sort)) {
+        for (const sortItem of sort) {
+            params.append('sort', `${sortItem.idx};${sortItem.dir}`);
+        }
+    } else {
+        params.append('sort', `${sort.idx};${sort.dir}`);
+    }
+    return params.toString();
+}

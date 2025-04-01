@@ -1,15 +1,10 @@
-import {
-    getColumnsFromUrl,
-    getSelectionFromUrl,
-    getSortFromUrl,
-    getTypeFromUrl,
-    StaticTable
-} from "../custom_table";
 import {getQueryParams} from "../../lib/utils";
 import {useMemo, useRef} from "react";
 import {OrderIdx} from "datatables.net";
 import {Link} from "react-router-dom";
 import {Button} from "../../components/ui/button";
+import { getColumnsFromUrl, getSelectionFromUrl, getSortFromUrl, getTypeFromUrl } from "../custom_table/table_util";
+import { StaticTable } from "../custom_table/StaticTable";
 
 function adaptColumns(columns: Map<string, string | null> | undefined): (string | [string, string])[] | undefined {
     if (!columns) return undefined;

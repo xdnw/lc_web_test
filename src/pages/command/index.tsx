@@ -1,4 +1,4 @@
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import CommandComponent from '../../components/cmd/CommandComponent'; // Import CommandComponent
 import { CommandStoreType, createCommandStore } from '@/utils/StateUtil.ts';
 import {Command, CM} from '@/utils/Command.ts';
@@ -20,7 +20,7 @@ export default function CommandPage() {
     // CM.cmdBuildTest()
 
     const [initialValues, setInitialValues] = useState<{ [key: string]: string }>(queryParamsToObject(getQueryParams()) as { [key: string]: string });
-    const commandStore = useRef(createCommandStoreWithDef(initialValues));
+    const commandStore = useMemo(() => createCommandStoreWithDef(initialValues), []);
 
     if (!cmdObj) {
         console.log("Not command");
@@ -30,9 +30,9 @@ export default function CommandPage() {
     return (
         <>
             <CommandComponent key={cmdObj.name} command={cmdObj} filterArguments={() => true} initialValues={initialValues}
-                setOutput={commandStore.current((state) => state.setOutput)}
+                setOutput={commandStore((state) => state.setOutput)}
             />
-            <OutputValuesDisplay name={cmdObj?.name} store={commandStore.current} />
+            <OutputValuesDisplay name={cmdObj?.name} store={commandStore} />
         </>
     );
 }
@@ -130,7 +130,7 @@ function runCommand({command, values, onResponse}: {
 
 function handleDialog({json, responseRef, showDialog}: {
     json: { [key: string]: string | object | object[] | number | number[] | string[] },
-    responseRef: React.RefObject<HTMLDivElement | null>,
+    responseRef?: React.RefObject<HTMLDivElement | null>,
     showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
 }): boolean {
     if (json['error'] && json['title']) {
@@ -141,7 +141,7 @@ function handleDialog({json, responseRef, showDialog}: {
     if (action) {
         if (action === "deleteByIds") {
             const ids: string[] = json['value'] as string[];
-            if (responseRef.current) {
+            if (responseRef && responseRef.current) {
                 ids.forEach(id => {
                     const element = responseRef.current?.querySelector(`#${id}`);
                     if (element) {
@@ -192,7 +192,7 @@ export function RenderResponse({jsonArr, showDialog}: {
         <div ref={responseRef}>
             {
                 jsonArr.map((json, i) => {
-                    if (handleDialog({json, responseRef, showDialog})) {
+                    if (handleDialog({json, showDialog})) {
                         return <div key={i}></div>;
                     }
                     return (

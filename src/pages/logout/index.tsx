@@ -1,6 +1,6 @@
 
 
-import {useCallback} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {Button} from "@/components/ui/button.tsx";
 import {Link} from "react-router-dom";
 import {LOGOUT} from "@/lib/endpoints";
@@ -10,18 +10,26 @@ import EndpointWrapper from "@/components/api/bulkwrapper";
 
 export function LogoutComponent() {
     const { showDialog } = useDialog();
+    const [shouldClearCookies, setShouldClearCookies] = useState(false);
+
+    // Effect to handle cookie clearing
+    useEffect(() => {
+        if (shouldClearCookies) {
+            document.cookie.split(";").forEach((c) => {
+                document.cookie = c
+                    .replace(/^ +/, "")
+                    .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            });
+            setShouldClearCookies(false);
+        }
+    }, [shouldClearCookies]);
 
     const logoutCallback = useCallback(() => {
         console.log("Logging out");
         // Clear localStorage
         window.localStorage.clear();
-
-        // Clear cookies
-        document.cookie.split(";").forEach((c) => {
-            document.cookie = c
-                .replace(/^ +/, "")
-                .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-        });
+        // Trigger cookie clearing via effect
+        setShouldClearCookies(true);
     }, []);
 
     return <EndpointWrapper endpoint={LOGOUT} args={{}}

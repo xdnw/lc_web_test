@@ -212,14 +212,17 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
             // Call refetch and handle the response
             refetch().then((observer) => {
                 const queryResult = observer.data as QueryResult<T>;
-                if (queryResult.error) {
-                    if (handle_error) handle_error(new Error(queryResult.error));
-                } else if (!queryResult.data) {
+                const error = observer.error as Error ?? queryResult?.error;
+                if (error) {
+                    if (handle_error) handle_error(typeof error === "string" ? new Error(error) : error);
+                } else if (!queryResult?.data) {
+                    console.log(observer);
                     if (handle_error) handle_error(new Error("No data returned"));
                 } else if (handle_response) {
                     handle_response(observer.data as Omit<QueryResult<T>, 'data'> & { data: NonNullable<QueryResult<T>['data']>; });
                 }
             }).catch((error) => {
+                console.log(error.stack);
                 if (handle_error) {
                     handle_error(error);
                 }

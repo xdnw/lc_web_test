@@ -1,10 +1,9 @@
 import ArgInput from "./ArgInput";
 import { Argument, Command } from "../../utils/Command";
 import { Label } from "../ui/label";
-import { CommandStoreType } from "@/utils/StateUtil";
-import {useCallback, useRef, useState} from "react";
-import {ChevronLeft, ChevronRight} from "lucide-react";
+import {useCallback, useMemo, useRef, useState} from "react";
 import MarkupRenderer from "../ui/MarkupRenderer";
+import LazyIcon from "../ui/LazyIcon";
 
 interface CommandProps {
     command: Command,
@@ -50,7 +49,7 @@ export default function CommandComponent({ command, overrideName, filterArgument
                                 {command.command.groups?.[group[0].arg.group || 0] ?? ''}
                             </p>
                             {groupDescExists &&
-                                <p className="">
+                                <p>
                                     {command.command.group_descs?.[group[0].arg.group || 0] ?? ''}
                                 </p>
                             }
@@ -86,7 +85,7 @@ export function ArgDescComponent(
     includeDesc?: boolean,
     includeExamples?: boolean,
 }) {
-    const hide = useRef<boolean>(!includeType && !includeDesc && !includeExamples);
+    const [hide, setHide] = useState<boolean>(!includeType && !includeDesc && !includeExamples);
     const desc = arg.getTypeDesc();
     const examples: string[] = arg.getExamples() || []
     const [ showType, setShowType ] = useState<boolean>(includeType);
@@ -95,34 +94,62 @@ export function ArgDescComponent(
 
     // useCallback, accepts boolean, sets hide to that value, and updates includeType, includeDesc, includeExamples
     const setHidden = useCallback((hidden: boolean) => {
-        hide.current = hidden;
+        setHide(hidden);
         setShowType(!hidden);
         setShowDesc(!hidden);
         setShowExamples(!hidden);
-    }, [hide, setShowType, setShowDesc, setShowExamples]);
+    }, [setHide, setShowType, setShowDesc, setShowExamples]);
+
+    const optionalBadge = useMemo(() => {
+        return arg.arg.optional 
+            ? <div className="inline-block bg-blue-400 text-blue-800 me-0.5 px-0.5">Optional</div>
+            : <div className="inline-block bg-red-400 text-red-800 me-0.5 px-0.5">Required</div>;
+    }, [arg.arg.optional]);
+
+    const toggleIcon = useMemo(() => {
+        return hide ?
+            <LazyIcon name="ChevronRight" className="rounded-sm ms-1 inline-block h-4 w-6 active:bg-background" /> :
+            <LazyIcon name="ChevronLeft" className="rounded-sm ms-1 inline-block h-4 w-6 active:bg-background" />;
+    }, [hide]);
+
+    const descriptionContent = useMemo(() => {
+        if (!showDesc) return null;
+        return (
+            <>
+                <br />
+                <p className="font-thin text-xs mb-1"><MarkupRenderer content={arg.arg.desc ?? ""} highlight={false} /></p>
+                {desc && <p className="font-thin text-xs"><MarkupRenderer content={desc} highlight={false} /></p>}
+            </>
+        );
+    }, [showDesc, arg.arg.desc, desc]);
+
+    const examplesContent = useMemo(() => {
+        if (!showExamples || examples.length === 0) return null;
+        return (
+            <p className="font-thin">
+                Examples:
+                <>
+                    {
+                        examples
+                        .map(example => <kbd key={example} className="bg-white bg-opacity-20">{example}</kbd>)
+                        .reduce((prev, curr) => <> {prev}, {curr} </>)
+                    }
+                </>
+            </p>
+        );
+    }, [showExamples, examples]);
 
     return (
-    <Label className="inline-block rounded-t-sm border border-slate-500 border-b-0 bg-accent m-0 p-1 align-top top-0 left-0 me-1 text-xs" style={{marginBottom:"-1px"}}>
-        {arg.arg.optional ? <div className="inline-block bg-blue-400 text-blue-800 me-0.5 px-0.5">Optional</div> :
-        <div className="inline-block bg-red-400 text-red-800 me-0.5 px-0.5">Required</div>}
-        <div className="inline-block cursor-pointer rounded border border-transparent hover:bg-background/50 hover:border hover:border-primary/20" onClick={() => setHidden(!hide.current)}>
-            <span className="bg-white/20 px-0.5">{arg.name}{showType ? ": " + arg.arg.type : ""}</span>
-            {hide.current ?
-                <ChevronRight className="rounded-sm ms-1 inline-block h-4 w-6 active:bg-background" /> :
-                <ChevronLeft className="rounded-sm ms-1 inline-block h-4 w-6 active:bg-background" />}
-        </div>
-        {showDesc && <>
-            <br/><p className="font-thin text-xs mb-1"><MarkupRenderer content={arg.arg.desc ?? ""} highlight={false}/></p>
-            {desc && <p className="font-thin text-xs"><MarkupRenderer content={desc} highlight={false} /></p>}
-        </>}
-        {showExamples && examples.length > 0 && (
-        <p className="font-thin">
-            Examples:
-            <>
-            {examples.map(example => <kbd key={example} className="bg-white bg-opacity-20">{example}</kbd>).reduce((prev, curr) => <> {prev}, {curr} </>)}
-            </>
-        </p>
-        )}
-    </Label>
+        <Label className="inline-block rounded-t-sm border border-slate-500 border-b-0 bg-accent m-0 p-1 align-top top-0 left-0 me-1 text-xs" style={{ marginBottom: "-1px" }}>
+            {optionalBadge}
+            <div className="inline-block cursor-pointer rounded border border-transparent hover:bg-background/50 hover:border hover:border-primary/20" onClick={() => setHidden(!hide)}>
+                <span className="bg-white/20 px-0.5">
+                    {arg.name}{showType ? ": " + arg.arg.type : ""}
+                </span>
+                {toggleIcon}
+            </div>
+            {descriptionContent}
+            {examplesContent}
+        </Label>
     );
 }

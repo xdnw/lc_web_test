@@ -17,7 +17,7 @@ export default function TriStateInput(
     };
 
     return (
-        <div className="">
+        <div>
             <Button size={'sm'}
                     className={`m-0 ${value === '-1' ? 'bg-red-500 text-secondary' : 'bg-gray-500'}`}
                     onClick={() => handleClick('-1')}

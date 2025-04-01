@@ -12,13 +12,13 @@ import { formatDuration, formatSi } from "@/utils/StringUtil.ts";
 import { COMMANDS } from "@/lib/commands.ts";
 import * as ApiTypes from "@/lib/apitypes";
 import { clamp } from "@/lib/utils.ts";
-import { ChevronDown, ChevronUp, ExternalLink, Plane, Sailboat, Settings, Shield } from "lucide-react";
 import { WebAudits, WebBankAccess } from "@/lib/apitypes";
 import { useDialog } from "../../components/layout/DialogContext";
 import RaidSection from "../raid";
 import { IOptionData } from "../../utils/Command";
 import EndpointWrapper from "@/components/api/bulkwrapper";
 import { ApiFormInputs } from "@/components/api/apiform";
+import LazyIcon from "@/components/ui/LazyIcon";
 
 export default function GuildMember() {
     return (
@@ -159,7 +159,7 @@ export function BankAccess({ access }: { access: WebBankAccess }) {
     return (
         <div className="p-1 mb-1 relative bg-accent rounded">
             {Object.keys(sections).map((section, key) => (
-                <div key={key} className="">
+                <div key={key}>
                     <h1 className="font-bold">{section}</h1>
                     {sections[section].map((action, key) => (
                         <Button
@@ -204,7 +204,7 @@ export function WarsComponent({ wars }: { wars: ApiTypes.WebMyWars }) {
             <div className="w-full">
                 <a href="https://politicsandwar.com/nation/war/"
                     className="text-2xl mt-2 font-bold underline hover:no-underline">
-                    {wars.offensives.length + wars.defensives.length}&nbsp;Active Wars<ExternalLink
+                    {wars.offensives.length + wars.defensives.length}&nbsp;Active Wars<LazyIcon name="ExternalLink"
                         className="inline h-5" /></a>
             </div>
             <div className="mt-1 text-sm relative w-full">
@@ -223,7 +223,7 @@ export function WarsComponent({ wars }: { wars: ApiTypes.WebMyWars }) {
                     {!wars.isFightingActives && (
                         <><Button variant="outline" size="sm" className="w-full" asChild>
                             <Link to="https://politicsandwar.com/nation/military/">
-                                Buy military <ExternalLink className="h-4" />
+                                Buy military <LazyIcon name="ExternalLink" className="h-4" />
                             </Link>
                         </Button>
                         </>
@@ -289,7 +289,7 @@ function BuyUnits({ me, mywars }: { me: ApiTypes.WebTarget, mywars: ApiTypes.Web
     return (
         <>
             Buy: {unitLinks.map((unit, index) => (
-                <Button variant="outline" size="sm" className="inline" asChild>
+                <Button key={unit.type} variant="outline" size="sm" className="inline" asChild>
                     <Link
                         key={index}
                         to={unit.url}
@@ -329,10 +329,10 @@ export function WarComponent({ me, war, isAttacker }: { me: ApiTypes.WebTarget, 
                         <td className="border border-gray-500/25 p-1"><a className="text-blue-500 hover:text-blue-600 active:text-blue-400 underline" href={`https://politicsandwar.com/nation/id=${war.target.id}`}>{war.target.nation}</a>
                             {war.target.active_ms > 2440 * 1000 * 60 && <span
                                 className="badge bg-secondary ms-1">inactive {formatDuration(Math.round((now_ms - war.target.active_ms) / 1000), 2)}</span>}
-                            {(isAttacker ? war.def_fortified : war.att_fortified) && <span className="badge bg-secondary ms-1" title="Fortified"><Shield className="h-4 inline" /></span>}
-                            {(war.blockade == 1) && <span className="badge bg-secondary ms-1" title="Blockaded"><Sailboat className="h-4 inline" /></span>}
-                            {(war.ac == -1) && <span className="badge bg-secondary ms-1" title="Air Control"><Plane className="h-4 inline" /></span>}
-                            {(war.gc == -1) && <span className="badge bg-secondary ms-1" title="Ground Control"><Settings className="h-4 inline" /></span>}
+                            {(isAttacker ? war.def_fortified : war.att_fortified) && <span className="badge bg-secondary ms-1" title="Fortified"><LazyIcon name="Shield" className="h-4 inline" /></span>}
+                            {(war.blockade == 1) && <span className="badge bg-secondary ms-1" title="Blockaded"><LazyIcon name="Sailboat" className="h-4 inline" /></span>}
+                            {(war.ac == -1) && <span className="badge bg-secondary ms-1" title="Air Control"><LazyIcon name="Plane" className="h-4 inline" /></span>}
+                            {(war.gc == -1) && <span className="badge bg-secondary ms-1" title="Ground Control"><LazyIcon name="Settings" className="h-4 inline" /></span>}
                             {war.iron_dome && <span className="badge bg-secondary ms-1" title="Iron Dome (30% chance to block missile)">ID</span>}
                             {war.vds && <span className="badge bg-secondary ms-1" title="Vital Defense System (25% chance to thwart nukes)">VDS</span>}
                         </td>
@@ -366,10 +366,10 @@ export function WarComponent({ me, war, isAttacker }: { me: ApiTypes.WebTarget, 
                     </tr>
                     <tr className="border-top border-1 border-secondary">
                         <td className="border border-gray-500/25 p-1"><a className="text-blue-500 hover:text-blue-600 active:text-blue-400 underline" href={`https://www.politicsandwar.com/nation/id=${me.id}`}>{me.nation}</a>
-                            {(!isAttacker ? war.def_fortified : war.att_fortified) && <span className="badge bg-secondary ms-1" title="Fortified"><Shield className="h-4 inline" /></span>}
-                            {(war.blockade == -1) && <span className="badge bg-secondary ms-1" title="Blockaded"><Sailboat className="h-4 inline" /></span>}
-                            {(war.ac == 1) && <span className="badge bg-secondary ms-1" title="Air Control"><Plane className="h-4 inline" /></span>}
-                            {(war.gc == 1) && <span className="badge bg-secondary ms-1" title="Ground Control"><Settings className="h-4 inline" /></span>}
+                            {(!isAttacker ? war.def_fortified : war.att_fortified) && <span className="badge bg-secondary ms-1" title="Fortified"><LazyIcon name="Shield" className="h-4 inline" /></span>}
+                            {(war.blockade == -1) && <span className="badge bg-secondary ms-1" title="Blockaded"><LazyIcon name="Sailboat" className="h-4 inline" /></span>}
+                            {(war.ac == 1) && <span className="badge bg-secondary ms-1" title="Air Control"><LazyIcon name="Plane" className="h-4 inline" /></span>}
+                            {(war.gc == 1) && <span className="badge bg-secondary ms-1" title="Ground Control"><LazyIcon name="Settings" className="h-4 inline" /></span>}
                         </td>
                         <td className="border border-gray-500/25 p-1"><a className="text-blue-500 hover:text-blue-600 active:text-blue-400 underline" href={`https://www.politicsandwar.com/alliance/id=${me.alliance_id}`}>{me.alliance}</a></td>
                         <td className="border border-gray-500/25 p-1">{me.cities}</td>
@@ -598,7 +598,7 @@ export function ShowOddsComponent({ me, war }: { me: ApiTypes.WebTarget, war: Ap
             aria-expanded={isOpen}
             aria-controls={`collapseodds${war.id}`}
         >
-            {isOpen ? <><ChevronUp className="inline" />Hide</> : <><ChevronDown
+            {isOpen ? <><LazyIcon name="ChevronUp" className="inline" />Hide</> : <><LazyIcon name="ChevronDown"
                 className="inline" />Show</>} odds
         </button>
         <div

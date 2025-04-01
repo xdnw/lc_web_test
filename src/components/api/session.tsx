@@ -3,12 +3,12 @@ import CopyToClipboard from '../ui/copytoclipboard';
 import { getDiscordAuthUrl } from '@/utils/Auth';
 import { Button } from '../ui/button.tsx';
 import { Link } from 'react-router-dom';
-import {Mail, ExternalLink, KeyRound, ChevronRight} from 'lucide-react';
 import { bulkQueryOptions } from '@/lib/queries.ts';
 import { SESSION } from '@/lib/endpoints.ts';
 import { QueryResult } from '@/lib/BulkQuery.ts';
 import { WebSession } from '@/lib/apitypes.js';
 import { useQuery } from '@tanstack/react-query';
+import LazyIcon from '../ui/LazyIcon.tsx';
 
 export function LoginPicker() {
     return (
@@ -26,17 +26,19 @@ export function LoginPicker() {
                     <div>
                         <p>On discord, use the Locutus command <CopyToClipboard text="/web" /></p>
                         <hr className="my-2" />
-                        <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link to={getDiscordAuthUrl()}><KeyRound size={16} />&nbsp;Login via Discord OAuth</Link></Button>
+                        <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link to={getDiscordAuthUrl()}><LazyIcon name="KeyRound" size={16} />&nbsp;Login via Discord OAuth</Link></Button>
                         <hr className="my-2" />
                         <b><u>What is discord?</u></b>
                         <p>Discord is a voice, video, and text chat app that's used to communicate and hang out with communities and friends.</p>
                         <p>Discord can be opened in browser or installed on your computer and mobile device.</p>
-                        <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link to="https://discord.com/download"><ExternalLink size={16}/>&nbsp;Download Discord</Link></Button>
+                        <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link to="https://discord.com/download"><LazyIcon name="ExternalLink" size={16} />&nbsp;Download Discord</Link></Button>
                     </div>
                 </TabsContent>
                 <TabsContent value="mail">
                     <div>
-                        <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link className='' to={`${process.env.BASE_PATH}nation_picker`}><Mail size={16}/>&nbsp;Send In-Game Mail</Link></Button>
+                        <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link className='' to={`${process.env.BASE_PATH}nation_picker`}>
+                        <LazyIcon name="Mail" size={16} />
+                        &nbsp;Send In-Game Mail</Link></Button>
                         <hr className="my-2" />
                         <h2 className='text-lg font-extrabold'>Here's what you need to do:</h2>
                         <ul className="list-decimal list-inside bg-secondary p-3 rounded">
@@ -134,7 +136,7 @@ export default function SessionInfo() {
                     asChild>
                 <Link
                     to={`${process.env.BASE_PATH}guild_member`}>View Guild Member
-                    Homepage<ChevronRight/></Link></Button>
+                    Homepage<LazyIcon name="ChevronRight" /></Link></Button>
         }
     </div>
 }

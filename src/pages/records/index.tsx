@@ -3,11 +3,11 @@ import { RECORDS } from "@/lib/endpoints";
 import Loading from "@/components/ui/loading.tsx";
 import { PaginatedList } from "@/components/ui/pagination.tsx";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import EndpointWrapper from "@/components/api/bulkwrapper";
 import { QueryResult } from "@/lib/BulkQuery";
 import { WebTable } from "@/lib/apitypes";
+import LazyIcon from "@/components/ui/LazyIcon";
 
 const Records = () => {
     const location = useLocation();
@@ -29,7 +29,7 @@ const Records = () => {
         <>
             <Button variant="outline" size="sm" asChild>
                 <Link to={`${process.env.BASE_PATH}balance`}>
-                    <ChevronLeft className="h-4 w-4" />Back
+                    <LazyIcon name="ChevronLeft" className="h-4 w-4" />Back
                 </Link>
             </Button>
             <EndpointWrapper endpoint={RECORDS} args={{}}>

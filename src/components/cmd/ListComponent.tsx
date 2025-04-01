@@ -262,7 +262,7 @@ export default function ListComponent(
                 <Button variant="outline" className="me-1" size="sm" onClick={selectAll}>
                     Select All
                 </Button>
-                <Button variant="outline" className="" size="sm" onClick={clearAll}>
+                <Button variant="outline" size="sm" onClick={clearAll}>
                     Clear
                 </Button>
                 </>

@@ -75,7 +75,7 @@ export default function MapInput(
                   }}/>
               </div>
               <div className="flex flex-col justify-end grow">
-                    <Button size="sm" className="" onClick={() => {
+                    <Button size="sm" onClick={() => {
                     const keyCopy = addKey;
                     const valueCopy = addValue;
                     if (keyCopy === "") {

@@ -11,12 +11,13 @@ import { IOptionData } from "../../utils/Command";
 import { WebSession, WebSuccess } from "../../lib/apitypes";
 import ArgInput from "../../components/cmd/ArgInput";
 import QueryComponent from "../../components/cmd/QueryComponent";
-import { CommandStoreType, createCommandStore } from "../../utils/StateUtil";
+import { CommandStoreType, createCommandStore, useDeepState, useSyncedState } from "../../utils/StateUtil";
 import { OutputValuesDisplay } from "../command";
 import Color from "../../components/renderer/Color";
 import { useSession } from "@/components/api/SessionContext";
 import { ApiFormInputs } from "@/components/api/apiform";
 import { cn } from "@/lib/utils";
+import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 
 type RaidOption = {
     endpoint: typeof RAID | typeof UNPROTECTED;
@@ -30,7 +31,8 @@ export default function RaidSection() {
 
     const { nation: nationParam } = useParams<{ nation: string }>();
     const { session, error, setSession, refetchSession } = useSession();
-    const [nation, setNation] = useState<string | undefined>(nationParam ?? session?.nation_name);
+    const [nation, setNation] = useSyncedState<string | undefined>(nationParam ?? session?.nation_name);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -127,30 +129,50 @@ export default function RaidSection() {
     // WebEnemyInfo = alliance ids, alliance names
     // war find options
 
-    return <div className="bg-light/10 border border-light/10 p-2 rounded mt-2">
-        <h1 className="text-2xl mt-2 font-bold">War / Raiding</h1>
-        {((!session || !session?.nation) && !nation) && <PickNation pickedNation={nation} updateNation={updateNation} />}
-        <div className="p-2 my-1 relative">
-            {/*<FetchEnemies setEnemies={setEnemies} />*/}
-            {/*{enemies && <DisplayEnemies />}*/}
-            Raiding: {nation && Object.keys(raiding).map((key, index) => (
-                <span key={index}>
-                    <RaidButton option={raiding[key]}
-                        endpoint={raiding[key].endpoint}
-                        setDesc={setDesc}
-                        setRaidOutput={setRaidOutput}
-                        nation={nation}
-                        loading={raidOutput === true} />
-                </span>
-            ))}
-            <br />
-            {desc && <div className="p-1 bg-primary/10">{desc}</div>}
-            <RaidOutput output={raidOutput} dismiss={() => {
-                setRaidOutput(null);
-                setDesc("")
-            }} />
+    const nationPicker = useMemo(() => {
+        return <PickNation pickedNation={nation} updateNation={updateNation} />
+    }, [nation, updateNation]);
+
+    const raidButtons = useMemo(() => {
+        return Object.keys(raiding).map((key, index) => (
+            <span key={index}>
+                <RaidButton 
+                    label={key}
+                    option={raiding[key]}
+                    endpoint={raiding[key].endpoint}
+                    setDesc={setDesc}
+                    setRaidOutput={setRaidOutput}
+                    nation={nation ?? ""}
+                    loading={false} />
+            </span>
+        ));
+    }, [nation, raiding]);
+
+    const descSection = useMemo(() => {
+        return desc && <div className="p-1 bg-primary/10">{desc}</div>;
+    }, [desc]);
+
+    const dismiss = useCallback(() => {
+        setRaidOutput(null);
+        setDesc("");
+    }, [setRaidOutput, setDesc]);
+
+    const output = useMemo(() => {
+        return <RaidOutput output={raidOutput} dismiss={dismiss} />
+    }, [raidOutput, dismiss]);
+
+    return (
+        <div className="bg-light/10 border border-light/10 p-2 rounded mt-2">
+            <h1 className="text-2xl mt-2 font-bold">War / Raiding</h1>
+            {((!session || !session?.nation) && !nation) && nationPicker}
+            <div className="p-2 my-1 relative">
+                Raiding: {nation && raidButtons}
+                <br />
+                {descSection}
+                {output}
+            </div>
         </div>
-    </div>;
+    );
 }
 
 export function PickNation({ pickedNation, updateNation }: { pickedNation?: string, updateNation: (nation: string) => void }) {
@@ -171,8 +193,9 @@ export function PickNation({ pickedNation, updateNation }: { pickedNation?: stri
     );
 }
 
-export function RaidButton({ option, endpoint, setRaidOutput, loading, setDesc, nation }: {
+export function RaidButton({ option, label, endpoint, setRaidOutput, loading, setDesc, nation }: {
     option: RaidOption,
+    label: string,
     endpoint: typeof RAID | typeof UNPROTECTED,
     setRaidOutput: (value: WebTargets | boolean | string | null) => void,
     loading: boolean,
@@ -180,38 +203,59 @@ export function RaidButton({ option, endpoint, setRaidOutput, loading, setDesc, 
     nation: string
 }) {
     const { showDialog } = useDialog();
+    const optionData = useMemo(() => {
+        return { ...option.default_values as { [key: string]: string }, nation: nation };
+    }, [option, nation]);
+
+    const handleResponse = useCallback(({ data }: { data: WebTargets }) => {
+        setDesc(option.description);
+        setRaidOutput(true);
+        setRaidOutput(data);
+    }, [option, setDesc, setRaidOutput]);
+
+    const handleError = useCallback((error: Error) => {
+        setRaidOutput(null);
+        showDialog("Error", error.message, true);
+    }, [setRaidOutput, showDialog]);
+
+    const myclasses = useMemo(() => {
+        return cn("mb-1 border-primary/20", { "cursor-wait disabled text-muted": loading });
+    }, [loading]);
+
     return <ApiFormInputs
         endpoint={endpoint}
-        default_values={option.default_values as { [key: string]: string }}
-        label={option.description}
-        handle_response={({ data }) => {
-            setDesc(option.description);
-            setRaidOutput(true);
-            setRaidOutput(data);
-        }}
-        handle_error={(error) => {
-            setRaidOutput(null);
-            showDialog("Error", error + "", true);
-        }}
-        classes={cn("mb-1 border-primary/20", { "cursor-wait disabled": loading })}
+        default_values={optionData}
+        label={label}
+        handle_response={handleResponse}
+        handle_error={handleError}
+        classes={myclasses}
     />
 }
 
 export function UnprotectedButton({ options, setRaidOutput, loading, desc, setDesc }: { options: { [key: string]: string }, setRaidOutput: (value: WebTargets | boolean | string | null) => void, loading: boolean, desc: string, setDesc: (value: string) => void }) {
     const { showDialog } = useDialog();
+    const handleResponse = useCallback(({ data }: { data: WebTargets }) => {
+        setDesc("Unprotected Nations");
+        setRaidOutput(true);
+        setRaidOutput(data);
+    }, [setDesc, setRaidOutput]);
+
+    const handleError = useCallback((error: Error) => {
+        setRaidOutput(null);
+        showDialog("Error", error.message, true);
+    }, [setRaidOutput, showDialog]);
+
+    const classes = useMemo(() => {
+        return cn("mb-1 border-primary/20", { "cursor-wait disabled text-muted": loading });
+    }, [loading]);
+
     return <ApiFormInputs
         endpoint={UNPROTECTED}
         default_values={options}
         label="unprotected"
-        handle_response={({ data }) => {
-            setDesc(desc);
-            setRaidOutput(data);
-        }}
-        handle_error={(error) => {
-            setRaidOutput(null);
-            showDialog("Error", error + "", true);
-        }}
-        classes={cn("mb-1 border-primary/20", { "cursor-wait disabled": loading })}
+        handle_response={handleResponse}
+        handle_error={handleError}
+        classes={classes}
     />
 }
 
@@ -220,36 +264,57 @@ const ranks: string[] = ((COMMANDS.options.Rank.options)).map((o) => o === "REMO
 export function RaidOutput({ output, dismiss }: { output: WebTargets | boolean | string | null, dismiss: () => void }) {
     if (!output) return <></>
     if (output === true) return (<Loading />);
-    const now_ms = Date.now();
+    
+    // This gets calculated on every render but could be memoized
+    const now_ms = useMemo(() => Date.now(), [output]); // Recalculate when output changes
     const targets = output as WebTargets;
+    
+    // Memoize the table header based on include_strength
+    const tableHeader = useMemo(() => (
+        <tr>
+            <th>Name</th>
+            <th>Alliance</th>
+            <th></th>
+            {targets.include_strength && <th>Strength</th>}
+            <th>Loot</th>
+            <th>Rank</th>
+            <th>Active</th>
+            <th>💂</th>
+            <th>⚙</th>
+            <th>✈</th>
+            <th>🚢</th>
+            <th>🔎</th>
+            <th>🚀</th>
+            <th>☢</th>
+            <th>Score</th>
+            <th>Infra</th>
+        </tr>
+    ), [targets.include_strength]);
+    
+    // Memoize the row generation
+    const tableRows = useMemo(() => (
+        [targets.self, ...targets.targets].map((target, index) => (
+            <WebTargetRow 
+                key={index} 
+                includeStrength={targets.include_strength} 
+                now={now_ms} 
+                self={targets.self} 
+                target={target}
+                classes={`even:bg-black/10 dark:even:bg-white/5 ${
+                    target.id === targets.self.id ? "border border-2 border-blue-500/50 bg-blue-500/20" : ""
+                }`} 
+            />
+        ))
+    ), [targets, now_ms]);
+    
     return (
         <div className="w-full">
             <table className="w-full text-sm table-auto">
                 <thead className="text-left">
-                    <tr>
-                        <th>Name</th>
-                        <th>Alliance</th>
-                        <th></th>
-                        {targets.include_strength && <th>Strength</th>}
-                        <th>Loot</th>
-                        <th>Rank</th>
-                        <th>Active</th>
-                        <th>💂</th>
-                        <th>⚙</th>
-                        <th>✈</th>
-                        <th>🚢</th>
-                        <th>🔎</th>
-                        <th>🚀</th>
-                        <th>☢</th>
-                        <th>Score</th>
-                        <th>Infra</th>
-                    </tr>
+                    {tableHeader}
                 </thead>
                 <tbody>
-                    {[targets.self, ...targets.targets].map((target, index) => (
-                        <WebTargetRow key={index} includeStrength={targets.include_strength} now={now_ms} self={targets.self} target={target}
-                            classes={`even:bg-black/10 dark:even:bg-white/5 ${target.id === targets.self.id ? "border border-2 border-blue-500/50 bg-blue-500/20" : ""}`} />
-                    ))}
+                    {tableRows}
                 </tbody>
             </table>
             <Button onClick={dismiss} variant="outline" size="sm" className="w-full">Dismiss</Button>

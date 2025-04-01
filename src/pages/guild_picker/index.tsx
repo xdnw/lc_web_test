@@ -3,7 +3,6 @@ import Cookies from 'js-cookie';
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button.tsx";
 import { SESSION, SET_GUILD } from "@/lib/endpoints";
-import { ChevronLeft } from "lucide-react";
 import { useDialog } from "../../components/layout/DialogContext";
 import { SetGuild } from "../../lib/apitypes";
 import { UNSET_GUILD } from "../../lib/endpoints";
@@ -11,6 +10,7 @@ import { useSession } from "@/components/api/SessionContext";
 import { ApiEndpoint } from "@/lib/BulkQuery";
 import { ApiFormInputs } from "@/components/api/apiform";
 import { useQueryClient } from "@tanstack/react-query";
+import LazyIcon from "@/components/ui/LazyIcon";
 
 
 const GuildPicker = () => {
@@ -31,7 +31,7 @@ const GuildPicker = () => {
         <>
             <Button variant="outline" size="sm" asChild>
                 <Link to={`${process.env.BASE_PATH}home`}>
-                    <ChevronLeft className="h-4 w-4" />Home
+                    <LazyIcon name="ChevronLeft" className="h-4 w-4" />Home
                 </Link>
             </Button>
             <div className="bg-light/10 border border-light/10 p-2 m-0 mt-2">

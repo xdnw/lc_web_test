@@ -1,12 +1,12 @@
 import { MULTI_V2} from "../../../lib/endpoints";
 import {getQueryParams} from "../../../lib/utils";
 import {Link, useParams} from "react-router-dom";
-import {TableWith2DData} from "../../custom_table";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {renderLink} from "./multi";
-import {ChevronDown, ChevronUp} from "lucide-react";
 import EndpointWrapper from "@/components/api/bulkwrapper";
+import { TableWith2DData } from "@/pages/custom_table/TableWith2dData";
+import LazyIcon from "@/components/ui/LazyIcon";
 
 export default function MultiV2() {
     const { nation } = useParams<{ nation: string }>();
@@ -16,7 +16,7 @@ export default function MultiV2() {
         <Button variant="ghost" size="md"
                 className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 justify-start"
                 onClick={() => setCollapse(f => !f)}>
-            Column descriptions {collapse ? <ChevronDown/> : <ChevronUp/>}
+            Column descriptions {collapse ? <LazyIcon name="ChevronDown" /> : <LazyIcon name="ChevronUp" />}
         </Button>
         <div className={`transition-all duration-200 ease-in-out ${collapse ? 'max-h-0 opacity-0 overflow-hidden' : 'p-2 opacity-100'}`}>
             <ul className="p-2">

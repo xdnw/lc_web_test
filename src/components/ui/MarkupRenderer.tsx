@@ -130,7 +130,7 @@ export function Embed({json, responseRef, showDialog}:
         <div className="msgEmbed font-mono" id={json.id}>
             <div className="markup messageContent"><MarkupRenderer content={json.content} highlight={true} embed={json} /></div>
             {embeds.map((embed, index) => (
-                <div className="" key={index}>
+                <div key={index}>
                     <div className="embed markup bg-accent mb-0.5">
                         <div className="embedGrid" style={{ borderColor: embed.color ? `#${embed.color.toString(16).padStart(6, "0")}` : 'transparent' }}>
                             {embed.author && (

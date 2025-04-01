@@ -13,8 +13,6 @@ import { suspenseQueryOptions } from "@/lib/queries";
 export function useDeepCompareMemo<T>(value: T): T {
     const [memoValue, setMemoValue] = useState(value);
 
-    console.log("RERENDER DEEP COMPARE MEMO");
-
     useEffect(() => {
         if (!deepEqual(value, memoValue)) {
             setMemoValue(value);
@@ -113,7 +111,7 @@ export function ErrorBoundaryFallback({
     return (
         <>
             <div role="alert" className="whitespace-pre-wrap bg-accent relative px-2 border-2 border-destructive">
-                <pre className="">{error.name}: {error.message}</pre>
+                <pre>{error.name}: {error.message}</pre>
             </div>
             <Button size="sm" variant="outline" onClick={handleRetry}>Try again</Button>
         </>

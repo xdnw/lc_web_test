@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { X } from 'lucide-react';
 import {Button} from "../ui/button";
+import LazyIcon from '../ui/LazyIcon';
 
 export function Remove(props: React.HTMLAttributes<HTMLButtonElement>) {
     return (
         <Button {...props} variant="outline" size="sm" className="p-0" asChild>
-            <X />
+            <LazyIcon name="X" />
         </Button>
     );
 }

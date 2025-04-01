@@ -5,7 +5,6 @@ import {
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu.tsx";
 import {Button} from "@/components/ui/button.tsx";
-import {Settings} from "lucide-react";
 import {Link} from "react-router-dom";
 import {SESSION} from "@/lib/endpoints";
 import {WebSession} from "@/lib/apitypes";
@@ -13,6 +12,7 @@ import LoggedOutDropdown from "./logged-out-dropdown";
 import { bulkQueryOptions } from "@/lib/queries";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../ui/loading";
+import LazyIcon from "../ui/LazyIcon";
 
 export default function LoggedInDropdown() {
     const { data, isFetching } = useQuery(bulkQueryOptions(SESSION.endpoint, {}));
@@ -27,7 +27,7 @@ export default function LoggedInDropdown() {
     <DropdownMenu>
         <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon" className="m-0.5 h-7 w-7 rounded-[6px] [&_svg]:size-3.5">
-                <Settings className="h-[1rem] w-[1rem] rotate-0 scale-100 transition-all" />
+                <LazyIcon name="Settings" className="h-[1rem] w-[1rem] rotate-0 scale-100 transition-all" />
                 <span className="sr-only">Profile Menu</span>
             </Button>
         </DropdownMenuTrigger>

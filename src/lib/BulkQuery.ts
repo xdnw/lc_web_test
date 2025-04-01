@@ -236,7 +236,7 @@ function dispatchBatch() {
                 for (let i = 0; i < arr.length; i++) {
                     let val: { [key: string]: JSONValue; } | null = arr[i];
                     const query = queriesToFetch[i];
-                    let error = val.success === false ? val.error ?? "Unknown Error (1)" : null;
+                    let error = val.success === false ? val.error ?? val.message ?? "Unknown Error (1)" : null;
                     if (val && !error) {
                         const cache = query.cache;
                         if (cache) {

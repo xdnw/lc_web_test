@@ -1,8 +1,8 @@
 import * as React from "react"
-import { CheckIcon, ClipboardIcon } from "lucide-react"
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip"
 import { Button, ButtonProps } from "./button.tsx"
+import LazyIcon from "./LazyIcon.tsx"
 
 export function BlockCopyButton({
     getText,
@@ -34,7 +34,7 @@ export function BlockCopyButton({
           {...props}
         >
           <span className="sr-only hidden">Copy</span>&#8203;
-          {hasCopied ? <CheckIcon /> : <ClipboardIcon className=""/>}
+          {hasCopied ? <LazyIcon name="CheckIcon" /> : <LazyIcon name="ClipboardIcon"/>}
         </Button>
       </TooltipTrigger>
       <TooltipContent>Copy code</TooltipContent>

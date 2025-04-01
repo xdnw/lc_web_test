@@ -11,7 +11,7 @@ export default function BooleanInput(
 ) {
     const [value, setValue] = useSyncedState(initialValue || '');
     return (
-        <label className="">
+        <label>
                 <Input type="checkbox" className="sr-only peer"
                     checked={value === "1" || value === "true"}
                     onChange={(e) => {

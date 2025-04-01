@@ -12,7 +12,6 @@ import Home from "./pages/home";
 import OAuth2 from "./pages/oauth2";
 import LoginPage from "./pages/login";
 import LogoutPage from "./pages/logout";
-import CustomTable from "@/pages/custom_table";
 import NationPicker from "@/pages/nation_picker";
 import GuildPicker from "@/pages/guild_picker";
 import LoginPickerPage from "@/pages/login_picker";
@@ -37,6 +36,7 @@ import MultiV2 from "./pages/a2/nation/multi_2";
 import ViewCommand from "./pages/command/view_command";
 import ReactGA from "react-ga4";
 import TestSuspense from "./pages/testinput/testsuspense";
+import CustomTable from "./pages/custom_table/TablePage";
 
 // process.env.GTAG_ID
 ReactGA.initialize(process.env.GTAG_ID as string);

@@ -1,11 +1,11 @@
 import {Link, useParams} from "react-router-dom";
 import {MULTI_BUSTER} from "../../../lib/endpoints";
-import {TableWith2DData} from "../../custom_table";
 import {getQueryParams} from "../../../lib/utils";
 import Timestamp from "../../../components/ui/timestamp";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import EndpointWrapper from "@/components/api/bulkwrapper";
+import { TableWith2DData } from "@/pages/custom_table/TableWith2dData";
 
 export function renderLink(id: number, name: string | number, type: 'nation' | 'alliance', banned: string | undefined, path?: string) {
     if (id == 0) return "None";

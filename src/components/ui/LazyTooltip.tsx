@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, ReactNode } from 'react';
 import styles from './lazytooltip.module.css';
 import {cn} from "../../lib/utils";
 import { Button } from "@/components/ui/button";
-import {X} from "lucide-react";
+import LazyIcon from './LazyIcon';
 
 interface TooltipProps {
     children: ReactNode;
@@ -184,7 +184,7 @@ const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, l
                         }}
                         variant="destructive" size="sm"
                         className="absolute top-0 right-0 p-1 text-red-500">
-                        <X/>
+                        <LazyIcon name="X"/>
                     </Button>
                     {content}
                     {renderProgressCircle()}

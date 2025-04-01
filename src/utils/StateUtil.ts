@@ -1,5 +1,29 @@
 import { create } from 'zustand';
-import { useEffect, useState} from 'react';
+import { useCallback, useEffect, useState} from 'react';
+import { deepEqual } from '@/lib/utils';
+
+/**
+ * Custom state hook that only updates when values are deeply different
+ * @param initialValue The initial state value
+ * @returns A stateful value and a function to update it
+ */
+export function useDeepState<T>(initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [state, setState] = useState<T>(initialValue);
+  
+  const setStateWithDeepComparison = useCallback((newValue: React.SetStateAction<T>) => {
+    setState(prevState => {
+      const resolvedNewValue = typeof newValue === 'function'
+        ? (newValue as (prevState: T) => T)(prevState)
+        : newValue;
+      if (deepEqual(prevState, resolvedNewValue)) {
+        return prevState;
+      }
+      return resolvedNewValue;
+    });
+  }, []);
+  
+  return [state, setStateWithDeepComparison];
+}
 
 /**
  * Set a value only if it has changed
@@ -11,7 +35,7 @@ export function useSyncedState<T>(initialValue: T): [T, React.Dispatch<React.Set
   const [lastInitial, setLastInitial] = useState<T>(initialValue);
 
   useEffect(() => {
-    if (initialValue !== lastInitial) {
+    if (!deepEqual(initialValue, lastInitial)) {
       setValue(initialValue);
       setLastInitial(initialValue);
     }
@@ -25,7 +49,7 @@ export function useSyncedStateFunc<T>(initialValue: string, parseValue: (value: 
   const [lastInitial, setLastInitial] = useState<string>(initialValue);
 
   useEffect(() => {
-    if (initialValue !== lastInitial) {
+    if (!deepEqual(initialValue, lastInitial)) {
       setValue(parseValue(initialValue));
       setLastInitial(initialValue);
     }
@@ -78,6 +102,7 @@ export function createCommandStoreWithDef(default_values: { [key: string]: strin
 }
 
 export type CommandStoreType = ReturnType<typeof createCommandStore>;
+
 
 // export function limitConcurrency(funcs, limit) {
 //   let active = 0;

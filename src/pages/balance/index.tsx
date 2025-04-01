@@ -4,13 +4,13 @@ import { COMMANDS } from "@/lib/commands.ts";
 import React, { ReactNode, useRef, useState } from "react";
 import { commafy } from "@/utils/StringUtil.ts";
 import { Button } from "@/components/ui/button.tsx";
-import { ChevronDown, ChevronLeft, ChevronUp } from "lucide-react";
 import { BlockCopyButton } from "@/components/ui/block-copy-button.tsx";
 import { TooltipProvider } from "@/components/ui/tooltip.tsx";
 import Loading from "@/components/ui/loading.tsx";
 import { WebBalance, WebTransferResult } from "../../lib/apitypes";
 import EndpointWrapper from "@/components/api/bulkwrapper";
 import { ApiFormInputs } from "@/components/api/apiform";
+import LazyIcon from "@/components/ui/LazyIcon";
 
 export default function BalancePage() {
     const { category } = useParams(); // TODO
@@ -54,7 +54,7 @@ function RenderBalance({ balance }: { balance: WebBalance }) {
     return <>
         <div className="mb-1">
             <Button variant="outline" size="sm" asChild><Link
-                to={`${process.env.BASE_PATH}guild_member`}><ChevronLeft className="h-4 w-4" />Back</Link></Button>
+                to={`${process.env.BASE_PATH}guild_member`}><LazyIcon name="ChevronLeft" className="h-4 w-4" />Back</Link></Button>
             <h1 className="text-2xl font-bold">Balance</h1>
             <div className="inline-block">
                 <div className="inline-block flex">
@@ -93,7 +93,7 @@ function RenderBalance({ balance }: { balance: WebBalance }) {
                     <Link to={`${process.env.BASE_PATH}records`}>View Transaction Records</Link>
                 </Button>
                 <Button variant="secondary" size="sm" onClick={toggleBreakdown} className="w-full">
-                    {showBreakdown ? <>Hide<ChevronUp /></> : <>Breakdown<ChevronDown /></>}
+                    {showBreakdown ? <>Hide<LazyIcon name="ChevronUp" /></> : <>Breakdown<LazyIcon name="ChevronDown" /></>}
                 </Button>
             </div>
             <div className={`transition-all duration-200 ease-in-out ${showBreakdown ? 'p-1 max-h-screen opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
@@ -140,7 +140,7 @@ export function WithdrawForm({ balance, amount, setLoading, setReactMessage }: {
             amount: toResourceString(amount),
             note: balance.is_aa ? "IGNORE" : "DEPOSIT",
         }}
-        label={<span className="transform rotate-90 flex items-center"><ChevronUp />Withdraw</span>}
+        label={<span className="transform rotate-90 flex items-center"><LazyIcon name="ChevronUp" />Withdraw</span>}
         handle_error={(error) => setReactMessage(<TransferError message={error.message} />)}
         classes="w-10 p-0 row-span-full h-50 flex items-center justify-center bg-destructive"
         handle_response={({ data }) => {
@@ -155,7 +155,7 @@ export function TransferSuccess({ message }: { message: WebTransferResult }) {
         <>
             <Button variant="outline" size="sm" asChild>
                 <Link to={`${process.env.BASE_PATH}guild_member`}>
-                    <ChevronLeft className="h-4 w-4" />Back
+                    <LazyIcon name="ChevronLeft" className="h-4 w-4" />Back
                 </Link>
             </Button>
             <div className={`${message.status_success ? "bg-green-100/10 text-green-500 border-green-400" : "bg-red-100/10 text-red-500 border-red-400"} border-2 px-4 py-3 relative`} role="alert">
@@ -188,7 +188,7 @@ export function TransferError({ message }: { message: string }) {
     return (
         <>
             <Button variant="outline" size="sm" asChild><Link
-                to={`${process.env.BASE_PATH}guild_member`}><ChevronLeft className="h-4 w-4" />Back</Link></Button>
+                to={`${process.env.BASE_PATH}guild_member`}><LazyIcon name="ChevronLeft" className="h-4 w-4" />Back</Link></Button>
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                 <strong className="font-bold">Error!</strong>
                 <span className="block sm:inline"> {message}</span>
