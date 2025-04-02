@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { OrderIdx } from 'datatables.net';
+import { OrderIdx } from './DataTable';
 import { COMMANDS } from "../../lib/commands";
 import { getQueryParams } from "../../lib/utils";
 import { DEFAULT_TABS } from "../../lib/layouts";

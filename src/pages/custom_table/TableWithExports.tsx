@@ -2,15 +2,13 @@ import CopyToClipboard from "@/components/ui/copytoclipboard";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { downloadTable } from "./table_util";
 import { ExportTypes } from "@/utils/StringUtil";
-import { Api } from 'datatables.net';
-import { DataTableRef } from "datatables.net-react";
 import { Button } from "@/components/ui/button";
 import { toPlaceholderName } from "@/utils/Command";
 import { useDialog } from "@/components/layout/DialogContext";
 import LazyIcon from "@/components/ui/LazyIcon";
 
 export function TableWithExports({ table, type, selection, columns }: {
-    table: React.RefObject<DataTableRef | null>,
+    table: React.RefObject<DataGridHandle | null>,
     type?: string,
     selection?: { [key: string]: string },
     columns?: Map<string, string | null>,

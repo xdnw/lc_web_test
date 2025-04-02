@@ -1,5 +1,4 @@
 import {COMMANDS} from "../../lib/commands";
-import {ObjectColumnRender} from "datatables.net";
 import {commafy, formatDuration, formatSi, formatTimeRelative, split} from "../../utils/StringUtil";
 import ReactDOMServer from 'react-dom/server';
 import {CM, ICommandMap, IOptionData} from "../../utils/Command";
@@ -7,6 +6,8 @@ import React, {ReactNode} from "react";
 import SimpleChart from "../../pages/graphs/SimpleChart.js";
 import {WebGraph} from "../../lib/apitypes.js";
 import Color from "../renderer/Color.js";
+import { ObjectColumnRender } from "@/pages/custom_table/DataTable.js";
+import { JSONValue } from "@/lib/internaltypes.js";
 
 export const RENDERERS: {[key: string]: ObjectColumnRender | undefined} = {
     money: {display: money},
@@ -18,7 +19,7 @@ export const RENDERERS: {[key: string]: ObjectColumnRender | undefined} = {
     normal: {display: autoMarkdown},
     text: undefined,
     json: {display: json},
-    graph: {display: Object.assign(graph, {isHtml: true})},
+    graph: {display: graph as unknown as (value: JSONValue) => ReactNode, isHtml: true},
     html: {display: html},
     duration_day: {display: duration_day},
     percent_100: {display: percent_100},
@@ -128,9 +129,14 @@ export function getRenderer(type: string): ObjectColumnRender | undefined {
     if (type.startsWith("enum:")) {
         const enumType = type.split(":")[1];
         const options = (CM.data.options[enumType] as IOptionData)?.options ?? [];
-        return Object.assign({
-            display: (value: number) => options[value],
-        }, {isEnum: true, options: options});
+        // return Object.assign({
+        //     display: (value: number) => options[value],
+        // }, {isEnum: true, options: options});
+        return {
+            display: (value: string | number | boolean | number[]) => options[value as number],
+            isEnum: true,
+            options: options,
+        };
     } else {
         return RENDERERS[type] ?? RENDERERS.text;
     }

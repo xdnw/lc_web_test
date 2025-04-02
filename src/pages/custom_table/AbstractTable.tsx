@@ -1,6 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
-import { DataTableRef } from 'datatables.net-react';
-import { Api, ConfigColumns, OrderIdx } from 'datatables.net';
+import React, { ReactNode, useCallback, useMemo, useRef, useState } from "react";
 import { TABLE } from "../../lib/endpoints";
 import { Button } from "../../components/ui/button";
 import { CopoToClipboardTextArea } from "../../components/ui/copytoclipboard";
@@ -11,16 +9,10 @@ import EndpointWrapper from "@/components/api/bulkwrapper";
 import { ApiFormInputs } from "@/components/api/apiform";
 import { TableWithExports } from "./TableWithExports";
 import { getQueryString, setTableVars, toSelAndModifierString } from "./table_util";
-import { MyTable } from "./TableWith2dData";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { bulkQueryOptions, singleQueryOptions } from "@/lib/queries";
-
-export type TableProps = {
-    type: string,
-    selection: { [key: string]: string },
-    columns: Map<string, string | null>,
-    sort: OrderIdx | OrderIdx[],
-}
+import { ConfigColumns, DataTable, OrderIdx } from "./DataTable";
+import { DataGridHandle } from "react-data-grid";
 
 export type TableInfo = {
     data: (string | number | number[])[][],
@@ -31,11 +23,18 @@ export type TableInfo = {
     sort: OrderIdx | OrderIdx[],
 }
 
+export type TableProps = {
+    type: string,
+    selection: { [key: string]: string },
+    columns: Map<string, string | null>,
+    sort: OrderIdx | OrderIdx[],
+}
+
 export function AbstractTableWithButtons({ getTableProps, load }: {
     getTableProps: () => TableProps,
     load: boolean
 }) {
-    const table = useRef<DataTableRef>(null);
+    const table = useRef<DataGridHandle>(null);
     const { showDialog } = useDialog();
 
     const [type, setType] = useState<string | null>(null);
@@ -49,7 +48,7 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
     const [columnsInfo, setColumnsInfo] = useState<ConfigColumns[]>([]);
     const [errors, setErrors] = useState<WebTableError[]>([]);
 
-    const [rerender, setRerender] = useState(0);
+    // const [rerender, setRerender] = useState(0);
 
     const getTablePropsFinal = useCallback(() => {
         const props = getTableProps();
@@ -61,63 +60,63 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
     }, [getTableProps]);
 
     const updateTable = useCallback((data: TableInfo) => {
-        if (table) {
-            const api = table.current!.dt() as Api;
-            api.destroy(false);
-        }
+        // if (table) {
+        //     const api = table.current!.dt() as Api;
+        //     api.destroy(false);
+        // }
         setData(data.data);
         setColumnsInfo(data.columnsInfo);
         setVisibleColumns(data.visibleColumns);
         setSearchSet(data.searchSet);
         setErrors(data.errors);
         setSortState(data.sort);
-        setRerender(prev => prev + 1);
-    }, [setData, setColumnsInfo, setVisibleColumns, setSearchSet, setErrors, setSortState, setRerender]);
+        // setRerender(prev => prev + 1);
+    }, [setData, setColumnsInfo, setVisibleColumns, setSearchSet, setErrors, setSortState]);
 
     const highlightRowOrColumn = useCallback((col?: number, row?: number) => {
-        const api = table.current!.dt() as Api;
-        const tableElem = api.table().container() as HTMLElement;
+        const tableElem = table?.current?.element;
         // remove all bg-red-500 from table th and td
-        const elemsWithRed = tableElem.querySelectorAll('.bg-red-500');
+        const elemsWithRed = tableElem?.querySelectorAll('.bg-red-500') || [];
         for (const elem of elemsWithRed) {
             elem.classList.remove('bg-red-500');
         }
-        if (row !== undefined && row !== null) {
-            const rawRowAtIndexRow = api.rows().data()[row];
-            const displayedRowIndex = api.rows((idx, data, node) => {
-                return data === rawRowAtIndexRow;
-            }).indexes()[0];
+        console.log("Highlighting row", row, "and column", col);
+        // if (row !== undefined && row !== null) {
+        //     const rawRowAtIndexRow = api.rows().data()[row];
+        //     const displayedRowIndex = api.rows((idx, data, node) => {
+        //         return data === rawRowAtIndexRow;
+        //     }).indexes()[0];
 
-            if (displayedRowIndex !== undefined) {
-                // Navigate to the page containing the row
-                const page = Math.floor(displayedRowIndex / api.page.len());
-                // if not current page
-                if (api.page() !== page) {
-                    api.page(page).draw(false);
-                }
+        //     if (displayedRowIndex !== undefined) {
+        //         // Navigate to the page containing the row
+        //         const page = Math.floor(displayedRowIndex / api.page.len());
+        //         // if not current page
+        //         if (api.page() !== page) {
+        //             api.page(page).draw(false);
+        //         }
 
-                const rowInCurrentPage = displayedRowIndex % api.page.len();
-                const rowElem = tableElem.querySelector(`tbody tr:nth-child(${rowInCurrentPage + 1})`);
-                if (rowElem) {
-                    if (col !== undefined && col !== null) {
-                        const td = rowElem.querySelector(`td:nth-child(${col + 2})`);
-                        if (td) {
-                            td.classList.add('bg-red-500');
-                        }
-                    } else {
-                        const tds = rowElem.querySelectorAll('td');
-                        for (const td of tds) {
-                            td.classList.add('bg-red-500');
-                        }
-                    }
-                }
-            }
-        } else if (col !== undefined && col !== null) {
-            const th = tableElem.querySelector(`thead th:nth-child(${col + 2})`);
-            if (th) {
-                th.classList.add('bg-red-500');
-            }
-        }
+        //         const rowInCurrentPage = displayedRowIndex % api.page.len();
+        //         const rowElem = tableElem.querySelector(`tbody tr:nth-child(${rowInCurrentPage + 1})`);
+        //         if (rowElem) {
+        //             if (col !== undefined && col !== null) {
+        //                 const td = rowElem.querySelector(`td:nth-child(${col + 2})`);
+        //                 if (td) {
+        //                     td.classList.add('bg-red-500');
+        //                 }
+        //             } else {
+        //                 const tds = rowElem.querySelectorAll('td');
+        //                 for (const td of tds) {
+        //                     td.classList.add('bg-red-500');
+        //                 }
+        //             }
+        //         }
+        //     }
+        // } else if (col !== undefined && col !== null) {
+        //     const th = tableElem.querySelector(`thead th:nth-child(${col + 2})`);
+        //     if (th) {
+        //         th.classList.add('bg-red-500');
+        //     }
+        // }
     }, [table]);
 
     const copy = useCallback(() => {
@@ -169,7 +168,7 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
         if (!type || !selection || !columns) return null;
         return (
             <TableWithExports 
-                table={table as React.RefObject<DataTableRef>} 
+                table={table as React.RefObject<DataGridHandle>} 
                 type={type} 
                 selection={selection} 
                 columns={columns} 
@@ -206,9 +205,9 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
             {exportsComponent}
             {shareButton}
             {errorsButton}
-            <MyTable
-                key={rerender}
-                table={table as React.RefObject<DataTableRef>}
+            <DataTable
+                // key={rerender}
+                table={table as React.RefObject<DataGridHandle>}
                 data={data}
                 columnsInfo={columnsInfo}
                 sort={sortState}
@@ -225,7 +224,7 @@ function LoadTable(
     {
         getTableProps: () => TableProps,
         updateTable: (data: TableInfo) => void,
-        table: React.RefObject<DataTableRef | null>,
+        table: React.RefObject<DataGridHandle | null>,
     }
 ) {
     const { showDialog } = useDialog();
@@ -287,7 +286,7 @@ function DeferTable(
     {
         getTableProps: () => TableProps,
         updateTable: (data: TableInfo) => void,
-        table: React.RefObject<DataTableRef | null>,
+        table: React.RefObject<DataGridHandle | null>,
     }
 ) {
     const { showDialog } = useDialog();

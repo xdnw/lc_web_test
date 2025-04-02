@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef } from "react";
-import { OrderIdx } from 'datatables.net';
+import { OrderIdx } from './DataTable';
 import { AbstractTableWithButtons, TableProps } from "./AbstractTable";
 
 export function StaticTable({ type, selection, columns, sort }: { type: string, selection: { [key: string]: string }, columns: (string | [string, string])[], sort: OrderIdx | OrderIdx[] | null }) {

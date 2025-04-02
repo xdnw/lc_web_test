@@ -17,7 +17,6 @@
 import { useDebounce, useDebouncedCallback } from 'use-debounce';
 import { Virtuoso } from 'react-virtuoso';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { OrderIdx } from 'datatables.net';
 import { Button } from "../../components/ui/button";
 import { COMMANDS } from "../../lib/commands";
 import { Command, CM, toPlaceholderName } from "../../utils/Command";
@@ -31,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import { getColOptions, getQueryString } from "./table_util";
 import { useDeepState } from "@/utils/StateUtil";
 import LazyIcon from '@/components/ui/LazyIcon';
+import { OrderIdx } from './DataTable';
 
 export interface PlaceholderTabsHandle {
     getType: () => keyof typeof COMMANDS.placeholders;

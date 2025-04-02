@@ -1,6 +1,6 @@
 import {COMMANDS} from "./commands";
-import {OrderIdx} from "datatables.net";
 import {CM} from "../utils/Command";
+import { OrderIdx } from "@/pages/custom_table/DataTable";
 
 interface Columns {
     value: (string | [string, string])[],

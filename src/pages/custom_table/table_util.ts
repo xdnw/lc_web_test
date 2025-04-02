@@ -1,5 +1,3 @@
-import DataTable, { DataTableRef } from 'datatables.net-react';
-import DT, { Api, ConfigColumns, ObjectColumnRender, OrderIdx } from 'datatables.net';
 import { COMMANDS } from "../../lib/commands";
 import { downloadCells, ExportType } from "../../utils/StringUtil";
 import { DEFAULT_TABS } from "../../lib/layouts";
@@ -8,6 +6,7 @@ import { getRenderer, isHtmlRenderer } from '@/components/ui/renderers';
 import { ReactNode } from 'react';
 import { CM, Command, STRIP_PREFIXES } from '@/utils/Command';
 import { TableInfo } from './AbstractTable';
+import { ConfigColumns, ObjectColumnRender, OrderIdx } from "./DataTable";
 
 export function setTableVars(
     newData: WebTable,
@@ -99,33 +98,33 @@ export function formatColName(str: string): string {
     }
 }
 
-export function downloadTable(api: Api, useClipboard: boolean, type: ExportType): [string, string] {
-    // Get the header
-    const header = api.columns().header().toArray().slice(1).map((headerCell: HTMLElement) => headerCell.innerText);
+// export function downloadTable(api: Api, useClipboard: boolean, type: ExportType): [string, string] {
+//     // Get the header
+//     const header = api.columns().header().toArray().slice(1).map((headerCell: HTMLElement) => headerCell.innerText);
 
-    // Get the rows
-    const rows = api.rows().data().toArray().map((row: (string | number)[]) => {
-        return header.map((_, index) => row[index]);
-    });
+//     // Get the rows
+//     const rows = api.rows().data().toArray().map((row: (string | number)[]) => {
+//         return header.map((_, index) => row[index]);
+//     });
 
-    // Combine header and rows
-    const data = [header, ...rows];
+//     // Combine header and rows
+//     const data = [header, ...rows];
 
-    api.columns().every((index) => {
-        const col = api.column(index);
-        const render = col.init().render as { isEnum: boolean, options: string[] } | undefined;
-        if (render && render.isEnum && render.options) {
-            data.forEach((row, rowIndex) => {
-                if (rowIndex > 0) { // Skip header row
-                    const enumId = row[index - 1] as number;
-                    row[index - 1] = render.options[enumId];
-                }
-            });
-        }
-    });
+//     api.columns().every((index) => {
+//         const col = api.column(index);
+//         const render = col.init().render as { isEnum: boolean, options: string[] } | undefined;
+//         if (render && render.isEnum && render.options) {
+//             data.forEach((row, rowIndex) => {
+//                 if (rowIndex > 0) { // Skip header row
+//                     const enumId = row[index - 1] as number;
+//                     row[index - 1] = render.options[enumId];
+//                 }
+//             });
+//         }
+//     });
 
-    return downloadCells(data, useClipboard, type);
-}
+//     return downloadCells(data, useClipboard, type);
+// }
 
 export function getTypeFromUrl(params: URLSearchParams): keyof typeof COMMANDS.placeholders | undefined {
     return params.get('type') as keyof typeof COMMANDS.placeholders ?? undefined;
