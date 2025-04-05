@@ -93,34 +93,6 @@ export function formatColName(str: string): string {
     }
 }
 
-// export function downloadTable(api: Api, useClipboard: boolean, type: ExportType): [string, string] {
-//     // Get the header
-//     const header = api.columns().header().toArray().slice(1).map((headerCell: HTMLElement) => headerCell.innerText);
-
-//     // Get the rows
-//     const rows = api.rows().data().toArray().map((row: (string | number)[]) => {
-//         return header.map((_, index) => row[index]);
-//     });
-
-//     // Combine header and rows
-//     const data = [header, ...rows];
-
-//     api.columns().every((index) => {
-//         const col = api.column(index);
-//         const render = col.init().render as { isEnum: boolean, options: string[] } | undefined;
-//         if (render && render.isEnum && render.options) {
-//             data.forEach((row, rowIndex) => {
-//                 if (rowIndex > 0) { // Skip header row
-//                     const enumId = row[index - 1] as number;
-//                     row[index - 1] = render.options[enumId];
-//                 }
-//             });
-//         }
-//     });
-
-//     return downloadCells(data, useClipboard, type);
-// }
-
 export function downloadTableData(data: JSONValue[][], columns: ConfigColumns[], useClipboard: boolean, type: ExportType): [string, string] {
     const header = columns.map((col) => col.title);
     const rows = data.map((row) => {

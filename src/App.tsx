@@ -29,7 +29,6 @@ import {ColMilGraph} from "./pages/graphs/col_mil_graph";
 import {ColTierGraph} from "./pages/graphs/col_tier_graph";
 import {ParamEditGraph} from "./pages/graphs/edit_graph";
 import {ParamViewGraph} from "./pages/graphs/view_graph";
-import DndTest from "./components/dnd/dnd";
 import Alliance from "./pages/a2/alliance/alliance";
 import MultiBuster from "./pages/a2/nation/multi";
 import MultiV2 from "./pages/a2/nation/multi_2";
@@ -90,20 +89,17 @@ export default function App() {
 
 
           {/* testing pages */}
-          {/*<Route path="/alliance" element={<Alliance />} />*/}
           <Route path="/test" element={<TestSuspense />} />
           <Route path="/view_command/:command" element={<ViewCommand />} />
           <Route path="/alliance/:alliance" element={<Alliance />} />
           <Route path="/multi/:nation" element={<MultiBuster />} />
           <Route path="/multi_v2/:nation" element={<MultiV2 />} />
-
-
-          <Route path="/admin" element={<Admin />} />
-
-          <Route path="/autocomplete" element={<AutoComplete />} />
+          
+          {/* <Route path="/admin" element={<Admin />} /> */}
+          {/* <Route path="/autocomplete" element={<AutoComplete />} /> */}
           {/* <Route path="/auto2" element={<AutoComplete2 />} /> */}
-          <Route path="/dnd" element={<DndTest />} />
-          <Route path="/testinput" element={<TestInput />} />
+          {/* <Route path="/dnd" element={<DndTest />} /> */}
+          {/* <Route path="/testinput" element={<TestInput />} /> */}
         </Routes>
         </PageView>} />
     </Routes>

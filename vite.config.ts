@@ -8,7 +8,9 @@ import tailwindcss from "@tailwindcss/vite";
 
 
 export default defineConfig(({ mode }) => {
-  const tsconfigPath = mode === 'development' ? './tsconfig.dev.json' : './tsconfig.prod.json';
+  const isDevelopment = mode === 'development';
+  const minify = isDevelopment || true;
+  const tsconfigPath = isDevelopment ? './tsconfig.dev.json' : './tsconfig.prod.json';
   return {
     plugins: [
       tailwindcss(),
@@ -25,13 +27,13 @@ export default defineConfig(({ mode }) => {
     ],
     define: {
       'global': 'window',
-      'process.env.BACKEND_URL': mode === 'development' ? JSON.stringify('http://localhost:8080/') : JSON.stringify('https://api.locutus.link/'),
-      'process.env.API_URL': mode === 'development' ? JSON.stringify('http://localhost:8080/api/') : JSON.stringify('https://api.locutus.link/api/'),
-      'process.env.EXTERNAL_URL': mode === 'development' ? JSON.stringify('http://localhost:5173/') : JSON.stringify('https://www.locutus.link/'),
+      'process.env.BACKEND_URL': isDevelopment ? JSON.stringify('http://localhost:8080/') : JSON.stringify('https://api.locutus.link/'),
+      'process.env.API_URL': isDevelopment ? JSON.stringify('http://localhost:8080/api/') : JSON.stringify('https://api.locutus.link/api/'),
+      'process.env.EXTERNAL_URL': isDevelopment ? JSON.stringify('http://localhost:5173/') : JSON.stringify('https://www.locutus.link/'),
       'process.env.APPLICATION': JSON.stringify('Locutus'),
       'process.env.ADMIN_ID': JSON.stringify("664156861033086987"),
-      'process.env.BOT_ID': mode === 'development' ? JSON.stringify("949151508702826496") : JSON.stringify("672237266940198960"),
-      'process.env.BOT_INVITE': mode === 'development' ? JSON.stringify("https://discord.com/api/oauth2/authorize?client_id=949151508702826496&permissions=395606879321&scope=bot") : JSON.stringify("https://discord.com/api/oauth2/authorize?client_id=672237266940198960&permissions=395606879321&scope=bot"),
+      'process.env.BOT_ID': isDevelopment ? JSON.stringify("949151508702826496") : JSON.stringify("672237266940198960"),
+      'process.env.BOT_INVITE': isDevelopment ? JSON.stringify("https://discord.com/api/oauth2/authorize?client_id=949151508702826496&permissions=395606879321&scope=bot") : JSON.stringify("https://discord.com/api/oauth2/authorize?client_id=672237266940198960&permissions=395606879321&scope=bot"),
       'process.env.ADMIN_NATION': JSON.stringify(189573),
       'process.env.DISCORD_INVITE': JSON.stringify("cUuskPDrB7"),
       'process.env.EMAIL': JSON.stringify("jessepaleg@gmail.com"),
@@ -41,7 +43,7 @@ export default defineConfig(({ mode }) => {
       'process.env.GTAG_ID': JSON.stringify('G-4J3KV26E2Z'),
       'process.env.TEST': JSON.stringify(true),
     },
-    base: '/', // mode === 'development' ? '/' : '/lc_cmd_react/',
+    base: '/', // isDevelopment ? '/' : '/lc_cmd_react/',
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
@@ -49,6 +51,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       minify: false,
+      minify: minify,
       rollupOptions: {
         output: {
           manualChunks: {

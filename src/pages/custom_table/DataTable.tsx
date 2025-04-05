@@ -183,7 +183,7 @@ export function DataTable({
           onColumnsReorder={onColumnsReorder}
           rowClass={(row: JSONValue[], rowIdx: number) =>
             `${rowIdx % 2 === 0 ? 'bg-black/5 dark:bg-white/5' : 'bg-transparent'} 
-            text-gray-900 dark:text-gray-200 w-full hover:bg-black/20 dark:hover:bg-white/20`
+            text-gray-900 dark:text-gray-200 hover:bg-black/20 dark:hover:bg-white/20`
           }
           rowHeight={25}
           renderers={{ noRowsFallback }}
