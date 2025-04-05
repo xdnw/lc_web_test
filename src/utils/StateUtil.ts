@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { useCallback, useEffect, useState} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { deepEqual } from '@/lib/utils';
 
 /**
@@ -9,7 +9,7 @@ import { deepEqual } from '@/lib/utils';
  */
 export function useDeepState<T>(initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [state, setState] = useState<T>(initialValue);
-  
+
   const setStateWithDeepComparison = useCallback((newValue: React.SetStateAction<T>) => {
     setState(prevState => {
       const resolvedNewValue = typeof newValue === 'function'
@@ -21,7 +21,7 @@ export function useDeepState<T>(initialValue: T): [T, React.Dispatch<React.SetSt
       return resolvedNewValue;
     });
   }, []);
-  
+
   return [state, setStateWithDeepComparison];
 }
 
@@ -59,46 +59,46 @@ export function useSyncedStateFunc<T>(initialValue: string, parseValue: (value: 
 }
 
 interface DataStore<T> {
-    data: T | undefined;
-    setData: (data: T) => void;
+  data: T | undefined;
+  setData: (data: T) => void;
 }
 
 export const createDataStore = <T>() => {
-    return create<DataStore<T>>((set) => ({
-        data: undefined,
-        setData: (data) => set({ data }),
-    }));
+  return create<DataStore<T>>((set) => ({
+    data: undefined,
+    setData: (data) => set({ data }),
+  }));
 };
 
 export const createDataStoreWithDef = <T>(default_data: T) => {
-    return create<DataStore<T>>((set) => ({
-        data: default_data,
-        setData: (data) => set({ data }),
-    }));
+  return create<DataStore<T>>((set) => ({
+    data: default_data,
+    setData: (data) => set({ data }),
+  }));
 }
 
 export function createCommandStore() {
-    return create<{ output: { [key: string]: string | string[] }; setOutput: (key: string, value: string) => void; }>((set) => ({
-        output: {},
-        setOutput: (key, value) => set((state) => {
-            const copy = { ...state.output };
-            if (value) copy[key] = value;
-            else delete copy[key];
-            return { output: copy };
-        }),
-    }));
+  return create<{ output: { [key: string]: string | string[] }; setOutput: (key: string, value: string) => void; }>((set) => ({
+    output: {},
+    setOutput: (key, value) => set((state) => {
+      const copy = { ...state.output };
+      if (value) copy[key] = value;
+      else delete copy[key];
+      return { output: copy };
+    }),
+  }));
 }
 
 export function createCommandStoreWithDef(default_values: { [key: string]: string | string[] }) {
-    return create<{ output: { [key: string]: string | string[] }; setOutput: (key: string, value: string) => void; }>((set) => ({
-        output: default_values,
-        setOutput: (key, value) => set((state) => {
-            const copy = { ...state.output };
-            if (value) copy[key] = value;
-            else delete copy[key];
-            return { output: copy };
-        }),
-    }));
+  return create<{ output: { [key: string]: string | string[] }; setOutput: (key: string, value: string) => void; }>((set) => ({
+    output: default_values,
+    setOutput: (key, value) => set((state) => {
+      const copy = { ...state.output };
+      if (value) copy[key] = value;
+      else delete copy[key];
+      return { output: copy };
+    }),
+  }));
 }
 
 export type CommandStoreType = ReturnType<typeof createCommandStore>;

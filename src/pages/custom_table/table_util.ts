@@ -7,47 +7,42 @@ import { ReactNode } from 'react';
 import { CM, Command, STRIP_PREFIXES } from '@/utils/Command';
 import { TableInfo } from './AbstractTable';
 import { ConfigColumns, ObjectColumnRender, OrderIdx } from "./DataTable";
+import { JSONValue } from "@/lib/internaltypes";
+import { sortData, toSortColumns } from "./sort";
 
-export function setTableVars(
+export function createTableInfo(
     newData: WebTable,
-    sort: OrderIdx | OrderIdx[],
+    sort: OrderIdx | OrderIdx[] | undefined,
     columns: Map<string, string | null>,
 ): TableInfo {
     const errors: WebTableError[] = newData.errors ?? [];
+    const sortColumns = toSortColumns(sort);
 
-    // const elem = api.table().container() as HTMLElement;
     const header: string[] = columns.size > 0 ? Array.from(columns).map(([key, value]) => value ?? key) : newData.cells[0] as string[];
-    const body = newData.cells.slice(1);
+    let data = newData.cells.slice(1);
     const renderFuncNames = newData.renderers;
-    const newColumnsInfo: ConfigColumns[] = header.map((col: string, index: number) => ({
+    let columnsInfo: ConfigColumns[] = header.map((col: string, index: number) => ({
         title: formatColName(col),
-        data: index,
+        index: index,
         render: renderFuncNames ? getRenderer(renderFuncNames[index]) : undefined,
     }));
-    // columns
-    const columnsInfo = newColumnsInfo;
+
+    console.log("SORT ", sortColumns, columnsInfo);
+
+    const sorted = (!sort || (Array.isArray(sort) && sort.length === 0) || data.length <= 1) ? undefined : sortData(data, sortColumns, columnsInfo);
+    if (sorted) {
+        data = sorted.data;
+        columnsInfo = sorted.columns;
+    } else {
+        console.log("No sorting applied or no data to sort.");
+    }
+
     // data
-    const data = body;
     // visibleColumns
     const visibleColumns = Array.from(Array(header.length).keys());
     // searchSet
     const searchSet: Set<number> = new Set<number>();
 
-    // // set table options sort to sortRef.current
-    // api.order(sort);
-
-    // // Check if the number of columns is different
-    // if (true || api.columns().count() !== header.length + 1) {
-    //     api.destroy(false);
-    //     console.log("Body", body);
-    // } else {
-    //     // Update the header
-    //     api.columns().header().each((elem: HTMLElement, index: number) => {
-    //         elem.innerText = index == 0 ? '#' : formatColName(header[index - 1]);
-    //     });
-    //     // Add new rows
-    //     api.clear().rows.add(body).draw();
-    // }
     return {
         errors: errors,
         columnsInfo: columnsInfo,
@@ -126,6 +121,15 @@ export function formatColName(str: string): string {
 //     return downloadCells(data, useClipboard, type);
 // }
 
+export function downloadTableData(data: JSONValue[][], columns: ConfigColumns[], useClipboard: boolean, type: ExportType): [string, string] {
+    const header = columns.map((col) => col.title);
+    const rows = data.map((row) => {
+        return columns.map((col) => row[col.index]);
+    });
+    const combinedData = [header, ...rows];
+    return downloadCells(combinedData as (string | number)[][], useClipboard, type);
+}
+
 export function getTypeFromUrl(params: URLSearchParams): keyof typeof COMMANDS.placeholders | undefined {
     return params.get('type') as keyof typeof COMMANDS.placeholders ?? undefined;
 }
@@ -169,6 +173,16 @@ export function getUrl(type: string, selection: string, columns: string[], sort?
     })}`;
 }
 
+export function toLegacySelection(type: string, selection: { [key: string]: string }): string {
+    const baseSelection = selection[""] ?? "";
+    const modifiers = Object.entries(selection)
+        .filter(([key]) => key !== "")
+        .map(([key, value]) => `(${key}: ${value})`)
+        .join(" ");
+
+    return modifiers ? `${type}:${baseSelection} [${modifiers}]` : `${type}:${baseSelection}`;
+}
+
 export function toSelAndModifierString(selAndModifiers: { [key: string]: string }): string | undefined {
     let sel = undefined;
     if (Object.keys(selAndModifiers).length === 1) {
@@ -185,7 +199,7 @@ export function getQueryString(
         sel?: string,
         selAndModifiers?: { [key: string]: string },
         columns: Map<string, string | null>,
-        sort: OrderIdx | OrderIdx[]
+        sort: OrderIdx | OrderIdx[] | undefined
     }
 ) {
     const params = new URLSearchParams();
@@ -204,12 +218,14 @@ export function getQueryString(
     columns.forEach((value, key) => {
         params.append('col', value ? `${key};${value}` : key);
     });
-    if (Array.isArray(sort)) {
-        for (const sortItem of sort) {
-            params.append('sort', `${sortItem.idx};${sortItem.dir}`);
+    if (sort) {
+        if (Array.isArray(sort)) {
+            for (const sortItem of sort) {
+                params.append('sort', `${sortItem.idx};${sortItem.dir}`);
+            }
+        } else {
+            params.append('sort', `${sort.idx};${sort.dir}`);
         }
-    } else {
-        params.append('sort', `${sort.idx};${sort.dir}`);
     }
     return params.toString();
 }

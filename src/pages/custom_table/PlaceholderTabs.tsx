@@ -58,10 +58,10 @@ export const PlaceholderTabs = forwardRef<PlaceholderTabsHandle, {
         getColumns: () => columns,
         getSort: () => sort,
     }), [type, selection, columns, sort]);
-    
+
     // Memoized values
     const phTypes = useMemo(() => CM.getPlaceholderTypes(false), []);
-    
+
     // Update query parameters based on current state
     const setQueryParam = useCallback(() => {
         const params = getQueryString({
@@ -93,7 +93,7 @@ export const PlaceholderTabs = forwardRef<PlaceholderTabsHandle, {
                 <Virtuoso
                     totalCount={phTypes.length}
                     style={{ height: '40px', width: '100%' }}
-                    horizontalDirection 
+                    horizontalDirection
                     itemContent={index => (
                         <TabsTrigger key={phTypes[index]} value={phTypes[index]} className='w-auto px-3'>
                             {toPlaceholderName(phTypes[index])}
@@ -115,16 +115,16 @@ export const PlaceholderTabs = forwardRef<PlaceholderTabsHandle, {
     }, [setSelectedTab, tabList]);
 
     const selectionSection = useMemo(() => {
-        return <SelectionSection 
-            type={type} 
-            selection={selection} 
+        return <SelectionSection
+            type={type}
+            selection={selection}
             setSelection={setSelection}
             selectedTab={type}
         />;
     }, [type, selection, setSelection]);
 
     const columnsSection = useMemo(() => {
-        return <ColumnsSection 
+        return <ColumnsSection
             type={type}
             columns={columns}
             setColumns={setColumns}
@@ -143,7 +143,7 @@ export const PlaceholderTabs = forwardRef<PlaceholderTabsHandle, {
     );
 });
 
-export function ColumnsSection({ 
+export function ColumnsSection({
     type,
     columns,
     setColumns,
@@ -159,24 +159,24 @@ export function ColumnsSection({
     showDialog: (title: string, message: string) => void,
 }) {
     const [collapseColumns, setCollapseColumns] = useState(false);
-    
+
     // Data refs that need to persist but don't affect rendering directly
     const [colTemplates, setColTemplates] = useDeepState(Object.keys(DEFAULT_TABS[type]?.columns ?? {}));
 
     useEffect(() => {
         setColTemplates(Object.keys(DEFAULT_TABS[type]?.columns ?? {}));
     }, [type]);
-    
+
     // Refs for DOM elements
     const addButton = useRef<HTMLButtonElement | null>(null);
     const colInputRef = useRef<HTMLInputElement | null>(null);
-    
-    
+
+
     // Move a column in the column list
     const moveColumn = useCallback((from: number, to: number) => {
         console.log("Moving column from", from, "to", to);
         const columnsArray = Array.from(columns);
-        
+
         // Check if the move is within bounds
         if (to < 0 || to >= columnsArray.length) {
             return;
@@ -186,36 +186,36 @@ export function ColumnsSection({
         const [movedColumn] = columnsArray.splice(from, 1);
         columnsArray.splice(to, 0, movedColumn);
         const newColumns = new Map(columnsArray);
-        
+
         // Update sort indices
         let newSort = sort;
         if (Array.isArray(sort)) {
             newSort = sort.map(sortItem => {
-                if (sortItem.idx === from + 1) {
-                    return { ...sortItem, idx: to + 1 };
-                } else if (sortItem.idx === to + 1) {
-                    return { ...sortItem, idx: from + 1 };
-                } else if (sortItem.idx > from + 1 && sortItem.idx <= to + 1) {
+                if (sortItem.idx === from) {
+                    return { ...sortItem, idx: to };
+                } else if (sortItem.idx === to) {
+                    return { ...sortItem, idx: from };
+                } else if (sortItem.idx > from && sortItem.idx <= to) {
                     return { ...sortItem, idx: sortItem.idx - 1 };
-                } else if (sortItem.idx < from + 1 && sortItem.idx >= to + 1) {
+                } else if (sortItem.idx < from && sortItem.idx >= to) {
                     return { ...sortItem, idx: sortItem.idx + 1 };
                 }
                 return sortItem;
             });
         } else {
             const singleSort = { ...sort };
-            if (singleSort.idx === from + 1) {
-                singleSort.idx = to + 1;
-            } else if (singleSort.idx === to + 1) {
-                singleSort.idx = from + 1;
-            } else if (singleSort.idx > from + 1 && singleSort.idx <= to + 1) {
+            if (singleSort.idx === from) {
+                singleSort.idx = to;
+            } else if (singleSort.idx === to) {
+                singleSort.idx = from;
+            } else if (singleSort.idx > from && singleSort.idx <= to) {
                 singleSort.idx = singleSort.idx - 1;
-            } else if (singleSort.idx < from + 1 && singleSort.idx >= to + 1) {
+            } else if (singleSort.idx < from && singleSort.idx >= to) {
                 singleSort.idx = singleSort.idx + 1;
             }
             newSort = singleSort;
         }
-        
+
         setColumns(newColumns);
         setSort(newSort);
     }, [columns, sort, setColumns, setSort]);
@@ -238,13 +238,13 @@ export function ColumnsSection({
             const element = document.activeElement as HTMLElement;
             const id = element?.id?.startsWith("btn-") ? element.id.split("-")[1] : "";
             if (!id) return;
-            
+
             const span = element.querySelector("span") as HTMLElement;
             const key = event.key;
             const currentValue = columns.get(id) || "";
-            
+
             const newColumns = new Map(columns);
-            
+
             if (key === "Backspace") {
                 const newValue = currentValue.slice(0, -1);
                 newColumns.set(id, newValue || null);
@@ -257,7 +257,7 @@ export function ColumnsSection({
                 newColumns.set(id, newValue);
                 span.firstChild!.textContent = `\u00A0as ${newValue}`;
             }
-            
+
             setColumns(newColumns);
         }
     }, [columns, setColumns]);
@@ -274,41 +274,41 @@ export function ColumnsSection({
     const handleAddColumn = useCallback(() => {
         const elem = colInputRef.current;
         if (!elem) return;
-        
+
         const value = elem.value;
         if (value === "") {
             showDialog("Column name cannot be empty", "Please enter a column name before adding");
             return;
         }
-        
+
         // Split by tab for multiple columns
         const values = value.split("\t");
         const errors = [];
         const newColumns = new Map(columns);
-        
+
         for (const val of values) {
             if (val === "") continue;
             const aliasSplit = val.split(";");
             if (!aliasSplit[0]) continue;
-            
+
             let columnKey = aliasSplit[0];
             if (!columnKey.includes("{") && !columnKey.includes("}")) {
                 columnKey = "{" + columnKey + "}";
             }
-            
+
             if (newColumns.has(columnKey) && newColumns.get(columnKey) === (aliasSplit[1] ?? null)) {
                 errors.push("Column `" + val + "` is already added");
                 continue;
             }
-            
+
             newColumns.set(columnKey, aliasSplit[1] || null);
         }
-        
+
         elem.value = "";
         if (errors.length > 0) {
             showDialog("Errors adding columns", errors.join("\n"));
         }
-        
+
         setColumns(newColumns);
     }, [columns, showDialog, setColumns]);
 
@@ -323,7 +323,7 @@ export function ColumnsSection({
             }
         }));
         const newSort = colInfo?.sort || { idx: 0, dir: 'asc' };
-        
+
         setColumns(newColumns);
         setSort(newSort);
     }, [type, setColumns, setSort]);
@@ -332,25 +332,25 @@ export function ColumnsSection({
     const removeColumn = useCallback((colInfo: [string, string | null], index: number) => {
         const newColumns = new Map(columns);
         newColumns.delete(colInfo[0]);
-        
+
         let newSort = sort;
         if (Array.isArray(sort)) {
             newSort = sort
-                .filter(sortItem => sortItem.idx !== index + 1)
+                .filter(sortItem => sortItem.idx !== index)
                 .map(sortItem => ({
                     ...sortItem,
-                    idx: sortItem.idx > index + 1 ? sortItem.idx - 1 : sortItem.idx
+                    idx: sortItem.idx > index ? sortItem.idx - 1 : sortItem.idx
                 }));
         } else {
             const singleSort = { ...sort };
-            if (singleSort.idx === index + 1) {
+            if (singleSort.idx === index) {
                 singleSort.idx = 0;
-            } else if (singleSort.idx > index + 1) {
+            } else if (singleSort.idx > index) {
                 singleSort.idx = singleSort.idx - 1;
             }
             newSort = singleSort;
         }
-        
+
         setColumns(newColumns);
         setSort(newSort);
     }, [columns, sort, setColumns, setSort]);
@@ -358,9 +358,9 @@ export function ColumnsSection({
     // Handle column sorting
     const handleColumnSort = useCallback((index: number, shiftKey: boolean) => {
         let newSort = sort;
-        
+
         if (Array.isArray(sort)) {
-            const sortIndex = sort.findIndex(sortItem => sortItem.idx === index + 1);
+            const sortIndex = sort.findIndex(sortItem => sortItem.idx === index);
             if (sortIndex !== -1) {
                 const sortArray = [...sort];
                 if (sortArray[sortIndex].dir === 'asc') {
@@ -371,23 +371,23 @@ export function ColumnsSection({
                 newSort = sortArray;
             } else {
                 if (shiftKey && sort.length > 0) {
-                    newSort = [...sort, { idx: index + 1, dir: 'asc' }];
+                    newSort = [...sort, { idx: index, dir: 'asc' }];
                 } else {
-                    newSort = { idx: index + 1, dir: 'asc' };
+                    newSort = { idx: index, dir: 'asc' };
                 }
             }
-        } else if (sort.idx !== index + 1) {
+        } else if (sort.idx !== index) {
             if (shiftKey && sort.idx !== 0) {
-                newSort = [{ idx: sort.idx, dir: sort.dir }, { idx: index + 1, dir: 'asc' }];
+                newSort = [{ idx: sort.idx, dir: sort.dir }, { idx: index, dir: 'asc' }];
             } else {
-                newSort = { idx: index + 1, dir: 'asc' };
+                newSort = { idx: index, dir: 'asc' };
             }
         } else if (sort.dir === 'asc') {
-            newSort = { idx: index + 1, dir: 'desc' };
+            newSort = { idx: index, dir: 'desc' };
         } else {
             newSort = { idx: 0, dir: 'asc' };
         }
-        
+
         setSort(newSort);
     }, [sort, setSort]);
 
@@ -407,8 +407,8 @@ export function ColumnsSection({
 
     return (
         <div className="bg-light/10 border border-light/10 rounded mt-2">
-            <Button 
-                variant="ghost" 
+            <Button
+                variant="ghost"
                 size="md"
                 className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 rounded-t justify-start"
                 onClick={() => setCollapseColumns(!collapseColumns)}
@@ -428,8 +428,8 @@ export function ColumnsSection({
                         {column}
                     </Button>
                 ))}
-                
-                <ColumnList 
+
+                <ColumnList
                     columns={columns}
                     sort={sort}
                     moveColumn={moveColumn}
@@ -437,7 +437,7 @@ export function ColumnsSection({
                     handleColumnSort={handleColumnSort}
                     clearAllColumns={clearAllColumns}
                 />
-                
+
                 <AddCustomColumn
                     colInputRef={colInputRef}
                     addButton={addButton}
@@ -445,7 +445,7 @@ export function ColumnsSection({
                     handleAddColumn={handleAddColumn}
                     type={type}
                 />
-                
+
                 <SimpleColumnOptions
                     type={type}
                     columns={columns}
@@ -475,16 +475,16 @@ function ColumnList({
         <>
             <h2 className="text-lg mt-1 pb-0 mb-0">Current Columns</h2>
             <span className="text-sm opacity-50 p-0 m-0">
-                left-click to remove | middle-click to sort | shift+middle to sort by multiple | 
+                left-click to remove | middle-click to sort | shift+middle to sort by multiple |
                 right click and type/backspace to edit alias | clipboard button to copy
             </span><br />
-            
+
             <div className="inline-flex flex-wrap">
                 {Array.from(columns).map((colInfo, index) => (
                     <span key={`spw-${index}`} className="inline-flex items-center bg-background rounded me-1 mb-1">
-                        <LazyIcon name="ChevronLeft" 
-                            className="cursor-pointer w-4 h-6 rounded-s hover:bg-accent" 
-                            onClick={() => moveColumn(index, index - 1)} 
+                        <LazyIcon name="ChevronLeft"
+                            className="cursor-pointer w-4 h-6 rounded-s hover:bg-accent"
+                            onClick={() => moveColumn(index, index - 1)}
                         />
                         <Button
                             key={colInfo[0]}
@@ -511,42 +511,42 @@ function ColumnList({
                             </span>
                             {Array.isArray(sort) ? (
                                 sort.map((sortItem, sortIndex) => (
-                                    sortItem.idx === index + 1 && (
+                                    sortItem.idx === index && (
                                         <span key={`sort-${index}-${sortIndex}`} className="bg-red-400 dark:bg-red-900 text-xs ml-1">
                                             {sortItem.dir} ({sortIndex + 1})
                                         </span>
                                     )
                                 ))
                             ) : (
-                                sort.idx === index + 1 && (
+                                sort.idx === index && (
                                     <span key={`sort-${index}`} className="bg-red-400 dark:bg-red-900 text-xs ml-1">
                                         {sort.dir}
                                     </span>
                                 )
                             )}
                         </Button>
-                        <LazyIcon name="ChevronRight" 
-                            className="cursor-pointer inline-block w-4 rounded-e hover:bg-accent align-middle" 
-                            onClick={() => moveColumn(index, index + 1)} 
+                        <LazyIcon name="ChevronRight"
+                            className="cursor-pointer inline-block w-4 rounded-e hover:bg-accent align-middle"
+                            onClick={() => moveColumn(index, index + 1)}
                         />
                     </span>
                 ))}
-                
+
                 <TooltipProvider>
-                    <BlockCopyButton 
+                    <BlockCopyButton
                         getText={() => {
-                            return Array.from(columns).map(([key, value]) => 
+                            return Array.from(columns).map(([key, value]) =>
                                 value ? `${key};${value}` : key).join("\n");
-                        }} 
-                        className="rounded [&_svg]:size-3.5 me-1" 
-                        size="sm" 
+                        }}
+                        className="rounded [&_svg]:size-3.5 me-1"
+                        size="sm"
                     />
                 </TooltipProvider>
-                
-                <Button 
-                    variant="destructive" 
-                    size="sm" 
-                    className="rounded" 
+
+                <Button
+                    variant="destructive"
+                    size="sm"
+                    className="rounded"
                     onClick={clearAllColumns}
                 >
                     X
@@ -556,18 +556,18 @@ function ColumnList({
     );
 }
 
-function AddCustomColumn({ colInputRef, addButton, handleAddColumn, handlePaste, type }: { 
-    colInputRef: React.RefObject<HTMLInputElement | null>, 
-    addButton: React.RefObject<HTMLButtonElement | null>, 
+function AddCustomColumn({ colInputRef, addButton, handleAddColumn, handlePaste, type }: {
+    colInputRef: React.RefObject<HTMLInputElement | null>,
+    addButton: React.RefObject<HTMLButtonElement | null>,
     handleAddColumn: () => void,
     handlePaste: (event: React.ClipboardEvent<HTMLInputElement>) => void,
     type: keyof typeof COMMANDS.placeholders
-  }) {
+}) {
     const [inputValue, setInputValue] = useState("");
     // Cache the latest input value to use in our onKeyDown handler without making it a dependency
     const inputValueRef = useRef(inputValue);
-    useEffect(() => { 
-        inputValueRef.current = inputValue; 
+    useEffect(() => {
+        inputValueRef.current = inputValue;
     }, [inputValue]);
 
     // onKeyDown uses the ref so it does not have to update whenever inputValue changes.
@@ -607,7 +607,7 @@ function AddCustomColumn({ colInputRef, addButton, handleAddColumn, handlePaste,
         <>
             <h2 className="text-lg mt-1 mb-0 p-0">Add Custom</h2>
             <span className="text-sm opacity-50">
-                type or paste in the placeholder, then press Enter | Use tab for multiple | 
+                type or paste in the placeholder, then press Enter | Use tab for multiple |
                 Use semicolon ;BLAH for column alias
             </span>
         </>
@@ -658,10 +658,10 @@ function AddCustomColumn({ colInputRef, addButton, handleAddColumn, handlePaste,
 
     // Memoize the footer link.
     const footerLink = useMemo(() => (
-        <a 
+        <a
             href={`https://github.com/xdnw/locutus/wiki/${type}_placeholders`}
             className="text-xs text-blue-800 dark:text-blue-400 underline hover:no-underline active:underline"
-            target="_blank" 
+            target="_blank"
             rel="noreferrer"
         >
             View All {type} Placeholders
@@ -679,22 +679,22 @@ function AddCustomColumn({ colInputRef, addButton, handleAddColumn, handlePaste,
 
 // Create a memoized button component to prevent unnecessary re-renders
 const OptionButton = React.memo(({ option, isHidden, onClick }: {
-  option: [string, string],
-  isHidden: boolean,
-  onClick: () => void
+    option: [string, string],
+    isHidden: boolean,
+    onClick: () => void
 }) => {
-  if (isHidden) return null;
-  
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      className="me-1 mb-1"
-      onClick={onClick}
-    >
-      {option[0]}:&nbsp;<span className="text-xs opacity-50">{option[1]}</span>
-    </Button>
-  );
+    if (isHidden) return null;
+
+    return (
+        <Button
+            variant="outline"
+            size="sm"
+            className="me-1 mb-1"
+            onClick={onClick}
+        >
+            {option[0]}:&nbsp;<span className="text-xs opacity-50">{option[1]}</span>
+        </Button>
+    );
 });
 
 function SimpleColumnOptions({
@@ -711,44 +711,44 @@ function SimpleColumnOptions({
     const [filter, setFilter] = useState("");
     const [debouncedFilter] = useDebounce(filter, 150);
     const containerRef = useRef<HTMLDivElement>(null);
-    
+
     // Only load options data when section is expanded
     const colOptionsData = useMemo(
-        () => collapseColOptions ? [] : getColOptions(type), 
+        () => collapseColOptions ? [] : getColOptions(type),
         [type, collapseColOptions]
     );
-    
+
     // Apply filtering with debounced value
-    const filteredOptions = useMemo(() => 
-        colOptionsData.filter(([key, value]) => 
-            !debouncedFilter || 
-            key.toLowerCase().includes(debouncedFilter.toLowerCase()) || 
+    const filteredOptions = useMemo(() =>
+        colOptionsData.filter(([key, value]) =>
+            !debouncedFilter ||
+            key.toLowerCase().includes(debouncedFilter.toLowerCase()) ||
             value.toLowerCase().includes(debouncedFilter.toLowerCase())
         ),
         [colOptionsData, debouncedFilter]
     );
-    
+
     // Group options into rows of approximately 100px each for virtualization
     const [containerWidth, setContainerWidth] = useState(0);
-    
+
     useEffect(() => {
         if (!collapseColOptions && containerRef.current) {
             const resizeObserver = new ResizeObserver(entries => {
                 const { width } = entries[0].contentRect;
                 setContainerWidth(width);
             });
-            
+
             resizeObserver.observe(containerRef.current);
             return () => resizeObserver.disconnect();
         }
     }, [collapseColOptions]);
-    
+
     // Memoized handler for adding columns
     const handleAddSimpleColumn = useCallback(
         (option: [string, string]) => addSimpleColumn(option),
         [addSimpleColumn]
     );
-    
+
     // Group options into chunks for better virtualization
     const CHUNK_SIZE = 15; // Adjust based on average number of buttons per row
     const chunkedOptions = useMemo(() => {
@@ -758,18 +758,18 @@ function SimpleColumnOptions({
         }
         return chunks;
     }, [filteredOptions]);
-    
+
     return (
         <div className="bg-secondary rounded">
-            <Button 
-                variant="ghost" 
+            <Button
+                variant="ghost"
                 size="sm"
                 className="text-lg w-full border-b border-secondary px-2 bg-primary/10 rounded justify-start"
                 onClick={() => setCollapseColOptions(!collapseColOptions)}
             >
                 Add Simple {collapseColOptions ? <LazyIcon name="ChevronDown" /> : <LazyIcon name="ChevronUp" />}
             </Button>
-            
+
             <div className={`transition-all duration-200 ease-in-out ${collapseColOptions ? 'max-h-0 opacity-0 overflow-hidden' : 'px-2 pt-2 opacity-100'}`}>
                 <input
                     ref={filterRef}
@@ -779,7 +779,7 @@ function SimpleColumnOptions({
                     value={filter}
                     onChange={(e) => setFilter(e.target.value.toLowerCase())}
                 />
-                
+
                 <div ref={containerRef} className="w-full">
                     {!collapseColOptions && chunkedOptions.length > 0 && (
                         <Virtuoso
@@ -792,7 +792,7 @@ function SimpleColumnOptions({
                                         {chunk.map((option, i) => {
                                             const isHidden = columns.has("{" + option[0] + "}");
                                             if (isHidden) return null;
-                                            
+
                                             return (
                                                 <OptionButton
                                                     key={`${index}-${i}`}
@@ -807,14 +807,14 @@ function SimpleColumnOptions({
                             }}
                         />
                     )}
-                    
+
                     {!collapseColOptions && filteredOptions.length === 0 && (
                         <div className="py-2 text-center text-muted-foreground">
                             No matching options found
                         </div>
                     )}
                 </div>
-                
+
                 {filteredOptions.length > 100 && (
                     <div className="text-center text-xs text-muted-foreground">
                         Showing all {filteredOptions.length} options
@@ -825,7 +825,7 @@ function SimpleColumnOptions({
     );
 }
 
-export function SelectionSection({ 
+export function SelectionSection({
     type,
     selection,
     setSelection,
@@ -839,12 +839,12 @@ export function SelectionSection({
     const [collapsed, setCollapsed] = useState(false);
     const [selInputValue, setSelInputValue] = useState(selection[""]);
     const selTemplates = useMemo(() => Object.keys(DEFAULT_TABS[type]?.selections ?? {}), [type]);
-    
+
     // Update local input value when selection changes from parent
     useEffect(() => {
         setSelInputValue(selection[""]);
     }, [selection]);
-    
+
     // Update when tab changes
     useEffect(() => {
         if (type !== selectedTab) {
@@ -853,7 +853,7 @@ export function SelectionSection({
             setSelInputValue(newSelection[""]);
         }
     }, [type, selectedTab, setSelection]);
-    
+
     // Create a debounced version of the selection update
     const debouncedSetSelection = useDebouncedCallback(
         (newValue: string) => {
@@ -877,8 +877,8 @@ export function SelectionSection({
 
     // Memoized component parts
     const headerButton = useMemo(() => (
-        <Button 
-            variant="ghost" 
+        <Button
+            variant="ghost"
             size="md"
             className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 rounded-t justify-start"
             onClick={() => setCollapsed(!collapsed)}
@@ -910,17 +910,17 @@ export function SelectionSection({
         <>
             <h2 className="text-lg my-1">Current Selection</h2>
             <div className="flex items-center">
-                <Input 
+                <Input
                     className="relative px-1 w-full"
-                    type="text" 
+                    type="text"
                     value={selInputValue}
                     onChange={handleSelectionChange}
                 />
                 <TooltipProvider>
-                    <BlockCopyButton 
+                    <BlockCopyButton
                         getText={getSelectionText}
-                        className="rounded-[6px] [&_svg]:size-3.5 ml-2" 
-                        size="sm" 
+                        className="rounded-[6px] [&_svg]:size-3.5 ml-2"
+                        size="sm"
                     />
                 </TooltipProvider>
             </div>
@@ -929,19 +929,19 @@ export function SelectionSection({
 
     const modifierComponent = useMemo(() => (
         CM.placeholders(type).getCreate() && (
-            <ModifierComponent 
-                modifier={CM.placeholders(type).getCreate() as Command} 
-                selection={selection} 
+            <ModifierComponent
+                modifier={CM.placeholders(type).getCreate() as Command}
+                selection={selection}
                 setSelection={setSelection}
             />
         )
     ), [type, selection, setSelection]);
 
     const footerLink = useMemo(() => (
-        <a 
+        <a
             href={`https://github.com/xdnw/locutus/wiki/${toPlaceholderName(type)}_placeholders`}
             className="text-xs text-blue-800 dark:text-blue-400 underline hover:no-underline active:underline"
-            target="_blank" 
+            target="_blank"
             rel="noreferrer"
         >
             View All {toPlaceholderName(type)} Filters
@@ -949,9 +949,9 @@ export function SelectionSection({
     ), [type]);
 
     // Main container - only re-renders when collapsed state changes
-    const contentContainerClass = useMemo(() => 
+    const contentContainerClass = useMemo(() =>
         `transition-all duration-200 ease-in-out ${collapsed ? 'max-h-0 opacity-0 overflow-hidden' : 'p-2 opacity-100'}`,
-    [collapsed]);
+        [collapsed]);
 
     return (
         <div className="bg-light/10 border border-light/10 rounded mt-2">
@@ -966,35 +966,35 @@ export function SelectionSection({
     );
 }
 
-export function ModifierComponent({ 
-    modifier, 
-    selection, 
-    setSelection 
-  }: { 
-    modifier: Command, 
+export function ModifierComponent({
+    modifier,
+    selection,
+    setSelection
+}: {
+    modifier: Command,
     selection: { [key: string]: string },
-    setSelection: (selection: { [key: string]: string }) => void, 
-  }) {
+    setSelection: (selection: { [key: string]: string }) => void,
+}) {
     return (
-      <CommandComponent 
-        overrideName={"Modifier"} 
-        command={modifier} 
-        filterArguments={() => true} 
-        initialValues={selection}
-        setOutput={(key: string, value: string) => {
-          if (!value) {
-            if (selection[key] === undefined) return;
-            const copy = { ...selection };
-            delete copy[key];
-            setSelection(copy);
-          } else {
-            if (selection[key] === value) return;
-            setSelection(({
-              ...selection,
-              [key]: value
-            }));
-          }
-        }}
-      />
+        <CommandComponent
+            overrideName={"Modifier"}
+            command={modifier}
+            filterArguments={() => true}
+            initialValues={selection}
+            setOutput={(key: string, value: string) => {
+                if (!value) {
+                    if (selection[key] === undefined) return;
+                    const copy = { ...selection };
+                    delete copy[key];
+                    setSelection(copy);
+                } else {
+                    if (selection[key] === value) return;
+                    setSelection(({
+                        ...selection,
+                        [key]: value
+                    }));
+                }
+            }}
+        />
     );
 }

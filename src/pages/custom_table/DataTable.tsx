@@ -1,16 +1,19 @@
-import React, { useMemo, useState } from "react";
+import React, { ReactNode, useCallback, useMemo, useState } from "react";
 import {
-  DataGrid, 
-  SortDirection, 
-  SortColumn, 
+  DataGrid,
+  SortDirection,
+  SortColumn,
   Column,
   Renderers,
   CellRendererProps,
-  DataGridHandle
+  DataGridHandle,
+  RenderCellProps
 } from "react-data-grid";
 import "react-data-grid/lib/styles.css";
 import { JSONValue } from "@/lib/internaltypes";
-import { getRenderer } from "@/components/ui/renderers";
+import { sortData } from "./sort";
+import { cn } from "@/lib/utils";
+import { ExportTable } from "./TableWithExports";
 
 // Types
 export type OrderIdx = {
@@ -18,10 +21,14 @@ export type OrderIdx = {
   dir: "asc" | "desc";
 };
 
+export type ColumnType = 'string' | 'number' | 'boolean' | 'mixed';
+
 export type ConfigColumns = {
   title: string;
-  data: number | string;
+  index: number;
   render?: ObjectColumnRender;
+  sorted?: ['asc' | 'desc', number];
+  type?: ColumnType;
 };
 
 export interface ObjectColumnRender<T = JSONValue> {
@@ -38,6 +45,10 @@ interface ReactDataGridTableProps {
   sort?: OrderIdx | OrderIdx[];
   searchSet: Set<number>;
   visibleColumns?: number[];
+  setColumns: (columns: ConfigColumns[]) => void;
+  setData: (data: JSONValue[][]) => void;
+  setSort: (sort: OrderIdx | OrderIdx[] | undefined) => void;
+  showExports: boolean;
 }
 
 export function DataTable({
@@ -47,113 +58,138 @@ export function DataTable({
   sort,
   searchSet,
   visibleColumns, // TODO
+  setColumns,
+  setData,
+  setSort,
+  showExports,
 }: ReactDataGridTableProps) {
-  // Take a single sort order (e.g. the first entry if an array is provided)
   const initialSort = useMemo<OrderIdx[] | null>(() => {
     if (!sort) return null;
     return Array.isArray(sort) ? sort : [sort];
   }, [sort]);
 
-  const renderers = useMemo(() => {
-    return columnsInfo.map((col) => col.render);
-  }, [columnsInfo]);
-
   // Create column definitions for DataGrid
   const gridColumns: Column<JSONValue[]>[] = useMemo(() => {
-    const gridCols: Column<JSONValue[]>[] = [
-      { key: "index", name: "#", width: 50, sortable: false }
-    ];
+    const gridCols: Column<JSONValue[]>[] = [];
+    gridCols.push({
+      key: "index", name: "#", width: columnsInfo.length === 0 ? undefined : 50, sortable: false,
+      cellClass: cn("ps-1", columnsInfo.length === 0 ? "w-full" : undefined),
+      headerCellClass: "ps-1 text-gray-900 dark:text-gray-200 bg-gray-100 dark:bg-gray-600",
+      renderCell:
+        (props: RenderCellProps<JSONValue[], unknown>): ReactNode => {
+          const rowIndex = props.rowIdx + 1;
+          return String(rowIndex)
+        },
+    });
 
     columnsInfo.forEach((colInfo, colIndex) => {
+      const dataIndex = colInfo.index;
+      const renderer = colInfo.render?.display;
       gridCols.push({
-        key: String(colIndex),
+        key: String(dataIndex),
         name: colInfo.title,
+
         sortable: true,
         resizable: true,
         draggable: true,
+        cellClass: "px-1",
+        headerCellClass: "px-1 text-gray-900 dark:text-gray-200 bg-gray-100 dark:bg-gray-600 text-xs",
+        renderCell: renderer ? (props: RenderCellProps<JSONValue[], unknown>): ReactNode => {
+          const value = props.row[dataIndex];
+          return renderer(value);
+        } : undefined,
       });
     });
 
     return gridCols;
   }, [columnsInfo]);
 
+  const noRowsFallback = useMemo(() => {
+    return <div className="flex items-center justify-center h-full text-xl text-center bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 w-full hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default">No data to display</div>;
+  }, []);
+
+
+  const onColumnsReorder = useCallback((sourceKey: string, targetKey: string) => {
+    // Skip if we're trying to reorder the index column
+    if (sourceKey === "index" || targetKey === "index") return;
+
+    // Convert keys to data indices
+    const sourceDataIndex = Number(sourceKey);
+    const targetDataIndex = Number(targetKey);
+
+    // Find positions in columnsInfo that have these data indices
+    const sourceVisualIndex = columnsInfo.findIndex(col => col.index === sourceDataIndex);
+    const targetVisualIndex = columnsInfo.findIndex(col => col.index === targetDataIndex);
+
+    // If either index is not found, return
+    if (sourceVisualIndex === -1 || targetVisualIndex === -1) return;
+
+    // Create a new array and swap the columns
+    const newColumns = [...columnsInfo];
+    const sourceColumn = newColumns[sourceVisualIndex];
+    const targetColumn = newColumns[targetVisualIndex];
+    newColumns[sourceVisualIndex] = targetColumn;
+    newColumns[targetVisualIndex] = sourceColumn;
+
+    setColumns(newColumns);
+  }, [columnsInfo, setColumns]);
+
   // Sorting state using SortColumn[] type
-  const [sortColumns, setSortColumns] = useState<SortColumn[]>(() =>
-      initialSort ? initialSort.map((s) => ({ columnKey: String(s.idx), direction: s.dir === "asc" ? "ASC" : "DESC" })) : []
-  );
+  const [sortColumns, setSortColumns] = useState<SortColumn[] | undefined>(() => {
+    return initialSort ? initialSort.map((s) => ({ columnKey: String(s.idx), direction: s.dir === "asc" ? "ASC" : "DESC" })) : undefined;
+  });
 
-    // Handle sort changes triggered by clicking on column headers
-    const handleSort = (newSort: SortColumn[] | undefined): void => {
-      if (newSort) {
+  // Handle sort changes triggered by clicking on column headers
+  const handleSort = useCallback((newSort: SortColumn[] | undefined): void => {
+    if (newSort && newSort.length > 0) {
+      const sortOrder: OrderIdx[] = newSort.map((s) => ({
+        idx: Number(s.columnKey),
+        dir: s.direction === "ASC" ? "asc" : "desc",
+      }));
+
+      const sortResult = sortData(data, newSort, columnsInfo);
+
+      if (sortResult) {
+        setColumns(sortResult.columns);
+        setData(sortResult.data);
+        setSort(sortOrder);
         setSortColumns(newSort);
-      } else {
-        setSortColumns([]);
       }
-    };
 
-    
-    // Custom renderers for cells using precomputed renderer functions
-    const cellRenderers = useMemo<Renderers<JSONValue[], unknown>>(() => {
-      const columnRenderers = renderers.map((renderer, colIndex) => {
-        if (renderer && renderer.display) {
-          return (value: unknown) => renderer.display(value as JSONValue);
-        }
-        return (value: unknown) => String(value);
-      });
-      
-      return {
-        renderCell: (key, { column, row }) => {
-          const value = row[column.idx];
-          return columnRenderers[column.idx](value as JSONValue);
-        },
-      };
-    }, [renderers]);
-
-  // // Perform client-side sorting based on sortColumns
-  // const sortedRows = useMemo(() => {
-  //   if (sortColumns.length === 0) return rows;
-    
-  //   // Apply all sorts in sequence
-  //   return [...rows].sort((a, b) => {
-  //     for (const sort of sortColumns) {
-  //       const { columnKey, direction } = sort;
-  //       const aValue = a[columnKey];
-  //       const bValue = b[columnKey];
-        
-  //       if (aValue < bValue) return direction === "ASC" ? -1 : 1;
-  //       if (aValue > bValue) return direction === "ASC" ? 1 : -1;
-  //     }
-  //     return 0;
-  //   });
-  // }, [rows, sortColumns]);
-
-  function onColumnsReorder(sourceKey: string, targetKey: string) {
-    const sourceIndex = parseInt(sourceKey, 10);
-    const targetIndex = parseInt(targetKey, 10);
-
-    if (sourceIndex !== targetIndex) {
-      const newColumns = [...gridColumns];
-      const [movedColumn] = newColumns.splice(sourceIndex, 1);
-      newColumns.splice(targetIndex, 0, movedColumn);
-      gridColumns.splice(0, gridColumns.length, ...newColumns);
+    } else {
+      setSortColumns(undefined);
+      setSort(undefined);
     }
-  }
-  // rowClass
+  }, [data, columnsInfo, setColumns, setData, setSort, setSortColumns]);
+
+  const exportButton = useMemo(() => (
+    showExports && <ExportTable data={data} columns={columnsInfo} />
+  ), [showExports, data, columnsInfo]);
+
 
   return (
-    <div style={{ height: 500 }}>
-      <DataGrid
-        ref={table}
-        columns={gridColumns}
-        rows={data}
-        sortColumns={sortColumns}
-        
-        onSortColumnsChange={handleSort}
-        onColumnsReorder={onColumnsReorder}
-
-        renderers={cellRenderers}
-        enableVirtualization={true}
-      />
-    </div>
+    <>
+      {exportButton}
+      <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden text-xs">
+        <DataGrid
+          key={columnsInfo.length}
+          className="bg-transparent text-xs"
+          style={{ height: '70vh', maxHeight: '70vh', flex: '1 1 auto' }}
+          ref={table}
+          columns={gridColumns}
+          rows={data}
+          sortColumns={sortColumns}
+          onSortColumnsChange={handleSort}
+          onColumnsReorder={onColumnsReorder}
+          rowClass={(row: JSONValue[], rowIdx: number) =>
+            `${rowIdx % 2 === 0 ? 'bg-black/5 dark:bg-white/5' : 'bg-transparent'} 
+            text-gray-900 dark:text-gray-200 w-full hover:bg-black/20 dark:hover:bg-white/20`
+          }
+          rowHeight={25}
+          renderers={{ noRowsFallback }}
+          enableVirtualization={true}
+        />
+      </div>
+    </>
   );
 }

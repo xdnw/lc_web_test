@@ -24,7 +24,7 @@ export class QueryResult<T> {
             endpoint: string;
             query: { [key: string]: string | string[] };
             update_ms: number;
-            cache?: { cache_type: CacheType; duration?: number};
+            cache?: { cache_type: CacheType; duration?: number };
             data?: T | null;
             error?: string | null;
         }) {
@@ -134,7 +134,6 @@ const pendingQueries: PendingQuery<unknown>[] = [];
 let batchTimer: ReturnType<typeof setTimeout> | null = null;
 
 function dispatchBatch() {
-    console.log("dispatchBatch");
     // First, check pending queries for cache hits and resolve them immediately.
     // Iterate backwards so removals don't affect the loop.
     for (let i = pendingQueries.length - 1; i >= 0; i--) {
@@ -366,7 +365,7 @@ export function fetchBulk<T>({ endpoint, query, cache, batch_wait_ms }: {
     }
 
     console.log("Queuing query", endpoint, query, cache, batch_wait_ms);
-    
+
     return new Promise((resolve, reject) => {
         pendingQueries.push({ endpoint, query, cache, resolve: resolve as unknown as (result: QueryResult<unknown>) => void, reject });
         const waitTime = batch_wait_ms ?? 50;

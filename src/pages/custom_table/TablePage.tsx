@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { OrderIdx } from './DataTable';
 import { COMMANDS } from "../../lib/commands";
 import { getQueryParams } from "../../lib/utils";
@@ -33,9 +33,7 @@ export default function CustomTable() {
     const [sort, setSort] = useDeepState<OrderIdx | OrderIdx[]>(
         getSortFromUrl(params) ?? (DEFAULT_TABS[type]?.columns[Object.keys(DEFAULT_TABS[type]?.columns ?? {})[0]]?.sort || { idx: 0, dir: 'asc' })
     );
-    console.log("Params ", selection);
 
-    // PlaceholderTabsHandle
     const tabsRef = useRef<PlaceholderTabsHandle>(null);
 
     const getTableProps = useCallback(() => {
@@ -48,23 +46,26 @@ export default function CustomTable() {
         return data;
     }, [tabsRef]);
 
+    const table = useMemo(() => {
+        return <div className="bg-light/10 border border-light/10 p-2 rounded mt-2">
+            <AbstractTableWithButtons
+                getTableProps={getTableProps}
+                load={false}
+            />
+        </div>
+    }, [getTableProps]);
+
+
     return (
         <>
-            <div>
-                <PlaceholderTabs 
-                    ref={tabsRef}
-                    defType={type}
-                    defSelection={selection}
-                    defColumns={columns}
-                    defSort={sort}
-                />
-            </div>
-            <div className="bg-light/10 border border-light/10 p-2 rounded mt-2">
-                <AbstractTableWithButtons 
-                    getTableProps={getTableProps}
-                    load={false} 
-                />
-            </div>
+            <PlaceholderTabs
+                ref={tabsRef}
+                defType={type}
+                defSelection={selection}
+                defColumns={columns}
+                defSort={sort}
+            />
+            {table}
         </>
     );
 }

@@ -2,7 +2,7 @@ import { UseQueryOptions, UseSuspenseQueryOptions } from "@tanstack/react-query"
 import { ApiEndpoint, fetchBulk, QueryResult } from "./BulkQuery";
 
 export function suspenseQueryOptions<T>(
-    endpoint: ApiEndpoint<T>, 
+    endpoint: ApiEndpoint<T>,
     query: { readonly [key: string]: string | string[] },
     is_post?: boolean,
     cache_duration?: number,
@@ -12,7 +12,7 @@ export function suspenseQueryOptions<T>(
 }
 
 export function bulkQueryOptions<T>(
-    endpoint: ApiEndpoint<T>, 
+    endpoint: ApiEndpoint<T>,
     query: { readonly [key: string]: string | string[] },
     is_post?: boolean,
     cache_duration?: number,
@@ -23,11 +23,11 @@ export function bulkQueryOptions<T>(
         queryKey: [endpoint.name, query],
         queryFn: async (meta) => {
             const keys = meta.queryKey as [string, { [key: string]: string }];
-            const result = await fetchBulk<T>({ 
-                endpoint: keys[0], 
-                query: keys[1], 
-                cache: undefined, 
-                batch_wait_ms: batch_wait_ms ?? 200 
+            const result = await fetchBulk<T>({
+                endpoint: keys[0],
+                query: keys[1],
+                cache: undefined,
+                batch_wait_ms: batch_wait_ms ?? 200
             });
             if (result.error) {
                 throw new BackendError(result.error);
@@ -38,27 +38,28 @@ export function bulkQueryOptions<T>(
         refetchOnWindowFocus: !isPostFinal,
         refetchOnMount: !isPostFinal,
         staleTime: cache_duration ?? endpoint.cache_duration ?? 5000,
-        retry: (failureCount, err) => 
+        retry: (failureCount, err) =>
             !isPostFinal && (!(err instanceof BackendError) && failureCount < 3) || failureCount < 1,
     };
 }
 
 export function singleQueryOptions<T>(
-    endpoint: ApiEndpoint<T>, 
+    endpoint: ApiEndpoint<T>,
     query: { readonly [key: string]: string | string[] },
     cache_duration?: number,
     batch_wait_ms?: number
 ): UseQueryOptions<QueryResult<T>, Error, QueryResult<T>, readonly unknown[]> {
+    console.log("CACHE DURATION", cache_duration, endpoint.cache_duration);
     return {
         queryKey: [endpoint.name, query],
         queryFn: async (meta) => {
             console.log("Fetching single query", meta.queryKey);
             const keys = meta.queryKey as [string, { [key: string]: string }];
-            const result = await fetchBulk<T>({ 
-                endpoint: keys[0], 
-                query: keys[1], 
-                cache: undefined, 
-                batch_wait_ms: batch_wait_ms ?? 200 
+            const result = await fetchBulk<T>({
+                endpoint: keys[0],
+                query: keys[1],
+                cache: undefined,
+                batch_wait_ms: batch_wait_ms ?? 200
             });
             if (result.error) {
                 throw new BackendError(result.error);

@@ -1,31 +1,32 @@
-import {COMMANDS} from "../../lib/commands";
-import {commafy, formatDuration, formatSi, formatTimeRelative, split} from "../../utils/StringUtil";
+import { COMMANDS } from "../../lib/commands";
+import { commafy, formatDuration, formatSi, formatTimeRelative, split } from "../../utils/StringUtil";
 import ReactDOMServer from 'react-dom/server';
-import {CM, ICommandMap, IOptionData} from "../../utils/Command";
-import React, {ReactNode} from "react";
+import { CM, ICommandMap, IOptionData } from "../../utils/Command";
+import React, { ReactNode } from "react";
 import SimpleChart from "../../pages/graphs/SimpleChart.js";
-import {WebGraph} from "../../lib/apitypes.js";
+import { WebGraph } from "../../lib/apitypes.js";
 import Color from "../renderer/Color.js";
 import { ObjectColumnRender } from "@/pages/custom_table/DataTable.js";
 import { JSONValue } from "@/lib/internaltypes.js";
+import { Link } from "react-router-dom";
 
-export const RENDERERS: {[key: string]: ObjectColumnRender | undefined} = {
-    money: {display: money},
-    comma: {display: formatSi},
-    color: {display: color},
-    time: {display: time},
-    time_ms: {display: time_ms},
-    diff_ms: {display: diff_ms},
-    normal: {display: autoMarkdown},
+export const RENDERERS: { [key: string]: ObjectColumnRender | undefined } = {
+    money: { display: money },
+    comma: { display: formatSi },
+    color: { display: color },
+    time: { display: time },
+    time_ms: { display: time_ms },
+    diff_ms: { display: diff_ms },
+    normal: { display: autoMarkdown },
     text: undefined,
-    json: {display: json},
-    graph: {display: graph as unknown as (value: JSONValue) => ReactNode, isHtml: true},
-    html: {display: html},
-    duration_day: {display: duration_day},
-    percent_100: {display: percent_100},
-    percent: {display: percent},
-    duration_ms: {display: duration_ms},
-    numeric_map: {display: numericMap},
+    json: { display: json },
+    graph: { display: graph as unknown as (value: JSONValue) => ReactNode, isHtml: true },
+    html: { display: html },
+    duration_day: { display: duration_day },
+    percent_100: { display: percent_100 },
+    percent: { display: percent },
+    duration_ms: { display: duration_ms },
+    numeric_map: { display: numericMap },
 }
 
 export function percent_100(value: number): string {
@@ -63,8 +64,8 @@ export function duration_ms(ms: number): string {
     return formatDuration(seconds, 3);
 }
 
-export function html(value: string) {
-    return value;
+export function html(value: string): ReactNode {
+    return <>{ReactDOMServer.renderToStaticMarkup(<div dangerouslySetInnerHTML={{ __html: value }} />)}</>;
 }
 
 export function isHtmlRenderer(type: ObjectColumnRender): boolean {
@@ -73,14 +74,14 @@ export function isHtmlRenderer(type: ObjectColumnRender): boolean {
 
 export function graph(value: WebGraph): ReactNode {
     return <SimpleChart graph={value} type={"LINE"} theme="light"
-                        hideLegend={true}
-                        hideDots={true}
-                        minHeight="40px"
-                        maxHeight="50px"
+        hideLegend={true}
+        hideDots={true}
+        minHeight="40px"
+        maxHeight="50px"
     />
 }
 
-export function autoMarkdown(value: string): string {
+export function autoMarkdown(value: string): ReactNode {
     if (!value) return value;
     value = value.toString();
     const openBracketIndex = value.indexOf("[");
@@ -112,10 +113,11 @@ export function autoMarkdown(value: string): string {
     if (url.startsWith("<") && url.endsWith(">")) {
         url = url.slice(1, -1);
     }
-    return '<a href="' + url + '">' + value.slice(openBracketIndex + 1, closeBracketIndex) + '</a>';
+    const text = value.slice(openBracketIndex + 1, closeBracketIndex);
+    return <Link to={url}>{text}</Link>;
 }
 
-export function json(value: {[key: string]: (string | number)} | (string | number)[]): string {
+export function json(value: { [key: string]: (string | number) } | (string | number)[]): string {
     const roundedValue = Array.isArray(value)
         ? value.map(v => Number.isFinite(v) ? Math.round(v as number * 100) / 100 : v)
         : Object.fromEntries(
@@ -156,8 +158,8 @@ export function money(f: number): string {
     return "$" + commafy(f);
 }
 
-export function color(colorId: number): string {
-    return ReactDOMServer.renderToString(<Color colorId={colorId} />);
+export function color(colorId: number): ReactNode {
+    return <Color colorId={colorId} />;
 }
 
 export function numericMap(value: { [key: string]: number } | string): string {

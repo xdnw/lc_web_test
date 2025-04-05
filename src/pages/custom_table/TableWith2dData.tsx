@@ -1,36 +1,47 @@
-import React, { useMemo, useRef } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { getRenderer } from "../../components/ui/renderers";
-import { TableWithExports } from "./TableWithExports";
-import { getReactSlots } from "./table_util";
-import 'datatables.net-dt/css/dataTables.dataTables.css';
-import 'datatables.net-colreorder-dt';
-import { ConfigColumns, OrderIdx } from "./DataTable";
+import { ConfigColumns, DataTable, OrderIdx } from "./DataTable";
 import { DataGridHandle } from "react-data-grid";
+import { JSONValue } from "@/lib/internaltypes";
 
 export function TableWith2DData({ columns, data, renderers, sort }: { columns: string[], data: (string | number | number[] | boolean)[][], renderers?: (string | undefined)[], sort?: OrderIdx | OrderIdx[] }) {
     const table = useRef<DataGridHandle>(null);
-    const sortFinal = useMemo<OrderIdx | OrderIdx[]>(() => sort ?? { idx: 0, dir: "asc" }, [sort]);
+
     const visibleColumns = useMemo(() => Array.from(Array(columns.length).keys()), [columns]);
     const searchSet = useMemo(() => new Set<number>(), []);
-    const columnsInfo = useMemo(() => columns.map((col, index) => ({
-        title: col,
-        data: index,
-        render: renderers && renderers[index] ? getRenderer(renderers[index] as string) : undefined
-    })), [columns, renderers]);
-    
+
+    // const sortFinal = useMemo<OrderIdx | OrderIdx[]>(() => sort ?? { idx: 0, dir: "asc" }, [sort]);
+    // const columnsInfo = useMemo(() => columns.map((col, index) => ({
+    //     title: col,
+    //     index: index,
+    //     render: renderers && renderers[index] ? getRenderer(renderers[index] as string) : undefined
+    // })), [columns, renderers]);
+
+    const [dataState, setDataState] = useState(data);
+    const [columnsInfo, setColumnsInfo] = useState<ConfigColumns[]>(
+        columns.map((col, index) => ({
+            title: col,
+            index: index,
+            render: renderers && renderers[index] ? getRenderer(renderers[index] as string) : undefined
+        }))
+    );
+
+    const [sortState, setSortState] = useState<OrderIdx | OrderIdx[] | undefined>(sort);
+
     return useMemo(() => (
-        <>
-            <TableWithExports table={table} />
-            <MyTable
-                table={table}
-                data={data}
-                columnsInfo={columnsInfo}
-                sort={sortFinal}
-                searchSet={searchSet}
-                visibleColumns={visibleColumns}
-            />
-        </>
-    ), [data]);
+        <DataTable
+            table={table}
+            data={dataState}
+            columnsInfo={columnsInfo}
+            sort={sortState}
+            searchSet={searchSet}
+            visibleColumns={visibleColumns}
+            setColumns={setColumnsInfo}
+            setData={setDataState as (data: JSONValue[][]) => void}
+            setSort={setSortState}
+            showExports={true}
+        />
+    ), [data, dataState, columnsInfo, sortState, searchSet, visibleColumns, table]);
 }
 
 // export function MyTable({ table, data, columnsInfo, sort, searchSet, visibleColumns }:

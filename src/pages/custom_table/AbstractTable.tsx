@@ -7,12 +7,15 @@ import { useDialog } from "../../components/layout/DialogContext";
 import { Link } from "react-router-dom";
 import EndpointWrapper from "@/components/api/bulkwrapper";
 import { ApiFormInputs } from "@/components/api/apiform";
-import { TableWithExports } from "./TableWithExports";
-import { getQueryString, setTableVars, toSelAndModifierString } from "./table_util";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { bulkQueryOptions, singleQueryOptions } from "@/lib/queries";
+import { getQueryString, createTableInfo, toSelAndModifierString } from "./table_util";
+import { useQuery, useQueryClient, UseQueryOptions, useSuspenseQuery, UseSuspenseQueryOptions } from "@tanstack/react-query";
+import { bulkQueryOptions, singleQueryOptions, suspenseQueryOptions } from "@/lib/queries";
 import { ConfigColumns, DataTable, OrderIdx } from "./DataTable";
 import { DataGridHandle } from "react-data-grid";
+import { JSONValue } from "@/lib/internaltypes";
+import { GoogleSheets } from "./TableWithExports";
+import { useDeepState } from "@/utils/StateUtil";
+import { QueryResult } from "@/lib/BulkQuery";
 
 export type TableInfo = {
     data: (string | number | number[])[][],
@@ -20,14 +23,14 @@ export type TableInfo = {
     searchSet: Set<number>,
     columnsInfo: ConfigColumns[],
     errors: WebTableError[],
-    sort: OrderIdx | OrderIdx[],
+    sort: OrderIdx | OrderIdx[] | undefined,
 }
 
 export type TableProps = {
     type: string,
     selection: { [key: string]: string },
     columns: Map<string, string | null>,
-    sort: OrderIdx | OrderIdx[],
+    sort: OrderIdx | OrderIdx[] | undefined,
 }
 
 export function AbstractTableWithButtons({ getTableProps, load }: {
@@ -37,18 +40,10 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
     const table = useRef<DataGridHandle>(null);
     const { showDialog } = useDialog();
 
-    const [type, setType] = useState<string | null>(null);
-    const [selection, setSelection] = useState<{ [key: string]: string }>({});
-    const [columns, setColumns] = useState<Map<string, string | null>>(new Map<string, string | null>());
-    const [sortState, setSortState] = useState<OrderIdx | OrderIdx[]>({"dir": "asc", "idx": 0});
-    
-    const [data, setData] = useState<(string | number | number[])[][]>([]);
-    const [visibleColumns, setVisibleColumns] = useState<number[]>([]);
-    const [searchSet, setSearchSet] = useState<Set<number>>(new Set<number>());
-    const [columnsInfo, setColumnsInfo] = useState<ConfigColumns[]>([]);
-    const [errors, setErrors] = useState<WebTableError[]>([]);
-
-    // const [rerender, setRerender] = useState(0);
+    const [type, setType] = useDeepState<string | null>(load ? getTableProps().type : null);
+    const [selection, setSelection] = useDeepState<{ [key: string]: string }>(load ? getTableProps().selection : {});
+    const [columns, setColumns] = useDeepState<Map<string, string | null>>(load ? getTableProps().columns : new Map<string, string | null>());
+    const [sortState, setSortState] = useDeepState<OrderIdx | OrderIdx[] | undefined>(load ? getTableProps().sort : undefined);
 
     const getTablePropsFinal = useCallback(() => {
         const props = getTableProps();
@@ -58,20 +53,6 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
         setSortState(props.sort);
         return props;
     }, [getTableProps]);
-
-    const updateTable = useCallback((data: TableInfo) => {
-        // if (table) {
-        //     const api = table.current!.dt() as Api;
-        //     api.destroy(false);
-        // }
-        setData(data.data);
-        setColumnsInfo(data.columnsInfo);
-        setVisibleColumns(data.visibleColumns);
-        setSearchSet(data.searchSet);
-        setErrors(data.errors);
-        setSortState(data.sort);
-        // setRerender(prev => prev + 1);
-    }, [setData, setColumnsInfo, setVisibleColumns, setSearchSet, setErrors, setSortState]);
 
     const highlightRowOrColumn = useCallback((col?: number, row?: number) => {
         const tableElem = table?.current?.element;
@@ -133,8 +114,30 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
             showDialog("Failed to copy URL to clipboard", err + "", true);
         });
     }, [type, selection, columns, sortState, showDialog]);
-   
-    const showErrors = useCallback(() => {
+
+    const exportsComponent = useMemo(() => {
+        if (!type || !selection || !columns) return null;
+        return (
+            <GoogleSheets
+                type={type}
+                selection={selection}
+                columns={columns}
+            />
+        );
+    }, [type, selection, columns]);
+
+    const shareButton = useMemo(() => {
+        return (
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={copy}>
+                Share
+            </Button>
+        );
+    }, [copy]);
+
+    const showErrorsProvided = useCallback((errors: WebTableError[]) => {
         const title = errors.length > 0 ? "Errors updating table" : "No errors";
         const body = errors.length > 0 ? <>
             Errors updating the table may prevent some data from being displayed.
@@ -146,124 +149,147 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
             ))}
         </> : "No errors";
         showDialog(title, body);
-    }, [errors, showDialog, highlightRowOrColumn]);
+    }, [showDialog, highlightRowOrColumn]);
 
-    const tableLoaderComponent = useMemo(() => {
-        return load ? (
-            <LoadTable
-                getTableProps={getTablePropsFinal}
-                updateTable={updateTable}
-                table={table}
-            />
-        ) : (
-            <DeferTable
-                getTableProps={getTablePropsFinal}
-                updateTable={updateTable}
-                table={table}
-            />
-        );
-    }, [load, getTablePropsFinal, updateTable, table]);
-    
-    const exportsComponent = useMemo(() => {
-        if (!type || !selection || !columns) return null;
-        return (
-            <TableWithExports 
-                table={table as React.RefObject<DataGridHandle>} 
-                type={type} 
-                selection={selection} 
-                columns={columns} 
-            />
-        );
-    }, [type, selection, columns, table]);
-    
-    const shareButton = useMemo(() => {
-        return (
-            <Button
-                variant="outline"
-                size="sm"
-                onClick={copy}>
-                Share
-            </Button>
-        );
-    }, [copy]);
-    
-    const errorsButton = useMemo(() => {
-        return (
-            <Button 
-                variant="outline" 
-                size="sm" 
-                className={`ms-1 bg-destructive ${errors.length == 0 ? "hidden" : ""}`}
-                onClick={showErrors}>
-                View {errors.length} Errors
-            </Button>
-        );
-    }, [errors.length, showErrors]);
-    
-    return (
-        <>
-            {tableLoaderComponent}
+    const renderChildren = useCallback((errorsButton: ReactNode, data: JSONValue[][], columnsInfo: ConfigColumns[], searchSet: Set<number>, visibleColumns: number[], setColumnsInfo: (columnsInfo: ConfigColumns[]) => void, setData: (data: JSONValue[][]) => void) => {
+        return <>
             {exportsComponent}
             {shareButton}
             {errorsButton}
             <DataTable
-                // key={rerender}
-                table={table as React.RefObject<DataGridHandle>}
+                table={table}
                 data={data}
                 columnsInfo={columnsInfo}
                 sort={sortState}
                 searchSet={searchSet}
                 visibleColumns={visibleColumns}
+                showExports={true}
+
+                setColumns={setColumnsInfo}
+                setData={setData as (data: JSONValue[][]) => void}
+                setSort={setSortState}
             />
-        </>
-    );
+        </>;
+    }, [exportsComponent, shareButton, sortState]);
+
+    if (load) {
+        return <LoadTable
+            type={type!}
+            selection={selection}
+            columns={columns}
+            sort={sortState}
+            showErrorsProvided={showErrorsProvided}
+        >
+            {renderChildren}
+        </LoadTable>;
+    } else {
+        return <DeferTable
+            table={table}
+            getTableProps={getTablePropsFinal}
+            setSortState={setSortState}
+            showErrorsProvided={showErrorsProvided}
+        >
+            {renderChildren}
+        </DeferTable>;
+    }
 }
 
-
-function LoadTable(
-    { getTableProps, updateTable, table }:
-    {
-        getTableProps: () => TableProps,
-        updateTable: (data: TableInfo) => void,
-        table: React.RefObject<DataGridHandle | null>,
-    }
-) {
+function LoadTable({ type, selection, columns, sort, showErrorsProvided, children }: {
+    type: string,
+    selection: { [key: string]: string },
+    columns: Map<string, string | null>,
+    sort: OrderIdx | OrderIdx[] | undefined,
+    showErrorsProvided: (errors: WebTableError[]) => void,
+    children: (errorsButton: ReactNode, data: JSONValue[][], columnsInfo: ConfigColumns[], searchSet: Set<number>, visibleColumns: number[], setColumnsInfo: (columnsInfo: ConfigColumns[]) => void, setData: (data: JSONValue[][]) => void) => ReactNode
+}) {
     const { showDialog } = useDialog();
 
-    const props = useMemo(() => getTableProps(), [getTableProps]);
+    const queryOptions: UseSuspenseQueryOptions<QueryResult<WebTable>, Error, QueryResult<WebTable>, readonly unknown[]> = useMemo(() => {
+        return {
+            ...suspenseQueryOptions(TABLE.endpoint, {
+                type: type!,
+                selection_str: toSelAndModifierString(selection)!,
+                columns: Array.from(columns.keys()),
+            }, undefined, 10),
+            enabled: false, // Prevent automatic fetching on mount
+        }
+    }, [type, selection, columns]);
+    const { data: queryData } = useSuspenseQuery(queryOptions);
 
-    const {type, selection, columns, sort} = props;
+    // unused
+    const [visibleColumns, setVisibleColumns] = useState<number[]>([]);
+    const [searchSet, setSearchSet] = useState<Set<number>>(new Set<number>());
+    // end unused
+
+    const webTable = queryData.data as WebTable;
+    const initialTableInfo = useMemo(() => {
+        try {
+            return createTableInfo(webTable, sort, columns);
+        } catch (e) {
+            console.error(e);
+            return undefined;
+        }
+    }, [queryData.data, sort, columns]);
+
+    const [data, setData] = useState<JSONValue[][]>(initialTableInfo?.data as JSONValue[][]);
+    const [columnsInfo, setColumnsInfo] = useState<ConfigColumns[]>(initialTableInfo?.columnsInfo || []);
+    const [errors, setErrors] = useState<WebTableError[]>(initialTableInfo?.errors || []);
+
+    if (queryData.error) {
+        return <div className="text-red-500">Error: {queryData.error}</div>;
+    }
+    if (!queryData.data) {
+        return <div className="text-red-500">No data</div>;
+    }
+    if (!initialTableInfo) {
+        return <div className="text-red-500">Error: No data</div>;
+    }
+
+    const showErrors = useCallback(() => {
+        if (errors.length > 0) {
+            showErrorsProvided(errors);
+        } else {
+            showDialog("No errors", "No errors to display", true);
+        }
+    }, [errors, showErrorsProvided, showDialog]);
+
+    /*
+${process.env.BASE_PATH}custom_table?${getQueryString({
+        type: type.current,
+        selAndModifiers: selection.current,
+        columns: columns.current,
+        sort: sort.current
+    })}
+    */
+
     const url = useMemo(() => {
-        const baseUrlWithoutPath = window.location.protocol + "//" + window.location.host;
-        return `${baseUrlWithoutPath}${process.env.BASE_PATH}#/view_table?${encodeURIComponent(getQueryString({
+        return `${process.env.BASE_PATH}custom_table?${getQueryString({
             type: type,
             selAndModifiers: selection,
             columns: columns,
             sort: sort
-        }))}`;
+        })}`;
     }, [type, selection, columns, sort]);
 
-    return <EndpointWrapper endpoint={TABLE} args={{
-        type: type,
-        selection_str: toSelAndModifierString(selection),
-        columns: Array.from(columns.keys()),
-    }}>{({ data: newData }) => {
-        try {
-            const info: TableInfo = setTableVars(newData, sort, columns);
-            updateTable(info);
-        } catch (e) {
-            console.error(e);
-            const errorMessage = e instanceof Error ? <>
-                {e.message}
-                <CopoToClipboardTextArea text={e.stack + ""} />
-            </> : e + "";
-            showDialog("Failed to update table", errorMessage, true);
-        }
-        return <Button variant="outline"
+    const errorsButton = useMemo(() => {
+        return (
+            <Button
+                variant="outline"
+                size="sm"
+                className={`ms-1 bg-destructive ${errors.length == 0 ? "hidden" : ""}`}
+                onClick={showErrors}>
+                View {errors.length} Errors
+            </Button>
+        );
+    }, [errors.length, showErrorsProvided, showErrors]);
+
+    return <>
+        <Button variant="outline"
             size="sm"
             className="me-1"
             asChild><Link to={url}>Edit Table</Link></Button>
-    }}
-    </EndpointWrapper>
+        {children(errorsButton, data, columnsInfo, searchSet, visibleColumns, setColumnsInfo, setData)}
+    </>;
 }
 
 /**
@@ -282,15 +308,52 @@ function LoadTable(
  * @constructor
  */
 function DeferTable(
-    { getTableProps, updateTable, table }:
-    {
-        getTableProps: () => TableProps,
-        updateTable: (data: TableInfo) => void,
-        table: React.RefObject<DataGridHandle | null>,
-    }
+    { table, getTableProps, setSortState, showErrorsProvided, children }:
+        {
+            table: React.RefObject<DataGridHandle | null>,
+            getTableProps: () => TableProps,
+            setSortState: (sort: OrderIdx | OrderIdx[] | undefined) => void,
+            showErrorsProvided: (errors: WebTableError[]) => void,
+            children: (errorsButton: ReactNode, data: JSONValue[][], columnsInfo: ConfigColumns[], searchSet: Set<number>, visibleColumns: number[], setColumnsInfo: (columnsInfo: ConfigColumns[]) => void, setData: (data: JSONValue[][]) => void) => ReactNode
+        }
 ) {
     const { showDialog } = useDialog();
     const queryClient = useQueryClient();
+
+    const [data, setData] = useState<JSONValue[][]>([]);
+    const [visibleColumns, setVisibleColumns] = useState<number[]>([]);
+    const [searchSet, setSearchSet] = useState<Set<number>>(new Set<number>());
+    const [columnsInfo, setColumnsInfo] = useState<ConfigColumns[]>([]);
+    const [errors, setErrors] = useState<WebTableError[]>([]);
+
+    const showErrors = useCallback(() => {
+        if (errors.length > 0) {
+            showErrorsProvided(errors);
+        } else {
+            showDialog("No errors", "No errors to display", true);
+        }
+    }, [errors, showErrorsProvided, showDialog]);
+
+    const updateTable: (data: TableInfo) => void = useCallback((data: TableInfo) => {
+        setData(data.data);
+        setColumnsInfo(data.columnsInfo);
+        setVisibleColumns(data.visibleColumns);
+        setSearchSet(data.searchSet);
+        setErrors(data.errors);
+        setSortState(data.sort);
+    }, [setData, setColumnsInfo, setVisibleColumns, setSearchSet, setErrors, setSortState]);
+
+    const errorsButton = useMemo(() => {
+        return (
+            <Button
+                variant="outline"
+                size="sm"
+                className={`ms-1 bg-destructive ${errors.length == 0 ? "hidden" : ""}`}
+                onClick={showErrors}>
+                View {errors.length} Errors
+            </Button>
+        );
+    }, [errors.length, showErrorsProvided, showErrors]);
 
     const onErrorOrNull = useCallback((e: string | Error) => {
         console.error(e);
@@ -301,9 +364,9 @@ function DeferTable(
         showDialog("Failed to update table", errorMessage, true);
     }, []);
 
-    const onSuccess = useCallback((data: WebTable, sort: OrderIdx | OrderIdx[], columns: Map<string, string | null>) => {
+    const onSuccess = useCallback((data: WebTable, sort: OrderIdx | OrderIdx[] | undefined, columns: Map<string, string | null>) => {
         try {
-            const info: TableInfo = setTableVars(data, sort, columns);
+            const info: TableInfo = createTableInfo(data, sort, columns);
             updateTable(info);
         } catch (e) {
             onErrorOrNull(e as (string | Error));
@@ -317,13 +380,13 @@ function DeferTable(
             type: type,
             selection_str: toSelAndModifierString(selection),
             columns: Array.from(columns.keys()),
-        } as {type?: string, selection_str?: string, columns?: string[] | string};
+        } as { type?: string, selection_str?: string, columns?: string[] | string };
 
         console.log("Params", params);
-        
+
         // Call tanstack query refetch with params
         // Fetch directly with the queryClient using the new params
-        queryClient.fetchQuery(singleQueryOptions(TABLE.endpoint, params)).then(({data}) => {
+        queryClient.fetchQuery(singleQueryOptions(TABLE.endpoint, params, 0)).then(({ data }) => {
             if (data) {
                 console.log("Data received from server", data);
                 onSuccess(data, sort, columns);
@@ -334,5 +397,8 @@ function DeferTable(
         });
     }, [getTableProps, onSuccess, queryClient, onErrorOrNull]);
 
-    return <Button variant="destructive" size="sm" className="me-1" onClick={submit}>Generate Table</Button>
+    return <>
+        <Button variant="destructive" size="sm" className="me-1" onClick={submit}>Generate Table</Button>
+        {children(errorsButton, data, columnsInfo, searchSet, visibleColumns, setColumnsInfo, setData)}
+    </>
 }
