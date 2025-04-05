@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "importHelpers": true,
     "esModuleInterop": true,
     "target": "ES2020",
     "useDefineForClassFields": true,

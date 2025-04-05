@@ -50,16 +50,23 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
-      minify: false,
+      terserOptions: {
+        compress: {
+          drop_console: minify,
+          drop_debugger: minify,
+        }
+      },
       minify: minify,
       rollupOptions: {
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom'],
+            utils: ['clsx', 'tailwind-merge', 'msgpackr'],
           },
         },
       },
     },
+    chunkSizeWarningLimit: 600,
     esbuild: {
       target: 'es2020',
     },
