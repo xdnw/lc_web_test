@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => {
       'process.env.GTAG_ID': JSON.stringify('G-4J3KV26E2Z'),
       'process.env.TEST': JSON.stringify(true),
     },
-    base: '/', // isDevelopment ? '/' : '/lc_cmd_react/',
+    base: '/',
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
