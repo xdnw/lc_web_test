@@ -59,5 +59,5 @@ export function ViewCommand<P extends CommandPath<typeof COMMANDS['commands']>>(
 export function MemoizedRenderResponse({ data, showDialog }: { data: WebViewCommand, showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void }) {
     return useMemo(() => {
         return <RenderResponse jsonArr={data.data as { [key: string]: string | object | object[] | number | number[] | string[] }[]} showDialog={showDialog} />;
-    }, [data.uid]);
+    }, [data.data, showDialog]);
 }

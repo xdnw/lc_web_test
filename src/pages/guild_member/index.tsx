@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import MarkupRenderer from "@/components/ui/MarkupRenderer.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -61,6 +61,10 @@ export function AuditComponent({ audits }: { audits: WebAudits }) {
         }
     };
 
+    const toggleDesc = useCallback(() => {
+        setShowDescription(f => !f);
+    }, [setShowDescription]);
+
     return (
         <div className="bg-light/10 border border-light/10 p-2 mt-2 rounded">
             <div className="relative">
@@ -68,7 +72,7 @@ export function AuditComponent({ audits }: { audits: WebAudits }) {
                 <Button
                     variant="outline" size="sm"
                     className="absolute border-primary/20 top-1 right-1"
-                    onClick={() => setShowDescription(!showDescription)}
+                    onClick={toggleDesc}
                 >
                     {showDescription ? "Show Less" : "Show More"}
                 </Button>
@@ -93,6 +97,11 @@ export function AnnouncementSection() {
     const countRef = useRef(-1);
     const [rerender, setRerender] = useState(false);
 
+    const setUnreadCount = useCallback((value: number) => {
+        countRef.current = value;
+        setRerender(!rerender); // Trigger rerender
+    }, [rerender]);
+
     return <EndpointWrapper endpoint={UNREAD_COUNT} args={{}}>
         {({ data }) => {
             if (countRef.current === -1) {
@@ -104,10 +113,7 @@ export function AnnouncementSection() {
                         <Link to={`${process.env.BASE_PATH}announcements`}>View</Link>
                     </Button>
                     {countRef.current === 0 ? "No new announcements" : `You have ${countRef.current} unread announcements...`}
-                    {countRef.current !== 0 && <DismissAnnouncements setUnreadCount={(value) => {
-                        countRef.current = value;
-                        setRerender(!rerender); // Trigger rerender
-                    }} />}
+                    {countRef.current !== 0 && <DismissAnnouncements setUnreadCount={setUnreadCount} />}
                 </div>
             );
         }}
@@ -116,13 +122,16 @@ export function AnnouncementSection() {
 
 export function DismissAnnouncements({ setUnreadCount }: { setUnreadCount: (value: number) => void }) {
     const { showDialog } = useDialog();
+
+    const handleResponse = useCallback(() => {
+        setUnreadCount(0);
+        showDialog("Dismissed All", <>Marked all announcements as read</>);
+    }, [setUnreadCount, showDialog]);
+
     return <ApiFormInputs
         endpoint={MARK_ALL_READ}
         label="Dismiss All"
-        handle_response={({ data }) => {
-            setUnreadCount(0);
-            showDialog("Dismissed All", <>Marked all announcements as read</>);
-        }}
+        handle_response={handleResponse}
         classes="absolute top-1 right-1"
     />
 }
@@ -199,6 +208,10 @@ export function WarsComponent({ wars }: { wars: ApiTypes.WebMyWars }) {
         );
     }
 
+    const toggleMore = useCallback(() => {
+        setShowMore(f => !f);
+    }, [setShowMore]);
+
     return (
         <div className="bg-light/10 border border-light/10 p-2 rounded mt-2">
             <div className="w-full">
@@ -209,7 +222,7 @@ export function WarsComponent({ wars }: { wars: ApiTypes.WebMyWars }) {
             </div>
             <div className="mt-1 text-sm relative w-full">
                 <Button variant="secondary" size="sm" className='border-slate-600 w-full text-center'
-                    onClick={() => setShowMore(!showMore)}>{showMore ? "Collapse Wars" : "Show Wars"}</Button>
+                    onClick={toggleMore}>{showMore ? "Collapse Wars" : "Show Wars"}</Button>
                 <div
                     className={`transition-all duration-200 ease-in-out ${showMore ? 'p-1 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
                     {wars.isFightingActives && (
@@ -589,12 +602,13 @@ export function OddsSuccess({ odds, success }: { odds: number, success: number }
 
 export function ShowOddsComponent({ me, war }: { me: ApiTypes.WebTarget, war: ApiTypes.WebMyWar }) {
     const [isOpen, setIsOpen] = useState(false);
+    const toggleOpen = useCallback(() => setIsOpen(f => !f), [setIsOpen]);
 
     return (<div className={`bg-card/50 rounded`}>
         <button
             className={`w-full btn-sm ${isOpen ? '' : 'collapsed'}`}
             type="button"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={toggleOpen}
             aria-expanded={isOpen}
             aria-controls={`collapseodds${war.id}`}
         >

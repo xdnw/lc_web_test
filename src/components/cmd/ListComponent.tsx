@@ -60,27 +60,32 @@ export default function ListComponent(
     const [clusterize, setClusterize] = useState<Clusterize | null>(null);
     const [isFocused, setIsFocused] = useState(false);
 
+    const selectedValueSet = useMemo(() => {
+        return new Set(value.map((v) => v.value));
+    }, [value]);
+
     const addValue = React.useCallback((option: { label: string, value: string } | undefined, input: string) => {
         if (option) {
-            if (!value.find((v) => v.value === option.value)) {
-                if (isMulti) {
-                    const copy = [...value];
-                    copy.push(option);
-                    const valueStr = copy.map((v) => v.value).join(',');
-                    setOutputValue(argName, valueStr);
-                    setValue(copy);
-                } else {
-                    setValue([option]);
-                    setOutputValue(argName, option.value);
+            // Use functional update to avoid value dependency
+            setValue(prevValue => {
+                if (!prevValue.find((v) => v.value === option.value)) {
+                    if (isMulti) {
+                        const newValue = [...prevValue, option];
+                        const valueStr = newValue.map((v) => v.value).join(',');
+                        setOutputValue(argName, valueStr);
+                        return newValue;
+                    } else {
+                        setOutputValue(argName, option.value);
+                        return [option];
+                    }
                 }
-                setInputValue('');
-            } else {
-                showDialog("Value already exists", <>The value <kbd className='bg-secondary rounded px-0.5'>{option.value}</kbd> already exists in the list.</>);
-            }
+                return prevValue;
+            });
+            setInputValue('');
         } else {
             showDialog("Invalid value", <>The value <kbd className='bg-secondary rounded px-0.5'>{input}</kbd> is not a valid option.</>);
         }
-    }, [value, isMulti, argName, setOutputValue, showDialog]);
+    }, [isMulti, argName, setOutputValue, showDialog, setValue]);
 
     const handleKeyDown: KeyboardEventHandler = React.useCallback((event) => {
         switch (event.key) {
@@ -109,7 +114,6 @@ export default function ListComponent(
     useEffect(() => {
         if (scrollRef.current && contentRef.current && options) {
             const filteredOptions: string[] = [];
-            const selectedValueSet: Set<string> = new Set(value.map((v) => v.value));
             const inputLower = inputValue.toLowerCase();
             for (const option of options) {
                 const checkAgainst = option.label ? option.label : option.value;
@@ -136,13 +140,13 @@ export default function ListComponent(
                 setClusterize(newClusterize);
             }
         }
-    }, [inputValue, value]);
+    }, [inputValue, value, clusterize, options, selectedValueSet]);
 
     useEffect(() => {
         return () => {
             if (clusterize) clusterize.destroy(true);
         };
-    }, []);
+    }, [clusterize]);
 
     const handleBlur = React.useCallback(() => {
         setTimeout(() => {
@@ -174,7 +178,7 @@ export default function ListComponent(
             setIsFocused(f => !f);
         }
         focusTriggered.current = false;
-    }, [isFocused, setIsFocused, focusTriggered]);
+    }, [setIsFocused, focusTriggered]);
 
     useEffect(() => {
         const scrollElement = scrollRef.current;
@@ -194,18 +198,18 @@ export default function ListComponent(
         setValue(options);
         const valueStr = options.map((v) => v.value).join(',');
         setOutputValue(argName, valueStr);
-    }, [options, argName, setOutputValue]);
+    }, [options, argName, setOutputValue, setValue]);
 
     const clearAll = React.useCallback(() => {
         setValue([]);
         setOutputValue(argName, '');
-    }, [argName, setOutputValue]);
+    }, [argName, setOutputValue, setValue]);
 
     const handleChange = React.useCallback((newValue: unknown) => {
         setValue(newValue as { label: string, value: string }[]);
         const valueStr = (newValue as { label: string, value: string }[]).map((v) => v.value).join(',');
         setOutputValue(argName, valueStr);
-    }, [argName, setOutputValue]);
+    }, [argName, setOutputValue, setValue]);
 
     const handleInputChange = React.useCallback((newValue: string, actionMeta: InputActionMeta) => {
         if (actionMeta.action !== 'input-blur' && actionMeta.action !== 'set-value' && actionMeta.action !== 'menu-close') {

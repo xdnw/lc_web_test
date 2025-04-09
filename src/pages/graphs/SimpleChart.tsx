@@ -1,4 +1,4 @@
-import React, { Component, createRef, CSSProperties, RefObject, useRef, useState } from 'react';
+import React, { Component, createRef, CSSProperties, RefObject, useCallback, useRef, useState } from 'react';
 import LazyIcon from "@/components/ui/LazyIcon";
 import {
     Chart as ChartJS,
@@ -34,6 +34,9 @@ import { invertData } from "../../utils/MathUtil";
 
 export function CoalitionGraphComponent({ graph, type }: { graph: CoalitionGraph, type: GraphType }) {
     const [showAlliances, setShowAlliances] = useState(false);
+    const toggleAlliances = useCallback(() => {
+        setShowAlliances(f => !f);
+    }, [setShowAlliances]);
 
     return (
         <div className="themeDiv bg-opacity-10 rounded my-2">
@@ -46,7 +49,7 @@ export function CoalitionGraphComponent({ graph, type }: { graph: CoalitionGraph
             <div className="themeDiv bg-opacity-10 rounded mt-2">
                 <Button variant="ghost" size="md"
                     className="text-xl w-full border-b border-secondary px-2 bg-primary/10 rounded-b justify-start"
-                    onClick={() => setShowAlliances(!showAlliances)}
+                    onClick={toggleAlliances}
                 >
                     {showAlliances ? 'Hide' : 'Show'} Alliance Graphs
                 </Button>
@@ -123,22 +126,47 @@ export function ChartWithButtons({ graph, endpointName, usedArgs }:
         usedArgs?: { [key: string]: string | string[] | undefined }
     }) {
     const { showDialog } = useDialog();
+
+    const downloadAction = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        // data-clipboard
+        // data-type
+        const useClipboard = e.currentTarget.dataset.clipboard === "true";
+        const typeKey = e.currentTarget.dataset.type as string;
+        const type = typeKey && (typeKey in ExportTypes) 
+            ? ExportTypes[typeKey as keyof typeof ExportTypes] 
+            : ExportTypes.CSV; // Provide a default value
+        const formatDates = true;
+        const [title, content] = downloadGraph(graph, useClipboard, formatDates, type);
+        showDialog(title, content, true);
+    }, [graph, showDialog]);
+
+    const copyShare = useCallback(() => {
+        const queryStr = getQueryString(usedArgs || {});
+        const baseUrlWithoutPath = window.location.protocol + "//" + window.location.host;
+        const url = (`${baseUrlWithoutPath}${process.env.BASE_PATH}#/view_graph/${endpointName}?${queryStr}`);
+        navigator.clipboard.writeText(url).then(() => {
+            showDialog("URL copied to clipboard", url, true);
+        }).catch((err) => {
+            showDialog("Failed to copy URL to clipboard", err + "", true);
+        });
+    }, [usedArgs, endpointName, showDialog]);
+
     return <>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="me-1">Export</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-                <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadGraph(graph, false, true, ExportTypes.CSV))}>
+                <DropdownMenuItem className="cursor-pointer" data-type={"CSV"} data-clipboard={false} onClick={downloadAction}>
                     <kbd className="bg-accent rounded flex items-center space-x-1"><LazyIcon name="Download" className="h-4 w-4" /> <span>,</span></kbd>&nbsp;Download CSV
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadGraph(graph, true, true, ExportTypes.CSV))}>
+                <DropdownMenuItem className="cursor-pointer" data-type={"CSV"} data-clipboard={true} onClick={downloadAction}>
                     <kbd className="bg-accent rounded flex items-center space-x-1"><LazyIcon name="ClipboardIcon" className="h-4 w-4" /> <span>,</span></kbd>&nbsp;Copy CSV
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadGraph(graph, false, true, ExportTypes.TSV))}>
+                <DropdownMenuItem className="cursor-pointer" data-type={"TSV"} data-clipboard={false} onClick={downloadAction}>
                     <kbd className="bg-accent rounded flex items-center space-x-1"><LazyIcon name="Download" className="h-4 w-3" /><LazyIcon name="ArrowRightToLine" className="h-4 w-3" /></kbd>&nbsp;Download TSV
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onClick={() => showDialog(...downloadGraph(graph, true, true, ExportTypes.TSV))}>
+                <DropdownMenuItem className="cursor-pointer" data-type={"TSV"} data-clipboard={true} onClick={downloadAction}>
                     <kbd className="bg-accent rounded flex items-center space-x-1"><LazyIcon name="ClipboardIcon" className="h-4 w-3" /><LazyIcon name="ArrowRightToLine" className="h-4 w-3" /></kbd>&nbsp;Copy TSV
                 </DropdownMenuItem>
             </DropdownMenuContent>
@@ -146,17 +174,7 @@ export function ChartWithButtons({ graph, endpointName, usedArgs }:
         {endpointName && <Button
             variant="outline"
             size="sm"
-           
-            onClick={() => {
-                const queryStr = getQueryString(usedArgs || {});
-                const baseUrlWithoutPath = window.location.protocol + "//" + window.location.host;
-                const url = (`${baseUrlWithoutPath}${process.env.BASE_PATH}#/view_graph/${endpointName}?${queryStr}`);
-                navigator.clipboard.writeText(url).then(() => {
-                    showDialog("URL copied to clipboard", url, true);
-                }).catch((err) => {
-                    showDialog("Failed to copy URL to clipboard", err + "", true);
-                });
-            }}
+            onClick={copyShare}
         >
             Share
         </Button>}

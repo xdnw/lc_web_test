@@ -41,7 +41,7 @@ export function TableWith2DData({ columns, data, renderers, sort }: { columns: s
             setSort={setSortState}
             showExports={true}
         />
-    ), [data, dataState, columnsInfo, sortState, searchSet, visibleColumns, table]);
+    ), [dataState, columnsInfo, sortState, searchSet, visibleColumns, table]);
 }
 
 // export function MyTable({ table, data, columnsInfo, sort, searchSet, visibleColumns }:

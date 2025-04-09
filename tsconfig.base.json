@@ -58,7 +58,8 @@
   "exclude": [
     "node_modules",
     "dist",
-    "vite.config.js"
+    "vite.config.js",
+    "eslint.config.js"
   ],
   "references": [
     {

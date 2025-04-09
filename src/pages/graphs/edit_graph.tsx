@@ -62,7 +62,7 @@ function EditGraph<U extends { [key: string]: string | string[] | undefined }, V
         setGraph(newData);
         setUsedArgs(query as U);
         console.log("Setting graph", newData);
-    }, [endpoint]);
+    }, [setUsedArgs, setGraph]);
 
     // Memoize the form component to prevent re-renders when parent re-renders
     const formComponent = useMemo(() => (

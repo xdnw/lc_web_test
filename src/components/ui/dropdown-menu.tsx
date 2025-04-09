@@ -447,7 +447,7 @@ const DropdownMenuSubTrigger = React.forwardRef<HTMLDivElement, DropdownMenuSubT
       if (typeof ref === "function") {
         ref(node);
       }
-    }, [context.setTriggerElement, ref]);
+    }, [context, ref]);
     
     const handlePointerEnter = React.useCallback(() => {
       context.setOpen(true);
@@ -556,7 +556,7 @@ const DropdownMenuSubContent = React.forwardRef<HTMLDivElement, DropdownMenuSubC
         window.removeEventListener('resize', updatePosition);
         window.removeEventListener('scroll', updatePosition);
       };
-    }, [mounted, subContext.triggerElement]);
+    }, [mounted, subContext.triggerElement, updatePosition]);
     
     // Don't render if parent is closed
     if (!parentContext.open) return null;

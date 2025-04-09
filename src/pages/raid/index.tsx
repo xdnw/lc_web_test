@@ -39,19 +39,19 @@ export default function RaidSection() {
         if (nationParam) {
             setNation(f => f !== nationParam ? nationParam : f);
         }
-    }, [nationParam]);
+    }, [nationParam, setNation]);
 
     // set nation from session
     useEffect(() => {
         if (session?.nation_name && !nationParam) {
             setNation(f => f !== session.nation_name ? session.nation_name : f);
         }
-    }, [session, nationParam]);
+    }, [session, nationParam, setNation]);
 
     const updateNation = useCallback((newNation: string) => {
         setNation(newNation);
         navigate(`/raid/${newNation}`);
-    }, [navigate]);
+    }, [navigate, setNation]);
 
     const [raidOutput, setRaidOutput] = useState<WebTargets | boolean | string | null>(null);
     const [desc, setDesc] = useState<string | null>(null);
@@ -124,7 +124,7 @@ export default function RaidSection() {
             } as { [key: string]: string },
             description: "Nations least likely to defend or have counters"
         }
-    }), [nation]);
+    }), []);
     // const [enemies, setEnemies] = useState<WebEnemyInfo | null>(null);
     // WebEnemyInfo = alliance ids, alliance names
     // war find options
@@ -266,7 +266,6 @@ export function RaidOutput({ output, dismiss }: { output: WebTargets | boolean |
     if (output === true) return (<Loading />);
     
     // This gets calculated on every render but could be memoized
-    const now_ms = useMemo(() => Date.now(), [output]); // Recalculate when output changes
     const targets = output as WebTargets;
     
     // Memoize the table header based on include_strength
@@ -297,7 +296,7 @@ export function RaidOutput({ output, dismiss }: { output: WebTargets | boolean |
             <WebTargetRow 
                 key={index} 
                 includeStrength={targets.include_strength} 
-                now={now_ms} 
+                now={Date.now()} 
                 self={targets.self} 
                 target={target}
                 classes={`even:bg-black/10 dark:even:bg-white/5 ${
@@ -305,7 +304,7 @@ export function RaidOutput({ output, dismiss }: { output: WebTargets | boolean |
                 }`} 
             />
         ))
-    ), [targets, now_ms]);
+    ), [targets]);
     
     return (
         <div className="w-full">

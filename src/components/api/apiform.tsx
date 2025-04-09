@@ -100,7 +100,7 @@ export function ApiFormInputs<T, A extends { [key: string]: string | string[] | 
                 <hr className="my-2" />
             </>
         );
-    }, [filteredArgs]);
+    }, [filteredArgs, MemoizedArgInput]);
 
     return (
         <ApiForm
@@ -256,7 +256,7 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
         setQueryArgs(args as { readonly [key: string]: string | string[] });
         // Increment fetchTrigger to trigger useEffect after state update
         setFetchTrigger(prev => prev + 1);
-    }, [store]);
+    }, []);
 
     // If there are missing required fields, show a notification
     if (missing.length) {

@@ -52,7 +52,7 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
         setColumns(props.columns);
         setSortState(props.sort);
         return props;
-    }, [getTableProps]);
+    }, [getTableProps, setType, setSelection, setColumns, setSortState]);
 
     const highlightRowOrColumn = useCallback((col?: number, row?: number) => {
         const tableElem = table?.current?.element;
@@ -137,19 +137,25 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
         );
     }, [copy]);
 
+    const highlightError = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        const col = parseInt(e.currentTarget.dataset.col || "0") - 1;
+        const row = parseInt(e.currentTarget.dataset.row || "0") - 1;
+        highlightRowOrColumn(col, row);
+    }, [highlightRowOrColumn]);
+
     const showErrorsProvided = useCallback((errors: WebTableError[]) => {
         const title = errors.length > 0 ? "Errors updating table" : "No errors";
         const body = errors.length > 0 ? <>
             Errors updating the table may prevent some data from being displayed.
             Click the buttons below to highlight the errors in the table.
             {errors.map((error, index) => (
-                <Button key={index} variant="destructive" className="my-1 h-auto break-words w-full justify-start size-sm whitespace-normal" onClick={() => highlightRowOrColumn(error.col, error.row)}>
+                <Button key={index} data-col={error.col} data-row={error.row} variant="destructive" className="my-1 h-auto break-words w-full justify-start size-sm whitespace-normal" onClick={highlightError}>
                     [col:{(error.col || 0) + 1}{error.row ? `row:${error.row + 1}` : ""}] {error.msg}
                 </Button>
             ))}
         </> : "No errors";
         showDialog(title, body);
-    }, [showDialog, highlightRowOrColumn]);
+    }, [showDialog, highlightError]);
 
     const renderChildren = useCallback((errorsButton: ReactNode, data: JSONValue[][], columnsInfo: ConfigColumns[], searchSet: Set<number>, visibleColumns: number[], setColumnsInfo: (columnsInfo: ConfigColumns[]) => void, setData: (data: JSONValue[][]) => void) => {
         return <>
@@ -170,7 +176,7 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
                 setSort={setSortState}
             />
         </>;
-    }, [exportsComponent, shareButton, sortState]);
+    }, [exportsComponent, shareButton, sortState, setSortState]);
 
     if (load) {
         return <LoadTable
@@ -229,7 +235,7 @@ function LoadTable({ type, selection, columns, sort, showErrorsProvided, childre
             console.error(e);
             return undefined;
         }
-    }, [queryData.data, sort, columns]);
+    }, [sort, columns, webTable]);
 
     const [data, setData] = useState<JSONValue[][]>(initialTableInfo?.data as JSONValue[][]);
     const [columnsInfo, setColumnsInfo] = useState<ConfigColumns[]>(initialTableInfo?.columnsInfo || []);
@@ -281,7 +287,7 @@ ${process.env.BASE_PATH}custom_table?${getQueryString({
                 View {errors.length} Errors
             </Button>
         );
-    }, [errors.length, showErrorsProvided, showErrors]);
+    }, [errors.length, showErrors]);
 
     return <>
         <Button variant="outline"
@@ -353,7 +359,7 @@ function DeferTable(
                 View {errors.length} Errors
             </Button>
         );
-    }, [errors.length, showErrorsProvided, showErrors]);
+    }, [errors.length, showErrors]);
 
     const onErrorOrNull = useCallback((e: string | Error) => {
         console.error(e);
@@ -362,7 +368,7 @@ function DeferTable(
             <CopoToClipboardTextArea text={e.stack + ""} />
         </> : e + "";
         showDialog("Failed to update table", errorMessage, true);
-    }, []);
+    }, [showDialog]);
 
     const onSuccess = useCallback((data: WebTable, sort: OrderIdx | OrderIdx[] | undefined, columns: Map<string, string | null>) => {
         try {
@@ -371,7 +377,7 @@ function DeferTable(
         } catch (e) {
             onErrorOrNull(e as (string | Error));
         }
-    }, [table, updateTable, onErrorOrNull]);
+    }, [updateTable, onErrorOrNull]);
 
     const submit = useCallback(() => {
         const { type, selection, columns, sort } = getTableProps();

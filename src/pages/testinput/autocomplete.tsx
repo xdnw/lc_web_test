@@ -1,5 +1,5 @@
 import {CM, ICommand} from '@/utils/Command';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import TextInput from 'react-autocomplete-input';
 import 'react-autocomplete-input/dist/bundle.css';
 import {STRIP_PREFIXES} from "../../utils/Command";
@@ -17,8 +17,7 @@ export default function AutoComplete() {
     // TODO generate completions for the argument if it has a type and that type has either options or fetchable options
     // OR if the option is placeholder type generate new completions for that placeholder type
 
-    return <>
-    <TextInput matchAny={true} className="bg-background w-full h-6" requestOnlyIfNoOptions={true} options={options} trigger="#" maxOptions={0} spacer={""} onRequestOptions={() => {
+    const requestOptions = useCallback(() => {
         const obj = CM.data.placeholders[type].commands;
         // value -> ICommand -> arguments -> iterate and check if `optional` exists and is true
         const options: string[] = [];
@@ -53,6 +52,9 @@ export default function AutoComplete() {
             }
         }
         setOptions(options);
-    }}/>
+    }, [type]);
+
+    return <>
+    <TextInput matchAny={true} className="bg-background w-full h-6" requestOnlyIfNoOptions={true} options={options} trigger="#" maxOptions={0} spacer={""} onRequestOptions={requestOptions}/>
     </>
 }

@@ -1,4 +1,4 @@
-import { memo, useRef, useState, useEffect, ReactNode } from "react";
+import { memo, useRef, useState, useEffect, ReactNode, useMemo, useCallback } from "react";
 import { RECORDS } from "@/lib/endpoints";
 import Loading from "@/components/ui/loading.tsx";
 import { PaginatedList } from "@/components/ui/pagination.tsx";
@@ -12,7 +12,7 @@ import LazyIcon from "@/components/ui/LazyIcon";
 const Records = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const queryParams = new URLSearchParams(location.search);
+    const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
     const initialPage = parseInt(queryParams.get("page") || "1", 10);
     const [currentPage, setCurrentPage] = useState<number>(initialPage);
     const entries = useRef<string[][] | null>(null);
@@ -24,6 +24,33 @@ const Records = () => {
             navigate({ search: queryParams.toString() });
         }
     }, [currentPage, navigate, queryParams]);
+
+    const renderRow = useCallback((row: string[]) => {
+        return (
+            <tr>
+                {row.map((cell, index) => (
+                    <td key={index}>{cell}</td>
+                ))}
+            </tr>
+        );
+    }, []);
+
+    const renderParent = useCallback(({ children }: { children: ReactNode }) => {
+        return (
+            <table className="min-w-full divide-y text-xs">
+                <thead className="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                    {header.current!.map((cell, index) => (
+                        <th key={index}>{cell}</th>
+                    ))}
+                </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-solid dark:bg-gray-900">
+                {children}
+                </tbody>
+            </table>
+        );
+    }, []);
 
     return (
         <>
@@ -45,27 +72,8 @@ const Records = () => {
                         <MemoizedPaginatedList
                             top={false}
                             items={entries.current}
-                            render={(row: string[]) => (
-                                <tr>
-                                    {row.map((cell, index) => (
-                                        <td key={index}>{cell}</td>
-                                    ))}
-                                </tr>
-                            )}
-                            parent={({ children }) => (
-                                <table className="min-w-full divide-y text-xs">
-                                    <thead className="bg-gray-50 dark:bg-gray-800">
-                                    <tr>
-                                        {header.current!.map((cell, index) => (
-                                            <th key={index}>{cell}</th>
-                                        ))}
-                                    </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-solid dark:bg-gray-900">
-                                    {children}
-                                    </tbody>
-                                </table>
-                            )}
+                            render={renderRow}
+                            parent={renderParent}
                             perPage={50}
                             currentPage={currentPage}
                             onPageChange={setCurrentPage}

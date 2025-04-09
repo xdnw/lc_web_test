@@ -16,7 +16,6 @@ import LazyIcon from "@/components/ui/LazyIcon";
 const GuildPicker = () => {
     const { session, error, setSession, refetchSession } = useSession();
     const { showDialog } = useDialog();
-    const queryClient = useQueryClient();
 
     const handleResponse = useCallback((data: SetGuild) => {
         refetchSession();
@@ -25,7 +24,7 @@ const GuildPicker = () => {
             <img src={data.icon} alt="Guild Icon" className="w-8 h-8 mr-2" />
             <span>Selected guild with id {data.id} and name {data.name}</span>
         </div>, false);
-    }, [queryClient, refetchSession, showDialog]);
+    }, [refetchSession, showDialog]);
 
     return (
         <>
@@ -49,6 +48,9 @@ const GuildPicker = () => {
 };
 
 const GuildForm = (({ handleResponse }: { handleResponse: (data: SetGuild) => void }) => {
+    const handleResponseCallback = useCallback(({data}: {data: SetGuild}) => {
+        handleResponse(data);
+    }, [handleResponse]);
     return <ApiFormInputs
         endpoint={SET_GUILD}
         message={<>
@@ -57,9 +59,7 @@ const GuildForm = (({ handleResponse }: { handleResponse: (data: SetGuild) => vo
                 Select your guild using the dropdown below, then press the <kbd>Submit</kbd> button<br />
             </p>
         </>}
-        handle_response={({ data }) => {
-            handleResponse(data);
-        }}
+        handle_response={handleResponseCallback}
     />
 });
 
@@ -71,7 +71,15 @@ const SelectedGuildInfo = memo(({ id, name, icon }: { id: string, name?: string,
 const GuildCard = memo(({ id, name, icon }: { id: string | null, name: string | undefined, icon: string | undefined }) => {
     const { refetchSession } = useSession();
     const { showDialog } = useDialog();
-    const queryClient = useQueryClient();
+
+    const setGuild = useCallback(() => {
+        UNSET_GUILD.endpoint.call({}).then(() => {
+            refetchSession();
+            showDialog("Guild Unset", "Successfully unset guild");
+        }).catch(error => {
+            showDialog("Failed to unset guild", error + "");
+        });
+    }, [refetchSession, showDialog]);
 
     return (
         <>
@@ -83,14 +91,7 @@ const GuildCard = memo(({ id, name, icon }: { id: string | null, name: string | 
                         {name ? name + " | " : ""}
                         {id ? id : "N/A"}
                     </p>
-                    <Button onClick={() => {
-                        UNSET_GUILD.endpoint.call({}).then(() => {
-                            refetchSession();
-                            showDialog("Guild Unset", "Successfully unset guild");
-                        }).catch(error => {
-                            showDialog("Failed to unset guild", error + "");
-                        });
-                    }} variant="outline" size="sm" className="border-slate-600 absolute top-2 right-2">
+                    <Button onClick={setGuild} variant="outline" size="sm" className="border-slate-600 absolute top-2 right-2">
                         Remove
                     </Button>
                 </div>

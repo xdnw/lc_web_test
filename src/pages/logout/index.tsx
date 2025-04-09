@@ -32,8 +32,7 @@ export function LogoutComponent() {
         setShouldClearCookies(true);
     }, []);
 
-    return <EndpointWrapper endpoint={LOGOUT} args={{}}
-    handle_error={(error) => {
+    const handleError = useCallback((error: Error) => {
         console.log("Logout failed");
         logoutCallback();
         showDialog("Logout Failed", <>
@@ -42,7 +41,9 @@ export function LogoutComponent() {
                 <CopoToClipboardTextArea text={error.message}/>
             </div>
         </>, false);
-    }}>
+    }, [logoutCallback, showDialog]);
+
+    return <EndpointWrapper endpoint={LOGOUT} args={{}} handle_error={handleError}>
         {({data}) => {
             console.log("Logout successful");
             logoutCallback();

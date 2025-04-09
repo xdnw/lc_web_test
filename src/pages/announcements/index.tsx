@@ -20,7 +20,7 @@ export default function Announcements() {
     const entries = useRef<WebAnnouncement[] | null>(null);
 
     const renderAnn = useCallback((announcement: WebAnnouncement) => {
-        <tr>
+        return <tr>
             <td className={`h-6 relative px-1 break-normal text-sm text-gray-900 dark:text-gray-200 ${announcement.active ? "font-bold" : "text-black"}`}>
                 <Link className="underline-offset-4 hover:underline active:text-primary/80" to={`${process.env.BASE_PATH}announcement/${announcement.id}`}>
                     {announcement.title}

@@ -104,6 +104,12 @@ export const PlaceholderTabs = forwardRef<PlaceholderTabsHandle, {
         }
     }, [setType, setSelection, setColumns, setSort]);
 
+    const createTabsTrigger = useCallback((index: number) => {
+        return <TabsTrigger key={phTypes[index]} value={phTypes[index]} className='w-auto px-3'>
+        {toPlaceholderName(phTypes[index])}
+    </TabsTrigger>
+    }, [phTypes]);
+
     const tabList = useMemo(() => {
         return (
             <TabsList className="min-w-full" style={{ overflow: 'hidden' }}>
@@ -111,15 +117,11 @@ export const PlaceholderTabs = forwardRef<PlaceholderTabsHandle, {
                     totalCount={phTypes.length}
                     style={{ height: '40px', width: '100%' }}
                     horizontalDirection
-                    itemContent={index => (
-                        <TabsTrigger key={phTypes[index]} value={phTypes[index]} className='w-auto px-3'>
-                            {toPlaceholderName(phTypes[index])}
-                        </TabsTrigger>
-                    )}
+                    itemContent={createTabsTrigger}
                 />
             </TabsList>
         );
-    }, [phTypes]);
+    }, [phTypes, createTabsTrigger]);
 
     const tabs = useMemo(() => {
         return (
@@ -129,7 +131,7 @@ export const PlaceholderTabs = forwardRef<PlaceholderTabsHandle, {
                 </div>
             </Tabs>
         );
-    }, [setSelectedTab, tabList]);
+    }, [setSelectedTab, tabList, defType]);
 
     const selectionSection = useMemo(() => {
         return <SelectionSection
@@ -182,7 +184,7 @@ export function ColumnsSection({
 
     useEffect(() => {
         setColTemplates(Object.keys(DEFAULT_TABS[type]?.columns ?? {}));
-    }, [type]);
+    }, [type, setColTemplates]);
 
     // Refs for DOM elements
     const addButton = useRef<HTMLButtonElement | null>(null);
@@ -422,13 +424,23 @@ export function ColumnsSection({
         setColumns(newColumns);
     }, [columns, setColumns]);
 
+    const toggleColumns = useCallback(() => {
+        setCollapseColumns(f => !f);
+    }, [setCollapseColumns])
+
+    const addButtonFunc = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        const column = e.currentTarget.dataset.key;
+        if (!column) return;
+        selectColumnTemplate(column);
+    }, [selectColumnTemplate]);
+
     return (
         <div className="bg-light/10 border border-light/10 rounded mt-2">
             <Button
                 variant="ghost"
                 size="md"
                 className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 rounded-t justify-start"
-                onClick={() => setCollapseColumns(!collapseColumns)}
+                onClick={toggleColumns}
             >
                 Columns {collapseColumns ? <LazyIcon name="ChevronDown" /> : <LazyIcon name="ChevronUp" />}
             </Button>
@@ -440,7 +452,8 @@ export function ColumnsSection({
                         variant="outline"
                         size="sm"
                         className="me-1"
-                        onClick={() => selectColumnTemplate(column)}
+                        data-key={column}
+                        onClick={addButtonFunc}
                     >
                         {column}
                     </Button>
@@ -488,6 +501,43 @@ function ColumnList({
     handleColumnSort: (index: number, shiftKey: boolean) => void,
     clearAllColumns: () => void
 }) {
+
+    const columnContext = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        e.currentTarget.focus();
+    }, []);
+
+    const toggleSort = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        if (e.button === 1) {
+            const index = parseInt(e.currentTarget.dataset.key || "0", 10);
+            e.preventDefault();
+            handleColumnSort(index, e.shiftKey);
+            return false;
+        }
+    }, [handleColumnSort]);
+
+    const copyText = useCallback(() => {
+        return Array.from(columns).map(([key, value]) =>
+            value ? `${key};${value}` : key).join("\n");
+    }, [columns]);
+
+    const moveFunc = useCallback((e: React.MouseEvent<SVGElement, MouseEvent>) => {
+        const from = parseInt(e.currentTarget.dataset.from || "0", 10);
+        const to = parseInt(e.currentTarget.dataset.to || "0", 10);
+        e.preventDefault();
+        if (from !== to) {
+            moveColumn(from, to);
+        }
+    }, [moveColumn]);
+
+    const removeFunc = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        const index = parseInt(e.currentTarget.dataset.key || "0", 10);
+        const column = e.currentTarget.dataset.column!;
+        const colInfo = [column, columns.get(column) || null] as [string, string | null];
+        e.preventDefault();
+        removeColumn(colInfo, index);
+    }, [columns, removeColumn]);
+
     return (
         <>
             <h2 className="text-lg mt-1 pb-0 mb-0">Current Columns</h2>
@@ -501,26 +551,23 @@ function ColumnList({
                     <span key={`spw-${index}`} className="inline-flex items-center bg-background rounded me-1 mb-1">
                         <LazyIcon name="ChevronLeft"
                             className="cursor-pointer w-4 h-6 rounded-s hover:bg-accent"
-                            onClick={() => moveColumn(index, index - 1)}
+                            data-from={index}
+                            data-to={index - 1}
+                            onClick={moveFunc}
                         />
                         <Button
                             key={colInfo[0]}
+                            data-key={index}
                             id={"btn-" + colInfo[0]}
                             variant="outline"
                             size="sm"
                             className="rounded-none border-r-input/50 border-l-input/50 inline-block"
-                            onContextMenu={(e) => {
-                                e.preventDefault();
-                                e.currentTarget.focus();
-                            }}
-                            onClick={() => removeColumn(colInfo, index)}
-                            onMouseDown={(e) => {
-                                if (e.button === 1) {
-                                    e.preventDefault();
-                                    handleColumnSort(index, e.shiftKey);
-                                    return false;
-                                }
-                            }}
+                            onContextMenu={columnContext}
+
+                            data-column={colInfo[0]}
+                            data-index={index}
+                            onClick={removeFunc}
+                            onMouseDown={toggleSort}
                         >
                             {colInfo[0]}
                             <span key={`colspan-${index}`} className="text-xs opacity-50">
@@ -544,17 +591,16 @@ function ColumnList({
                         </Button>
                         <LazyIcon name="ChevronRight"
                             className="cursor-pointer inline-block w-4 rounded-e hover:bg-accent align-middle"
-                            onClick={() => moveColumn(index, index + 1)}
+                            data-from={index}
+                            data-to={index + 1}
+                            onClick={moveFunc}
                         />
                     </span>
                 ))}
 
                 <TooltipProvider>
                     <BlockCopyButton
-                        getText={() => {
-                            return Array.from(columns).map(([key, value]) =>
-                                value ? `${key};${value}` : key).join("\n");
-                        }}
+                        getText={copyText}
                         className="rounded [&_svg]:size-3.5 me-1"
                         size="sm"
                     />
@@ -663,7 +709,7 @@ function AddCustomColumn({ colInputRef, addButton, handleAddColumn, handlePaste,
         >
             Add
         </Button>
-    ), [inputValue, addButton, handleAddClick]);
+    ), [addButton, handleAddClick]);
 
     // Combine the two memoized components.
     const inputArea = useMemo(() => (
@@ -698,16 +744,20 @@ function AddCustomColumn({ colInputRef, addButton, handleAddColumn, handlePaste,
 const OptionButton = React.memo(({ option, isHidden, onClick }: {
     option: [string, string],
     isHidden: boolean,
-    onClick: () => void
+    onClick: (option: [string, string]) => void
 }) => {
     if (isHidden) return null;
+
+    const handleClick = useCallback(() => {
+        onClick(option);
+    }, [option, onClick]);
 
     return (
         <Button
             variant="outline"
             size="sm"
             className="me-1 mb-1"
-            onClick={onClick}
+            onClick={handleClick}
         >
             {option[0]}:&nbsp;<span className="text-xs opacity-50">{option[1]}</span>
         </Button>
@@ -776,13 +826,45 @@ function SimpleColumnOptions({
         return chunks;
     }, [filteredOptions]);
 
+    const updateFilter = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setFilter(e.target.value.toLowerCase());
+    }, [])
+
+    const toggleCollapse = useCallback(() => {
+        setCollapseColOptions(f => !f);
+    }, [setCollapseColOptions]);
+
+    const addSimpleContent = useCallback((index: number) => {
+        const chunk = chunkedOptions[index];
+        return (
+            <div className="flex flex-wrap">
+                {chunk.map((option, i) => {
+                    const isHidden = columns.has("{" + option[0] + "}");
+                    if (isHidden) return null;
+    
+                    // Create a key for this option
+                    const optionKey = `${index}-${i}`;
+                    
+                    return (
+                        <OptionButton
+                            key={optionKey}
+                            option={option}
+                            isHidden={false}
+                            onClick={handleAddSimpleColumn}
+                        />
+                    );
+                })}
+            </div>
+        );
+    }, [chunkedOptions, columns, handleAddSimpleColumn]);
+
     return (
         <div className="bg-secondary rounded">
             <Button
                 variant="ghost"
                 size="sm"
                 className="text-lg w-full border-b border-secondary px-2 bg-primary/10 rounded justify-start"
-                onClick={() => setCollapseColOptions(!collapseColOptions)}
+                onClick={toggleCollapse}
             >
                 Add Simple {collapseColOptions ? <LazyIcon name="ChevronDown" /> : <LazyIcon name="ChevronUp" />}
             </Button>
@@ -794,7 +876,7 @@ function SimpleColumnOptions({
                     className="relative px-1 w-full mb-2 bg-gray-200 dark:bg-gray-600"
                     placeholder="Filter options"
                     value={filter}
-                    onChange={(e) => setFilter(e.target.value.toLowerCase())}
+                    onChange={updateFilter}
                 />
 
                 <div ref={containerRef} className="w-full">
@@ -802,26 +884,7 @@ function SimpleColumnOptions({
                         <Virtuoso
                             style={{ height: Math.min(400, chunkedOptions.length * 40) }}
                             totalCount={chunkedOptions.length}
-                            itemContent={index => {
-                                const chunk = chunkedOptions[index];
-                                return (
-                                    <div className="flex flex-wrap">
-                                        {chunk.map((option, i) => {
-                                            const isHidden = columns.has("{" + option[0] + "}");
-                                            if (isHidden) return null;
-
-                                            return (
-                                                <OptionButton
-                                                    key={`${index}-${i}`}
-                                                    option={option}
-                                                    isHidden={false}
-                                                    onClick={() => handleAddSimpleColumn(option)}
-                                                />
-                                            );
-                                        })}
-                                    </div>
-                                );
-                            }}
+                            itemContent={addSimpleContent}
                         />
                     )}
 
@@ -877,11 +940,10 @@ export function SelectionSection({
         debouncedSetSelection(newValue); // Debounce the parent update
     }, [debouncedSetSelection]);
 
-    const selectTemplate = useCallback((templateName: string) => {
-        const templateValue = DEFAULT_TABS[type]?.selections[templateName] || "*";
-        setSelInputValue(templateValue);
-        setSelection({ ...selection, "": templateValue });
-    }, [type, selection, setSelection]);
+    const toggleCollapse = useCallback(() => {
+        setCollapsed(f => !f);
+    }, [setCollapsed]);
+
 
     // Memoized component parts
     const headerButton = useMemo(() => (
@@ -889,11 +951,19 @@ export function SelectionSection({
             variant="ghost"
             size="md"
             className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 rounded-t justify-start"
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={toggleCollapse}
         >
             Selection {collapsed ? <LazyIcon name="ChevronDown" /> : <LazyIcon name="ChevronUp" />}
         </Button>
-    ), [collapsed]);
+    ), [collapsed, toggleCollapse]);
+
+    const selectTemplate = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        const templateName = e.currentTarget.dataset.key;
+        if (!templateName) return;
+        const templateValue = DEFAULT_TABS[type]?.selections[templateName] || "*";
+        setSelInputValue(templateValue);
+        setSelection({ ...selection, "": templateValue });
+    }, [type, selection, setSelection]);
 
     const templatesSection = useMemo(() => (
         <>
@@ -904,7 +974,8 @@ export function SelectionSection({
                     variant="outline"
                     size="sm"
                     className="me-1"
-                    onClick={() => selectTemplate(selectionTemplate)}
+                    data-key={selectionTemplate}
+                    onClick={selectTemplate}
                 >
                     {selectionTemplate}
                 </Button>
@@ -933,7 +1004,7 @@ export function SelectionSection({
                 </TooltipProvider>
             </div>
         </>
-    ), [selInputValue, handleSelectionChange]);
+    ), [selInputValue, handleSelectionChange, getSelectionText]);
 
     const modifierComponent = useMemo(() => (
         CM.placeholders(type).getCreate() && (
@@ -983,26 +1054,30 @@ export function ModifierComponent({
     selection: { [key: string]: string },
     setSelection: (selection: { [key: string]: string }) => void,
 }) {
+    const setOuput = useCallback((key: string, value: string) => {
+        if (!value) {
+            if (selection[key] === undefined) return;
+            const copy = { ...selection };
+            delete copy[key];
+            setSelection(copy);
+        } else {
+            if (selection[key] === value) return;
+            setSelection(({
+                ...selection,
+                [key]: value
+            }));
+        }
+    }, [selection, setSelection]);
+
+    const alwaysTrue = useCallback(() => true, []);
+
     return (
         <CommandComponent
             overrideName={"Modifier"}
             command={modifier}
-            filterArguments={() => true}
+            filterArguments={alwaysTrue}
             initialValues={selection}
-            setOutput={(key: string, value: string) => {
-                if (!value) {
-                    if (selection[key] === undefined) return;
-                    const copy = { ...selection };
-                    delete copy[key];
-                    setSelection(copy);
-                } else {
-                    if (selection[key] === value) return;
-                    setSelection(({
-                        ...selection,
-                        [key]: value
-                    }));
-                }
-            }}
+            setOutput={setOuput}
         />
     );
 }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button.tsx";
 import { SESSION, SET_OAUTH_CODE } from "@/lib/endpoints";
 import { CopoToClipboardTextArea } from "../../components/ui/copytoclipboard";
 import { useDialog } from "../../components/layout/DialogContext";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import EndpointWrapper from '@/components/api/bulkwrapper';
 import { useSession } from '@/components/api/SessionContext';
 import { useQueryClient } from '@tanstack/react-query';
@@ -30,13 +30,15 @@ export function OAuth2Component() {
 
     }, [loggedIn, refetchSession, queryClient]);
 
-    return <EndpointWrapper endpoint={SET_OAUTH_CODE} args={{ code: code ?? "" }} handle_error={(error) => {
+    const handleError = useCallback((error: Error) => {
         showDialog("Login Failed", <>Failed to set login OAuth2 Code. Please try again, try a different login method, or contact support.
             <div className="relative overflow-auto">
                 <CopoToClipboardTextArea text={error.message} />
             </div>
         </>, false);
-    }}>
+    }, [showDialog]);
+
+    return <EndpointWrapper endpoint={SET_OAUTH_CODE} args={{ code: code ?? "" }} handle_error={handleError}>
         {({ data }) => {
             setLoggedIn(true);
             return <>Logged in Successfully via OAuth2!<br />

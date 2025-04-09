@@ -165,6 +165,29 @@ export function DataTable({
     showExports && <ExportTable data={data} columns={columnsInfo} />
   ), [showExports, data, columnsInfo]);
 
+  const evenClass = useMemo(() => {
+    return cn(
+      "text-gray-900 dark:text-gray-200 w-full hover:bg-black/20 dark:hover:bg-white/20",
+      "bg-black/5 dark:bg-white/5"
+    );
+  }, []);
+
+  const oddClass = useMemo(() => {
+    return cn(
+      "text-gray-900 dark:text-gray-200 w-full hover:bg-black/20 dark:hover:bg-white/20",
+      "bg-transparent"
+    );
+  }, []);
+
+  // todo use the above even/odd
+  const rowClass = useCallback((row: JSONValue[], rowIdx: number) => {
+    const isSelected = searchSet.has(rowIdx);
+    return cn(
+      rowIdx % 2 === 0 ? evenClass : oddClass,
+      isSelected ? "bg-blue-100 dark:bg-blue-700" : ""
+    );
+  }, [searchSet, evenClass, oddClass]);
+
   const dataGrid = useMemo(() => {
     return <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden text-xs">
       <DataGrid
@@ -177,16 +200,13 @@ export function DataTable({
         sortColumns={sortColumns}
         onSortColumnsChange={handleSort}
         onColumnsReorder={onColumnsReorder}
-        rowClass={(row: JSONValue[], rowIdx: number) =>
-          `${rowIdx % 2 === 0 ? 'bg-black/5 dark:bg-white/5' : 'bg-transparent'} 
-      text-gray-900 dark:text-gray-200 w-full hover:bg-black/20 dark:hover:bg-white/20`
-        }
+        rowClass={rowClass}
         rowHeight={25}
         renderers={{ noRowsFallback }}
         enableVirtualization={true}
       />
     </div>;
-  }, [columnsInfo, data, sortColumns, handleSort, onColumnsReorder, table]);
+  }, [columnsInfo, data, sortColumns, handleSort, onColumnsReorder, table, gridColumns, noRowsFallback, rowClass]);
 
   return (
     <>

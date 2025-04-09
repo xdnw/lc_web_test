@@ -1,9 +1,14 @@
 // @ts-check
+/// <reference types="typescript" options="{\"esModuleInterop\":true}" />
 
+// @ts-ignore
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
+// @ts-ignore
 import react from "eslint-plugin-react"
+// @ts-ignore
 import reactCompiler from 'eslint-plugin-react-compiler';
+// @ts-ignore
 import reactHooks from "eslint-plugin-react-hooks";
 import { fixupPluginRules } from "@eslint/compat";
 

@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useMemo } from "react"
+import { useCallback, useMemo } from "react"
 import {cn} from "../../lib/utils"
 import {ButtonProps, buttonVariants} from "./button";
 import LazyIcon from "./LazyIcon";
@@ -134,13 +134,7 @@ export function PaginatedList<T>({ items, render, parent, perPage, currentPage, 
 
     const currentItems = useMemo(() => items.slice(startIndex, endIndex), [items, startIndex, endIndex]);
 
-    const handlePageChange = (page: number) => {
-        if (page >= 1 && page <= totalPages) {
-            onPageChange(page);
-        }
-    };
-
-    const getPageNumbers = (totalPages: number, currentPage: number, pageRange: number = 2) => {
+    const getPageNumbers = useCallback((totalPages: number, currentPage: number, pageRange: number = 2) => {
         const startPage = Math.max(1, currentPage - pageRange);
         const endPage = Math.min(totalPages, currentPage + pageRange);
         const pages = [];
@@ -150,9 +144,24 @@ export function PaginatedList<T>({ items, render, parent, perPage, currentPage, 
         }
 
         return pages;
-    };
+    }, []);
 
-    const pageNumbers = useMemo(() => getPageNumbers(totalPages, currentPage), [totalPages, currentPage]);
+    const pageNumbers = useMemo(() => getPageNumbers(totalPages, currentPage), [totalPages, currentPage, getPageNumbers]);
+
+    const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+        const target = e.currentTarget;
+        const key = parseInt(target.getAttribute('data-key') || '0', 10);
+        const isRelative = target.getAttribute('data-relative') === 'true';
+        
+        let page = key;
+        if (isRelative) {
+            page = currentPage + key;
+        }
+        
+        if (page >= 1 && page <= totalPages) {
+            onPageChange(page);
+        }
+    }, [currentPage, totalPages, onPageChange]);
 
     return (
         <div>
@@ -160,13 +169,13 @@ export function PaginatedList<T>({ items, render, parent, perPage, currentPage, 
             <Pagination>
                 <PaginationContent>
                     <PaginationItem>
-                        <PaginationPrevious size="sm" onClick={() => handlePageChange(currentPage - 1)} />
+                        <PaginationPrevious size="sm" data-key={-1} data-relative={true} onClick={handleClick} />
                     </PaginationItem>
                     {pageNumbers.map(page => (
                         <PaginationItem key={page}>
-                            <PaginationLink size="sm"
+                            <PaginationLink data-key={page} data-relative={false} size="sm"
                                             isActive={page === currentPage}
-                                onClick={() => handlePageChange(page)}
+                                onClick={handleClick}
                             >
                                 {page}
                             </PaginationLink>
@@ -178,7 +187,7 @@ export function PaginatedList<T>({ items, render, parent, perPage, currentPage, 
                         </PaginationItem>
                     )}
                     <PaginationItem>
-                        <PaginationNext size="sm" onClick={() => handlePageChange(currentPage + 1)} />
+                        <PaginationNext size="sm" data-key={1} data-relative={true} onClick={handleClick} />
                     </PaginationItem>
                 </PaginationContent>
             </Pagination>

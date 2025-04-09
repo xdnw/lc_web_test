@@ -20,16 +20,18 @@ export default function CommandPage() {
     // CM.cmdBuildTest()
 
     const [initialValues, setInitialValues] = useState<{ [key: string]: string }>(queryParamsToObject(getQueryParams()) as { [key: string]: string });
-    const commandStore = useMemo(() => createCommandStoreWithDef(initialValues), []);
+    const commandStore = useMemo(() => createCommandStoreWithDef(initialValues), [initialValues]);
 
     if (!cmdObj) {
         console.log("Not command");
         return <div>No command found</div>; // or some loading spinner
     }
 
+    const alwaysTrue = useCallback(() => true, []);
+
     return (
         <>
-            <CommandComponent key={cmdObj.name} command={cmdObj} filterArguments={() => true} initialValues={initialValues}
+            <CommandComponent key={cmdObj.name} command={cmdObj} filterArguments={alwaysTrue} initialValues={initialValues}
                 setOutput={commandStore((state) => state.setOutput)}
             />
             <OutputValuesDisplay name={cmdObj?.name} store={commandStore} />
@@ -214,13 +216,26 @@ export function OutputValuesDisplay({name, store}: {name: string, store: Command
 
     const runCommandCallback = useCallback(() => {
         runCommand({command: name, values: output, onResponse: (json) => handleResponse({json, responseRef, showDialog})});
-    }, [name, output, responseRef]);
+    }, [name, output, responseRef, showDialog]);
+
+    const clearOutput = useCallback(() => {
+        if (responseRef.current) {
+            responseRef.current.innerHTML = "";
+        }
+    }, [responseRef]);
+
+    const getText = useCallback(() => {
+        if (textRef.current) {
+            return textRef.current.textContent ?? "";
+        }
+        return '';
+    }, [textRef]);
 
     return (
         <div className="relative">
             <div className='flex items-center'>
                 <TooltipProvider>
-                    <BlockCopyButton className="rounded-[5px] [&_svg]:size-3.5 mr-1 mb-1" size="sm" left={true} getText={() => textRef.current ? textRef.current.textContent ?? "" : ''}/>
+                    <BlockCopyButton className="rounded-[5px] [&_svg]:size-3.5 mr-1 mb-1" size="sm" left={true} getText={getText}/>
                 </TooltipProvider>
                 <p className="w-full rounded h-6 pl-1 mb-1 bg-accent border border-slate-500 border-opacity-50" ref={textRef}>/{name}&nbsp;
                     {
@@ -233,11 +248,7 @@ export function OutputValuesDisplay({name, store}: {name: string, store: Command
                 </p>
             </div>
             <Button variant="outline" size="sm" onClick={runCommandCallback}>Run Command</Button>
-            <Button variant="outline" size="sm" className="ms-1" onClick={() => {
-                if (responseRef.current) {
-                    responseRef.current.innerHTML = "";
-                }
-            }}>Clear</Button>
+            <Button variant="outline" size="sm" className="ms-1" onClick={clearOutput}>Clear</Button>
             <div ref={responseRef}></div>
         </div>
     );
