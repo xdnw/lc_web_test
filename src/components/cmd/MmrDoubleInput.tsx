@@ -1,16 +1,16 @@
 import { useSyncedStateFunc } from "@/utils/StateUtil";
 import NumberInput from "./NumberInput";
-import React from "react";
+import React, { useCallback } from "react";
 
 export default function MmrDoubleInput(
-    {argName, initialValue, setOutputValue}:
-    {
-        argName: string,
-        initialValue: string,
-        setOutputValue: (name: string, value: string) => void
-    }
+    { argName, initialValue, setOutputValue }:
+        {
+            argName: string,
+            initialValue: string,
+            setOutputValue: (name: string, value: string) => void
+        }
 ) {
-        const [value, setValue] = useSyncedStateFunc<(number | null)[]>(initialValue, (initial) => {
+    const [value, setValue] = useSyncedStateFunc<(number | null)[]>(initialValue, (initial) => {
         const result: [number | null, number | null, number | null, number | null] = [null, null, null, null]
         if (initial && initial.match(/^(?:5(?:\.0+)?|[0-4](?:\.\d+)?)(?:\/(?:5(?:\.0+)?|[0-4](?:\.\d+)?)){3}$/)) {
             const split = initial.split('/');
@@ -21,7 +21,24 @@ export default function MmrDoubleInput(
         }
         return result;
     });
-    
+
+    const setOutputFunc = useCallback((name: string, value: string) => {
+        const index = parseInt(name);
+        const valueFloat = value ? parseFloat(value) : null;
+        setValue(f => {
+            if (f[index] !== valueFloat) {
+                const updatedValues = [...f];
+                updatedValues[index] = valueFloat;
+
+                const outputString = valueFloat === null ? "" : updatedValues.join("/");
+                setOutputValue(argName, outputString);
+
+                return updatedValues;
+            }
+            return f;
+        });
+    }, [setValue, argName, setOutputValue]);
+
     return (
         <div className="flex items-center">
             {value.map((val, index) => {
@@ -29,18 +46,12 @@ export default function MmrDoubleInput(
                     <React.Fragment key={index}>
                         {index > 0 && <span>/</span>}
                         <NumberInput
-                            argName={argName}
+                            argName={index + ""}
                             min={0}
                             max={index == 3 ? 3 : 5}
                             initialValue={val ? val + "" : ""}
                             className="w-8"
-                            setOutputValue={(name, t) => {
-                                const updatedValues = [...value];
-                                updatedValues[index] = t ? parseFloat(t) : null;
-                                setValue(updatedValues);
-                                const outputString = updatedValues.some(v => v === null) ? "" : updatedValues.join("/");
-                                setOutputValue(argName, outputString);
-                            }}
+                            setOutputValue={setOutputFunc}
                             isFloat={true}
                         />
                     </React.Fragment>

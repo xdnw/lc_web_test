@@ -1,5 +1,6 @@
 import { useSyncedState } from "@/utils/StateUtil";
 import { Input } from "../ui/input";
+import { useCallback } from "react";
 
 export default function BooleanInput(
     {argName, initialValue, setOutputValue}:
@@ -10,14 +11,15 @@ export default function BooleanInput(
     }
 ) {
     const [value, setValue] = useSyncedState(initialValue || '');
+    const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setValue(e.target.checked ? "1" : "0");
+        setOutputValue(argName, e.target.checked ? "1" : '');
+    }, [argName, setOutputValue, setValue]);
     return (
         <label>
                 <Input type="checkbox" className="sr-only peer"
                     checked={value === "1" || value === "true"}
-                    onChange={(e) => {
-                            setValue(e.target.checked ? "1" : "0");
-                            setOutputValue(argName, e.target.checked ? "1" : '');
-                    }}
+                    onChange={onChange}
                 />
             </label>
     )

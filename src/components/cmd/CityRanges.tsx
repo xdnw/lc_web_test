@@ -1,5 +1,6 @@
 import { useSyncedStateFunc } from "@/utils/StateUtil";
 import NumberInput from "./NumberInput";
+import { useCallback } from "react";
 
 export default function CityRanges(
     {argName, initialValue, setOutputValue}:
@@ -19,6 +20,18 @@ export default function CityRanges(
         return result;
     });
 
+    const input1 = useCallback((name: string, t: string) => {
+        setValue([t ? parseInt(t) : null, value[1]]);
+        if (!t || value[1] == null) setOutputValue(argName, "");
+        else setOutputValue(argName, "c" + t + "-" + (value[1] || 0));
+    }, [argName, setOutputValue, setValue, value]);
+
+    const input2 = useCallback((name: string, t: string) => {
+        setValue([value[0], t ? parseInt(t) : null]);
+        if (value[0] == null || !t) setOutputValue(argName, "");
+        else setOutputValue(argName, "c" + (value[0] || 0) + "-" + t);
+    }, [argName, setOutputValue, setValue, value]);
+
     return (
         <div className="flex w-full items-center">
             <div className="flex items-center w-1/2 grow">
@@ -29,11 +42,7 @@ export default function CityRanges(
                     max={100}
                     initialValue={value[0] ? value[0] + "" : ""}
                     className="grow"
-                    setOutputValue={(name, t) => {
-                        setValue([t ? parseInt(t) : null, value[1]]);
-                        if (!t || value[1] == null) setOutputValue(argName, "");
-                        else setOutputValue(argName, "c" + t + "-" + (value[1] || 0));
-                    }}
+                    setOutputValue={input1}
                     isFloat={false}
                 />
             </div>
@@ -45,11 +54,7 @@ export default function CityRanges(
                     max={100}
                     initialValue={value[1] ? value[1] + "" : ""}
                     className="grow"
-                    setOutputValue={(name, t) => {
-                        setValue([value[0], t ? parseInt(t) : null]);
-                        if (value[0] == null || !t) setOutputValue(argName, "");
-                        else setOutputValue(argName, "c" + (value[0] || 0) + "-" + t);
-                    }}
+                    setOutputValue={input2}
                     isFloat={false}
                 />
             </div>

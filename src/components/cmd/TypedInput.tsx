@@ -166,15 +166,6 @@ function OptionsSelector({
         [colOptions, colFilter]
     );
 
-    const handleOptionClick = useCallback(
-        (optionKey: string) => {
-            const newValue = `{${optionKey}}`;
-            setOutputValue(argName, newValue);
-            setValue(newValue);
-        },
-        [argName, setOutputValue, setValue]
-    );
-
     const collapseIcon = useMemo(
         () =>
             collapseColOptions ? (
@@ -184,6 +175,17 @@ function OptionsSelector({
             ),
         [collapseColOptions]
     );
+
+    const handleOptionClick = useCallback(
+        (e: React.MouseEvent<HTMLButtonElement>) => {
+            const optionKey = e.currentTarget.dataset.key;
+            const newValue = `{${optionKey}}`;
+            setOutputValue(argName, newValue);
+            setValue(newValue);
+        },
+        [argName, setOutputValue, setValue]
+    );
+
 
     return (
         <>
@@ -214,8 +216,9 @@ function OptionsSelector({
                             key={key}
                             variant="outline"
                             size="sm"
+                            data-key={key}
                             className={`me-1 mb-1 ${value === newValue ? "hidden" : ""}`}
-                            onClick={() => handleOptionClick(key)}
+                            onClick={handleOptionClick}
                         >
                             {key}:&nbsp;
                             <span className="text-xs opacity-50">{desc}</span>

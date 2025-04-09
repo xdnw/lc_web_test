@@ -1,13 +1,13 @@
 import LoginPickerPage from "@/pages/login_picker";
 import { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import {Link} from "react-router-dom";
-import {Button} from "@/components/ui/button.tsx";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button.tsx";
 import versusImage from '@/assets/versus.jpg';
 import sheetImage from '@/assets/sheet.jpg';
 import graphImage from '@/assets/graph.png';
 import chestImage from '@/assets/chest.png';
 import mediaImage from '@/assets/media2.png';
-import {useDialog} from "../../components/layout/DialogContext";
+import { useDialog } from "../../components/layout/DialogContext";
 import React from "react";
 
 const _cardTemplates: {
@@ -78,10 +78,8 @@ const _cardTemplates: {
 };
 
 export default function Home() {
-    const { showDialog } = useDialog();
-
     return <>
-        <LoginPickerPage/>
+        <LoginPickerPage />
         <div className="bg-light/10 border border-light/10 rounded p-2 mt-4">
             <h1 className="text-2xl font-bold">Featured Content</h1>
             <div className="flex flex-wrap">
@@ -89,22 +87,22 @@ export default function Home() {
                     const template = _cardTemplates[key];
                     return (
                         <div key={key} className="flex items-center me-1 mb-1">
-                            <Card className="mx-auto relative rounded-lg" style={{width: '18rem'}}>
+                            <Card className="mx-auto relative rounded-lg" style={{ width: '18rem' }}>
                                 <CardHeader className="card-header">
                                     <div className="relative">
-                                    <img
-                                        src={template.img}
-                                        style={{background: template.bg}}
-                                        className="h-36 w-72 object-fill block mx-auto rounded"
-                                        alt="..."
-                                    />
-                                    {template.ad && <kbd className="bg-blue-400/50 text-sm rounded-lg px-2 py-0.5 absolute top-1 right-1">Ad</kbd>}
+                                        <img
+                                            src={template.img}
+                                            style={{ background: template.bg }}
+                                            className="h-36 w-72 object-fill block mx-auto rounded"
+                                            alt="..."
+                                        />
+                                        {template.ad && <kbd className="bg-blue-400/50 text-sm rounded-lg px-2 py-0.5 absolute top-1 right-1">Ad</kbd>}
                                     </div>
                                     <CardTitle className="card-title p-2">
                                         {template.subtitle}
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="card-body" style={{height: '6.5rem'}}>
+                                <CardContent className="card-body" style={{ height: '6.5rem' }}>
                                     <CardDescription className="card-text">{template.desc}</CardDescription>
                                 </CardContent>
                                 <CardFooter className="card-footer">

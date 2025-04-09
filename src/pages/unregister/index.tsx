@@ -9,6 +9,7 @@ import { WebSession } from "../../lib/apitypes";
 import EndpointWrapper from "@/components/api/bulkwrapper";
 import { ApiFormInputs } from "@/components/api/apiform";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 
 export default function Unregister() {
     return (
@@ -51,6 +52,11 @@ export function UnregisterComponent({ session }: { session: WebSession }) {
 export function RegisterComponent() {
     const { showDialog } = useDialog();
     const queryClient = useQueryClient();
+    const handle_response = useCallback(() => {
+        queryClient.removeQueries({ queryKey: [SESSION.endpoint.name] });
+        showDialog("Registered", "Successfully registered your discord and nation.", false);
+    }, [queryClient, showDialog]);
+
     return <div>
         <ApiFormInputs
             endpoint={UNREGISTER}
@@ -61,10 +67,7 @@ export function RegisterComponent() {
                     Your discord and nation accounts are not linked. Would you like to register them?
                 </p>
             </>}
-            handle_response={({ data }) => {
-                queryClient.removeQueries({ queryKey: [SESSION.endpoint.name] });
-                showDialog("Registered", "Successfully registered your discord and nation.", false);
-            }}
+            handle_response={handle_response}
         />
     </div>
 }
@@ -72,6 +75,10 @@ export function RegisterComponent() {
 export function UnregisterValid() {
     const { showDialog } = useDialog();
     const queryClient = useQueryClient();
+    const handle_response = useCallback(() => {
+        queryClient.removeQueries({ queryKey: [SESSION.endpoint.name] });
+        showDialog("Unregistered", "Successfully unlinked your discord and nation. It is recommended to logout and log back in to register a new user or nation.", false);
+    }, [queryClient, showDialog]);
     return <div>
         return <ApiFormInputs
             endpoint={UNREGISTER}
@@ -81,17 +88,20 @@ export function UnregisterValid() {
                 You may unlink your nation from your discord user. It is recommended to logout and log back in to
                 register a
                 new user or nation.
-            </>} handle_response={(data) => {
-                queryClient.removeQueries({ queryKey: [SESSION.endpoint.name] });
-                showDialog("Unregistered", "Successfully unlinked your discord and nation. It is recommended to logout and log back in to register a new user or nation.", false);
-            }
-            } />
+            </>} handle_response={handle_response} />
     </div>
 }
 
 export function UnregisterInvalid({ session }: { session: WebSession }) {
     const { showDialog } = useDialog();
     const queryClient = useQueryClient();
+
+    const handle_response = useCallback(() => {
+        queryClient.removeQueries({ queryKey: [SESSION.endpoint.name] });
+        showDialog("Unregistered", "Successfully unlinked your discord and nation. It is recommended to logout and log back in to register a new user or nation.", false);
+    }
+    , [queryClient, showDialog]);
+
     return <div>
         <ApiFormInputs
             endpoint={UNREGISTER}
@@ -106,11 +116,7 @@ export function UnregisterInvalid({ session }: { session: WebSession }) {
                     It is recommended to either unlink your current accounts, or sign out and log back in with the
                     correct accounts.
                 </p>
-            </>} handle_response={(data) => {
-                queryClient.removeQueries({ queryKey: [SESSION.endpoint.name] });
-                showDialog("Unregistered", "Successfully unlinked your discord and nation. It is recommended to logout and log back in to register a new user or nation.", false);
-            }
-            } />
+            </>} handle_response={handle_response} />
         <Button variant="outline" size="sm" className='border-slate-600' asChild>
             <Link to={`${process.env.BASE_PATH}logout`}>Logout</Link></Button>
     </div>

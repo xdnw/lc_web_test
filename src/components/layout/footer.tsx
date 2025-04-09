@@ -1,5 +1,5 @@
 import React, { memo, useEffect } from "react";
-import LazyIcon, { IconPlaceholder, preloadIcons } from "../ui/LazyIcon";
+import LazyIcon, { IconPlaceholder } from "../ui/LazyIcon";
 
 const ListItem = memo(
   ({
@@ -26,11 +26,6 @@ const ListItem = memo(
 );
 
 export default function Footer() {
-  // Warm up the lucide-react module as early as possible.
-  useEffect(() => {
-    preloadIcons();
-  }, []);
-
   return (
     <footer className="border-top border-card mt-0 pt-3 bg-secondary">
       <div className="container mx-auto">

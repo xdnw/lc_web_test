@@ -3,14 +3,15 @@ import * as React from "react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip"
 import { Button, ButtonProps } from "./button.tsx"
 import LazyIcon from "./LazyIcon.tsx"
+import { useCallback } from "react"
 
 export function BlockCopyButton({
-    getText,
-    left,
+  getText,
+  left,
   ...props
 }: {
-    getText: () => string,
-    left?: boolean,
+  getText: () => string,
+  left?: boolean,
 } & ButtonProps) {
   const [hasCopied, setHasCopied] = React.useState(false)
 
@@ -20,6 +21,11 @@ export function BlockCopyButton({
     }, 2000)
   }, [hasCopied])
 
+  const handleClick = useCallback(() => {
+    navigator.clipboard.writeText(getText())
+    setHasCopied(true)
+  }, [getText])
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -27,14 +33,11 @@ export function BlockCopyButton({
           size="icon"
           variant="outline"
           className={`h-6 w-6 rounded [&_svg]:size-3.5 absolute ${left ? "left-0.5" : "right-0.5"} top-0.5`}
-          onClick={() => {
-            navigator.clipboard.writeText(getText())
-            setHasCopied(true)
-          }}
+          onClick={handleClick}
           {...props}
         >
           <span className="sr-only hidden">Copy</span>&#8203;
-          {hasCopied ? <LazyIcon name="CheckIcon" /> : <LazyIcon name="ClipboardIcon"/>}
+          {hasCopied ? <LazyIcon name="CheckIcon" /> : <LazyIcon name="ClipboardIcon" />}
         </Button>
       </TooltipTrigger>
       <TooltipContent>Copy code</TooltipContent>

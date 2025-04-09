@@ -6,10 +6,13 @@ import {BlockCopyButton} from "./block-copy-button";
 import { TooltipProvider } from "./tooltip";
 
 export default function Timestamp({ millis }: { millis: number }) {
+    const getText = useCallback(() => {
+        return "timestamp:" + millis;
+    }, [millis]);
     return <LazyTooltip content={<div className="pe-8">
             {new Date(millis).toLocaleString()}
             <TooltipProvider>
-                <BlockCopyButton getText={() => "timestamp:" + millis}/>
+                <BlockCopyButton getText={getText}/>
             </TooltipProvider>
             </div>} >
             <kbd>{formatTimeRelative(millis, 5)}</kbd>

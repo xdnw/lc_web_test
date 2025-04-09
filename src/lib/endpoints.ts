@@ -155,20 +155,6 @@ export const ALLIANCESTATS: CommonEndpoint<ApiTypes.WebGraph, {metrics?: string,
     )
 };
 
-export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token?: string}, {token?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
-        "set_token",
-        "set_token",
-        {"token":{"name":"token","type":"UUID"}},
-        (data: unknown) => data as ApiTypes.WebSuccess,
-        2592000,
-        'None',
-        "WebSuccess",
-        ``,
-        true
-    )
-};
-
 export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>, Record<string, never>> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSession>(
         "session",
@@ -180,6 +166,20 @@ export const SESSION: CommonEndpoint<ApiTypes.WebSession, Record<string, never>,
         "WebSession",
         ``,
         false
+    )
+};
+
+export const SET_TOKEN: CommonEndpoint<ApiTypes.WebSuccess, {token?: string}, {token?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
+        "set_token",
+        "set_token",
+        {"token":{"name":"token","type":"UUID"}},
+        (data: unknown) => data as ApiTypes.WebSuccess,
+        2592000,
+        'None',
+        "WebSuccess",
+        ``,
+        true
     )
 };
 
@@ -351,20 +351,6 @@ export const UNREGISTER: CommonEndpoint<ApiTypes.WebValue, {confirm?: string}, {
     )
 };
 
-export const RAID: CommonEndpoint<ApiTypes.WebTargets, {nation?: string, nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, {nation?: string, nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebTargets>(
-        "raid",
-        "raid",
-        {"nation":{"name":"nation","optional":true,"type":"DBNation"},"nations":{"name":"nations","optional":true,"type":"Set\u003cDBNation\u003e","def":"*,#position\u003c\u003d1"},"weak_ground":{"name":"weak_ground","optional":true,"type":"boolean","def":"false"},"vm_turns":{"name":"vm_turns","optional":true,"type":"int","def":"0"},"beige_turns":{"name":"beige_turns","optional":true,"type":"int","def":"0"},"ignore_dnr":{"name":"ignore_dnr","optional":true,"type":"boolean","def":"false"},"time_inactive":{"name":"time_inactive","optional":true,"type":"long[Timediff]","def":"7d"},"min_loot":{"name":"min_loot","optional":true,"type":"double","def":"-1"},"num_results":{"name":"num_results","optional":true,"type":"int","def":"8"}},
-        (data: unknown) => data as ApiTypes.WebTargets,
-        2592000,
-        'None',
-        "WebTargets",
-        ``,
-        false
-    )
-};
-
 export const READ_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id?: string}, {ann_id?: string}> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "read_announcement",
@@ -376,6 +362,20 @@ export const READ_ANNOUNCEMENT: CommonEndpoint<ApiTypes.WebSuccess, {ann_id?: st
         "WebSuccess",
         ``,
         true
+    )
+};
+
+export const RAID: CommonEndpoint<ApiTypes.WebTargets, {nation?: string, nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}, {nation?: string, nations?: string, weak_ground?: string, vm_turns?: string, beige_turns?: string, ignore_dnr?: string, time_inactive?: string, min_loot?: string, num_results?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebTargets>(
+        "raid",
+        "raid",
+        {"nation":{"name":"nation","optional":true,"type":"DBNation"},"nations":{"name":"nations","optional":true,"type":"Set\u003cDBNation\u003e","def":"*,#position\u003c\u003d1"},"weak_ground":{"name":"weak_ground","optional":true,"type":"boolean","def":"false"},"vm_turns":{"name":"vm_turns","optional":true,"type":"int","def":"0"},"beige_turns":{"name":"beige_turns","optional":true,"type":"int","def":"0"},"ignore_dnr":{"name":"ignore_dnr","optional":true,"type":"boolean","def":"false"},"time_inactive":{"name":"time_inactive","optional":true,"type":"long[Timediff]","def":"7d"},"min_loot":{"name":"min_loot","optional":true,"type":"double","def":"-1"},"num_results":{"name":"num_results","optional":true,"type":"int","def":"8"}},
+        (data: unknown) => data as ApiTypes.WebTargets,
+        2592000,
+        'None',
+        "WebTargets",
+        ``,
+        false
     )
 };
 
@@ -788,20 +788,6 @@ export const TRADETOTALBYDAY: CommonEndpoint<ApiTypes.WebGraph, {resource?: stri
     )
 };
 
-export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries?: string}, {queries?: string}> = {
-    endpoint: new ApiEndpoint<ApiTypes.WebBulkQuery>(
-        "query",
-        "query",
-        {"queries":{"name":"queries","type":"List\u003cEntry\u003cString,Map\u003cString,Object\u003e\u003e\u003e"}},
-        (data: unknown) => data as ApiTypes.WebBulkQuery,
-        2592000,
-        'None',
-        "WebBulkQuery",
-        ``,
-        true
-    )
-};
-
 export const UNSET_GUILD: CommonEndpoint<ApiTypes.WebSuccess, Record<string, never>, Record<string, never>> = {
     endpoint: new ApiEndpoint<ApiTypes.WebSuccess>(
         "unset_guild",
@@ -816,4 +802,18 @@ export const UNSET_GUILD: CommonEndpoint<ApiTypes.WebSuccess, Record<string, nev
     )
 };
 
-export const ENDPOINTS = [WARSCOSTRANKINGBYDAY, GLOBALSTATS, TABLE, COMPARESTATS, ALLIANCEMETRICAB, ALLIANCEMETRICBYTURN, NTHBEIGELOOTBYSCORERANGE, ALLIANCESDATABYDAY, MARK_ALL_READ, WARCOSTSBYDAY, ALLIANCESTATS, SET_TOKEN, SESSION, BALANCE, ORBISSTATBYDAY, UNREAD_ANNOUNCEMENT, REGISTER, COMPARETIERSTATS, RADIATIONBYTURN, GLOBALTIERSTATS, BANK_ACCESS, COMMAND, TRADEVOLUMEBYDAY, ANNOUNCEMENTS, UNREGISTER, RAID, READ_ANNOUNCEMENT, TAX_EXPENSE, COMPARESTOCKPILEVALUEBYDAY, MILITARIZATIONTIME, INPUT_OPTIONS, TRADEPRICEBYDAY, LOGIN_MAIL, TRADEMARGINBYDAY, MY_WARS, MY_AUDITS, RECORDS, LOGOUT, SCORETIERGRAPH, SPYTIERGRAPH, STRENGTHTIERGRAPH, UNREAD_COUNT, SET_OAUTH_CODE, ANNOUNCEMENT_TITLES, WARATTACKSBYDAY, METRIC_COMPARE_BY_TURN, MULTI_BUSTER, VIEW_ANNOUNCEMENT, SET_GUILD, METRICBYGROUP, MULTI_V2, CITYTIERGRAPH, UNPROTECTED, TRADEPRICEBYDAYJSON, WITHDRAW, TRADETOTALBYDAY, QUERY, UNSET_GUILD];
+export const QUERY: CommonEndpoint<ApiTypes.WebBulkQuery, {queries?: string}, {queries?: string}> = {
+    endpoint: new ApiEndpoint<ApiTypes.WebBulkQuery>(
+        "query",
+        "query",
+        {"queries":{"name":"queries","type":"List\u003cEntry\u003cString,Map\u003cString,Object\u003e\u003e\u003e"}},
+        (data: unknown) => data as ApiTypes.WebBulkQuery,
+        2592000,
+        'None',
+        "WebBulkQuery",
+        ``,
+        true
+    )
+};
+
+export const ENDPOINTS = [WARSCOSTRANKINGBYDAY, GLOBALSTATS, TABLE, COMPARESTATS, ALLIANCEMETRICAB, ALLIANCEMETRICBYTURN, NTHBEIGELOOTBYSCORERANGE, ALLIANCESDATABYDAY, MARK_ALL_READ, WARCOSTSBYDAY, ALLIANCESTATS, SESSION, SET_TOKEN, BALANCE, ORBISSTATBYDAY, UNREAD_ANNOUNCEMENT, REGISTER, COMPARETIERSTATS, RADIATIONBYTURN, GLOBALTIERSTATS, BANK_ACCESS, COMMAND, TRADEVOLUMEBYDAY, ANNOUNCEMENTS, UNREGISTER, READ_ANNOUNCEMENT, RAID, TAX_EXPENSE, COMPARESTOCKPILEVALUEBYDAY, MILITARIZATIONTIME, INPUT_OPTIONS, TRADEPRICEBYDAY, LOGIN_MAIL, TRADEMARGINBYDAY, MY_WARS, MY_AUDITS, RECORDS, LOGOUT, SCORETIERGRAPH, SPYTIERGRAPH, STRENGTHTIERGRAPH, UNREAD_COUNT, SET_OAUTH_CODE, ANNOUNCEMENT_TITLES, WARATTACKSBYDAY, METRIC_COMPARE_BY_TURN, MULTI_BUSTER, VIEW_ANNOUNCEMENT, SET_GUILD, METRICBYGROUP, MULTI_V2, CITYTIERGRAPH, UNPROTECTED, TRADEPRICEBYDAYJSON, WITHDRAW, TRADETOTALBYDAY, UNSET_GUILD, QUERY];

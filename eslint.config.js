@@ -4,6 +4,8 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import react from "eslint-plugin-react"
 import reactCompiler from 'eslint-plugin-react-compiler';
+import reactHooks from "eslint-plugin-react-hooks";
+import { fixupPluginRules } from "@eslint/compat";
 
 export default tseslint.config(
     {
@@ -15,14 +17,23 @@ export default tseslint.config(
             '**/*.js',
             'vite.config.ts',
             'vite.config.js'
-        ]
+        ],
     },
     eslint.configs.recommended,
     tseslint.configs.recommended,
     { ...react.configs.flat.recommended, settings: { react: { version: "detect" } } },
     reactCompiler.configs.recommended,
     {
+        plugins: {
+            "react-hooks": fixupPluginRules(reactHooks),
+        },
         rules: {
+            "react/jsx-no-bind": ["error", {
+                "allowArrowFunctions": false,
+                "allowFunctions": false,
+                "allowBind": false
+            }],
+            "react-hooks/exhaustive-deps": "error",
             'react-compiler/react-compiler': 'error',
             // styling rules
             'indent': 'off',
@@ -161,48 +172,3 @@ export default tseslint.config(
         }
     }
 );
-// const config = new Linter.Config({
-//     root: true,
-//     env: { browser: true, es2020: true },
-//     extends: [
-//         'eslint:recommended',
-//         'plugin:@typescript-eslint/recommended-type-checked',
-//         'plugin:react/recommended',
-//         'plugin:react/jsx-runtime',
-//         'plugin:react-hooks/recommended',
-//     ],
-//     ignorePatterns: [
-//         'dist',
-//         '.eslintrc.cjs',
-//         '*.js',
-//         'node_modules/',
-//         'build/',
-//         'src/lib/commands.ts',
-//         'vite.config.ts',
-//         'vite.config.js'
-//     ],
-//     parser: '@typescript-eslint/parser',
-//     parserOptions: {
-//         ecmaFeatures: {
-//             jsx: true,
-//         },
-//         ecmaVersion: 'latest',
-//         sourceType: 'module',
-//         project: ['./tsconfig.dev.json', './tsconfig.node.json'],
-//         tsconfigRootDir: __dirname,
-//     },
-//     plugins: [
-//         '@typescript-eslint',
-//         'react',
-//         'react-hooks',
-//         'jsx-a11y',
-//         'unused-imports',
-//         'react-refresh',
-//         'react-compiler',
-//     ],
-//     settings: {
-//         react: {
-//             version: '18.2.0',
-//         },
-//     },
-// });

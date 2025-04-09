@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, ReactNode } from 'react';
+import React, { useState, useEffect, useRef, ReactNode, useCallback } from 'react';
 import styles from './lazytooltip.module.css';
-import {cn} from "../../lib/utils";
+import { cn } from "../../lib/utils";
 import { Button } from "@/components/ui/button";
 import LazyIcon from './LazyIcon';
 
@@ -25,7 +25,7 @@ const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, l
     const containerRef = useRef<HTMLDivElement>(null);
     const textContentRef = useRef<HTMLSpanElement>(null);
 
-    const handleMouseEnter = () => {
+    const handleMouseEnter = useCallback(() => {
         setHovering(true);
         setReverse(false);
         if (timeoutRef.current) {
@@ -53,9 +53,9 @@ const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, l
                 return prevHovering;
             });
         }, delay);
-    };
+    }, [delay, lockTime, setVisible, setHovering, setLocked, setLockTimestamp]);
 
-    const handleMouseLeave = () => {
+    const handleMouseLeave = useCallback(() => {
         console.log("handleMouseLeave");
         setHovering(false);
         if (timeoutRef.current) {
@@ -81,7 +81,7 @@ const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, l
                 });
             }, unlockTime);
         }
-    };
+    }, [unlockTime, setVisible, setLocked, setLockTimestamp, locked]);
 
 
     // Handle clicks outside the container (closes)
@@ -106,7 +106,7 @@ const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, l
     }, []);
 
     // like mouse enter, but skips the delays, and locks instantly
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
         if (visible && textContentRef.current && textContentRef.current.contains(event.target as Node)) {
             // Tooltip is open; close it.
             setHovering(false);
@@ -130,7 +130,7 @@ const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, l
             setLocked(true);
             setLockTimestamp(null);
         }
-    };
+    }, [visible, setVisible, setLocked, setLockTimestamp, setHovering]);
 
     useEffect(() => {
         return () => {
@@ -166,31 +166,33 @@ const LazyTooltip: React.FC<TooltipProps> = ({ children, content, delay = 500, l
         );
     };
 
+    const toggleLock = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation();
+        setVisible(false);
+        setLocked(false);
+        setHovering(false);
+    }, [setVisible, setLocked, setHovering]);
+
     return (<div ref={containerRef}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onClick={handleClick}
-            className={cn(styles.tooltipContainer,className)}
-        >
-            <span ref={textContentRef}>{children}</span>
-            {visible && (
-                <div className={cn(styles.tooltipContent, "bg-secondary p-1 rounded-sm", locked ? "border-2 border-red-500/50" : "border-2 border-blue-500/50")}>
-                    <Button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setVisible(false);
-                            setLocked(false);
-                            setHovering(false);
-                        }}
-                        variant="destructive" size="sm"
-                        className="absolute top-0 right-0 p-1 text-red-500">
-                        <LazyIcon name="X"/>
-                    </Button>
-                    {content}
-                    {renderProgressCircle()}
-                </div>
-            )}
-        </div>
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
+        className={cn(styles.tooltipContainer, className)}
+    >
+        <span ref={textContentRef}>{children}</span>
+        {visible && (
+            <div className={cn(styles.tooltipContent, "bg-secondary p-1 rounded-sm", locked ? "border-2 border-red-500/50" : "border-2 border-blue-500/50")}>
+                <Button
+                    onClick={toggleLock}
+                    variant="destructive" size="sm"
+                    className="absolute top-0 right-0 p-1 text-red-500">
+                    <LazyIcon name="X" />
+                </Button>
+                {content}
+                {renderProgressCircle()}
+            </div>
+        )}
+    </div>
     );
 };
 

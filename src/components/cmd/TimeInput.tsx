@@ -1,4 +1,5 @@
 import { useSyncedState } from "@/utils/StateUtil";
+import { useCallback } from "react";
 
 function formatDatetimeLocal(date: Date): string {
     const pad = (num: number) => num.toString().padStart(2, "0");
@@ -28,17 +29,18 @@ export default function TimeInput({
     setOutputValue: (name: string, value: string) => void
 }) {
     const [value, setValue] = useSyncedState(parseValue(initialValue) || '');
-    return (
-        <input type="datetime-local"
-               className="dark:bg-slate-700 bg-slate-100"
-               value={value}
-               onChange={(e) => {
-                   const localDateTimeString = e.target.value;
+    const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const localDateTimeString = e.target.value;
                    // The new Date() parses the string as local time.
                    const date = new Date(localDateTimeString);
                    setValue(localDateTimeString);
                    // date.getTime() yields the UTC timestamp as intended.
                    setOutputValue(argName, "timestamp:" + Math.floor(date.getTime()));
-               }} />
+    }, [argName, setOutputValue, setValue]);
+    return (
+        <input type="datetime-local"
+               className="dark:bg-slate-700 bg-slate-100"
+               value={value}
+               onChange={onChange} />
     );
 }

@@ -1,4 +1,4 @@
-import {ReactNode, useRef} from 'react';
+import {ReactNode, useCallback, useRef} from 'react';
 import {TooltipProvider} from "./tooltip";
 import {BlockCopyButton} from "./block-copy-button";
 import {useDialog} from "../layout/DialogContext";
@@ -7,13 +7,13 @@ import {Button} from "./button";
 export default function CopyToClipboard({ text, copy, className}: { text: string, copy?: string, className?: string }) {
     const { showDialog } = useDialog();
 
-    const handleCopy = () => {
+    const handleCopy = useCallback(() => {
         navigator.clipboard.writeText(copy ? copy : text).then(() => {
             showDialog("Copied to Clipboard", <>The text <kbd className='bg-secondary rounded px-0.5'>{copy ? copy : text}</kbd> has been copied to your clipboard.</>);
         }).catch(err => {
             showDialog("Copy Failed", <>Failed to copy <kbd className='bg-secondary rounded px-0.5'>{copy ? copy : text}</kbd> to clipboard:<br/>{err}</>);
         });
-    };
+    }, [copy, text, showDialog]);
 
     return (
         <>
@@ -31,6 +31,9 @@ export default function CopyToClipboard({ text, copy, className}: { text: string
 
 export function CopoToClipboardTextArea({ text, className }: { text: ReactNode, className?: string }) {
     const textareaRef = useRef<HTMLDivElement>(null);
+    const getText = useCallback(() => {
+        return textareaRef.current ? textareaRef.current.textContent ?? "" : '';
+    }, [textareaRef]);
     return (
         <>
             <div className="relative font-mono">
@@ -39,7 +42,7 @@ export function CopoToClipboardTextArea({ text, className }: { text: ReactNode, 
                 </code>
                 <TooltipProvider>
                     <BlockCopyButton
-                        getText={() => textareaRef.current ? textareaRef.current.textContent ?? "" : ''}/>
+                        getText={getText}/>
                 </TooltipProvider>
             </div>
         </>

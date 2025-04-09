@@ -1,13 +1,15 @@
-import Highlight from 'react-highlight'
-import React, {ReactNode} from "react";
+import React, { ReactNode, useCallback } from "react";
 import '@/pages/command/discord.css';
-import {markup} from "../../lib/discord";
+import { markup } from "../../lib/discord";
 import { Button } from './button';
-import {WebGraph} from "../../lib/apitypes";
-import {ButtonInfoCmd, ButtonInfoHref} from "../../lib/internaltypes";
-import { ThemedChart} from "../../pages/graphs/SimpleChart";
-import {Link} from "react-router-dom";
-import {commandButtonAction} from "../../pages/command";
+import { WebGraph } from "../../lib/apitypes";
+import { ButtonInfoCmd, ButtonInfoHref } from "../../lib/internaltypes";
+import { ThemedChart } from "../../pages/graphs/SimpleChart";
+import { Link } from "react-router-dom";
+import { commandButtonAction } from "../../pages/command";
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import markdown from 'react-syntax-highlighter/dist/esm/languages/prism/markdown';
+SyntaxHighlighter.registerLanguage('markdown', markdown);
 
 interface Author {
     name: string;
@@ -75,21 +77,26 @@ function timestamp(stringISO?: string): string {
                 `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}/${date.getFullYear()}`;
 }
 
-export function CmdButton({button, responseRef, showDialog}:
-{
-    button: ButtonInfoCmd,
-    responseRef: React.RefObject<HTMLDivElement | null>,
-    showDialog: (title: string, message: React.ReactNode, quote?: boolean) => void
-}): ReactNode {
+export function CmdButton({ button, responseRef, showDialog }:
+    {
+        button: ButtonInfoCmd,
+        responseRef: React.RefObject<HTMLDivElement | null>,
+        showDialog: (title: string, message: React.ReactNode, quote?: boolean) => void
+    }): ReactNode {
+
+    const submit = useCallback(() => {
+        commandButtonAction({ name: button.label, command: button.cmd, responseRef: responseRef, showDialog: showDialog })
+    }, [button, responseRef, showDialog]);
+
     return (
         <Button variant="outline" size="sm" className="me-1" data-label={button.label}
-                onClick={() => commandButtonAction({name: button.label, command: button.cmd, responseRef: responseRef, showDialog: showDialog})}>
+            onClick={submit}>
             {button.label}
         </Button>
     );
 }
 
-export function HrefButton({button}: {button: ButtonInfoHref}): ReactNode {
+export function HrefButton({ button }: { button: ButtonInfoHref }): ReactNode {
     return (
         <Button variant="outline" size="sm" asChild data-label={button.label}>
             <Link to={button.href}>{button.label}</Link>
@@ -97,12 +104,12 @@ export function HrefButton({button}: {button: ButtonInfoHref}): ReactNode {
     );
 }
 
-export function Embed({json, responseRef, showDialog}:
-{
-    json: DiscordEmbed,
-    responseRef: React.RefObject<HTMLDivElement | null>,
-    showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
-}) {
+export function Embed({ json, responseRef, showDialog }:
+    {
+        json: DiscordEmbed,
+        responseRef: React.RefObject<HTMLDivElement | null>,
+        showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
+    }) {
     console.log("BUTTONS ARE", json.buttons);
     const embeds = [];
     const images = [];
@@ -126,6 +133,27 @@ export function Embed({json, responseRef, showDialog}:
             });
         }
     }
+
+    const onClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+        const key = (e.currentTarget.dataset.key)!;
+        const file: string = json.files![key];
+        const blob = new Blob([file], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a') as HTMLAnchorElement;
+        a.href = url;
+        a.download = key;
+        a.click();
+    }, [json.files]);
+
+    const displayJsonFile = useCallback((key: string) => {
+        return (
+            <div key={key} className="m-0.5 file-item flex items-center p-2 border-background/50 border-2 rounded-sm bg-accent max-w-96">
+                <span className="file-name grow text-foreground-light dark:text-foreground-dark">{key}</span>
+                <Button variant="outline" size="sm" data-key={key} onClick={onClick}>Download</Button>
+            </div>
+        );
+    }, [onClick]);
+
     return (
         <div className="msgEmbed font-mono" id={json.id}>
             <div className="markup messageContent"><MarkupRenderer content={json.content} highlight={true} embed={json} /></div>
@@ -187,43 +215,28 @@ export function Embed({json, responseRef, showDialog}:
             {json.buttons && Object.keys(json.buttons).length > 0 && <div className="bg-accent rounded-sm border mb-1 p-2">
                 Actions:
                 {json.buttons.map((button, index) => {
-                        if ((button as ButtonInfoCmd).cmd) {
-                            return <CmdButton key={index} button={button as ButtonInfoCmd} responseRef={responseRef} showDialog={showDialog} />;
-                        }
-                        return <HrefButton key={index} button={button as ButtonInfoHref} />;
-                    })}
+                    if ((button as ButtonInfoCmd).cmd) {
+                        return <CmdButton key={index} button={button as ButtonInfoCmd} responseRef={responseRef} showDialog={showDialog} />;
+                    }
+                    return <HrefButton key={index} button={button as ButtonInfoHref} />;
+                })}
             </div>}
             {images.map((image, index) => (
                 <img key={index} className="max-w-full max-h-64 rounded-sm border-2 border-background m-0.5" src={image.image.url} alt={image.title} />
             ))}
-            {(json.files ?? {}) && Object.keys(json.files ?? {}).map((key) => {
-                const file: string = json.files![key];
-                const blob = new Blob([file], { type: 'application/octet-stream' });
-                const url = URL.createObjectURL(blob);
-                return (
-                    <div key={key} className="m-0.5 file-item flex items-center p-2 border-background/50 border-2 rounded-sm bg-accent max-w-96">
-                        <span className="file-name grow text-foreground-light dark:text-foreground-dark">{key}</span>
-                        <Button variant="outline" size="sm" onClick={() => {
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = key;
-                            a.click();
-                        }}>Download</Button>
-                    </div>
-                );
-            })}
+            {(json.files ?? {}) && Object.keys(json.files ?? {}).map(displayJsonFile)}
             {json.tables && json.tables.map((data, index) => (
-                <ThemedChart key={index} graph={data} classes="max-w-(--breakpoint-sm)"/>
+                <ThemedChart key={index} graph={data} classes="max-w-(--breakpoint-sm)" />
             ))}
             <div className="emptyTxt"></div>
         </div>
     );
 }
 
-export default function MarkupRenderer({content, highlight, embed, showDialog}: {content: string, highlight: boolean, embed?: DiscordEmbed, showDialog?: (title: string, message: ReactNode, quote?: boolean) => void}): ReactNode {
+export default function MarkupRenderer({ content, highlight, embed, showDialog }: { content: string, highlight: boolean, embed?: DiscordEmbed, showDialog?: (title: string, message: ReactNode, quote?: boolean) => void }): ReactNode {
     const sanitized = //useMemo(() => {return
         // DOMPurify.sanitize
-    content ? (markup({
+        content ? (markup({
             txt: content,
             replaceEmoji: true,
             embed: embed,
@@ -233,9 +246,9 @@ export default function MarkupRenderer({content, highlight, embed, showDialog}: 
     if (!sanitized) return null;
     if (highlight) {
         return (
-            <Highlight innerHTML={true}>
+            <SyntaxHighlighter language="markdown">
                 {sanitized}
-            </Highlight>
+            </SyntaxHighlighter>
         );
     }
     return (
@@ -243,8 +256,8 @@ export default function MarkupRenderer({content, highlight, embed, showDialog}: 
     );
 }
 
-export function EmbedFields({fields}: {fields: Field[]}): ReactNode {
-        const createEmbedFields = () => {
+export function EmbedFields({ fields }: { fields: Field[] }): ReactNode {
+    const createEmbedFields = () => {
         let colNum = 1;
         let num = 0;
         let index: number | undefined;

@@ -1,11 +1,10 @@
-import path from "path";
-// const path = require('path');
+import * as path from "path";
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import tailwindcss from "@tailwindcss/vite";
-
+import { visualizer } from 'rollup-plugin-visualizer'; // Add this import
 
 export default defineConfig(({ mode }) => {
   const isDevelopment = mode === 'development';
@@ -23,6 +22,12 @@ export default defineConfig(({ mode }) => {
             dest: '.'
           }
         ]
+      }),
+      visualizer({ // Add the visualizer plugin
+        filename: 'dist/stats.html', // Output path
+        open: true, // Auto-open the report after build
+        gzipSize: true, // Show gzipped sizes
+        brotliSize: true, // Show brotli sizes
       }),
     ],
     define: {
@@ -59,9 +64,31 @@ export default defineConfig(({ mode }) => {
       minify: minify,
       rollupOptions: {
         output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom'],
-            utils: ['clsx', 'tailwind-merge', 'msgpackr'],
+          manualChunks: (id) => {
+            // Create separate chunks for each icon
+            if (id.includes('node_modules/lucide-react')) {
+              return 'lucide-core';
+            }
+
+            // Other vendor chunks
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+              return 'vendor';
+            }
+
+            if (id.includes('node_modules/clsx') ||
+              id.includes('node_modules/tailwind-merge') ||
+              id.includes('node_modules/msgpackr')) {
+              return 'utils';
+            }
+
+            if (id.includes('node_modules/react-syntax-highlighter')) {
+              return 'syntax-highlighting';
+            }
+
+            // @odiffey/discord-markdown
+            if (id.includes('node_modules/@odiffey/discord-markdown')) {
+              return 'discord-markdown';
+            }
           },
         },
       },
@@ -72,7 +99,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       hmr: true,
-    }
+    },
   }
 });
 

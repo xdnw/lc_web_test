@@ -10,22 +10,20 @@ export default function PageView({ children }: { children: ReactNode }): ReactEl
         return <Navbar />;
     }, []);
     return (
-        <>
-            <DialogProvider>
-                <SessionProvider>
-                    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-                        <div className="min-h-screen themeBody">
-                            {navBar}
-                            <div className="flex flex-col" style={{ minHeight: 'calc(100vh - 245.5px)' }}>
-                                <div className="mt-1 p-1 grow">
-                                    {children}
-                                </div>
+        <DialogProvider>
+            <SessionProvider>
+                <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+                    <div className="min-h-screen themeBody">
+                        {navBar}
+                        <div className="flex flex-col" style={{ minHeight: 'calc(100vh - 245.5px)' }}>
+                            <div className="mt-1 p-1 grow">
+                                {children}
                             </div>
-                            <Footer />
                         </div>
-                    </ThemeProvider>
-                </SessionProvider>
-            </DialogProvider>
-        </>
+                        <Footer />
+                    </div>
+                </ThemeProvider>
+            </SessionProvider>
+        </DialogProvider>
     );
 }

@@ -1,5 +1,5 @@
 import { commandCompletions } from "./CompletionUtil";
-import { CommandWeights, Sentence } from "./Embedding";
+// import { CommandWeights, Sentence } from "./Embedding";
 import {
     findMatchingBracket,
     findMatchingQuoteOrBracket,
@@ -7,7 +7,7 @@ import {
     isQuoteOrBracket,
     split, splitCustom
 } from "./StringUtil";
-import {COMMANDS} from "@/lib/commands.ts";
+import { COMMANDS } from "@/lib/commands.ts";
 import type { CommandBehavior } from "@/lib/internaltypes";
 
 export type IArgument = {
@@ -43,7 +43,7 @@ export type IKeyData = {
     desc: string;
     examples?: string[] | null;
 }
-  
+
 export type IOptionData = {
     options?: string[] | null;
     query?: boolean | null;
@@ -62,7 +62,7 @@ export type IPlaceholder = {
     columns?: string[];
     create?: ICommand;
 }
-  
+
 export type ICommandMap = {
     commands: ICommandGroup;
     placeholders: { [name: string]: IPlaceholder };
@@ -78,12 +78,12 @@ export type CommandPath<T> = T extends ICommandGroup
 
 export type CommandArguments<T, P extends string[]> = P extends [infer K, ...infer Rest]
     ? K extends keyof T
-        ? Rest extends []
-            ? T[K] extends ICommand
-                ? { [key in keyof T[K]['arguments']]?: string }
-                : never
-            : CommandArguments<T[K], Extract<Rest, string[]>>
-        : never
+    ? Rest extends []
+    ? T[K] extends ICommand
+    ? { [key in keyof T[K]['arguments']]?: string }
+    : never
+    : CommandArguments<T[K], Extract<Rest, string[]>>
+    : never
     : never;
 
 ///
@@ -92,7 +92,7 @@ export class Argument {
     name: string;
     arg: IArgument;
     breakdown: TypeBreakdown | null = null;
-    
+
     constructor(name: string, arg: IArgument) {
         this.name = name;
         this.arg = arg;
@@ -110,7 +110,7 @@ export class Argument {
     getKeyData(): IKeyData {
         const result = CM.data.keys[this.arg.type];
         if (result == null) {
-            return {desc: "", examples: null};
+            return { desc: "", examples: null };
         }
         return result;
     }
@@ -136,7 +136,7 @@ export class Argument {
         if (options != null) {
             return new OptionData(CM, options, multi);
         }
-        return new OptionData(CM, {options: null, query: false, completions: false, guild: false, nation: false, user: false}, false);
+        return new OptionData(CM, { options: null, query: false, completions: false, guild: false, nation: false, user: false }, false);
     }
 
     getTypeBreakdown(): TypeBreakdown {
@@ -210,7 +210,7 @@ export class Command {
         }
         return this.descShort;
     }
-    
+
     constructor(name: string, command: ICommand) {
         this.command = command;
         this.name = name;
@@ -246,13 +246,13 @@ export class Command {
         return `${this.name} ${this.command.desc}`;
     }
 
-    toSentence(weights: CommandWeights): Sentence {
-        const weight = weights.commands[this.name];
-        return weight && {
-            text: this.getFullText(),
-            vector: weight.vector
-        };
-    }
+    // toSentence(weights: CommandWeights): Sentence {
+    //     const weight = weights.commands[this.name];
+    //     return weight && {
+    //         text: this.getFullText(),
+    //         vector: weight.vector
+    //     };
+    // }
 
     getArguments(): Argument[] {
         if (this.arguments == null) {
@@ -331,10 +331,12 @@ export class PlaceholderArrayBuilder<T extends keyof typeof COMMANDS.placeholder
 
     // iterate over a provided object and add according to the function
     add<C extends keyof typeof COMMANDS.placeholders[T]['commands']>(
-        {cmd, args, alias}: {cmd: C,
+        { cmd, args, alias }: {
+            cmd: C,
             args?: typeof COMMANDS.placeholders[T]['commands'][C] extends { arguments: infer A }
-                ? { [key in keyof A]?: string }
-                : never, alias?: string}
+            ? { [key in keyof A]?: string }
+            : never, alias?: string
+        }
     ): this {
         let str;
         if (args) {
@@ -372,7 +374,7 @@ export class PlaceholderArrayBuilder<T extends keyof typeof COMMANDS.placeholder
 export class CommandMap {
     data: ICommandMap;
     flat: { [key: string]: Command } | null = null;
-    ph_flat: {[key: string]: {[key: string]: Command}} = {};
+    ph_flat: { [key: string]: { [key: string]: Command } } = {};
 
     constructor(commands: ICommandMap) {
         this.data = commands;
@@ -396,14 +398,14 @@ export class CommandMap {
         return result;
     }
 
-    getPlaceholderCommands(placeholder_type: string): {[key: string]: Command} {
+    getPlaceholderCommands(placeholder_type: string): { [key: string]: Command } {
         if (this.ph_flat[placeholder_type] == null && this.data.placeholders[placeholder_type]) {
             this.ph_flat[placeholder_type] = this.flattenCommands(this.data.placeholders[placeholder_type].commands);
         }
         return this.ph_flat[placeholder_type];
     }
 
-    getCommands(): {[key: string]: Command} {
+    getCommands(): { [key: string]: Command } {
         if (this.flat == null) this.flat = this.flattenCommands(this.data.commands);
         return this.flat;
     }
@@ -430,7 +432,7 @@ export class CommandMap {
     }
 
     buildTest(): Command {
-        const allArgs: {[key: string]: IArgument} = {};
+        const allArgs: { [key: string]: IArgument } = {};
         Object.values(this.getCommands()).forEach((cmd) => {
             if (!cmd.command.arguments) {
                 return;
@@ -455,8 +457,8 @@ export class CommandMap {
 
     searchPlaceholders(placeholder_type: string, functionString: string) {
         const commands: ICommandGroup = this.data.placeholders[placeholder_type].commands;
-        const startsWith: {[key: string]: ICommand} = {};
-        const completeMatch: {[key: string]: ICommand} = {};
+        const startsWith: { [key: string]: ICommand } = {};
+        const completeMatch: { [key: string]: ICommand } = {};
         const funcStrLower = functionString.toLowerCase();
         for (const [key, value] of Object.entries(commands)) {
             if (key === funcStrLower) {
@@ -646,7 +648,7 @@ export class CommandMap {
             }
         }
     }
-    
+
     getCurrentlyTypingFunction(content: string, token: string, caretPosition: number, placeholder_type: string): Completion {
         if (isQuoteOrBracket(content.charAt(0)) && findMatchingQuoteOrBracket(content, 0) == content.length - 1) {
             console.log("Content is quote or bracket");
@@ -987,7 +989,7 @@ export class TypeBreakdown {
         if (options != null) {
             return new OptionData(this.map, options, multi);
         }
-        return new OptionData(this.map, {options: null, query: false, completions: false, guild: false, nation: false, user: false}, false);
+        return new OptionData(this.map, { options: null, query: false, completions: false, guild: false, nation: false, user: false }, false);
     }
 }
 
@@ -1006,7 +1008,7 @@ export function toPlaceholderName(type: string): string {
 // Constants
 export const CM = new CommandMap(COMMANDS as unknown as ICommandMap);
 
-export const COMMAND_BEHAVIOR: {[key: string]: CommandBehavior} = {
+export const COMMAND_BEHAVIOR: { [key: string]: CommandBehavior } = {
     "": "DELETE_MESSAGE",
     "~": "UNPRESS",
     "_": "DELETE_BUTTONS",
@@ -1014,13 +1016,13 @@ export const COMMAND_BEHAVIOR: {[key: string]: CommandBehavior} = {
     "=": "EPHEMERAL",
 }
 
-export function getCommandAndBehavior(cmd: string): {behavior: CommandBehavior, command: string, args: {[key: string]: string}} {
+export function getCommandAndBehavior(cmd: string): { behavior: CommandBehavior, command: string, args: { [key: string]: string } } {
     let char0 = cmd.charAt(0);
     if (char0 === "{") char0 = "";
-    const commandAndArgs: {[key: string]: string} = JSON.parse(cmd.substring(char0.length)) as {[key: string]: string};
+    const commandAndArgs: { [key: string]: string } = JSON.parse(cmd.substring(char0.length)) as { [key: string]: string };
     const command: string = commandAndArgs[""];
     // args is everything else, except the "" key
     const args = commandAndArgs;
     delete args[""];
-    return {behavior: COMMAND_BEHAVIOR[char0], command, args};
+    return { behavior: COMMAND_BEHAVIOR[char0], command, args };
 }

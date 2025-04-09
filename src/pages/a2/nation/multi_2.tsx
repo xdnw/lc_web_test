@@ -1,7 +1,7 @@
 import { MULTI_V2} from "../../../lib/endpoints";
 import {getQueryParams} from "../../../lib/utils";
 import {Link, useParams} from "react-router-dom";
-import React from "react";
+import React, { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {renderLink} from "./multi";
 import EndpointWrapper from "@/components/api/bulkwrapper";
@@ -11,11 +11,14 @@ import LazyIcon from "@/components/ui/LazyIcon";
 export default function MultiV2() {
     const { nation } = useParams<{ nation: string }>();
     const [collapse, setCollapse] = React.useState(true);
+    const toggleCollapse = useCallback(() => {
+        setCollapse(c => !c);
+    }, [setCollapse]);
     return <>
         <div className="bg-light/10 border border-light/10 mb-2 rounded">
         <Button variant="ghost" size="md"
                 className="text-2xl w-full border-b border-secondary px-2 bg-primary/10 justify-start"
-                onClick={() => setCollapse(f => !f)}>
+                onClick={toggleCollapse}>
             Column descriptions {collapse ? <LazyIcon name="ChevronDown" /> : <LazyIcon name="ChevronUp" />}
         </Button>
         <div className={`transition-all duration-200 ease-in-out ${collapse ? 'max-h-0 opacity-0 overflow-hidden' : 'p-2 opacity-100'}`}>

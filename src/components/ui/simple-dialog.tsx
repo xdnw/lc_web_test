@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
     AlertDialog, AlertDialogCancel,
     AlertDialogContent,
@@ -9,6 +9,9 @@ import {
 import {CopoToClipboardTextArea} from "./copytoclipboard";
 
 export default function SimpleDialog({ title, message, quote, showDialog, setShowDialog }: { title: string, message: React.ReactNode, quote?: boolean, showDialog: boolean, setShowDialog: (show: boolean) => void }) {
+    const hideDialog = useCallback(() => {
+        setShowDialog(false);
+    }, [setShowDialog]);
     return (
         <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
             <AlertDialogContent>
@@ -26,7 +29,7 @@ export default function SimpleDialog({ title, message, quote, showDialog, setSho
                     </div>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setShowDialog(false)}>Dismiss</AlertDialogCancel>
+                    <AlertDialogCancel onClick={hideDialog}>Dismiss</AlertDialogCancel>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

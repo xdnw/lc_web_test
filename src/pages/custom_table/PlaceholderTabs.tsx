@@ -31,6 +31,7 @@ import { getColOptions, getQueryString } from "./table_util";
 import { useDeepState } from "@/utils/StateUtil";
 import LazyIcon from '@/components/ui/LazyIcon';
 import { OrderIdx } from './DataTable';
+import { deepEqual } from '@/lib/utils';
 
 export interface PlaceholderTabsHandle {
     getType: () => keyof typeof COMMANDS.placeholders;
@@ -85,7 +86,23 @@ export const PlaceholderTabs = forwardRef<PlaceholderTabsHandle, {
     const setSelectedTab = useCallback((valueStr: string) => {
         const value = valueStr as keyof typeof COMMANDS.placeholders;
         setType(value);
-    }, []);
+        const selOptions = DEFAULT_TABS[value]?.selections;
+        const colOptions = DEFAULT_TABS[value]?.columns;
+        if (selOptions && Object.keys(selOptions).length > 0) {
+            setSelection({ "": selOptions[Object.keys(selOptions)[0]] });
+        }
+        if (colOptions && Object.keys(colOptions).length > 0) {
+            const colOption = colOptions[Object.keys(colOptions)[0]];
+            setColumns(new Map((colOption.value).map(col => {
+                if (Array.isArray(col)) {
+                    return [col[0], col[1]];
+                } else {
+                    return [col, null];
+                }
+            })));
+            setSort(f => deepEqual(f, colOption.sort) ? f : colOption.sort);
+        }
+    }, [setType, setSelection, setColumns, setSort]);
 
     const tabList = useMemo(() => {
         return (
@@ -842,17 +859,8 @@ export function SelectionSection({
 
     // Update local input value when selection changes from parent
     useEffect(() => {
-        setSelInputValue(selection[""]);
-    }, [selection]);
-
-    // Update when tab changes
-    useEffect(() => {
-        if (type !== selectedTab) {
-            const newSelection = { "": DEFAULT_TABS[type]?.selections[Object.keys(DEFAULT_TABS[type]?.selections ?? {})[0]] || "*" };
-            setSelection(newSelection);
-            setSelInputValue(newSelection[""]);
-        }
-    }, [type, selectedTab, setSelection]);
+        setSelInputValue(f => f !== selection[""] ? selection[""] : f);
+    }, [selection, setSelInputValue]);
 
     // Create a debounced version of the selection update
     const debouncedSetSelection = useDebouncedCallback(

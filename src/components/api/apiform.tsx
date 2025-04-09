@@ -52,34 +52,55 @@ export function ApiFormInputs<T, A extends { [key: string]: string | string[] | 
     const stableDefaults = useDeepCompareMemo(default_values ?
         (Object.fromEntries(Object.entries(default_values).filter(([_, value]) => value !== undefined)) as { [k: string]: string | string[] }) : {});
 
-    const renderFormInputs = useCallback((props: { setOutputValue: (name: string, value: string) => void }) => {
+    // Split the filtering logic into a useMemo
+    const filteredArgs = useMemo(() => {
         if ((!required || required.length === 0) && (!showArguments || showArguments.length === 0)) {
+            return [];
+        }
+        
+        return Object.values(endpoint.endpoint.args)
+            .filter(arg => !stableDefaults || !Object.prototype.hasOwnProperty.call(stableDefaults, arg.name));
+    }, [endpoint, stableDefaults, required, showArguments]);
+
+    // Create a memoized argument input component
+    const MemoizedArgInput = React.memo(({ arg, setOutputValue }: { 
+        arg: typeof filteredArgs[0], 
+        setOutputValue: (name: string, value: string) => void 
+    }) => (
+        <div className="relative">
+            <ArgDescComponent arg={arg} />
+            <div className="mb-1 bg-accent border border-slate-500 border-opacity-50 rounded-b-sm rounded-tr-sm">
+                <ArgInput
+                    argName={arg.name}
+                    breakdown={arg.getTypeBreakdown()}
+                    min={arg.arg.min}
+                    max={arg.arg.max}
+                    initialValue={""}
+                    setOutputValue={setOutputValue}
+                />
+            </div>
+        </div>
+    ), (prev, next) => prev.arg.name === next.arg.name);
+
+    // Then simplify renderFormInputs to use it
+    const renderFormInputs = useCallback((props: { setOutputValue: (name: string, value: string) => void }) => {
+        if (filteredArgs.length === 0) {
             return null;
         }
+        
         return (
             <>
-                {Object.values(endpoint.endpoint.args)
-                    .filter(arg => !stableDefaults || !Object.prototype.hasOwnProperty.call(stableDefaults, arg.name))
-                    .map((arg, index) => (
-                        <div key={index} className="relative">
-                            <ArgDescComponent arg={arg} />
-                            <div
-                                className="mb-1 bg-accent border border-slate-500 border-opacity-50 rounded-b-sm rounded-tr-sm">
-                                <ArgInput
-                                    argName={arg.name}
-                                    breakdown={arg.getTypeBreakdown()}
-                                    min={arg.arg.min}
-                                    max={arg.arg.max}
-                                    initialValue={""}
-                                    setOutputValue={props.setOutputValue}
-                                />
-                            </div>
-                        </div>
-                    ))}
+                {filteredArgs.map((arg, index) => (
+                    <MemoizedArgInput 
+                        key={index} 
+                        arg={arg} 
+                        setOutputValue={props.setOutputValue} 
+                    />
+                ))}
                 <hr className="my-2" />
             </>
         );
-    }, [endpoint, stableDefaults]);
+    }, [filteredArgs]);
 
     return (
         <ApiForm

@@ -5,14 +5,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Theme, useTheme } from "@/components/ui/theme-provider"
-import {Button} from "@/components/ui/button.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import LazyIcon from "./LazyIcon";
+import { useCallback } from "react";
 
 export function ModeToggle() {
   const { setTheme } = useTheme()
-  
+
   // Add a direct function that verifies setTheme works
-  const handleThemeChange = (theme: Theme) => {
+  const handleThemeChange = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const theme = e.currentTarget.getAttribute("data-key") as Theme;
     console.log(`Setting theme to: ${theme}`);
     try {
       setTheme(theme);
@@ -24,8 +26,8 @@ export function ModeToggle() {
     } catch (error) {
       console.error("Error setting theme:", error);
     }
-  }
- 
+  }, [setTheme])
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -36,13 +38,13 @@ export function ModeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => handleThemeChange("light")}>
+        <DropdownMenuItem data-key="light" onClick={handleThemeChange}>
           Light
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleThemeChange("dark")}>
+        <DropdownMenuItem data-key="dark" onClick={handleThemeChange}>
           Dark
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleThemeChange("system")}>
+        <DropdownMenuItem data-key="system" onClick={handleThemeChange}>
           System
         </DropdownMenuItem>
       </DropdownMenuContent>

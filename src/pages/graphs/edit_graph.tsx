@@ -8,7 +8,7 @@ import { CommonEndpoint, QueryResult } from "@/lib/BulkQuery";
 import React from "react";
 
 
-export function ParamEditGraph() {
+export default function ParamEditGraph() {
     const { type } = useParams<{ type: string }>();
     const selected = type ? getGraphEndpoints()[type.toLowerCase()] : undefined;
     if (!selected) {
@@ -96,6 +96,3 @@ function EditGraph<U extends { [key: string]: string | string[] | undefined }, V
         </div>
     );
 }
-
-// Then export the memoized version as the default export
-export default React.memo(EditGraph) as typeof EditGraph;

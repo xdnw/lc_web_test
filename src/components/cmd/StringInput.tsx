@@ -1,6 +1,6 @@
 import { useSyncedState } from "@/utils/StateUtil";
 import { Input } from "../ui/input";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export default function StringInput(
     {argName, initialValue, filter, filterHelp, setOutputValue}:
@@ -15,30 +15,31 @@ export default function StringInput(
     const [value, setValue] = useSyncedState(initialValue || '');
     const [isValid, setIsValid] = useState(true);
     const [validText, setValidText] = useState('');
+    const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const myValue = e.target.value;
+        setValue(myValue);
+        setOutputValue(argName, myValue);
+        if (myValue) {
+            if (filter) {
+                const newValid = new RegExp(filter).test(myValue);
+                setIsValid(newValid);
+                if (!newValid) {
+                    setValidText(`Invalid input. Must be ${filterHelp ? filterHelp + " " : ""}matching pattern: ${filter}`);
+                } else {
+                    setValidText("");
+                }
+            }
+        } else {
+            setIsValid(true);
+            setValidText("");
+        }
+    }, [argName, filter, filterHelp, setOutputValue, setValue]);
     return (
         <>
             <div className="flex items-center px-0 mx-0 m-0">
                 <Input type="text"
                        value={value}
-                       onChange={(e) => {
-                           const myValue = e.target.value;
-                           setValue(myValue);
-                           setOutputValue(argName, myValue);
-                           if (myValue) {
-                               if (filter) {
-                                   const newValid = new RegExp(filter).test(myValue);
-                                   setIsValid(newValid);
-                                   if (!newValid) {
-                                       setValidText(`Invalid input. Must be ${filterHelp ? filterHelp + " " : ""}matching pattern: ${filter}`);
-                                   } else {
-                                       setValidText("");
-                                   }
-                               }
-                           } else {
-                               setIsValid(true);
-                               setValidText("");
-                           }
-                       }}
+                       onChange={onChange}
                        className={`${!isValid ? 'border border-2 border-red-500 dark:border-red-800' : ''} relative px-0 w-full px-1`}
                        pattern={filter ? filter : ".*"}
                        placeholder="Type here..."/>

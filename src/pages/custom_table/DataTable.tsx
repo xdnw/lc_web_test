@@ -9,7 +9,6 @@ import {
   DataGridHandle,
   RenderCellProps
 } from "react-data-grid";
-import "react-data-grid/lib/styles.css";
 import { JSONValue } from "@/lib/internaltypes";
 import { sortData } from "./sort";
 import { cn } from "@/lib/utils";
@@ -166,30 +165,33 @@ export function DataTable({
     showExports && <ExportTable data={data} columns={columnsInfo} />
   ), [showExports, data, columnsInfo]);
 
+  const dataGrid = useMemo(() => {
+    return <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden text-xs">
+      <DataGrid
+        key={columnsInfo.length}
+        className={`bg-transparent text-xs`}
+        style={{ height: '70vh', maxHeight: '70vh', flex: '1 1 auto' }}
+        ref={table}
+        columns={gridColumns}
+        rows={data}
+        sortColumns={sortColumns}
+        onSortColumnsChange={handleSort}
+        onColumnsReorder={onColumnsReorder}
+        rowClass={(row: JSONValue[], rowIdx: number) =>
+          `${rowIdx % 2 === 0 ? 'bg-black/5 dark:bg-white/5' : 'bg-transparent'} 
+      text-gray-900 dark:text-gray-200 w-full hover:bg-black/20 dark:hover:bg-white/20`
+        }
+        rowHeight={25}
+        renderers={{ noRowsFallback }}
+        enableVirtualization={true}
+      />
+    </div>;
+  }, [columnsInfo, data, sortColumns, handleSort, onColumnsReorder, table]);
 
   return (
     <>
       {exportButton}
-      <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden text-xs">
-        <DataGrid
-          key={columnsInfo.length}
-          className="bg-transparent text-xs"
-          style={{ height: '70vh', maxHeight: '70vh', flex: '1 1 auto' }}
-          ref={table}
-          columns={gridColumns}
-          rows={data}
-          sortColumns={sortColumns}
-          onSortColumnsChange={handleSort}
-          onColumnsReorder={onColumnsReorder}
-          rowClass={(row: JSONValue[], rowIdx: number) =>
-            `${rowIdx % 2 === 0 ? 'bg-black/5 dark:bg-white/5' : 'bg-transparent'} 
-            text-gray-900 dark:text-gray-200 hover:bg-black/20 dark:hover:bg-white/20`
-          }
-          rowHeight={25}
-          renderers={{ noRowsFallback }}
-          enableVirtualization={true}
-        />
-      </div>
+      {dataGrid}
     </>
   );
 }
