@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo } from "react";
 import { OrderIdx } from './DataTable';
 import { AbstractTableWithButtons, TableProps } from "./AbstractTable";
 

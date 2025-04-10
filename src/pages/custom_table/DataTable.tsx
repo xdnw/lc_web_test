@@ -1,11 +1,8 @@
 import React, { ReactNode, useCallback, useMemo, useState } from "react";
 import {
   DataGrid,
-  SortDirection,
   SortColumn,
   Column,
-  Renderers,
-  CellRendererProps,
   DataGridHandle,
   RenderCellProps
 } from "react-data-grid";

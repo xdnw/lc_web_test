@@ -1,7 +1,6 @@
-import EndpointWrapper, { BulkQueryWrapper } from "@/components/api/bulkwrapper";
+import EndpointWrapper from "@/components/api/bulkwrapper";
 import { TABLE } from "@/lib/endpoints";
-import { Suspense, useEffect, useState } from "react";
-import { FallbackProps, ErrorBoundary } from "react-error-boundary";
+import { useState } from "react";
 export default function TestSuspense() {
     const [endpoint] = useState(TABLE);
     const [rawQuery] = useState<{

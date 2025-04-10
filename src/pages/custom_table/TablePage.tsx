@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { OrderIdx } from './DataTable';
 import { COMMANDS } from "../../lib/commands";
 import { getQueryParams } from "../../lib/utils";
 import { DEFAULT_TABS } from "../../lib/layouts";
-import { getSortFromUrl } from "./table_util";
+import { getSortFromUrl , getColumnsFromUrl, getSelectionFromUrl, getTypeFromUrl } from "./table_util";
 import { PlaceholderTabs, PlaceholderTabsHandle } from "@/pages/custom_table/PlaceholderTabs";
-import { getColumnsFromUrl, getSelectionFromUrl, getTypeFromUrl } from "./table_util";
+
 import { AbstractTableWithButtons, TableProps } from "@/pages/custom_table/AbstractTable";
-import { useDeepState, useSyncedState } from "@/utils/StateUtil";
+import { useDeepState } from "@/utils/StateUtil";
 
 
 export default function CustomTable() {
@@ -21,7 +21,7 @@ export default function CustomTable() {
     );
     const [columns, setColumns] = useDeepState<Map<string, string | null>>(function () {
         return getColumnsFromUrl(params) ?? new Map(
-            (DEFAULT_TABS[type]?.columns[Object.keys(DEFAULT_TABS[type]?.columns ?? {})[0]]?.value ?? ["{id}"]).map(col => {
+            (DEFAULT_TABS[type]?.columns[Object.keys(DEFAULT_TABS[type].columns ?? {})[0]]?.value ?? ["{id}"]).map(col => {
                 if (Array.isArray(col)) {
                     return [col[0], col[1]];
                 } else {
@@ -31,7 +31,7 @@ export default function CustomTable() {
         );
     }());
     const [sort, setSort] = useDeepState<OrderIdx | OrderIdx[]>(
-        getSortFromUrl(params) ?? (DEFAULT_TABS[type]?.columns[Object.keys(DEFAULT_TABS[type]?.columns ?? {})[0]]?.sort || { idx: 0, dir: 'asc' })
+        getSortFromUrl(params) ?? (DEFAULT_TABS[type]?.columns[Object.keys(DEFAULT_TABS[type].columns ?? {})[0]]?.sort || { idx: 0, dir: 'asc' })
     );
 
     const tabsRef = useRef<PlaceholderTabsHandle>(null);

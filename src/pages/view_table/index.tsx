@@ -1,5 +1,5 @@
 import {getQueryParams} from "../../lib/utils";
-import {useMemo, useRef} from "react";
+import {useMemo} from "react";
 import {Link} from "react-router-dom";
 import {Button} from "../../components/ui/button";
 import { getColumnsFromUrl, getSelectionFromUrl, getSortFromUrl, getTypeFromUrl } from "../custom_table/table_util";

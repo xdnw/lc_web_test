@@ -4,7 +4,6 @@ import { JSONValue } from "./internaltypes";
 import Cookies from "js-cookie";
 import { hashString } from "@/utils/StringUtil";
 import { Argument, IArgument } from "@/utils/Command";
-import { ReactNode } from "react";
 
 export class QueryResult<T> {
     endpoint: string;

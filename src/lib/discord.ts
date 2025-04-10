@@ -1,5 +1,5 @@
 import {DiscordEmbed} from "../components/ui/MarkupRenderer";
-import { parser, htmlOutput, toHTML } from '@odiffey/discord-markdown';
+import { toHTML } from '@odiffey/discord-markdown';
 import {ReactNode} from "react";
 import {HtmlOptions} from "@odiffey/discord-markdown/dist/types/HtmlOptions";
 

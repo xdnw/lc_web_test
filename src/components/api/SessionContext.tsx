@@ -2,7 +2,7 @@ import { WebSession } from '@/lib/apitypes';
 import { SESSION } from '@/lib/endpoints';
 import { bulkQueryOptions } from '@/lib/queries';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { createContext, useContext, useState, ReactNode, useMemo, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 
 interface SessionContextProps {
     session: WebSession | null;

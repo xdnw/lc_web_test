@@ -1,12 +1,9 @@
 import { memo, useRef, useState, useEffect, ReactNode, useMemo, useCallback } from "react";
 import { RECORDS } from "@/lib/endpoints";
-import Loading from "@/components/ui/loading.tsx";
 import { PaginatedList } from "@/components/ui/pagination.tsx";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button.tsx";
 import EndpointWrapper from "@/components/api/bulkwrapper";
-import { QueryResult } from "@/lib/BulkQuery";
-import { WebTable } from "@/lib/apitypes";
 import LazyIcon from "@/components/ui/LazyIcon";
 
 const Records = () => {

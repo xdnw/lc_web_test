@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useDialog } from "../../components/layout/DialogContext";
 import { Button } from "@/components/ui/button.tsx";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -7,17 +7,12 @@ import Loading from "@/components/ui/loading.tsx";
 import { COMMANDS } from "@/lib/commands.ts";
 import { WebTarget, WebTargets } from "@/lib/apitypes";
 import { RAID, UNPROTECTED } from "../../lib/endpoints";
-import { IOptionData } from "../../utils/Command";
-import { WebSession, WebSuccess } from "../../lib/apitypes";
-import ArgInput from "../../components/cmd/ArgInput";
 import QueryComponent from "../../components/cmd/QueryComponent";
-import { CommandStoreType, createCommandStore, useDeepState, useSyncedState } from "../../utils/StateUtil";
-import { OutputValuesDisplay } from "../command";
+import { useSyncedState } from "../../utils/StateUtil";
 import Color from "../../components/renderer/Color";
 import { useSession } from "@/components/api/SessionContext";
 import { ApiFormInputs } from "@/components/api/apiform";
 import { cn } from "@/lib/utils";
-import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 
 type RaidOption = {
     endpoint: typeof RAID | typeof UNPROTECTED;
@@ -164,7 +159,7 @@ export default function RaidSection() {
     return (
         <div className="bg-light/10 border border-light/10 p-2 rounded mt-2">
             <h1 className="text-2xl mt-2 font-bold">War / Raiding</h1>
-            {((!session || !session?.nation) && !nation) && nationPicker}
+            {((!session || !session.nation) && !nation) && nationPicker}
             <div className="p-2 my-1 relative">
                 Raiding: {nation && raidButtons}
                 <br />

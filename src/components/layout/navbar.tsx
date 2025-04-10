@@ -5,7 +5,6 @@ import {hasToken} from "@/utils/Auth.ts";
 import LoggedInDropdown from "@/components/layout/logged-in-dropdown.tsx";
 import LoggedOutDropdown from "@/components/layout/logged-out-dropdown.tsx";
 import { Input } from "../ui/input";
-import { useDeepState } from "@/utils/StateUtil";
 
 const SearchBar = React.memo(() => (
     <div className="w-full p-0 flex items-center">

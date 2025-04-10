@@ -1,6 +1,5 @@
 import LazyTooltip from "./LazyTooltip";
 import React, {useCallback} from "react";
-import CopyToClipboard from "./copytoclipboard";
 import {formatTimeRelative} from "../../utils/StringUtil";
 import {BlockCopyButton} from "./block-copy-button";
 import { TooltipProvider } from "./tooltip";

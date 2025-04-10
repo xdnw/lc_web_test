@@ -255,7 +255,7 @@ export function ColumnsSection({
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
         if (event.key.length === 1 || event.key === "Backspace") {
             const element = document.activeElement as HTMLElement;
-            const id = element?.id?.startsWith("btn-") ? element.id.split("-")[1] : "";
+            const id = element.id.startsWith("btn-") ? element.id.split("-")[1] : "";
             if (!id) return;
 
             const span = element.querySelector("span") as HTMLElement;

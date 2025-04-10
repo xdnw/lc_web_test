@@ -7,7 +7,6 @@ import sheetImage from '@/assets/sheet.jpg';
 import graphImage from '@/assets/graph.png';
 import chestImage from '@/assets/chest.png';
 import mediaImage from '@/assets/media2.png';
-import { useDialog } from "../../components/layout/DialogContext";
 import React from "react";
 
 const _cardTemplates: {

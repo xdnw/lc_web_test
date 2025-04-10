@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { getDiscordAuthUrl } from "@/utils/Auth.ts";
 import { Button } from "@/components/ui/button.tsx";
 import CopyToClipboard from "@/components/ui/copytoclipboard.tsx";
-import { REGISTER, SESSION, UNREGISTER } from "@/lib/endpoints";
+import { SESSION, UNREGISTER } from "@/lib/endpoints";
 import { useDialog } from "../../components/layout/DialogContext";
 import { WebSession } from "../../lib/apitypes";
 import EndpointWrapper from "@/components/api/bulkwrapper";

@@ -1,7 +1,6 @@
-import { COMMANDS } from "../../lib/commands";
 import { commafy, formatDuration, formatSi, formatTimeRelative, split } from "../../utils/StringUtil";
 import ReactDOMServer from 'react-dom/server';
-import { CM, ICommandMap, IOptionData } from "../../utils/Command";
+import { CM, IOptionData } from "../../utils/Command";
 import React, { ReactNode } from "react";
 import SimpleChart from "../../pages/graphs/SimpleChart.js";
 import { WebGraph } from "../../lib/apitypes.js";
@@ -69,7 +68,7 @@ export function html(value: string): ReactNode {
 }
 
 export function isHtmlRenderer(type: ObjectColumnRender): boolean {
-    return (type?.display as unknown as { isHtml?: boolean })?.isHtml ?? false;
+    return (type.display as unknown as { isHtml?: boolean }).isHtml ?? false;
 }
 
 export function graph(value: WebGraph): ReactNode {
@@ -130,7 +129,7 @@ export function getRenderer(type: string): ObjectColumnRender | undefined {
     if (!type) return undefined;
     if (type.startsWith("enum:")) {
         const enumType = type.split(":")[1];
-        const options = (CM.data.options[enumType] as IOptionData)?.options ?? [];
+        const options = (CM.data.options[enumType] as IOptionData).options ?? [];
         // return Object.assign({
         //     display: (value: number) => options[value],
         // }, {isEnum: true, options: options});

@@ -1,5 +1,3 @@
-import {useDialog} from "../../../components/layout/DialogContext";
-import {useRef} from "react";
 import {ALLIANCESTATS, METRIC_COMPARE_BY_TURN, TABLE} from "../../../lib/endpoints";
 import {Link, useParams } from "react-router-dom";
 import {CM} from "../../../utils/Command";

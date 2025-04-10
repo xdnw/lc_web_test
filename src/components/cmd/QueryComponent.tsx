@@ -1,11 +1,10 @@
 import ListComponent from "./ListComponent";
 import {INPUT_OPTIONS} from "@/lib/endpoints";
 import {WebOptions} from "../../lib/apitypes";
-import {useRef, useState} from "react";
+import { useState} from "react";
 import EndpointWrapper from "../api/bulkwrapper";
 import { useQueries } from "@tanstack/react-query";
 import { bulkQueryOptions } from "@/lib/queries";
-import { QueryResult } from "@/lib/BulkQuery";
 
 export default function QueryComponent(
     {element, multi, argName, initialValue, setOutputValue}:
@@ -76,7 +75,7 @@ export function CompositeQueryComponent(
         return <div>Loading...</div>;
     }
 
-    if (queries.some(query => query?.data?.data === undefined)) {
+    if (queries.some(query => query.data?.data === undefined)) {
         return <div>No Data...</div>;
     }
 

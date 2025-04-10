@@ -1,15 +1,12 @@
-import { useState, useCallback, memo, useRef } from "react";
-import Cookies from 'js-cookie';
+import { useCallback, memo } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button.tsx";
-import { SESSION, SET_GUILD } from "@/lib/endpoints";
+import { SET_GUILD } from "@/lib/endpoints";
 import { useDialog } from "../../components/layout/DialogContext";
 import { SetGuild } from "../../lib/apitypes";
 import { UNSET_GUILD } from "../../lib/endpoints";
 import { useSession } from "@/components/api/SessionContext";
-import { ApiEndpoint } from "@/lib/BulkQuery";
 import { ApiFormInputs } from "@/components/api/apiform";
-import { useQueryClient } from "@tanstack/react-query";
 import LazyIcon from "@/components/ui/LazyIcon";
 
 
@@ -34,7 +31,7 @@ const GuildPicker = () => {
                 </Link>
             </Button>
             <div className="bg-light/10 border border-light/10 p-2 m-0 mt-2">
-                {session?.guild && <SelectedGuildInfo id={session?.guild} name={session?.guild_name} icon={session?.guild_icon} />}
+                {session?.guild && <SelectedGuildInfo id={session.guild} name={session.guild_name} icon={session.guild_icon} />}
                 <GuildForm handleResponse={handleResponse} />
                 <hr className="my-2" />
                 <div className="bg-accent p-2 rounded relative">

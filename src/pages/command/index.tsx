@@ -1,6 +1,6 @@
 import React, {useCallback, useMemo, useRef, useState} from 'react';
 import CommandComponent from '../../components/cmd/CommandComponent'; // Import CommandComponent
-import { CommandStoreType, createCommandStore } from '@/utils/StateUtil.ts';
+import { CommandStoreType } from '@/utils/StateUtil.ts';
 import {Command, CM} from '@/utils/Command.ts';
 import {useParams} from "react-router-dom";
 import {BlockCopyButton} from "@/components/ui/block-copy-button.tsx";
@@ -34,7 +34,7 @@ export default function CommandPage() {
             <CommandComponent key={cmdObj.name} command={cmdObj} filterArguments={alwaysTrue} initialValues={initialValues}
                 setOutput={commandStore((state) => state.setOutput)}
             />
-            <OutputValuesDisplay name={cmdObj?.name} store={commandStore} />
+            <OutputValuesDisplay name={cmdObj.name} store={commandStore} />
         </>
     );
 }

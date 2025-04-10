@@ -15,7 +15,6 @@ import { clamp } from "@/lib/utils.ts";
 import { WebAudits, WebBankAccess } from "@/lib/apitypes";
 import { useDialog } from "../../components/layout/DialogContext";
 import RaidSection from "../raid";
-import { IOptionData } from "../../utils/Command";
 import EndpointWrapper from "@/components/api/bulkwrapper";
 import { ApiFormInputs } from "@/components/api/apiform";
 import LazyIcon from "@/components/ui/LazyIcon";

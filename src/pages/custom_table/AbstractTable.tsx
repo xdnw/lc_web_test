@@ -5,11 +5,9 @@ import { CopoToClipboardTextArea } from "../../components/ui/copytoclipboard";
 import { WebTable, WebTableError } from "../../lib/apitypes";
 import { useDialog } from "../../components/layout/DialogContext";
 import { Link } from "react-router-dom";
-import EndpointWrapper from "@/components/api/bulkwrapper";
-import { ApiFormInputs } from "@/components/api/apiform";
 import { getQueryString, createTableInfo, toSelAndModifierString } from "./table_util";
-import { useQuery, useQueryClient, UseQueryOptions, useSuspenseQuery, UseSuspenseQueryOptions } from "@tanstack/react-query";
-import { bulkQueryOptions, singleQueryOptions, suspenseQueryOptions } from "@/lib/queries";
+import { useQueryClient, useSuspenseQuery, UseSuspenseQueryOptions } from "@tanstack/react-query";
+import { singleQueryOptions, suspenseQueryOptions } from "@/lib/queries";
 import { ConfigColumns, DataTable, OrderIdx } from "./DataTable";
 import { DataGridHandle } from "react-data-grid";
 import { JSONValue } from "@/lib/internaltypes";
@@ -55,7 +53,7 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
     }, [getTableProps, setType, setSelection, setColumns, setSortState]);
 
     const highlightRowOrColumn = useCallback((col?: number, row?: number) => {
-        const tableElem = table?.current?.element;
+        const tableElem = table.current?.element;
         // remove all bg-red-500 from table th and td
         const elemsWithRed = tableElem?.querySelectorAll('.bg-red-500') || [];
         for (const elem of elemsWithRed) {

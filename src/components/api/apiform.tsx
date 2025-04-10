@@ -2,12 +2,11 @@ import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } f
 import { CommandStoreType, createCommandStore, createCommandStoreWithDef } from "@/utils/StateUtil.ts";
 import { hasToken } from "@/utils/Auth.ts";
 import { Link } from "react-router-dom";
-import DOMPurify from "dompurify";
 import { Button } from "@/components/ui/button.tsx";
-import { cn, deepEqual, UNPACKR } from "@/lib/utils.ts";
+import { cn, deepEqual } from "@/lib/utils.ts";
 import { useDialog } from "../layout/DialogContext";
-import { CommonEndpoint, fetchSingle, QueryResult } from "../../lib/BulkQuery";
-import EndpointWrapper, { useDeepCompareMemo } from "./bulkwrapper";
+import { CommonEndpoint, QueryResult } from "../../lib/BulkQuery";
+import { useDeepCompareMemo } from "./bulkwrapper";
 import { Argument } from "@/utils/Command";
 import ArgInput from "../cmd/ArgInput";
 import { ArgDescComponent } from "../cmd/CommandComponent";
@@ -232,10 +231,10 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
             // Call refetch and handle the response
             refetch().then((observer) => {
                 const queryResult = observer.data as QueryResult<T>;
-                const error = observer.error as Error ?? queryResult?.error;
+                const error = observer.error as Error ?? queryResult.error;
                 if (error) {
                     if (handle_error) handle_error(typeof error === "string" ? new Error(error) : error);
-                } else if (!queryResult?.data) {
+                } else if (!queryResult.data) {
                     console.log(observer);
                     if (handle_error) handle_error(new Error("No data returned"));
                 } else if (handle_response) {

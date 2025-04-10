@@ -1,5 +1,5 @@
 import { WebGraph } from "../../lib/apitypes";
-import React, { RefObject, useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import { PickAnEndpoint } from "./edit_graph";
 import { getQueryParams, queryParamsToObject } from "../../lib/utils";

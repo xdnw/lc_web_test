@@ -1,7 +1,7 @@
 import {COMMAND} from "../../lib/endpoints";
 import {useDialog} from "../../components/layout/DialogContext";
-import React, {memo, useEffect, useMemo, useRef, useState} from "react";
-import {handleResponse, RenderResponse} from "./index";
+import React, { useMemo} from "react";
+import { RenderResponse} from "./index";
 import {WebViewCommand} from "../../lib/apitypes";
 import {Link, useParams, useSearchParams} from "react-router-dom";
 import {Button} from "../../components/ui/button";

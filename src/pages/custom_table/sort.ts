@@ -89,7 +89,7 @@ function detectColumnTypes(data: JSONValue[][], sortColumns: SortColumn[], colum
         const colIndex = Number(sortCol.columnKey);
         let type: ColumnType | null = null;
         const column = columnMap.get(colIndex)!;
-        if (column?.type) {
+        if (column.type) {
             type = column.type;
         } else {
             // Detect column type from data samples
