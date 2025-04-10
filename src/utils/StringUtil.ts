@@ -47,16 +47,14 @@ export function downloadCells(data: (string | number)[][], useClipboard: boolean
     // Create a link element
     const link = document.createElement("a");
 
-    if (link.download !== undefined) { // feature detection
-      // Browsers that support HTML5 download attribute
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", "data." + type.ext);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+    // Browsers that support HTML5 download attribute
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "data." + type.ext);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     return ["Download starting", "The data for the currently selected columns should begin downloading. If the download does not start, please check your browser settings, or try the clipboard button instead."];
   }
 }

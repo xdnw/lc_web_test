@@ -52,8 +52,8 @@ const IconPlaceholderSized = ({ size = 22, className }: { size?: number; classNa
   <svg width={size} height={size} className={className} />
 );
 
-const LazyIcon: React.FC<LazyIconProps> = memo(
-  ({ name, size = 22, className, fallback = <IconPlaceholderSized size={size} className={className} />, onClick }) => {
+const LazyIcon: React.FC<LazyIconProps & React.HTMLAttributes<SVGElement>> = memo(
+  ({ name, size = 22, className, fallback = <IconPlaceholderSized size={size} className={className} />, onClick, ...rest }) => {
     const iconName = name.toLowerCase();
     const IconComponent = IconComponents[iconName];
 
@@ -65,13 +65,12 @@ const LazyIcon: React.FC<LazyIconProps> = memo(
 
     return (
       <Suspense fallback={fallback}>
-        {IconComponent && (
-          <IconComponent
+        <IconComponent
             size={size}
             className={className}
             onClick={onClick}
+            {...rest} // Forward all remaining props including data attributes
           />
-        )}
       </Suspense>
     );
   }

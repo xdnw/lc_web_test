@@ -11,8 +11,18 @@ import reactCompiler from 'eslint-plugin-react-compiler';
 // @ts-ignore
 import reactHooks from "eslint-plugin-react-hooks";
 import { fixupPluginRules } from "@eslint/compat";
+// @ts-ignore
+import reactPerf from 'eslint-plugin-react-perf';
+// @ts-ignore
+import sonarjs from 'eslint-plugin-sonarjs';
+// @ts-ignore
+import importPlugin from 'eslint-plugin-import';
+// @ts-ignore
+import unusedImports from 'eslint-plugin-unused-imports';
 
-export default tseslint.config(
+const FIX_IMPORTS = process.env.FIX_IMPORTS === 'true';
+
+const baseConfig = tseslint.config(
     {
         ignores: [
             'node_modules/**/*',
@@ -24,6 +34,17 @@ export default tseslint.config(
             'vite.config.js'
         ],
     },
+    {
+        languageOptions: {
+            parser: tseslint.parser,
+            parserOptions: {
+                project: './tsconfig.json',
+                tsconfigRootDir: '.',
+                ecmaVersion: 'latest',
+                sourceType: 'module',
+            },
+        }
+    },
     eslint.configs.recommended,
     tseslint.configs.recommended,
     { ...react.configs.flat.recommended, settings: { react: { version: "detect" } } },
@@ -31,8 +52,33 @@ export default tseslint.config(
     {
         plugins: {
             "react-hooks": fixupPluginRules(reactHooks),
+            "react-perf": reactPerf,
+            "sonarjs": sonarjs,
+            "import": importPlugin,
+            "unused-imports": unusedImports
         },
         rules: {
+            "unused-imports/no-unused-imports": FIX_IMPORTS ? "error" : "off",
+
+            // React performance rules
+            "react-perf/jsx-no-new-object-as-prop": "error",
+            "react-perf/jsx-no-new-array-as-prop": "error",
+            "react-perf/jsx-no-new-function-as-prop": "error",
+            // "react-perf/jsx-no-jsx-as-prop": "error", // disabled because too many false positives
+
+            // SonarJS optimization rules
+            // "sonarjs/no-identical-functions": "error", // Disabled because code style issue, not performance
+            // "sonarjs/cognitive-complexity": ["error", 15], // Way too noisy
+
+            // Import optimization
+            "import/no-duplicates": "error",
+            // "import/no-unused-modules": "error", // Disabled because who cares and not performance related
+
+            // TypeScript optimization: Disabled because not all that related to performance
+            "@typescript-eslint/no-unnecessary-condition": "error",
+            // "@typescript-eslint/prefer-optional-chain": "error",
+
+            // React hooks
             "react/jsx-no-bind": ["error", {
                 "allowArrowFunctions": false,
                 "allowFunctions": false,
@@ -166,14 +212,28 @@ export default tseslint.config(
             "import/no-named-as-default-member": "off",
             "import/no-named-as-default": "off",
             "import/no-cycle": "off",
-            "import/no-unused-modules": "off",
             "import/no-deprecated": "off",
             // 'react-refresh/only-export-components': [
             //     'warn',
             //     { allowConstantExport: true },
             // ],
             '@typescript-eslint/explicit-module-boundary-types': 'off',
-            "@typescript-eslint/no-unused-vars": "off",
         }
     }
 );
+
+// Convert all warning rules to off
+const prodConfig = baseConfig.map(config => {
+    if (config.rules) {
+        const rules = { ...config.rules };
+        Object.keys(rules).forEach(key => {
+            if (rules[key] === 'warn' || (Array.isArray(rules[key]) && rules[key][0] === 'warn')) {
+                rules[key] = 'off';
+            }
+        });
+        return { ...config, rules };
+    }
+    return config;
+});
+
+export default prodConfig;

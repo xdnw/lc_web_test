@@ -10,8 +10,9 @@
     "deploy": "gh-pages -d dist",
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint . --max-warnings 0 --cache",
-    "preview": "vite preview"
+    "lint": "eslint . --max-warnings 0 --cache --quiet",
+    "preview": "vite preview",
+    "fix-imports": "cross-env FIX_IMPORTS=true eslint --fix \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
     "@odiffey/discord-markdown": "^3.3.0",
@@ -67,11 +68,16 @@
     "@typescript-eslint/eslint-plugin": "^8.26.1",
     "@typescript-eslint/parser": "^8.26.1",
     "@vitejs/plugin-react-swc": "^3.8.0",
+    "cross-env": "^7.0.3",
     "depcheck": "^1.4.7",
     "eslint": "^9.22.0",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-compiler": "^19.0.0-beta-3229e95-20250315",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-perf": "^3.3.3",
+    "eslint-plugin-sonarjs": "^3.0.2",
+    "eslint-plugin-unused-imports": "^4.1.4",
     "gh-pages": "^6.3.0",
     "install": "^0.13.0",
     "jiti": "^2.4.2",

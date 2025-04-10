@@ -14,6 +14,25 @@ import { ArgDescComponent } from "../cmd/CommandComponent";
 import { singleQueryOptions } from "@/lib/queries";
 import { useQuery } from "@tanstack/react-query";
 
+const MemoizedArgInput = React.memo(({ arg, setOutputValue }: {
+    arg: Argument,
+    setOutputValue: (name: string, value: string) => void
+}) => (
+    <div className="relative">
+        <ArgDescComponent arg={arg} />
+        <div className="mb-1 bg-accent border border-slate-500 border-opacity-50 rounded-b-sm rounded-tr-sm">
+            <ArgInput
+                argName={arg.name}
+                breakdown={arg.getTypeBreakdown()}
+                min={arg.arg.min}
+                max={arg.arg.max}
+                initialValue={""}
+                setOutputValue={setOutputValue}
+            />
+        </div>
+    </div>
+), (prev, next) => prev.arg.name === next.arg.name);
+
 export function ApiFormInputs<T, A extends { [key: string]: string | string[] | undefined }, B extends { [key: string]: string | string[] | undefined }>({
     endpoint, message, default_values, showArguments, label, handle_error, classes, handle_response, children
 }: {
@@ -57,50 +76,30 @@ export function ApiFormInputs<T, A extends { [key: string]: string | string[] | 
         if ((!required || required.length === 0) && (!showArguments || showArguments.length === 0)) {
             return [];
         }
-        
+
         return Object.values(endpoint.endpoint.args)
             .filter(arg => !stableDefaults || !Object.prototype.hasOwnProperty.call(stableDefaults, arg.name));
     }, [endpoint, stableDefaults, required, showArguments]);
-
-    // Create a memoized argument input component
-    const MemoizedArgInput = React.memo(({ arg, setOutputValue }: { 
-        arg: typeof filteredArgs[0], 
-        setOutputValue: (name: string, value: string) => void 
-    }) => (
-        <div className="relative">
-            <ArgDescComponent arg={arg} />
-            <div className="mb-1 bg-accent border border-slate-500 border-opacity-50 rounded-b-sm rounded-tr-sm">
-                <ArgInput
-                    argName={arg.name}
-                    breakdown={arg.getTypeBreakdown()}
-                    min={arg.arg.min}
-                    max={arg.arg.max}
-                    initialValue={""}
-                    setOutputValue={setOutputValue}
-                />
-            </div>
-        </div>
-    ), (prev, next) => prev.arg.name === next.arg.name);
 
     // Then simplify renderFormInputs to use it
     const renderFormInputs = useCallback((props: { setOutputValue: (name: string, value: string) => void }) => {
         if (filteredArgs.length === 0) {
             return null;
         }
-        
+
         return (
             <>
                 {filteredArgs.map((arg, index) => (
-                    <MemoizedArgInput 
-                        key={index} 
-                        arg={arg} 
-                        setOutputValue={props.setOutputValue} 
+                    <MemoizedArgInput
+                        key={index}
+                        arg={arg}
+                        setOutputValue={props.setOutputValue}
                     />
                 ))}
                 <hr className="my-2" />
             </>
         );
-    }, [filteredArgs, MemoizedArgInput]);
+    }, [filteredArgs]);
 
     return (
         <ApiForm
@@ -199,17 +198,17 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
     const [fetchTrigger, setFetchTrigger] = useState(0); // Counter to trigger fetches
     const isInitialMount = useRef(true);
 
-     // Keep a ref to the current output state
-     const outputRef = useRef<{ [key: string]: string | string[] }>({});
-    
-     // Update the ref whenever store output changes
-     useEffect(() => {
-         outputRef.current = store.getState().output;
-         
-         // Also check for missing required fields here
-         const missing = required ? required.filter(field => !outputRef.current[field]) : [];
-         setMissing(missing);
-     }, [store, required]);
+    // Keep a ref to the current output state
+    const outputRef = useRef<{ [key: string]: string | string[] }>({});
+
+    // Update the ref whenever store output changes
+    useEffect(() => {
+        outputRef.current = store.getState().output;
+
+        // Also check for missing required fields here
+        const missing = required ? required.filter(field => !outputRef.current[field]) : [];
+        setMissing(missing);
+    }, [store, required]);
 
     // Configure the query with manual control
     const { data, isFetching, refetch } = useQuery({

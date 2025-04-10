@@ -522,8 +522,9 @@ function ColumnList({
     }, [columns]);
 
     const moveFunc = useCallback((e: React.MouseEvent<SVGElement, MouseEvent>) => {
-        const from = parseInt(e.currentTarget.dataset.from || "0", 10);
-        const to = parseInt(e.currentTarget.dataset.to || "0", 10);
+        console.log("Moving column", e.currentTarget.dataset.from, "to", e.currentTarget.dataset.to);
+        const from = parseInt(e.currentTarget.dataset.from ?? "0", 10);
+        const to = parseInt(e.currentTarget.dataset.to ?? "0", 10);
         e.preventDefault();
         if (from !== to) {
             moveColumn(from, to);
@@ -531,9 +532,9 @@ function ColumnList({
     }, [moveColumn]);
 
     const removeFunc = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-        const index = parseInt(e.currentTarget.dataset.key || "0", 10);
+        const index = parseInt(e.currentTarget.dataset.key ?? "0", 10);
         const column = e.currentTarget.dataset.column!;
-        const colInfo = [column, columns.get(column) || null] as [string, string | null];
+        const colInfo = [column, columns.get(column) ?? null] as [string, string | null];
         e.preventDefault();
         removeColumn(colInfo, index);
     }, [columns, removeColumn]);

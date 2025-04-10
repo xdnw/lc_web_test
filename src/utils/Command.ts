@@ -109,7 +109,7 @@ export class Argument {
 
     getKeyData(): IKeyData {
         const result = CM.data.keys[this.arg.type];
-        if (result == null) {
+        if (result === undefined) {
             return { desc: "", examples: null };
         }
         return result;

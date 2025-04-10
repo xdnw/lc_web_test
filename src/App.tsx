@@ -7,7 +7,6 @@ import "react-data-grid/lib/styles.css";
 
 // Initialize Google Analytics
 ReactGA.initialize(process.env.GTAG_ID as string);
-
 // Lazy-loaded components
 const Splash = lazy(() => import("./pages/splash"));
 const CommandsPage = lazy(() => import("./pages/commands"));
@@ -37,7 +36,6 @@ const Alliance = lazy(() => import("./pages/a2/alliance/alliance"));
 const MultiBuster = lazy(() => import("./pages/a2/nation/multi"));
 const MultiV2 = lazy(() => import("./pages/a2/nation/multi_2"));
 const ViewCommand = lazy(() => import("./pages/command/view_command"));
-const TestSuspense = lazy(() => import("./pages/testinput/testsuspense"));
 const CustomTable = lazy(() => import("./pages/custom_table/TablePage"));
 
 function PageLoading() {
@@ -48,75 +46,102 @@ function PageLoading() {
   );
 }
 
+const LoggedInRoute = ({ children }: { children: ReactNode }) => {
+  return hasToken() ? children : <LoginPickerPage />;
+};
+
+// Define routes as configuration objects to prevent ESLint jsx-in-jsx warnings
+// while maintaining performance (only created once at initialization)
+const routeConfigs = [
+  // Home and user management
+  { key: "home", path: "/home", element: Home, protected: false },
+  { key: "guild_member", path: "/guild_member", element: GuildMember, protected: true },
+  { key: "unregister", path: "/unregister", element: Unregister, protected: true },
+  { key: "guild_select", path: "/guild_select", element: GuildPicker, protected: true },
+
+  // Announcements
+  { key: "announcements", path: "/announcements", element: Announcements, protected: true },
+  { key: "announcement_id", path: "/announcement/:id", element: Announcement, protected: true },
+  { key: "announcement", path: "/announcement", element: Announcements, protected: true },
+
+  // Commands
+  { key: "commands", path: "/commands", element: CommandsPage, protected: false },
+  { key: "command", path: "/command", element: CommandsPage, protected: false },
+  { key: "command_detail", path: "/command/:command", element: CommandPage, protected: false },
+  { key: "placeholders", path: "/placeholders/:placeholder", element: PlaceholdersList, protected: false },
+
+  // Balance and records
+  { key: "balance", path: "/balance", element: BalancePage, protected: false },
+  { key: "balance_category", path: "/balance/:category", element: BalancePage, protected: false },
+  { key: "records", path: "/records", element: Records, protected: false },
+  { key: "raid_nation", path: "/raid/:nation", element: RaidSection, protected: false },
+  { key: "raid", path: "/raid", element: RaidSection, protected: false },
+
+  // Authentication
+  { key: "login", path: "/login", element: LoginPickerPage, protected: false },
+  { key: "login_token", path: "/login/:token", element: LoginPage, protected: false },
+  { key: "oauth2", path: "/oauth2", element: OAuth2, protected: false },
+  { key: "logout", path: "/logout", element: LogoutPage, protected: false },
+  { key: "nation_picker", path: "/nation_picker", element: NationPicker, protected: false },
+  { key: "register", path: "/register", element: Unregister, protected: false },
+
+  // Tables
+  { key: "custom_table", path: "/custom_table", element: CustomTable, protected: false },
+  { key: "view_table", path: "/view_table", element: ViewTable, protected: false },
+
+  // Graphs
+  { key: "col_mil_graph", path: "/col_mil_graph", element: ColMilGraph, protected: false },
+  { key: "col_tier_graph", path: "/col_tier_graph", element: ColTierGraph, protected: false },
+  { key: "edit_graph_type", path: "/edit_graph/:type", element: ParamEditGraph, protected: false },
+  { key: "edit_graph", path: "/edit_graph", element: ParamEditGraph, protected: false },
+  { key: "view_graph_type", path: "/view_graph/:type", element: ParamViewGraph, protected: false },
+  { key: "view_graph", path: "/view_graph", element: ParamEditGraph, protected: false },
+
+  // WIP commands
+  { key: "view_command", path: "/view_command/:command", element: ViewCommand, protected: false },
+  { key: "alliance", path: "/alliance/:alliance", element: Alliance, protected: false },
+  { key: "multi", path: "/multi/:nation", element: MultiBuster, protected: false },
+  { key: "multi_v2", path: "/multi_v2/:nation", element: MultiV2, protected: false },
+];
+
+// Generate routes from configuration
+const appRoutes = routeConfigs.map(config => {
+  const Element = config.element;
+  return (
+    <Route
+      key={config.key}
+      path={config.path}
+      element={config.protected ? <LoggedInRoute><Element /></LoggedInRoute> : <Element />}
+    />
+  );
+});
+
+// Define splash route
+const splashRoute = <Route path="" element={<Splash />} />;
+
+// Wrap content in PageView
+const mainContentRoute = (
+  <Route
+    path="*"
+    element={
+      <PageView>
+        <Routes>
+          {appRoutes}
+        </Routes>
+      </PageView>
+    }
+  />
+);
+
 export default function App() {
   return (
     <Router>
       <Suspense fallback={<PageLoading />}>
         <Routes>
-          <Route path="" element={<Splash />} />
-          <Route path="*" element={<PageView>
-            <Routes>
-              <Route path="/home" element={<Home />} />
-              <Route path="/guild_member" element={<LoggedInRoute><GuildMember /></LoggedInRoute>} />
-              <Route path="/unregister" element={<LoggedInRoute><Unregister /></LoggedInRoute>} />
-              <Route path="/guild_select" element={<LoggedInRoute><GuildPicker /></LoggedInRoute>} />
-
-              <Route path="/announcements" element={<LoggedInRoute><Announcements /></LoggedInRoute>} />
-              <Route path="/announcement/:id" element={<LoggedInRoute><Announcement /></LoggedInRoute>} />
-              <Route path="/announcement" element={<LoggedInRoute><Announcements /></LoggedInRoute>} />
-
-              <Route path="/commands" element={<CommandsPage />} />
-              <Route path="/command" element={<CommandsPage />} />
-              <Route path="/command/:command" element={<CommandPage />} />
-              <Route path="/placeholders/:placeholder" element={<PlaceholdersList />} />
-
-              <Route path="/balance" element={<BalancePage />} />
-              <Route path="/balance/:category" element={<BalancePage />} />
-              <Route path="/records" element={<Records />} />
-              <Route path="/raid/:nation" element={<RaidSection />} />
-              <Route path="/raid" element={<RaidSection />} />
-
-              <Route path="/login" element={<LoginPickerPage />} />
-              <Route path="/login/:token" element={<LoginPage />} />
-              <Route path="/oauth2" element={<OAuth2 />} />
-              <Route path="/logout" element={<LogoutPage />} />
-              <Route path="/nation_picker" element={<NationPicker />} />
-              <Route path="/register" element={<Unregister />} />
-
-              {/*Tables*/}
-              <Route path="/custom_table" element={<CustomTable />} />
-              <Route path="/view_table" element={<ViewTable />} />
-
-              {/*graphs*/}
-              <Route path="/col_mil_graph" element={<ColMilGraph />} />
-              <Route path="/col_tier_graph" element={<ColTierGraph />} />
-              <Route path="/edit_graph/:type" element={<ParamEditGraph />} />
-              <Route path="/edit_graph" element={<ParamEditGraph />} />
-              <Route path="/view_graph/:type" element={<ParamViewGraph />} />
-              <Route path="/view_graph" element={<ParamEditGraph />} />
-
-
-
-              {/* testing pages */}
-              <Route path="/test" element={<TestSuspense />} />
-              <Route path="/view_command/:command" element={<ViewCommand />} />
-              <Route path="/alliance/:alliance" element={<Alliance />} />
-              <Route path="/multi/:nation" element={<MultiBuster />} />
-              <Route path="/multi_v2/:nation" element={<MultiV2 />} />
-
-              {/* <Route path="/admin" element={<Admin />} /> */}
-              {/* <Route path="/autocomplete" element={<AutoComplete />} /> */}
-              {/* <Route path="/auto2" element={<AutoComplete2 />} /> */}
-              {/* <Route path="/dnd" element={<DndTest />} /> */}
-              {/* <Route path="/testinput" element={<TestInput />} /> */}
-            </Routes>
-          </PageView>} />
+          {splashRoute}
+          {mainContentRoute}
         </Routes>
       </Suspense>
     </Router>
   );
 }
-
-const LoggedInRoute = ({ children }: { children: ReactNode }) => {
-  return hasToken() ? children : <LoginPickerPage />;
-};
