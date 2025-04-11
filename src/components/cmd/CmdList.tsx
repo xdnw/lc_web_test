@@ -211,7 +211,7 @@ export default function CmdList({ commands, prefix }: { commands: Command[], pre
                                     </a>
                                 </td>
                                 <td className="px-1 py-1 border-2 border-blue-500 border-opacity-75 md:border-opacity-50 bg-secondary">
-                                    <MarkupRenderer content={cmd.getDescShort()} highlight={false} />
+                                    <MarkupRenderer content={cmd.getDescShort()} />
                                 </td>
                             </tr>
                         ))}

@@ -1,11 +1,11 @@
-import {Command} from "@/utils/Command.ts";
-import {TableNumberFormat, TimeFormat} from "../lib/apitypes";
+import { Command } from "@/utils/Command.ts";
+import { TableNumberFormat, TimeFormat } from "../lib/apitypes";
 
 export function hashString(str: string): number {
   let hash = 2166136261;
   for (let i = 0; i < str.length; i++) {
-      hash ^= str.charCodeAt(i);
-      hash = Math.imul(hash, 16777619);
+    hash ^= str.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
   }
   return hash >>> 0; // Convert to unsigned 32-bit integer.
 }
@@ -60,54 +60,54 @@ export function downloadCells(data: (string | number)[][], useClipboard: boolean
 }
 
 export function getNumberFormatCallback(format: TableNumberFormat): (value: number) => string {
-    switch (format) {
-      case "SI_UNIT":
-        return formatSi;
-      case "PERCENTAGE_ONE":
-        return (value: number) => (value * 100).toFixed(2) + "%";
-      case "PERCENTAGE_100":
-        return (value: number) => (value).toFixed(2) + "%";
-      case "DECIMAL_ROUNDED":
-        return commafy;
-    }
+  switch (format) {
+    case "SI_UNIT":
+      return formatSi;
+    case "PERCENTAGE_ONE":
+      return (value: number) => (value * 100).toFixed(2) + "%";
+    case "PERCENTAGE_100":
+      return (value: number) => (value).toFixed(2) + "%";
+    case "DECIMAL_ROUNDED":
+      return commafy;
+  }
 }
 
 export function isTime(format: TimeFormat) {
-    return format === "TURN_TO_DATE" || format === "DAYS_TO_DATE" || format === "MILLIS_TO_DATE" || format === "SECONDS_TO_DATE";
+  return format === "TURN_TO_DATE" || format === "DAYS_TO_DATE" || format === "MILLIS_TO_DATE" || format === "SECONDS_TO_DATE";
 }
 
 export function toMillisFunction(format: TimeFormat): (value: number) => number {
-    switch (format) {
-        case "TURN_TO_DATE":
-          return (value: number) => value * 2 * 60 * 60 * 1000;
-        case "DAYS_TO_DATE":
-          return (value: number) => value * 24 * 60 * 60 * 1000;
-        case "MILLIS_TO_DATE":
-          return (value: number) => value;
-        case "SECONDS_TO_DATE":
-          return (value: number) => value * 1000;
-        default:
-            return (value: number) => value;
-    }
+  switch (format) {
+    case "TURN_TO_DATE":
+      return (value: number) => value * 2 * 60 * 60 * 1000;
+    case "DAYS_TO_DATE":
+      return (value: number) => value * 24 * 60 * 60 * 1000;
+    case "MILLIS_TO_DATE":
+      return (value: number) => value;
+    case "SECONDS_TO_DATE":
+      return (value: number) => value * 1000;
+    default:
+      return (value: number) => value;
+  }
 }
 
 export function getTimeFormatCallback(format: TimeFormat): (value: number) => string {
-    switch (format) {
-      case "NUMERIC":
-        return (value: number) => value.toString();
-      case "DECIMAL_ROUNDED":
-        return commafy;
-      case "SI_UNIT":
-        return formatSi;
-      case "TURN_TO_DATE":
-        return formatTurnsToDate;
-      case "DAYS_TO_DATE":
-        return formatDaysToDate;
-      case "MILLIS_TO_DATE":
-        return formatDate;
-      case "SECONDS_TO_DATE":
-        return (value: number) => formatDate(value * 1000);
-    }
+  switch (format) {
+    case "NUMERIC":
+      return (value: number) => value.toString();
+    case "DECIMAL_ROUNDED":
+      return commafy;
+    case "SI_UNIT":
+      return formatSi;
+    case "TURN_TO_DATE":
+      return formatTurnsToDate;
+    case "DAYS_TO_DATE":
+      return formatDaysToDate;
+    case "MILLIS_TO_DATE":
+      return formatDate;
+    case "SECONDS_TO_DATE":
+      return (value: number) => formatDate(value * 1000);
+  }
 }
 
 export function formatDate(data: number | null): string {
@@ -134,8 +134,8 @@ export function formatTurnsToDate(value: number) {
   const timeOfDay = formattedDate.slice(11, 16);
   const dateWithoutYear = formattedDate.slice(5, 10);
   return year === currentYear
-      ? `${dateWithoutYear}-${year.toString().slice(-2)}${timeOfDay !== "00:00" ? " " + timeOfDay : ""}`
-      : formattedDate.slice(0, 10) + (timeOfDay !== "00:00" ? " " + timeOfDay : "");
+    ? `${dateWithoutYear}-${year.toString().slice(-2)}${timeOfDay !== "00:00" ? " " + timeOfDay : ""}`
+    : formattedDate.slice(0, 10) + (timeOfDay !== "00:00" ? " " + timeOfDay : "");
 }
 
 export function split(input: string, delimiter: string): string[] {
@@ -146,19 +146,21 @@ export function split(input: string, delimiter: string): string[] {
 }
 
 export type SplitStr = {
-    delimiter: string;
-    offset: number; // the extra amt of characters skipped in addition to the delimiter (e.g. brackets or quotes)
-    content: string;
-    type: number;
+  delimiter: string;
+  offset: number; // the extra amt of characters skipped in addition to the delimiter (e.g. brackets or quotes)
+  content: string;
+  type: number;
 }
 
 export function commafy(num: number): string {
-  const parts = (''+(num<0?-num:num)).split(".");
-  const s=parts[0];
-  let L, i= L = s.length, o='';
-  while(i--){ o = (i===0?'':((L-i)%3?'':','))
-      +s.charAt(i) +o }
-  return (num<0?'-':'') + o + (parts[1] ? '.' + (parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1]) : '');
+  const parts = ('' + (num < 0 ? -num : num)).split(".");
+  const s = parts[0];
+  let L, i = L = s.length, o = '';
+  while (i--) {
+    o = (i === 0 ? '' : ((L - i) % 3 ? '' : ','))
+    + s.charAt(i) + o
+  }
+  return (num < 0 ? '-' : '') + o + (parts[1] ? '.' + (parts[1].length > 2 ? parts[1].substring(0, 2) : parts[1]) : '');
 }
 
 const si = [
@@ -178,19 +180,19 @@ export function formatTimeRelative(x: number, maxwords: number) {
 }
 
 export function joinAndQuote(input: string[], separator: string): string {
-    let result = '';
-    for (let i = 0; i < input.length; i++) {
-        const s = input[i];
-        if (s.includes(separator)) {
-        result += '\u201C' + s + '\u201D';
-        } else {
-        result += s;
-        }
-        if (i < input.length - 1) {
-        result += separator;
-        }
+  let result = '';
+  for (let i = 0; i < input.length; i++) {
+    const s = input[i];
+    if (s.includes(separator)) {
+      result += '\u201C' + s + '\u201D';
+    } else {
+      result += s;
     }
-    return result;
+    if (i < input.length - 1) {
+      result += separator;
+    }
+  }
+  return result;
 }
 
 export function formatDuration(x: number, maxWords: number): string {
@@ -275,13 +277,13 @@ export function splitCustom(input: string, startsWith: ((input: string, index: n
         };
       } else {
         toAdd = {
-            delimiter: lastDelim,
-            offset: 0,
-            content: input.substring(start),
-            type: lastType,
+          delimiter: lastDelim,
+          offset: 0,
+          content: input.substring(start),
+          type: lastType,
         };
       }
-      if (toAdd) result.push(toAdd);
+      result.push(toAdd);
       continue;
     }
 
@@ -480,9 +482,9 @@ export function getCharFrequency(str: string): { [key: string]: number } {
 }
 
 export function simpleSimilarity(input: string,
-                          inputFreq: { [key: string]: number },
-                          inputWordFreq: Set<string>,
-                          cmd: Command): number {
+  inputFreq: { [key: string]: number },
+  inputWordFreq: Set<string>,
+  cmd: Command): number {
   const command = cmd.name.toLowerCase();
   if (command.includes(input)) {
     if (command.startsWith(input)) {
@@ -501,7 +503,7 @@ export function simpleSimilarity(input: string,
   }
   const commandFreq = cmd.getCharFrequency();
   let freqMatchScore = 0;
-  for ( const [char, freq] of Object.entries(inputFreq)) {
+  for (const [char, freq] of Object.entries(inputFreq)) {
     const foundAmt = commandFreq[char] || 0;
     if (foundAmt >= freq) {
       freqMatchScore += Math.min(freq, foundAmt);

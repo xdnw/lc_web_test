@@ -83,7 +83,7 @@ export function AuditComponent({ audits }: { audits: WebAudits }) {
                             <span className="font-bold">{audit.audit}: {audit.value}</span>
                         </div>
                         <div className={`transition-all duration-100 ease-in-out ${showDescription ? 'p-1 max-h-screen opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                            <MarkupRenderer content={audit.description} highlight={false} />
+                            <MarkupRenderer content={audit.description} />
                         </div>
                     </div>
                 ))}

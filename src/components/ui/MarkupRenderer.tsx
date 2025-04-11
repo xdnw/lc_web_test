@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback } from "react";
+import React, { ReactNode, useCallback, useMemo } from "react";
 import '@/pages/command/discord.css';
 import { markup } from "../../lib/discord";
 import { Button } from './button';
@@ -7,9 +7,6 @@ import { ButtonInfoCmd, ButtonInfoHref } from "../../lib/internaltypes";
 import { ThemedChart } from "../../pages/graphs/SimpleChart";
 import { Link } from "react-router-dom";
 import { commandButtonAction } from "../../pages/command";
-import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
-import markdown from 'react-syntax-highlighter/dist/esm/languages/prism/markdown';
-SyntaxHighlighter.registerLanguage('markdown', markdown);
 
 interface Author {
     name: string;
@@ -156,7 +153,7 @@ export function Embed({ json, responseRef, showDialog }:
 
     return (
         <div className="msgEmbed font-mono" id={json.id}>
-            <div className="markup messageContent"><MarkupRenderer content={json.content} highlight={true} embed={json} /></div>
+            <div className="markup messageContent"><MarkupRenderer content={json.content} embed={json} /></div>
             {embeds.map((embed, index) => (
                 <div key={index}>
                     <div className="embed markup bg-accent mb-0.5">
@@ -177,14 +174,14 @@ export function Embed({ json, responseRef, showDialog }:
                                 <div className="embedTitle embedMargin">
                                     {embed.url ? (
                                         <a className="anchor" target="_blank" href={embed.url} rel="noopener noreferrer">
-                                            <MarkupRenderer content={embed.title} highlight={false} embed={json} />
+                                            <MarkupRenderer content={embed.title} embed={json} />
                                         </a>
                                     ) : (
-                                        <MarkupRenderer content={embed.title} highlight={false} embed={json} />
+                                        <MarkupRenderer content={embed.title} embed={json} />
                                     )}
                                 </div>
                             )}
-                            {embed.description && <div className="embedDescription embedMargin"><MarkupRenderer content={embed.description} highlight={true} embed={json} /></div>}
+                            {embed.description && <div className="embedDescription embedMargin"><MarkupRenderer content={embed.description} embed={json} /></div>}
                             {embed.fields && (
                                 <EmbedFields fields={embed.fields} />
                             )}
@@ -233,24 +230,15 @@ export function Embed({ json, responseRef, showDialog }:
     );
 }
 
-export default function MarkupRenderer({ content, highlight, embed, showDialog }: { content: string, highlight: boolean, embed?: DiscordEmbed, showDialog?: (title: string, message: ReactNode, quote?: boolean) => void }): ReactNode {
-    const sanitized = //useMemo(() => {return
-        // DOMPurify.sanitize
-        content ? (markup({
+export default function MarkupRenderer({ content, embed, showDialog }: { content: string, embed?: DiscordEmbed, showDialog?: (title: string, message: ReactNode, quote?: boolean) => void }): ReactNode {
+    const sanitized = useMemo(() => {
+        return content ? (markup({
             txt: content,
             replaceEmoji: true,
             embed: embed,
             showDialog: showDialog
-        })) : null;
-    //}, [content]);
-    if (!sanitized) return null;
-    if (highlight) {
-        return (
-            <SyntaxHighlighter language="markdown">
-                {sanitized}
-            </SyntaxHighlighter>
-        );
-    }
+        })) : "";
+    }, [content]);
     return (
         <span dangerouslySetInnerHTML={{ __html: sanitized }} />
     );
@@ -284,10 +272,10 @@ export function EmbedFields({ fields }: { fields: Field[] }): ReactNode {
                     style={{ gridColumn: gridCol || `${colNum} / ${colNum + 4}` }}
                 >
                     <div className="embedFieldName">
-                        <MarkupRenderer content={f.name} highlight={false} />
+                        <MarkupRenderer content={f.name} />
                     </div>
                     <div className="embedFieldValue">
-                        <MarkupRenderer content={f.value} highlight={false} />
+                        <MarkupRenderer content={f.value} />
                     </div>
                 </div>
             );

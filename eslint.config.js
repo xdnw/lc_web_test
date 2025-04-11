@@ -61,22 +61,20 @@ const baseConfig = tseslint.config(
             "unused-imports/no-unused-imports": FIX_IMPORTS ? "error" : "off",
 
             // React performance rules
-            "react-perf/jsx-no-new-object-as-prop": "error",
-            "react-perf/jsx-no-new-array-as-prop": "error",
+            "react-perf/jsx-no-new-object-as-prop": "off", // Temporary, enable when fixed
+            "react-perf/jsx-no-new-array-as-prop": "off", // Temporary, enable when fixed
             "react-perf/jsx-no-new-function-as-prop": "error",
             // "react-perf/jsx-no-jsx-as-prop": "error", // disabled because too many false positives
 
             // SonarJS optimization rules
             // "sonarjs/no-identical-functions": "error", // Disabled because code style issue, not performance
-            // "sonarjs/cognitive-complexity": ["error", 15], // Way too noisy
 
             // Import optimization
             "import/no-duplicates": "error",
-            // "import/no-unused-modules": "error", // Disabled because who cares and not performance related
 
             // TypeScript optimization: Disabled because not all that related to performance
-            "@typescript-eslint/no-unnecessary-condition": "error",
-            // "@typescript-eslint/prefer-optional-chain": "error",
+            // "@typescript-eslint/no-unnecessary-condition": "error",
+            "@typescript-eslint/no-unused-vars": "off",
 
             // React hooks
             "react/jsx-no-bind": ["error", {

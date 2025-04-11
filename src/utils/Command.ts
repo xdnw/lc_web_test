@@ -108,11 +108,7 @@ export class Argument {
     }
 
     getKeyData(): IKeyData {
-        const result = CM.data.keys[this.arg.type];
-        if (result === undefined) {
-            return { desc: "", examples: null };
-        }
-        return result;
+        return CM.data.keys[this.arg.type] ?? { desc: "", examples: null };
     }
 
     getTypeDesc(): string {
@@ -986,7 +982,7 @@ export class TypeBreakdown {
         } else {
             options = resolveOptionData(this.element);
         }
-        if (options != null) {
+        if (options) {
             return new OptionData(this.map, options, multi);
         }
         return new OptionData(this.map, { options: null, query: false, completions: false, guild: false, nation: false, user: false }, false);

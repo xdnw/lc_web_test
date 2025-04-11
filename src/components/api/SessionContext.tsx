@@ -51,10 +51,10 @@ const useSessionDisplay = () => {
 };
 
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
-    const { session, error, setSession, setError, refetchSession } = useSessionDisplay();
+    const session = useSessionDisplay();
     return (
         <>
-            <SessionContext.Provider value={{ session, error, setSession, setError, refetchSession }}>
+            <SessionContext.Provider value={session}>
                 {children}
             </SessionContext.Provider>
         </>

@@ -1,30 +1,90 @@
-# React + TypeScript + Vite
+## Getting Started
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Prerequisites
 
-Currently, two official plugins are available:
+- Node.js
+- npm
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Installation
 
-## Expanding the ESLint configuration
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/lc_web_test.git
+cd lc_web_test
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.dev.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+# Install dependencies
+npm install
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+## Development
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+This will run the application in development mode using the configuration in env.dev.ts.
+
+## Configuration
+
+The project uses separate configuration files for development and production environments:
+
+- `env.dev.ts` - Contains environment variables for development
+- `env.prod.ts` - Contains environment variables for production
+
+To modify environment variables, edit the appropriate file. The configuration structure looks like:
+
+```typescript
+export default {
+    'process.env.API_URL': 'http://localhost:80/api/',
+    'process.env.EXTERNAL_URL': 'http://localhost:5173/',
+    // other environment variables
+};
+```
+
+### Backend Configuration
+
+**Important**: For the application to function properly, you need to either:
+1. Host the backend yourself and configure it with your frontend URL, or
+2. Request whoever is hosting the backend to whitelist your domain/URL
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+This will generate production-ready files in the dist directory using the configuration in env.prod.ts.
+
+## Deployment
+
+### GitHub Pages
+
+This project is configured for easy deployment to GitHub Pages:
+
+1. Ensure your vite.config.ts has the correct base path:
+
+```typescript
+base: '/<repository-name>/', // Replace with your repository name
+```
+
+2. Deploy using npm scripts:
+
+```bash
+npm run deploy
+```
+
+For alternative deployment options:
+- [GitHub - Adding node.js actions](https://docs.github.com/en/actions/use-cases-and-examples/building-and-testing/building-and-testing-nodejs)
+- [GitHub CLI - Authenticating](https://cli.github.com/manual/)
+- [Vite - Deploying a static site](https://v2.vitejs.dev/guide/static-deploy.html)
+
+## Additional Resources
+- [React Documentation](https://reactjs.org/docs/getting-started.html)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+- [GitHub Pages Documentation](https://docs.github.com/en/pages)
+
+## License
+
+AGPL

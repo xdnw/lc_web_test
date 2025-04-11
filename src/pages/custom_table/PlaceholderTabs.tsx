@@ -37,14 +37,14 @@ export interface PlaceholderTabsHandle {
     getType: () => keyof typeof COMMANDS.placeholders;
     getSelection: () => { [key: string]: string };
     getColumns: () => Map<string, string | null>;
-    getSort: () => OrderIdx | OrderIdx[];
+    getSort: () => OrderIdx | OrderIdx[] | undefined;
 }
 
 export const PlaceholderTabs = forwardRef<PlaceholderTabsHandle, {
     defType: keyof typeof COMMANDS.placeholders,
     defSelection: { [key: string]: string },
     defColumns: Map<string, string | null>,
-    defSort: OrderIdx | OrderIdx[],
+    defSort: OrderIdx | OrderIdx[] | undefined,
 }>(function PlaceholderTabs({ defType, defSelection, defColumns, defSort }, ref) {
     const { showDialog } = useDialog();
     const [type, setType] = useDeepState(defType);
@@ -173,8 +173,8 @@ export function ColumnsSection({
     type: keyof typeof COMMANDS.placeholders,
     columns: Map<string, string | null>,
     setColumns: (columns: Map<string, string | null>) => void,
-    sort: OrderIdx | OrderIdx[],
-    setSort: (sort: OrderIdx | OrderIdx[]) => void,
+    sort: OrderIdx | OrderIdx[] | undefined,
+    setSort: (sort: OrderIdx | OrderIdx[] | undefined) => void,
     showDialog: (title: string, message: string) => void,
 }) {
     const [collapseColumns, setCollapseColumns] = useState(false);
@@ -207,7 +207,7 @@ export function ColumnsSection({
         const newColumns = new Map(columnsArray);
 
         // Update sort indices
-        let newSort = sort;
+        let newSort;
         if (Array.isArray(sort)) {
             newSort = sort.map(sortItem => {
                 if (sortItem.idx === from) {
@@ -221,7 +221,7 @@ export function ColumnsSection({
                 }
                 return sortItem;
             });
-        } else {
+        } else if (sort) {
             const singleSort = { ...sort };
             if (singleSort.idx === from) {
                 singleSort.idx = to;
@@ -233,6 +233,8 @@ export function ColumnsSection({
                 singleSort.idx = singleSort.idx + 1;
             }
             newSort = singleSort;
+        } else {
+            newSort = undefined;
         }
 
         setColumns(newColumns);
@@ -360,7 +362,7 @@ export function ColumnsSection({
                     ...sortItem,
                     idx: sortItem.idx > index ? sortItem.idx - 1 : sortItem.idx
                 }));
-        } else {
+        } else if (sort) {
             const singleSort = { ...sort };
             if (singleSort.idx === index) {
                 singleSort.idx = 0;
@@ -368,6 +370,8 @@ export function ColumnsSection({
                 singleSort.idx = singleSort.idx - 1;
             }
             newSort = singleSort;
+        } else {
+            newSort = undefined;
         }
 
         setColumns(newColumns);
@@ -376,8 +380,7 @@ export function ColumnsSection({
 
     // Handle column sorting
     const handleColumnSort = useCallback((index: number, shiftKey: boolean) => {
-        let newSort = sort;
-
+        let newSort : OrderIdx | OrderIdx[] | undefined = undefined;
         if (Array.isArray(sort)) {
             const sortIndex = sort.findIndex(sortItem => sortItem.idx === index);
             if (sortIndex !== -1) {
@@ -395,16 +398,20 @@ export function ColumnsSection({
                     newSort = { idx: index, dir: 'asc' };
                 }
             }
-        } else if (sort.idx !== index) {
-            if (shiftKey && sort.idx !== 0) {
-                newSort = [{ idx: sort.idx, dir: sort.dir }, { idx: index, dir: 'asc' }];
+        } else if (sort) {
+            if (sort.idx !== index) {
+                if (shiftKey && sort.idx !== 0) {
+                    newSort = [{ idx: sort.idx, dir: sort.dir }, { idx: index, dir: 'asc' }];
+                } else {
+                    newSort = { idx: index, dir: 'asc' };
+                }
+            } else if (sort.dir === 'asc') {
+                newSort = { idx: index, dir: 'desc' };
             } else {
-                newSort = { idx: index, dir: 'asc' };
+                newSort = undefined;
             }
-        } else if (sort.dir === 'asc') {
-            newSort = { idx: index, dir: 'desc' };
         } else {
-            newSort = { idx: 0, dir: 'asc' };
+            newSort = { idx: index, dir: 'asc' };
         }
 
         setSort(newSort);
@@ -495,7 +502,7 @@ function ColumnList({
     clearAllColumns
 }: {
     columns: Map<string, string | null>,
-    sort: OrderIdx | OrderIdx[],
+    sort: OrderIdx | OrderIdx[] | undefined,
     moveColumn: (from: number, to: number) => void,
     removeColumn: (colInfo: [string, string | null], index: number) => void,
     handleColumnSort: (index: number, shiftKey: boolean) => void,
@@ -574,7 +581,7 @@ function ColumnList({
                             <span key={`colspan-${index}`} className="text-xs opacity-50">
                                 {colInfo[1] && colInfo[1] !== colInfo[0] ? `\u00A0as ${colInfo[1]}` : "​"}
                             </span>
-                            {Array.isArray(sort) ? (
+                            {sort && (Array.isArray(sort) ? (
                                 sort.map((sortItem, sortIndex) => (
                                     sortItem.idx === index && (
                                         <span key={`sort-${index}-${sortIndex}`} className="bg-red-400 dark:bg-red-900 text-xs ml-1">
@@ -588,7 +595,7 @@ function ColumnList({
                                         {sort.dir}
                                     </span>
                                 )
-                            )}
+                            ))}
                         </Button>
                         <LazyIcon name="ChevronRight"
                             className="cursor-pointer inline-block w-4 rounded-e hover:bg-accent align-middle"

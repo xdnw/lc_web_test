@@ -7,11 +7,11 @@ import './list.css';
 import { useSyncedStateFunc } from "@/utils/StateUtil";
 import Select from "react-select/base";
 import { useDialog } from "../layout/DialogContext";
-import {Button} from "../ui/button";
-import {TypeBreakdown} from "../../utils/Command";
-import {InputActionMeta} from "react-select";
+import { Button } from "../ui/button";
+import { TypeBreakdown } from "../../utils/Command";
+import { InputActionMeta } from "react-select";
 
-export function ListComponentBreakdown({breakdown, argName, isMulti, initialValue, setOutputValue}: {
+export function ListComponentBreakdown({ breakdown, argName, isMulti, initialValue, setOutputValue }: {
     breakdown: TypeBreakdown,
     argName: string,
     isMulti: boolean,
@@ -23,10 +23,10 @@ export function ListComponentBreakdown({breakdown, argName, isMulti, initialValu
         return types.map((o) => ({ label: o, value: o }));
     }, [breakdown]);
 
-    return <ListComponent argName={argName} options={labelled} isMulti={isMulti} initialValue={initialValue} setOutputValue={setOutputValue}/>
+    return <ListComponent argName={argName} options={labelled} isMulti={isMulti} initialValue={initialValue} setOutputValue={setOutputValue} />
 }
 
-export function ListComponentOptions({options, argName, isMulti, initialValue, setOutputValue}: {
+export function ListComponentOptions({ options, argName, isMulti, initialValue, setOutputValue }: {
     options: string[],
     argName: string,
     isMulti: boolean,
@@ -34,21 +34,21 @@ export function ListComponentOptions({options, argName, isMulti, initialValue, s
     setOutputValue: (name: string, value: string) => void
 }) {
     const labelled = useMemo(() => {
-        return options.map((o) => ({label: o, value: o}))
+        return options.map((o) => ({ label: o, value: o }))
     }, [options]);
 
-    return <ListComponent argName={argName} options={labelled} isMulti={isMulti} initialValue={initialValue} setOutputValue={setOutputValue}/>
+    return <ListComponent argName={argName} options={labelled} isMulti={isMulti} initialValue={initialValue} setOutputValue={setOutputValue} />
 }
 
 export default function ListComponent(
     { argName, options, isMulti, initialValue, setOutputValue }:
-    {
-        argName: string,
-        options: { label: string, value: string, subtext?: string, color?: string }[],
-        isMulti: boolean,
-        initialValue: string,
-        setOutputValue: (name: string, value: string) => void
-    }
+        {
+            argName: string,
+            options: { label: string, value: string, subtext?: string, color?: string }[],
+            isMulti: boolean,
+            initialValue: string,
+            setOutputValue: (name: string, value: string) => void
+        }
 ) {
     const { showDialog } = useDialog();
 
@@ -66,26 +66,35 @@ export default function ListComponent(
 
     const addValue = React.useCallback((option: { label: string, value: string } | undefined, input: string) => {
         if (option) {
-            // Use functional update to avoid value dependency
-            setValue(prevValue => {
+            const newValue = (prevValue => {
                 if (!prevValue.find((v) => v.value === option.value)) {
                     if (isMulti) {
-                        const newValue = [...prevValue, option];
-                        const valueStr = newValue.map((v) => v.value).join(',');
-                        setOutputValue(argName, valueStr);
-                        return newValue;
+                        return [...prevValue, option];
                     } else {
-                        setOutputValue(argName, option.value);
                         return [option];
                     }
                 }
                 return prevValue;
-            });
+            })(value);
+
+            // Only update if there's a change
+            if (newValue !== value) {
+                setValue(newValue);
+                // Update output value after state is set
+                if (isMulti) {
+                    const valueStr = newValue.map((v) => v.value).join(',');
+                    console.log('Add value multi');
+                    setOutputValue(argName, valueStr);
+                } else {
+                    console.log('Add value single');
+                    setOutputValue(argName, option.value);
+                }
+            }
             setInputValue('');
         } else {
             showDialog("Invalid value", <>The value <kbd className='bg-secondary rounded px-0.5'>{input}</kbd> is not a valid option.</>);
         }
-    }, [isMulti, argName, setOutputValue, showDialog, setValue]);
+    }, [isMulti, argName, setOutputValue, showDialog, setValue, value]);
 
     const handleKeyDown: KeyboardEventHandler = React.useCallback((event) => {
         switch (event.key) {
@@ -104,6 +113,7 @@ export default function ListComponent(
             case 'Enter':
             case 'Tab': {
                 const option = options.find((o) => o.label === inputValue || o.value === inputValue);
+                console.log('Add value enter');
                 addValue(option, inputValue);
                 event.preventDefault();
                 break;
@@ -197,17 +207,20 @@ export default function ListComponent(
     const selectAll = React.useCallback(() => {
         setValue(options);
         const valueStr = options.map((v) => v.value).join(',');
+        console.log('Add value selectAll');
         setOutputValue(argName, valueStr);
     }, [options, argName, setOutputValue, setValue]);
 
     const clearAll = React.useCallback(() => {
         setValue([]);
+        console.log('Add value clear all');
         setOutputValue(argName, '');
     }, [argName, setOutputValue, setValue]);
 
     const handleChange = React.useCallback((newValue: unknown) => {
         setValue(newValue as { label: string, value: string }[]);
         const valueStr = (newValue as { label: string, value: string }[]).map((v) => v.value).join(',');
+        console.log('Add value handleChange');
         setOutputValue(argName, valueStr);
     }, [argName, setOutputValue, setValue]);
 
@@ -226,9 +239,11 @@ export default function ListComponent(
                     const newValue = value.filter((v) => v.value !== option.value);
                     setValue(newValue);
                     const valueStr = (newValue as { label: string, value: string }[]).map((v) => v.value).join(',');
+                    console.log('Add value handleListClick');
                     setOutputValue(argName, valueStr);
                 } else {
                     const labelOrValue = option.label ? option.label : option.value;
+                    console.log('Add value click');
                     addValue(option, labelOrValue);
                 }
             }
@@ -258,17 +273,17 @@ export default function ListComponent(
                 ref={scrollRef}
             >
                 <ul className="clusterize-content" ref={contentRef} onClick={handleListClick}>
-                <li className="clusterize-no-data">Loading data…</li>
+                    <li className="clusterize-no-data">Loading data…</li>
                 </ul>
             </div>
             {isMulti && (
                 <>
-                <Button variant="outline" className="me-1" size="sm" onClick={selectAll}>
-                    Select All
-                </Button>
-                <Button variant="outline" size="sm" onClick={clearAll}>
-                    Clear
-                </Button>
+                    <Button variant="outline" className="me-1" size="sm" onClick={selectAll}>
+                        Select All
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={clearAll}>
+                        Clear
+                    </Button>
                 </>
             )}
         </div>

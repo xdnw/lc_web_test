@@ -117,7 +117,6 @@ function detectColumnTypes(data: JSONValue[][], sortColumns: SortColumn[], colum
         if (!column) {
             console.log(`Column ${colIndex} not found`, JSON.stringify(columnMap));
         }
-        console.log(`Column ${colIndex} detected type: ${typeFinal} named: ${column.title}, first data: ${data.length > 0 ? data[0][colIndex] : 'N/A'}`);
         column.type = typeFinal; // Update column type in config
         columnTypes.set(colIndex, typeFinal);
     });

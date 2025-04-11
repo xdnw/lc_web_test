@@ -47,8 +47,12 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
         const props = getTableProps();
         setType(props.type);
         setSelection(props.selection);
-        setColumns(props.columns);
+        setColumns(f => {
+            console.log("Set columns from", f, "to", props.columns);
+            return props.columns;
+        });
         setSortState(props.sort);
+        console.log("Set columns to", props.columns);
         return props;
     }, [getTableProps, setType, setSelection, setColumns, setSortState]);
 
@@ -99,6 +103,7 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
     }, [table]);
 
     const copy = useCallback(() => {
+        console.log("COLS ", columns);
         const baseUrlWithoutPath = window.location.protocol + "//" + window.location.host;
         const url = (`${baseUrlWithoutPath}${process.env.BASE_PATH}#/view_table?${encodeURIComponent(getQueryString({
             type: type!,
@@ -136,8 +141,8 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
     }, [copy]);
 
     const highlightError = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-        const col = parseInt(e.currentTarget.dataset.col || "0") - 1;
-        const row = parseInt(e.currentTarget.dataset.row || "0") - 1;
+        const col = parseInt(e.currentTarget.dataset.col ?? "0") - 1;
+        const row = parseInt(e.currentTarget.dataset.row ?? "0") - 1;
         highlightRowOrColumn(col, row);
     }, [highlightRowOrColumn]);
 
@@ -148,7 +153,7 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
             Click the buttons below to highlight the errors in the table.
             {errors.map((error, index) => (
                 <Button key={index} data-col={error.col} data-row={error.row} variant="destructive" className="my-1 h-auto break-words w-full justify-start size-sm whitespace-normal" onClick={highlightError}>
-                    [col:{(error.col || 0) + 1}{error.row ? `row:${error.row + 1}` : ""}] {error.msg}
+                    [col:{(error.col ?? 0) + 1}{error.row ? `row:${error.row + 1}` : ""}] {error.msg}
                 </Button>
             ))}
         </> : "No errors";

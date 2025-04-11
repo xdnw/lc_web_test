@@ -7,6 +7,9 @@ export default function NationPicker() {
             <ApiFormInputs
                 endpoint={LOGIN_MAIL}
                 label="Send Code"
+                handle_response={({data}) => {
+                    window.location.href = data.url;
+                }}
                 message={<>
                     <h2 className="text-lg font-extrabold">Nation Select:</h2>
                     <p>

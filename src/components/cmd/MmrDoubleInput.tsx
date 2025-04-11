@@ -22,22 +22,25 @@ export default function MmrDoubleInput(
         return result;
     });
 
-    const setOutputFunc = useCallback((name: string, value: string) => {
+    const setOutputFunc = useCallback((name: string, valueStr: string) => {
         const index = parseInt(name);
-        const valueFloat = value ? parseFloat(value) : null;
-        setValue(f => {
-            if (f[index] !== valueFloat) {
-                const updatedValues = [...f];
-                updatedValues[index] = valueFloat;
-
-                const outputString = valueFloat === null ? "" : updatedValues.join("/");
-                setOutputValue(argName, outputString);
-
-                return updatedValues;
-            }
-            return f;
-        });
-    }, [setValue, argName, setOutputValue]);
+        const valueFloat = valueStr ? parseFloat(valueStr) : null;
+        
+        // Create a copy of the current value to check and modify
+        const currentValues = [...value];
+        
+        if (currentValues[index] !== valueFloat) {
+            // Update the copy with the new value
+            currentValues[index] = valueFloat;
+            
+            // Set the new state
+            setValue(currentValues);
+            
+            // Call setOutputValue separately
+            const outputString = valueFloat === null ? "" : currentValues.join("/");
+            setOutputValue(argName, outputString);
+        }
+    }, [value, setValue, argName, setOutputValue]);
 
     return (
         <div className="flex items-center">

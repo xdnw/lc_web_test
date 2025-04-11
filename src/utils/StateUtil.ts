@@ -1,13 +1,16 @@
 import { create } from 'zustand';
+import { subscribeWithSelector } from 'zustand/middleware';
 import { useCallback, useEffect, useState } from 'react';
 import { deepEqual } from '@/lib/utils';
+import { JSONValue } from '@/lib/internaltypes';
+
 
 /**
  * Custom state hook that only updates when values are deeply different
  * @param initialValue The initial state value
  * @returns A stateful value and a function to update it
  */
-export function useDeepState<T>(initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+export function useDeepState<T extends JSONValue | Map<unknown, unknown> | Set<unknown> | undefined | null>(initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [state, setState] = useState<T>(initialValue);
 
   const setStateWithDeepComparison = useCallback((newValue: React.SetStateAction<T>) => {
@@ -16,8 +19,10 @@ export function useDeepState<T>(initialValue: T): [T, React.Dispatch<React.SetSt
         ? (newValue as (prevState: T) => T)(prevState)
         : newValue;
       if (deepEqual(prevState, resolvedNewValue)) {
+        console.log('State not changed, skipping update', prevState, resolvedNewValue);
         return prevState;
       }
+      console.log('State changed, updating');
       return resolvedNewValue;
     });
   }, []);
@@ -78,27 +83,37 @@ export const createDataStoreWithDef = <T>(default_data: T) => {
 }
 
 export function createCommandStore() {
-  return create<{ output: { [key: string]: string | string[] }; setOutput: (key: string, value: string) => void; }>((set) => ({
-    output: {},
-    setOutput: (key, value) => set((state) => {
-      const copy = { ...state.output };
-      if (value) copy[key] = value;
-      else delete copy[key];
-      return { output: copy };
-    }),
-  }));
+  return create(
+    subscribeWithSelector<{
+      output: { [key: string]: string | string[] };
+      setOutput: (key: string, value: string) => void;
+    }>((set) => ({
+      output: {},
+      setOutput: (key, value) => set((state) => {
+        const copy = { ...state.output };
+        if (value) copy[key] = value;
+        else delete copy[key];
+        return { output: copy };
+      }),
+    }))
+  );
 }
 
 export function createCommandStoreWithDef(default_values: { [key: string]: string | string[] }) {
-  return create<{ output: { [key: string]: string | string[] }; setOutput: (key: string, value: string) => void; }>((set) => ({
-    output: default_values,
-    setOutput: (key, value) => set((state) => {
-      const copy = { ...state.output };
-      if (value) copy[key] = value;
-      else delete copy[key];
-      return { output: copy };
-    }),
-  }));
+  return create(
+    subscribeWithSelector<{
+      output: { [key: string]: string | string[] };
+      setOutput: (key: string, value: string) => void;
+    }>((set) => ({
+      output: default_values,
+      setOutput: (key, value) => set((state) => {
+        const copy = { ...state.output };
+        if (value) copy[key] = value;
+        else delete copy[key];
+        return { output: copy };
+      }),
+    }))
+  );
 }
 
 export type CommandStoreType = ReturnType<typeof createCommandStore>;
@@ -159,3 +174,5 @@ export type CommandStoreType = ReturnType<typeof createCommandStore>;
 //       };
 //   });
 // }
+
+export const EMPTY_OBJECT = Object.freeze({});

@@ -116,8 +116,8 @@ export function ArgDescComponent(
         return (
             <>
                 <br />
-                <p className="font-thin text-xs mb-1"><MarkupRenderer content={arg.arg.desc ?? ""} highlight={false} /></p>
-                {desc && <p className="font-thin text-xs"><MarkupRenderer content={desc} highlight={false} /></p>}
+                <p className="font-thin text-xs mb-1"><MarkupRenderer content={arg.arg.desc ?? ""} /></p>
+                {desc && <p className="font-thin text-xs"><MarkupRenderer content={desc} /></p>}
             </>
         );
     }, [showDesc, arg.arg.desc, desc]);

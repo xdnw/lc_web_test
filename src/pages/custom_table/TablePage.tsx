@@ -3,7 +3,7 @@ import { OrderIdx } from './DataTable';
 import { COMMANDS } from "../../lib/commands";
 import { getQueryParams } from "../../lib/utils";
 import { DEFAULT_TABS } from "../../lib/layouts";
-import { getSortFromUrl , getColumnsFromUrl, getSelectionFromUrl, getTypeFromUrl } from "./table_util";
+import { getSortFromUrl, getColumnsFromUrl, getSelectionFromUrl, getTypeFromUrl } from "./table_util";
 import { PlaceholderTabs, PlaceholderTabsHandle } from "@/pages/custom_table/PlaceholderTabs";
 
 import { AbstractTableWithButtons, TableProps } from "@/pages/custom_table/AbstractTable";
@@ -11,15 +11,16 @@ import { useDeepState } from "@/utils/StateUtil";
 
 
 export default function CustomTable() {
-    const [params, setParams] = useDeepState(getQueryParams());
+    const params = useMemo(() => getQueryParams(), []);
 
-    const [type, setType] = useDeepState<keyof typeof COMMANDS.placeholders>(
+
+    const [type] = useDeepState<keyof typeof COMMANDS.placeholders>(
         getTypeFromUrl(params) ?? "DBNation"
     );
-    const [selection, setSelection] = useDeepState<{ [key: string]: string }>(
+    const [selection] = useDeepState<{ [key: string]: string }>(
         getSelectionFromUrl(params, type)
     );
-    const [columns, setColumns] = useDeepState<Map<string, string | null>>(function () {
+    const [columns] = useDeepState<Map<string, string | null>>(function () {
         return getColumnsFromUrl(params) ?? new Map(
             (DEFAULT_TABS[type]?.columns[Object.keys(DEFAULT_TABS[type].columns ?? {})[0]]?.value ?? ["{id}"]).map(col => {
                 if (Array.isArray(col)) {
@@ -30,8 +31,8 @@ export default function CustomTable() {
             })
         );
     }());
-    const [sort, setSort] = useDeepState<OrderIdx | OrderIdx[]>(
-        getSortFromUrl(params) ?? (DEFAULT_TABS[type]?.columns[Object.keys(DEFAULT_TABS[type].columns ?? {})[0]]?.sort || { idx: 0, dir: 'asc' })
+    const [sort] = useDeepState<OrderIdx | OrderIdx[] | undefined>(
+        getSortFromUrl(params) ?? (DEFAULT_TABS[type]?.columns[Object.keys(DEFAULT_TABS[type].columns)[0]]?.sort)
     );
 
     const tabsRef = useRef<PlaceholderTabsHandle>(null);

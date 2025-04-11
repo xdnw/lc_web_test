@@ -62,7 +62,7 @@ const Records = () => {
                         header.current = table.cells.shift() as string[];
                         entries.current = table.cells;
                     }
-                    if (header.current == null || entries.current == null || header.current.length === 0 || entries.current.length === 0) {
+                    if (header.current == null || entries.current === null || header.current.length === 0 || entries.current.length === 0) {
                         return <div>No data</div>;
                     }
                     return (

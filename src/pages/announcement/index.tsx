@@ -16,7 +16,7 @@ export default function Announcement() {
                     <div className="bg-accent/50 p-1">
                         <h1 className={"text-2xl font-bold"}>{data.title}</h1>
                         <hr className="my-2" />
-                        <MarkupRenderer content={data.content} highlight={false} />
+                        <MarkupRenderer content={data.content} />
                     </div>
                 </>
             )

@@ -154,6 +154,28 @@ function ApiForm<T, A extends { [key: string]: string | string[] | undefined }, 
             : createCommandStore()
     );
 
+    // Memoize UI sections to prevent unnecessary re-rendering
+    const messageSection = useMemo(() => (
+        <>
+            {message}
+            {message && required && required.length > 0 && <hr className="my-2" />}
+        </>
+    ), [message, required]);
+
+    const apiHandlerSection = useMemo(() => (
+        <ApiFormHandler
+            endpoint={endpoint}
+            store={commandStore}
+            label={label}
+            required={required}
+            handle_error={handle_error}
+            handle_response={handle_response}
+            classes={classes}
+        >
+            {(data) => children ? children(data) : null}
+        </ApiFormHandler>
+    ), [endpoint, commandStore, label, required, handle_error, handle_response, classes, children]);
+
     if (requireLogin && !hasToken()) {
         return <>
             Please login first
@@ -163,18 +185,9 @@ function ApiForm<T, A extends { [key: string]: string | string[] | undefined }, 
     }
 
     return <>
-        {message}
-        {message && required && required.length > 0 && <hr className="my-2" />}
+        {messageSection}
         {FormInputs && <FormInputs setOutputValue={commandStore((state) => state.setOutput)} />}
-        <ApiFormHandler endpoint={endpoint}
-            store={commandStore}
-            label={label}
-            required={required}
-            handle_error={handle_error}
-            handle_response={handle_response}
-            classes={classes}>
-            {(data) => children ? children(data) : null}
-        </ApiFormHandler>
+        {apiHandlerSection}
     </>
 }
 
@@ -192,7 +205,13 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
     handle_response?: (data: Omit<QueryResult<T>, 'data'> & { data: NonNullable<QueryResult<T>['data']>; }) => void;
     readonly children?: (data: Omit<QueryResult<T>, 'data'> & { data: NonNullable<QueryResult<T>['data']>; }) => ReactNode;
 }) {
-    const [missing, setMissing] = useState<string[]>([]);
+    const [missing, setMissing] = useState<string[]>(() => {
+        const initialOutput = store.getState().output;
+        const result = required ? required.filter(field => !initialOutput[field]) : [];
+        console.log("Missing required fields:", result);
+        return result;
+    });
+
     const [queryArgs, setQueryArgs] = useState<{ readonly [key: string]: string | string[] } | null>(null);
     const [fetchTrigger, setFetchTrigger] = useState(0); // Counter to trigger fetches
     const isInitialMount = useRef(true);
@@ -200,13 +219,22 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
     // Keep a ref to the current output state
     const outputRef = useRef<{ [key: string]: string | string[] }>({});
 
-    // Update the ref whenever store output changes
     useEffect(() => {
-        outputRef.current = store.getState().output;
+        const unsubscribe = store.subscribe(
+            state => state.output,
+            (currentOutput, previousOutput) => {
+                console.log('Outputs changed:', currentOutput);
+                outputRef.current = currentOutput;
 
-        // Also check for missing required fields here
-        const missing = required ? required.filter(field => !outputRef.current[field]) : [];
-        setMissing(missing);
+                // Check for missing required fields
+                if (required) {
+                    const missingFields = required.filter(field => !currentOutput[field]);
+                    setMissing(missingFields);
+                }
+            }
+        );
+
+        return () => unsubscribe();
     }, [store, required]);
 
     // Configure the query with manual control
@@ -256,6 +284,29 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
         setFetchTrigger(prev => prev + 1);
     }, []);
 
+    // Memoize the children/data section
+    const renderedChildren = useMemo(() => (
+        data && children ? children(data as Omit<QueryResult<T>, 'data'> & { data: NonNullable<QueryResult<T>['data']>; }) : null
+    ), [data, children]);
+
+    // Memoize the button
+    const submitButton = useMemo(() => (
+        <Button
+            variant="outline"
+            size="sm"
+            className={cn(
+                "border-red-800/70",
+                "me-1",
+                { "disabled cursor-wait": isFetching },
+                classes
+            )}
+            onClick={submitForm}
+            disabled={isFetching}
+        >
+            {isFetching ? "Submitting..." : label}
+        </Button>
+    ), [isFetching, submitForm, label, classes]);
+
     // If there are missing required fields, show a notification
     if (missing.length) {
         return <p>Please provide a value for <kbd>{missing.join(", ")}</kbd></p>
@@ -263,21 +314,8 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
 
     return (
         <>
-            {data && children ? children(data as Omit<QueryResult<T>, 'data'> & { data: NonNullable<QueryResult<T>['data']>; }) : null}
-            <Button
-                variant="outline"
-                size="sm"
-                className={cn(
-                    "border-red-800/70",
-                    "me-1",
-                    { "disabled cursor-wait": isFetching },
-                    classes
-                )}
-                onClick={submitForm}
-                disabled={isFetching}
-            >
-                {isFetching ? "Submitting..." : label}
-            </Button>
+            {renderedChildren}
+            {submitButton}
         </>
     );
 }

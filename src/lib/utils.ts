@@ -50,6 +50,28 @@ export function deepEqual<T>(a: T, b: T): boolean {
     return false;
   }
 
+  // Handle Map
+  if (a instanceof Map && b instanceof Map) {
+    if (a.size !== b.size) return false;
+    for (const [key, value] of a) {
+      if (!b.has(key) || !deepEqual(value, b.get(key))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Handle Set
+  if (a instanceof Set && b instanceof Set) {
+    if (a.size !== b.size) return false;
+    for (const value of a) {
+      if (!b.has(value)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   const keysA = Object.keys(a) as Array<keyof T>;
   const keysB = Object.keys(b) as Array<keyof T>;
 

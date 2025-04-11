@@ -30,6 +30,7 @@ export function bulkQueryOptions<T>(
                 batch_wait_ms: batch_wait_ms ?? 200
             });
             if (result.error) {
+                console.log("Error in query", result.error);
                 throw new BackendError(result.error);
             }
             return result;
@@ -62,6 +63,7 @@ export function singleQueryOptions<T>(
                 batch_wait_ms: batch_wait_ms ?? 200
             });
             if (result.error) {
+                console.log("Error in query 2", result.error);
                 throw new BackendError(result.error);
             }
             return result;
