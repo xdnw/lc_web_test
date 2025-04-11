@@ -9,8 +9,8 @@ type DropdownMenuContextValue = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   triggerElement: HTMLElement | null;
   setTriggerElement: (element: HTMLElement | null) => void;
-  contentElement: HTMLElement | null;  // Add this line
-  setContentElement: (element: HTMLElement | null) => void;  // Add this line
+  contentElement: HTMLElement | null; 
+  setContentElement: (element: HTMLElement | null) => void; 
   registerSubmenu: (id: string, isOpen: boolean) => void;
   unregisterSubmenu: (id: string) => void;
   activeSubmenu: string | null;

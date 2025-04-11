@@ -4,15 +4,15 @@ import react from '@vitejs/plugin-react-swc';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import tailwindcss from "@tailwindcss/vite";
-import { visualizer } from 'rollup-plugin-visualizer'; // Add this import
+import { visualizer } from 'rollup-plugin-visualizer';
 import devConfig from './env.dev';
 import prodConfig from './env.prod';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
   const isDevelopment = mode === 'development';
   const minify = true;
   const tsconfigPath = isDevelopment ? './tsconfig.dev.json' : './tsconfig.prod.json';
-  // Import the appropriate config file based on mode
   const envConfig = isDevelopment ? devConfig : prodConfig;
 
   const processedEnvConfig = Object.fromEntries(
@@ -21,8 +21,6 @@ export default defineConfig(({ mode }) => {
     })
   );
   processedEnvConfig['global'] = 'window';
-
-  console.error('Vite Config:', processedEnvConfig); // Log the processed environment config
 
   return {
     define: processedEnvConfig,
@@ -42,8 +40,42 @@ export default defineConfig(({ mode }) => {
         filename: 'dist/stats.html', // Output path
         open: true, // Auto-open the report after build
         gzipSize: true, // Show gzipped sizes
-        brotliSize: true, // Show brotli sizes
       }),
+      VitePWA({
+        registerType: 'autoUpdate',
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+        manifest: {
+          name: 'Your App Name',
+          short_name: 'App',
+          description: 'Your application description',
+          theme_color: '#ffffff',
+          icons: [
+            {
+              src: 'pwa-192x192.png',
+              sizes: '192x192',
+              type: 'image/png'
+            },
+            {
+              src: 'pwa-512x512.png',
+              sizes: '512x512',
+              type: 'image/png'
+            },
+            {
+              src: 'pwa-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any maskable'
+            }
+          ],
+        },
+        workbox: {
+          // GitHub Pages serves files with a specific base path
+          // that corresponds to your repository name
+          // This ensures service worker can handle requests correctly
+          navigateFallback: 'index.html',
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+        }
+      })
     ],
     base: '/',
     resolve: {
@@ -52,6 +84,11 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
+      reportCompressedSize: false,
+      cssMinify: 'lightningcss',
+      cssCodeSplit: true,
+      sourcemap: isDevelopment,  // For production
+      emptyOutDir: true,
       terserOptions: {
         compress: {
           drop_console: minify,
