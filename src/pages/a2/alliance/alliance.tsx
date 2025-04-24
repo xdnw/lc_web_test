@@ -7,13 +7,13 @@ import Color from "../../../components/renderer/Color";
 import { commafy } from "../../../utils/StringUtil";
 import Timestamp from "../../../components/ui/timestamp";
 import { StaticViewGraph } from "../../graphs/view_graph";
-import LazyTooltip from "../../../components/ui/LazyTooltip";
 import { ViewCommand } from "../../command/view_command";
 import { CopoToClipboardTextArea } from "../../../components/ui/copytoclipboard";
 import { numericMap } from "../../../components/ui/renderers";
 import EndpointWrapper from "@/components/api/bulkwrapper";
 import LazyIcon from "@/components/ui/LazyIcon";
 import { ReactNode } from "react";
+import LazyExpander from "@/components/ui/LazyExpander";
 
 /*
 # Alliance extends NationList extends Alliances
@@ -128,7 +128,7 @@ const allianceTableConfig: TableRowConfig[] = [
         id: 'score',
         label: 'Score',
         value: (row) => (
-            <LazyTooltip className={"underline"} content={
+            <LazyExpander className={"underline"} content={
                 <>
                     <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{ attribute: "{score}", num_results: "5", highlight: row.id + "" }} />
                     <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
@@ -139,40 +139,40 @@ const allianceTableConfig: TableRowConfig[] = [
                 </>
             }>
                 {commafy(row.score as number)}ns
-            </LazyTooltip>
+            </LazyExpander>
         )
     },
     {
         id: 'stockpileValue',
         label: 'Estimated Stockpile Value',
         value: (row) => (
-            <LazyTooltip className={"underline"} content={<>
+            <LazyExpander className={"underline"} content={<>
                 <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{ attribute: "{getestimatedstockpilevalue}", num_results: "5", highlight: row.id + "" }} />
                 <CopoToClipboardTextArea text={numericMap(row.stockpileValue as string)} />
             </>}>
                 ${commafy(row.stockpileValue as number)}
-            </LazyTooltip>
+            </LazyExpander>
         )
     },
     {
         id: 'lootValue',
         label: 'Loot Per Score',
         value: (row) => (
-            <LazyTooltip className={"underline"} content={<>
+            <LazyExpander className={"underline"} content={<>
                 <ViewCommand command={["alliance", "stats", "loot_ranking"]} args={{ time: "30d", num_results: "5", highlight: "AA:" + (row.id as number) }} />
                 <hr />
                 Alliance Loot Losses:
                 <ViewCommand command={["stats_war", "warcostranking"]} args={{ timeStart: "30d", type: "ATTACKER_LOSSES", allowedAttacks: "A_LOOT", groupByAlliance: "true", num_results: "5", highlight: "AA:" + (row.id as number) }} />
             </>}>
                 ${commafy(row.lootValue as number)}
-            </LazyTooltip>
+            </LazyExpander>
         )
     },
     {
         id: 'revenue',
         label: 'Revenue Converted',
         value: (row) => (
-            <LazyTooltip className={"underline"} content={<>
+            <LazyExpander className={"underline"} content={<>
                 <ViewCommand command={["trade", "findproducer"]} args={{ resources: "*", includeNegative: "true", num_results: "5", highlight: row.id as number + "" }} />
                 <StaticViewGraph endpoint={ALLIANCESTATS} args={{
                     metrics: 'revenue',
@@ -183,18 +183,18 @@ const allianceTableConfig: TableRowConfig[] = [
                 <ViewCommand command={["alliance", "revenue"]} args={{ nations: "AA:" + (row.id as number) }} />
             </>}>
                 ${commafy(row.revenue as number)}
-            </LazyTooltip>
+            </LazyExpander>
         )
     },
     {
         id: 'cost',
         label: 'Alliance Value',
         value: (row) => (
-            <LazyTooltip className={"underline"} content={<>
+            <LazyExpander className={"underline"} content={<>
                 <ViewCommand command={["alliance", "cost"]} args={{ nations: "AA:" + row.id }} />
             </>}>
                 ${commafy(row.cost as number)}
-            </LazyTooltip>
+            </LazyExpander>
         )
     },
     {
@@ -225,7 +225,7 @@ const allianceTableConfig: TableRowConfig[] = [
         id: 'treasures',
         label: 'Treasures',
         value: (row) => (
-            <LazyTooltip className={"underline"} content={<>
+            <LazyExpander className={"underline"} content={<>
                 <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{ attribute: "{numtreasures}", num_results: "5", highlight: row.id as number + "" }} />
                 <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
                     metric: 'treasures',
@@ -234,7 +234,7 @@ const allianceTableConfig: TableRowConfig[] = [
                 }} />
             </>}>
                 {commafy(row.treasures as number)} ({Math.sqrt((row.treasures as number) * 4).toFixed(2)}%)
-            </LazyTooltip>
+            </LazyExpander>
         ),
         buttons: [
             {
@@ -248,7 +248,7 @@ const allianceTableConfig: TableRowConfig[] = [
         id: 'cities',
         label: 'Cities',
         value: (row) => (
-            <LazyTooltip className={"underline"} content={<>
+            <LazyExpander className={"underline"} content={<>
                 <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{ attribute: "{numcities}", num_results: "5", highlight: row.id as number + "" }} />
                 <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
                     metric: 'cities',
@@ -257,7 +257,7 @@ const allianceTableConfig: TableRowConfig[] = [
                 }} />
             </>}>
                 {commafy(row.cities as number)} (${commafy(row.cities as number * 4)})
-            </LazyTooltip>
+            </LazyExpander>
         ),
         buttons: [
             {
@@ -351,7 +351,6 @@ export default function Alliance() {
                 </div>
             );
 
-            // Render table rows
             const renderTableRows = () => (
                 allianceTableConfig.map((config) => {
                     // Skip if condition is defined and returns false
@@ -361,84 +360,78 @@ export default function Alliance() {
 
                     return (
                         <tr key={config.id}>
-                            <td className="p-1">{config.label}</td>
-                            <td className="p-1 flex items-center">
-                                {config.value && config.value(row)}
+                            <td className="p-1 min-w-fit whitespace-nowrap font-medium text-right pr-3">{config.label}</td>
+                            <td className="p-1 w-full">
+                                <div className="flex items-center relative">
+                                    {config.value && config.value(row)}
 
-                                {config.buttons && config.buttons.map((button, buttonIndex) => {
-                                    // Skip if condition is defined and returns false
-                                    if (button.condition && !button.condition(row)) {
-                                        return null;
-                                    }
+                                    {config.buttons && config.buttons.map((button, buttonIndex) => {
+                                        // Skip if condition is defined and returns false
+                                        if (button.condition && !button.condition(row)) {
+                                            return null;
+                                        }
 
-                                    // Handle dynamic button text
-                                    const buttonText = typeof button.text === 'function' ? button.text(row) : button.text;
-
-                                    return (
-                                        <Button
-                                            key={buttonIndex}
-                                            className={buttonIndex > 0 ? "ms-1" : ""}
-                                            variant="outline"
-                                            size="sm"
-                                            asChild
-                                        >
-                                            <Link to={button.path(row)}>{buttonText}</Link>
-                                        </Button>
-                                    );
-                                })}
+                                        // Handle dynamic button text
+                                        const buttonText = typeof button.text === 'function' ? button.text(row) : button.text;
+                                        return (
+                                            <Button
+                                                key={buttonIndex}
+                                                className={buttonIndex > 0 ? "ms-1" : ""}
+                                                variant="outline"
+                                                size="sm"
+                                                asChild
+                                            >
+                                                <Link to={button.path(row)}>{buttonText}</Link>
+                                            </Button>
+                                        );
+                                    })}
+                                </div>
                             </td>
                         </tr>
                     );
                 })
-            );
+            )
 
             return (
-                <>
-                    <table className="display text-xs compact font-mono dataTable">
-                        <thead>
-                            <tr>
-                                {renderHeaderLinks()}
-                            </tr>
-                            <tr>
-                                <th colSpan={2}>
-                                    <div className="flex items-center space-x-2">
-                                        {row.flag && (
-                                            <img
-                                                src={row.flag as string}
-                                                alt="Alliance flag"
-                                                className="w-16 h-10"
-                                            />
-                                        )}
-                                        <Link
-                                            className="text-2xl font-bolt flex items-center"
-                                            to={getPwUrl(`alliance/id=${row.id as number}`)}
-                                        >
-                                            {row.name as string} <LazyIcon name="ExternalLink" />
-                                        </Link>
-                                        {row.acronym && (
-                                            <span className="text-sm text-gray-500">
-                                                ({row.acronym as string})
-                                            </span>
-                                        )}
-                                    </div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {renderTableRows()}
-                        </tbody>
-                    </table>
-                </>
+                <table className="display text-xs compact font-mono dataTable w-full">
+                    <colgroup>
+                        <col className="w-auto" /> {/* Label column - just enough width for content */}
+                        <col className="w-full" /> {/* Content column - takes all remaining space */}
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            {renderHeaderLinks()}
+                        </tr>
+                        <tr>
+                            <th colSpan={2}>
+                                <div className="flex items-center space-x-2">
+                                    {row.flag && (
+                                        <img
+                                            src={row.flag as string}
+                                            alt="Alliance flag"
+                                            className="w-16 h-10"
+                                        />
+                                    )}
+                                    <Link
+                                        className="text-2xl font-bolt flex items-center"
+                                        to={getPwUrl(`alliance/id=${row.id as number}`)}
+                                    >
+                                        {row.name as string} <LazyIcon name="ExternalLink" />
+                                    </Link>
+                                    {row.acronym && (
+                                        <span className="text-sm text-gray-500">
+                                            ({row.acronym as string})
+                                        </span>
+                                    )}
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {renderTableRows()}
+                    </tbody>
+                </table>
             );
         }}
     </EndpointWrapper>
-}
-
-export function ExampleContent() {
-    console.log("Rendering lazy content");
-    return (
-        <div>
-            This is the text in the tooltip, that is rendered lazily
-        </div>
-    );
 }
