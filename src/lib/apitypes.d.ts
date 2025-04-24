@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-02-22 00:36:33.
+// Generated using typescript-generator version 3.2.1263 on 2025-04-13 20:19:51.
 
 export interface CoalitionGraph {
     name: string;
@@ -278,6 +278,11 @@ export interface TaxExpenses {
     requireGrant: boolean;
     requireExpiry: boolean;
     requireTagged: boolean;
+}
+
+export interface WebPermission {
+    message: string;
+    success: boolean;
 }
 
 export interface MultiResult {

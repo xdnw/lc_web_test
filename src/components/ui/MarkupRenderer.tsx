@@ -238,7 +238,7 @@ export default function MarkupRenderer({ content, embed, showDialog }: { content
             embed: embed,
             showDialog: showDialog
         })) : "";
-    }, [content]);
+    }, [content, embed, showDialog]);
     return (
         <span dangerouslySetInnerHTML={{ __html: sanitized }} />
     );

@@ -31,7 +31,11 @@ const baseConfig = tseslint.config(
             'src/lib/commands.ts',
             '**/*.js',
             'vite.config.ts',
-            'vite.config.js'
+            'vite.config.js',
+            'env.dev.ts',
+            'env.main.ts',
+            'env.dev-test.ts',
+            'env.test.ts',
         ],
     },
     {

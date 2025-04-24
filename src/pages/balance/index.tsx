@@ -46,16 +46,16 @@ const PageHeader = () => (
     </>
 );
 
-const ResourceTable = ({ 
-    balance, 
-    canWithdraw, 
-    amount, 
-    handleAmountChange 
-}: { 
-    balance: WebBalance, 
-    canWithdraw: boolean, 
-    amount: number[], 
-    handleAmountChange: (index: number, value: number) => void 
+const ResourceTable = ({
+    balance,
+    canWithdraw,
+    amount,
+    handleAmountChange
+}: {
+    balance: WebBalance,
+    canWithdraw: boolean,
+    amount: number[],
+    handleAmountChange: (index: number, value: number) => void
 }) => {
     const resourceHeaders = useMemo(() => (
         <tr>
@@ -137,7 +137,7 @@ const BreakdownTable = ({ balance, showBreakdown }: { balance: WebBalance, showB
 // Withdraw command component
 const WithdrawCommand = ({ amount, qualifiedId, balance }: { amount: number[], qualifiedId: string, balance: WebBalance }) => {
     const textRef = useRef<HTMLParagraphElement>(null);
-    
+
     const commandText = useMemo(() => {
         return `/transfer resources receiver:${qualifiedId} transfer:${toResourceString(amount)} deposittype:${balance.is_aa ? "IGNORE" : "DEPOSIT"}`;
     }, [amount, qualifiedId, balance.is_aa]);
@@ -182,7 +182,7 @@ function RenderBalance({ balance }: { balance: WebBalance }) {
         return (balance.is_aa ? "AA:" : "") + balance.id;
     }, [balance.is_aa, balance.id]);
 
-    if (loading) return <Loading />;
+    if (loading) return <Loading variant="ripple" />;
     if (reactMessage) return reactMessage;
 
     return (
@@ -191,18 +191,18 @@ function RenderBalance({ balance }: { balance: WebBalance }) {
                 <PageHeader />
                 <div className="inline-block">
                     <div className="inline-block flex">
-                        <ResourceTable 
-                            balance={balance} 
-                            canWithdraw={canWithdraw} 
-                            amount={amount} 
-                            handleAmountChange={handleAmountChange} 
+                        <ResourceTable
+                            balance={balance}
+                            canWithdraw={canWithdraw}
+                            amount={amount}
+                            handleAmountChange={handleAmountChange}
                         />
                         {canWithdraw && (
-                            <WithdrawForm 
-                                setReactMessage={setReactMessage} 
-                                setLoading={setLoading} 
-                                balance={balance} 
-                                amount={amount} 
+                            <WithdrawForm
+                                setReactMessage={setReactMessage}
+                                setLoading={setLoading}
+                                balance={balance}
+                                amount={amount}
                             />
                         )}
                     </div>
@@ -231,11 +231,11 @@ export function WithdrawForm({ balance, amount, setLoading, setReactMessage }: {
         setReactMessage(<TransferError message={error.message} />);
     }, [setReactMessage]);
 
-    const handleResponse = useCallback(({data}: {data: WebTransferResult}) => {
+    const handleResponse = useCallback(({ data }: { data: WebTransferResult }) => {
         setLoading(false);
         setReactMessage(<TransferSuccess message={data} />);
     }, [setLoading, setReactMessage]);
-    
+
     return <ApiFormInputs
         endpoint={WITHDRAW}
         default_values={{

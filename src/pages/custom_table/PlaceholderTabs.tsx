@@ -19,7 +19,7 @@ import { Virtuoso } from 'react-virtuoso';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Button } from "../../components/ui/button";
 import { COMMANDS } from "../../lib/commands";
-import { Command, CM, toPlaceholderName } from "../../utils/Command";
+import { Command, CM, toPlaceholderName, AnyCommandPath, BaseCommand } from "../../utils/Command";
 import { Tabs, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { BlockCopyButton } from "../../components/ui/block-copy-button";
 import { TooltipProvider } from "../../components/ui/tooltip";
@@ -1017,7 +1017,7 @@ export function SelectionSection({
     const modifierComponent = useMemo(() => (
         CM.placeholders(type).getCreate() && (
             <ModifierComponent
-                modifier={CM.placeholders(type).getCreate() as Command}
+                modifier={CM.placeholders(type).getCreate()!}
                 selection={selection}
                 setSelection={setSelection}
             />
@@ -1058,7 +1058,7 @@ export function ModifierComponent({
     selection,
     setSelection
 }: {
-    modifier: Command,
+    modifier: BaseCommand,
     selection: { [key: string]: string },
     setSelection: (selection: { [key: string]: string }) => void,
 }) {

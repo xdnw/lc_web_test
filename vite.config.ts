@@ -6,14 +6,31 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 import tailwindcss from "@tailwindcss/vite";
 import { visualizer } from 'rollup-plugin-visualizer';
 import devConfig from './env.dev';
-import prodConfig from './env.prod';
+import mainConfig from './env.main';
+import devTestConfig from './env.dev-test';
+import testConfig from './env.test';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
-  const isDevelopment = mode === 'development';
-  const minify = true;
+  const isDevelopment = mode === 'dev' || mode === 'dev-test';
+  const minify = !isDevelopment;
   const tsconfigPath = isDevelopment ? './tsconfig.dev.json' : './tsconfig.prod.json';
-  const envConfig = isDevelopment ? devConfig : prodConfig;
+  let envConfig;
+  switch (mode) {
+    case 'dev':
+      envConfig = devConfig;
+      break;
+    case 'dev-test':
+      envConfig = devTestConfig;
+      break;
+    case 'test':
+      envConfig = testConfig;
+      break;
+    case 'main':
+    default:
+      envConfig = mainConfig;
+      break;
+  }
 
   const processedEnvConfig = Object.fromEntries(
     Object.entries(envConfig).map(([key, value]) => {
@@ -22,106 +39,117 @@ export default defineConfig(({ mode }) => {
   );
   processedEnvConfig['global'] = 'window';
 
-  return {
-    define: processedEnvConfig,
-    plugins: [
-      tailwindcss(),
-      react(),
-      tsconfigPaths({ projects: [tsconfigPath] }),
-      viteStaticCopy({
-        targets: [
+  // Define base plugins
+  const plugins = [
+    tailwindcss(),
+    react(),
+    tsconfigPaths({ projects: [tsconfigPath] }),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'CNAME',
+          dest: '.'
+        }
+      ]
+    }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      manifest: {
+        name: envConfig['process.env.APPLICATION'] + ' Web Interface',
+        short_name: envConfig['process.env.APPLICATION'],
+        description: 'Discord bot web interface', // Replace with actual description
+        theme_color: '#ffffff',
+        icons: [
           {
-            src: 'CNAME',
-            dest: '.'
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
           }
-        ]
-      }),
-      visualizer({ // Add the visualizer plugin
-        filename: 'dist/stats.html', // Output path
+        ],
+      },
+      workbox: {
+        navigateFallback: 'index.html',
+        globPatterns: ['**/*.{js,css,html,ico,png,jpg,svg}']
+      }
+    })
+  ];
+
+  // Conditionally add visualizer for 'main' mode
+  if (mode === 'main') {
+    plugins.push(
+      visualizer({
+        filename: 'dist/stats.html', // Output path relative to 'dist'
         open: true, // Auto-open the report after build
         gzipSize: true, // Show gzipped sizes
-      }),
-      VitePWA({
-        registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
-        manifest: {
-          name: 'Your App Name',
-          short_name: 'App',
-          description: 'Your application description',
-          theme_color: '#ffffff',
-          icons: [
-            {
-              src: 'pwa-192x192.png',
-              sizes: '192x192',
-              type: 'image/png'
-            },
-            {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png'
-            },
-            {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'any maskable'
-            }
-          ],
-        },
-        workbox: {
-          // GitHub Pages serves files with a specific base path
-          // that corresponds to your repository name
-          // This ensures service worker can handle requests correctly
-          navigateFallback: 'index.html',
-          globPatterns: ['**/*.{js,css,html,ico,png,svg}']
-        }
       })
-    ],
-    base: '/',
+    );
+  }
+
+  return {
+    define: processedEnvConfig,
+    plugins: plugins, // Use the conditionally populated plugins array
+    base: envConfig['process.env.BASE_PATH'],
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
       },
     },
     build: {
-      reportCompressedSize: false,
+      modulePreload: {
+        polyfill: true,
+        resolveDependencies: (filename, deps, { hostId, hostType }) => {
+          return deps;
+        },
+      },
+      reportCompressedSize: true,
       cssMinify: 'lightningcss',
       cssCodeSplit: true,
-      sourcemap: isDevelopment,  // For production
+      sourcemap: isDevelopment,
       emptyOutDir: true,
+      outDir: 'dist', // Ensure outDir is explicitly 'dist' if visualizer uses it
       terserOptions: {
         compress: {
           drop_console: minify,
           drop_debugger: minify,
         }
       },
-      minify: minify,
-      rollupOptions: {
-        output: {
-          manualChunks: (id) => {
-            // Create separate chunks for each icon
-            if (id.includes('node_modules/lucide-react')) {
-              return 'lucide-core';
-            }
-
-            // Other vendor chunks
-            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
-              return 'vendor';
-            }
-
-            if (id.includes('node_modules/clsx') ||
-              id.includes('node_modules/tailwind-merge') ||
-              id.includes('node_modules/msgpackr')) {
-              return 'utils';
-            }
-
-            // @odiffey/discord-markdown
-            if (id.includes('node_modules/@odiffey/discord-markdown')) {
-              return 'discord-markdown';
-            }
-          },
-        },
-      },
+      minify: minify ? 'terser' : false, // Use 'terser' for minification when enabled
+      //   rollupOptions: {
+      //     output: {
+      //       manualChunks: (id) => {
+      //         if (id.includes('node_modules/lucide-react')) {
+      //           return 'lucide-core';
+      //         }
+      //         if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+      //           return 'vendor-react';
+      //         }
+      //         if (id.includes('node_modules/clsx') ||
+      //           id.includes('node_modules/tailwind-merge') ||
+      //           id.includes('node_modules/msgpackr')) {
+      //           return 'vendor-utils';
+      //         }
+      //         if (id.includes('node_modules/@odiffey/discord-markdown')) {
+      //           return 'vendor-discord-markdown';
+      //         }
+      //         // Consider removing manualChunks if default splitting is sufficient
+      //       },
+      //     },
+      //   },
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react-router-dom'],
     },
     chunkSizeWarningLimit: 600,
     esbuild: {

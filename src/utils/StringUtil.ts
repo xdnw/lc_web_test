@@ -1,4 +1,4 @@
-import { Command } from "@/utils/Command.ts";
+import { BaseCommand, Command } from "@/utils/Command.ts";
 import { TableNumberFormat, TimeFormat } from "../lib/apitypes";
 
 export function hashString(str: string): number {
@@ -484,7 +484,7 @@ export function getCharFrequency(str: string): { [key: string]: number } {
 export function simpleSimilarity(input: string,
   inputFreq: { [key: string]: number },
   inputWordFreq: Set<string>,
-  cmd: Command): number {
+  cmd: BaseCommand): number {
   const command = cmd.name.toLowerCase();
   if (command.includes(input)) {
     if (command.startsWith(input)) {

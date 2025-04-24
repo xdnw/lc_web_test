@@ -10,6 +10,7 @@ import { useDialog } from "../layout/DialogContext";
 import { Button } from "../ui/button";
 import { TypeBreakdown } from "../../utils/Command";
 import { InputActionMeta } from "react-select";
+import Loading from "../ui/loading";
 
 export function ListComponentBreakdown({ breakdown, argName, isMulti, initialValue, setOutputValue }: {
     breakdown: TypeBreakdown,
@@ -273,7 +274,7 @@ export default function ListComponent(
                 ref={scrollRef}
             >
                 <ul className="clusterize-content" ref={contentRef} onClick={handleListClick}>
-                    <li className="clusterize-no-data">Loading data…</li>
+                    <Loading />
                 </ul>
             </div>
             {isMulti && (

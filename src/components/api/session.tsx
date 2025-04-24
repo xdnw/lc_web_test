@@ -37,8 +37,8 @@ export function LoginPicker() {
                 <TabsContent value="mail">
                     <div>
                         <Button variant="outline" size="sm" className='border-red-800/70' asChild><Link className='' to={`${process.env.BASE_PATH}nation_picker`}>
-                        <LazyIcon name="Mail" size={16} />
-                        &nbsp;Send In-Game Mail</Link></Button>
+                            <LazyIcon name="Mail" size={16} />
+                            &nbsp;Send In-Game Mail</Link></Button>
                         <hr className="my-2" />
                         <h2 className='text-lg font-extrabold'>Here's what you need to do:</h2>
                         <ul className="list-decimal list-inside bg-secondary p-3 rounded">
@@ -54,7 +54,7 @@ export function LoginPicker() {
 }
 
 export default function SessionInfo() {
-    const {data, error } = useQuery<QueryResult<WebSession>>(bulkQueryOptions(SESSION.endpoint, {}, true));
+    const { data, error } = useQuery<QueryResult<WebSession>>(bulkQueryOptions(SESSION.endpoint, {}, true));
 
     if (!data?.data || data.error) {
         return <>
@@ -62,78 +62,78 @@ export default function SessionInfo() {
                 <strong className="font-bold">Error:&nbsp;</strong>
                 <span className="block sm:inline">Could not fetch login data. {error?.message ?? data?.error ?? "Unknown Error"}</span>
             </div>
-            <LoginPicker/>
+            <LoginPicker />
         </>
     }
     const session = data.data;
     return <div className="bg-light/10 border border-light/10 p-2 rounded relative">
         <table className="table-auto w-full border-separate border-spacing-y-1">
             <tbody>
-            <tr className="bg-secondary">
-                <td className="px-1 py-1 bg-secondary">User</td>
-                <td className="px-1 py-1 bg-secondary">
-                    {session.user_icon && <img src={session.user_icon} alt={session.user_name}
-                                               className="w-4 h-4 inline-block mr-1"/>}
-                    {session.user_name ? session.user_name + " | " : ""}
-                    {session.user ? session.user : "N/A"}
-                </td>
-            </tr>
-            <tr className="bg-secondary">
-                <td className="p-1">Nation</td>
-                <td className="p-1">
-                    <div className="relative">
-                        {session.nation ? <Link className="text-blue-600 hover:text-blue-800 underline"
-                                                to={`https://politicsandwar.com/nation/id=${session.nation}`}>
-                            {session.nation_name ? session.nation_name : session.nation}
-                        </Link> : "N/A"}
-                        {session.alliance && " | "}
-                        {session.alliance ? <Link className="text-blue-600 hover:text-blue-800 underline"
-                                                  to={`https://politicsandwar.com/alliance/id=${session.alliance}`}>
-                            {session.alliance_name ? session.alliance_name : session.alliance}
-                        </Link> : ""}
-                        {(session.nation && session.user) &&
-                            <Button variant="outline" size="sm"
+                <tr className="bg-secondary">
+                    <td className="px-1 py-1 bg-secondary">User</td>
+                    <td className="px-1 py-1 bg-secondary">
+                        {session.user_icon && <img src={session.user_icon} alt={session.user_name}
+                            className="w-4 h-4 inline-block mr-1" />}
+                        {session.user_name ? session.user_name + " | " : ""}
+                        {session.user ? session.user : "N/A"}
+                    </td>
+                </tr>
+                <tr className="bg-secondary">
+                    <td className="p-1">Nation</td>
+                    <td className="p-1">
+                        <div className="relative">
+                            {session.nation ? <Link className="text-blue-600 hover:text-blue-800 underline"
+                                to={`https://politicsandwar.com/nation/id=${session.nation}`}>
+                                {session.nation_name ? session.nation_name : session.nation}
+                            </Link> : "N/A"}
+                            {session.alliance && " | "}
+                            {session.alliance ? <Link className="text-blue-600 hover:text-blue-800 underline"
+                                to={`https://politicsandwar.com/alliance/id=${session.alliance}`}>
+                                {session.alliance_name ? session.alliance_name : session.alliance}
+                            </Link> : ""}
+                            {(session.nation && session.user) &&
+                                <Button variant="outline" size="sm"
                                     className='border-slate-600 absolute top-0 right-0'
                                     asChild>
-                                <Link to={`${process.env.BASE_PATH}unregister`}>
-                                    {session.registered ? session.registered_nation == session.nation ? "Unlink" : "!! Fix Invalid Registration !!" : "Link to Discord"}
-                                </Link>
-                            </Button>
-                        }
-                    </div>
-                </td>
-            </tr>
-            <tr className="bg-secondary">
-                <td className="p-1">Expires</td>
-                <td className="p-1">
-                    <div className="relative">
-                        {session.expires}
-                        <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
+                                    <Link to={`${process.env.BASE_PATH}unregister`}>
+                                        {session.registered ? session.registered_nation == session.nation ? "Unlink" : "!! Fix Invalid Registration !!" : "Link to Discord"}
+                                    </Link>
+                                </Button>
+                            }
+                        </div>
+                    </td>
+                </tr>
+                <tr className="bg-secondary">
+                    <td className="p-1">Expires</td>
+                    <td className="p-1">
+                        <div className="relative">
+                            {session.expires}
+                            <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
                                 asChild>
-                            <Link to={`${process.env.BASE_PATH}logout`}>Logout</Link></Button>
-                    </div>
-                </td>
-            </tr>
-            <tr className="bg-secondary">
-                <td className="p-1">Guild</td>
-                <td className="p-1">
-                    <div className="relative">
-                        {session.guild_icon && <img src={session.guild_icon} alt={session.guild_name}
-                                                    className="w-4 h-4 inline-block mr-1"/>}
-                        {session.guild_name ? session.guild_name + " | " : ""}
-                        {session.guild ? session.guild : "N/A"}
-                        <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
+                                <Link to={`${process.env.BASE_PATH}logout`}>Logout</Link></Button>
+                        </div>
+                    </td>
+                </tr>
+                <tr className="bg-secondary">
+                    <td className="p-1">Guild</td>
+                    <td className="p-1">
+                        <div className="relative">
+                            {session.guild_icon && <img src={session.guild_icon} alt={session.guild_name}
+                                className="w-4 h-4 inline-block mr-1" />}
+                            {session.guild_name ? session.guild_name + " | " : ""}
+                            {session.guild ? session.guild : "N/A"}
+                            <Button variant="outline" size="sm" className='border-slate-600 absolute top-0 right-0'
                                 asChild>
-                            <Link
-                                to={`${process.env.BASE_PATH}guild_select`}>{session.guild ? "Switch" : "Select"}</Link></Button>
-                    </div>
-                </td>
-            </tr>
+                                <Link
+                                    to={`${process.env.BASE_PATH}guild_select`}>{session.guild ? "Switch" : "Select"}</Link></Button>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
         {session.guild && true &&
             <Button variant="link" className='hover:text-blue-500 underline text-lg'
-                    asChild>
+                asChild>
                 <Link
                     to={`${process.env.BASE_PATH}guild_member`}>View Guild Member
                     Homepage<LazyIcon name="ChevronRight" /></Link></Button>

@@ -6,17 +6,17 @@ import ListComponent from '@/components/cmd/ListComponent';
 import TriStateInput from '@/components/cmd/TriStateInput';
 import MarkupRenderer from '@/components/ui/MarkupRenderer';
 import { getCharFrequency, simpleSimilarity } from '@/utils/StringUtil';
-import { Command } from "@/utils/Command.ts";
+import { AnyCommandPath, BaseCommand, Command } from "@/utils/Command.ts";
 import { useDialog } from "../layout/DialogContext";
 
-export default function CmdList({ commands, prefix }: { commands: Command[], prefix: string }) {
+export default function CmdList({ commands, prefix }: { commands: BaseCommand[], prefix: string }) {
     const { showDialog } = useDialog();
 
     // const [weights, setWeights] = useState<CommandWeights | null>(() => (null));
     const [filter, setFilter] = useState('');
-    const [filteredCommands, setFilteredCommands] = useState<Command[]>(commands);
+    const [filteredCommands, setFilteredCommands] = useState<BaseCommand[]>(commands);
     const [showFilters, setShowFilters] = useState(false);
-    const [customFilters, setCustomFilters] = useState<{ [key: string]: (cmd: Command) => boolean }>(() => ({}));
+    const [customFilters, setCustomFilters] = useState<{ [key: string]: (cmd: BaseCommand) => boolean }>(() => ({}));
 
     const [cmdArgs] = useState<{ label: string, value: string }[]>(() => {
         const argsUnique = new Map<string, number>();
@@ -48,7 +48,7 @@ export default function CmdList({ commands, prefix }: { commands: Command[], pre
         return Array.from(rolesUnique.entries()).sort().map(([role, count]) => ({ label: `${role} (${count})`, value: role }));
     });
 
-    const updateFilteredCommands = useCallback((filterValue: string, customFilters: { [key: string]: (cmd: Command) => boolean }) => {
+    const updateFilteredCommands = useCallback((filterValue: string, customFilters: { [key: string]: (cmd: BaseCommand) => boolean }) => {
         const inputLower = filterValue.toLowerCase();
         const inputFreq = getCharFrequency(inputLower);
         const inputWordFreq = new Set(inputLower.split(" "));
@@ -104,7 +104,7 @@ export default function CmdList({ commands, prefix }: { commands: Command[], pre
         const optionsSplit = new Set(value.split(","));
         const newCustomFilters = { ...customFilters };
         if (value) {
-            const func: (cmd: Command) => boolean = (cmd: Command) => {
+            const func: (cmd: BaseCommand) => boolean = (cmd: BaseCommand) => {
                 if (!cmd.command.annotations || !cmd.command.annotations["role"]) return false;
                 const roleAnn: { value: string[], any?: boolean, root?: boolean } = cmd.command.annotations["role"] as { value: string[], any?: boolean, root?: boolean };
                 if (roleAnn.root) return false;
@@ -128,7 +128,7 @@ export default function CmdList({ commands, prefix }: { commands: Command[], pre
         const newCustomFilters = { ...customFilters };
         if (value === "1" || value === "-1") {
             const valueBool = value === "1";
-            const func: (cmd: Command) => boolean = (cmd: Command) => !!(cmd.command.arguments && Object.values(cmd.command.arguments).length > 0) === valueBool;
+            const func: (cmd: BaseCommand) => boolean = (cmd: BaseCommand) => !!(cmd.command.arguments && Object.values(cmd.command.arguments).length > 0) === valueBool;
             newCustomFilters["hasarg"] = func;
             setCustomFilters(newCustomFilters);
         } else {
@@ -142,7 +142,7 @@ export default function CmdList({ commands, prefix }: { commands: Command[], pre
         const optionsSplit = new Set(value.split(","));
         const newCustomFilters = { ...customFilters };
         if (value) {
-            const func: (cmd: Command) => boolean = (cmd: Command) => {
+            const func: (cmd: BaseCommand) => boolean = (cmd: BaseCommand) => {
                 if (!cmd.command.arguments) {
                     return false;
                 }
@@ -231,15 +231,15 @@ export function CustomTriInput({
 }: {
     annotation: string;
     filter: string;
-    map: Record<string, (cmd: Command) => boolean>;
-    set: React.Dispatch<React.SetStateAction<Record<string, (cmd: Command) => boolean>>>;
-    update: (filterValue: string, map: Record<string, (cmd: Command) => boolean>) => void;
+    map: Record<string, (cmd: BaseCommand) => boolean>;
+    set: React.Dispatch<React.SetStateAction<Record<string, (cmd: BaseCommand) => boolean>>>;
+    update: (filterValue: string, map: Record<string, (cmd: BaseCommand) => boolean>) => void;
 }) {
     const handleChange = useCallback((name: string, value: string) => {
         const newCustomFilters = { ...map };
         if (value === "1" || value === "-1") {
             const valueBool = value === "1";
-            const func: (cmd: Command) => boolean = (cmd: Command) => !!(cmd.command.annotations && cmd.command.annotations[annotation]) === valueBool;
+            const func: (cmd: BaseCommand) => boolean = (cmd: BaseCommand) => !!(cmd.command.annotations && cmd.command.annotations[annotation]) === valueBool;
             newCustomFilters[annotation] = func;
             set(newCustomFilters);
         } else {

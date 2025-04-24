@@ -8,10 +8,14 @@
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --mode dev",
+    "dev-test": "vite --mode dev-test",
+    "build": "vite build --mode main",
+    "build-test": "vite build --mode test",
+    "build-dev": "vite build --mode dev",
+    "build-dev-test": "vite build --mode dev-test",
     "lint": "eslint . --max-warnings 0 --cache --quiet",
-    "preview": "vite preview",
+    "preview": "vite preview --port 5173",
     "fix-imports": "cross-env FIX_IMPORTS=true eslint --fix \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
@@ -93,6 +97,7 @@
     "vite-plugin-checker": "^0.9.0",
     "vite-plugin-pwa": "^1.0.0",
     "vite-plugin-static-copy": "^2.3.0",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "workbox-window": "^7.3.0"
   }
 }

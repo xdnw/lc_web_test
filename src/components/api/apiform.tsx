@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button.tsx";
 import { cn, deepEqual } from "@/lib/utils.ts";
 import { useDialog } from "../layout/DialogContext";
 import { CommonEndpoint, QueryResult } from "../../lib/BulkQuery";
-import { useDeepCompareMemo } from "./bulkwrapper";
+import { useDeepMemo } from "./bulkwrapper";
 import { Argument } from "@/utils/Command";
 import ArgInput from "../cmd/ArgInput";
 import { ArgDescComponent } from "../cmd/CommandComponent";
 import { singleQueryOptions } from "@/lib/queries";
 import { useQuery } from "@tanstack/react-query";
+import Loading from "../ui/loading";
 
 const MemoizedArgInput = React.memo(({ arg, setOutputValue }: {
     arg: Argument,
@@ -67,7 +68,7 @@ export function ApiFormInputs<T, A extends { [key: string]: string | string[] | 
     }, [handle_error, showDialog]);
 
 
-    const stableDefaults = useDeepCompareMemo(default_values ?
+    const stableDefaults = useDeepMemo(default_values ?
         (Object.fromEntries(Object.entries(default_values).filter(([_, value]) => value !== undefined)) as { [k: string]: string | string[] }) : {});
 
     // Split the filtering logic into a useMemo
@@ -212,30 +213,24 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
         return result;
     });
 
-    const [queryArgs, setQueryArgs] = useState<{ readonly [key: string]: string | string[] } | null>(null);
+    const [queryArgs, setQueryArgs] = useState<{ readonly [key: string]: string | string[] } | null>(store.getState().output);
     const [fetchTrigger, setFetchTrigger] = useState(0); // Counter to trigger fetches
     const isInitialMount = useRef(true);
-
-    // Keep a ref to the current output state
-    const outputRef = useRef<{ [key: string]: string | string[] }>({});
 
     useEffect(() => {
         const unsubscribe = store.subscribe(
             state => state.output,
             (currentOutput, previousOutput) => {
                 console.log('Outputs changed:', currentOutput);
-                outputRef.current = currentOutput;
-
-                // Check for missing required fields
                 if (required) {
                     const missingFields = required.filter(field => !currentOutput[field]);
-                    setMissing(missingFields);
+                    setMissing(f => deepEqual(f, missingFields) ? f : missingFields);
                 }
             }
         );
 
         return () => unsubscribe();
-    }, [store, required]);
+    }, [store, required, setMissing]);
 
     // Configure the query with manual control
     const { data, isFetching, refetch } = useQuery({
@@ -250,6 +245,8 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
             isInitialMount.current = false;
             return;
         }
+
+        console.log("Query args:", queryArgs);
 
         // Only proceed if we have queryArgs and a non-zero fetchTrigger
         if (queryArgs && fetchTrigger > 0) {
@@ -278,34 +275,45 @@ export function ApiFormHandler<T, A extends { [key: string]: string | string[] |
     }, [queryArgs, fetchTrigger, refetch, handle_error, handle_response]);
 
     const submitForm = useCallback(() => {
-        const args = outputRef.current as A;
+        const args = store.getState().output as A;
         setQueryArgs(args as { readonly [key: string]: string | string[] });
         // Increment fetchTrigger to trigger useEffect after state update
         setFetchTrigger(prev => prev + 1);
-    }, []);
+    }, [store]);
 
     // Memoize the children/data section
     const renderedChildren = useMemo(() => (
         data && children ? children(data as Omit<QueryResult<T>, 'data'> & { data: NonNullable<QueryResult<T>['data']>; }) : null
     ), [data, children]);
 
-    // Memoize the button
-    const submitButton = useMemo(() => (
-        <Button
-            variant="outline"
-            size="sm"
-            className={cn(
-                "border-red-800/70",
-                "me-1",
-                { "disabled cursor-wait": isFetching },
-                classes
-            )}
-            onClick={submitForm}
-            disabled={isFetching}
-        >
-            {isFetching ? "Submitting..." : label}
-        </Button>
-    ), [isFetching, submitForm, label, classes]);
+
+    const submitButton = useMemo(() => {
+        return (
+            <Button
+                variant="destructive"
+                size="sm"
+                className={cn(
+                    "border-red-800/70 relative",
+                    "me-1",
+                    { "disabled cursor-wait": isFetching },
+                    classes
+                )}
+                onClick={submitForm}
+                disabled={isFetching}
+            >
+                <span className="flex items-center justify-center w-full">
+                    <span className={isFetching ? "invisible" : "visible"}>
+                        {label}
+                    </span>
+                    {isFetching && (
+                        <span className="absolute inset-0 flex items-center justify-center">
+                            <Loading size={3} variant={"ripple"} />
+                        </span>
+                    )}
+                </span>
+            </Button>
+        );
+    }, [isFetching, submitForm, label, classes]);
 
     // If there are missing required fields, show a notification
     if (missing.length) {

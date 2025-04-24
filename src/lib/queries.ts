@@ -50,12 +50,15 @@ export function singleQueryOptions<T>(
     cache_duration?: number,
     batch_wait_ms?: number
 ): UseQueryOptions<QueryResult<T>, Error, QueryResult<T>, readonly unknown[]> {
-    console.log("CACHE DURATION", cache_duration, endpoint.cache_duration);
     return {
         queryKey: [endpoint.name, query],
         queryFn: async (meta) => {
             console.log("Fetching single query", meta.queryKey);
             const keys = meta.queryKey as [string, { [key: string]: string }];
+
+            // 5s delay
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+
             const result = await fetchBulk<T>({
                 endpoint: keys[0],
                 query: keys[1],

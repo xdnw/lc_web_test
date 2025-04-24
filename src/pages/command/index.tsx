@@ -1,22 +1,23 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import CommandComponent from '../../components/cmd/CommandComponent'; // Import CommandComponent
 import { CommandStoreType } from '@/utils/StateUtil.ts';
-import {Command, CM} from '@/utils/Command.ts';
-import {useParams} from "react-router-dom";
-import {BlockCopyButton} from "@/components/ui/block-copy-button.tsx";
-import {TooltipProvider} from "@/components/ui/tooltip.tsx";
-import {Button} from "../../components/ui/button";
-import {UNPACKR, getQueryParams} from "@/lib/utils.ts";
-import {createRoot} from "react-dom/client";
-import {useDialog} from "../../components/layout/DialogContext";
-import {DiscordEmbed, Embed} from "../../components/ui/MarkupRenderer";
-import {getCommandAndBehavior} from "../../utils/Command";
-import {queryParamsToObject} from "../../lib/utils";
-import {createCommandStoreWithDef} from "../../utils/StateUtil";
+import { Command, CM, AnyCommandPath, CommandPath, BaseCommand } from '@/utils/Command.ts';
+import { useParams } from "react-router-dom";
+import { BlockCopyButton } from "@/components/ui/block-copy-button.tsx";
+import { TooltipProvider } from "@/components/ui/tooltip.tsx";
+import { Button } from "../../components/ui/button";
+import { UNPACKR, getQueryParams } from "@/lib/utils.ts";
+import { createRoot } from "react-dom/client";
+import { useDialog } from "../../components/layout/DialogContext";
+import { DiscordEmbed, Embed } from "../../components/ui/MarkupRenderer";
+import { getCommandAndBehavior } from "../../utils/Command";
+import { queryParamsToObject } from "../../lib/utils";
+import { createCommandStoreWithDef } from "../../utils/StateUtil";
+import { COMMANDS } from '@/lib/commands';
 
 export default function CommandPage() {
     const { command } = useParams();
-    const [cmdObj, setCmdObj] = useState<Command | null>(CM.get(command ?? "") ?? CM.buildTest());
+    const [cmdObj, setCmdObj] = useState<BaseCommand | null>(CM.get(command?.split(" ") as CommandPath<typeof COMMANDS.commands>) ?? CM.buildTest());
     // CM.cmdBuildTest()
 
     const [initialValues, setInitialValues] = useState<{ [key: string]: string }>(queryParamsToObject(getQueryParams()) as { [key: string]: string });
@@ -39,7 +40,7 @@ export default function CommandPage() {
     );
 }
 
-export function commandButtonAction({name, command, responseRef, showDialog}: {
+export function commandButtonAction({ name, command, responseRef, showDialog }: {
     name: string,
     command: string,
     responseRef: React.RefObject<HTMLDivElement | null>,
@@ -74,11 +75,11 @@ export function commandButtonAction({name, command, responseRef, showDialog}: {
     runCommand({
         command: cmdInfo.command,
         values: cmdInfo.args,
-        onResponse: (json) => handleResponse({json, responseRef, showDialog})
+        onResponse: (json) => handleResponse({ json, responseRef, showDialog })
     });
 }
 
-function runCommand({command, values, onResponse}: {
+function runCommand({ command, values, onResponse }: {
     command: string,
     values: { [key: string]: string | string[] },
     onResponse: (json: { [key: string]: string | object | object[] | number | number[] | string[] }) => void
@@ -105,7 +106,7 @@ function runCommand({command, values, onResponse}: {
         }
     }).then(response => {
         if (!response.ok) {
-            onResponse({error: response.statusText, title: "Error Fetching"});
+            onResponse({ error: response.statusText, title: "Error Fetching" });
             return;
         }
         const reader = response.body?.getReader();
@@ -120,17 +121,17 @@ function runCommand({command, values, onResponse}: {
                 onResponse(json);
                 readStream();
             }).catch(error => {
-                onResponse({error: error.toString(), title: "Error Reading Stream"});
+                onResponse({ error: error.toString(), title: "Error Reading Stream" });
             });
         }
 
         readStream();
     }).catch(error => {
-        onResponse({error: error.toString(), title: "Error Fetching"});
+        onResponse({ error: error.toString(), title: "Error Fetching" });
     });
 }
 
-function handleDialog({json, responseRef, showDialog}: {
+function handleDialog({ json, responseRef, showDialog }: {
     json: { [key: string]: string | object | object[] | number | number[] | string[] },
     responseRef?: React.RefObject<HTMLDivElement | null>,
     showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
@@ -169,12 +170,12 @@ function handleDialog({json, responseRef, showDialog}: {
 }
 
 export function handleResponse(
-    {json, responseRef, showDialog}: {
+    { json, responseRef, showDialog }: {
         json: { [key: string]: string | object | object[] | number | number[] | string[] },
         responseRef: React.RefObject<HTMLDivElement | null>,
         showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
     }) {
-    if (handleDialog({json, responseRef, showDialog})) {
+    if (handleDialog({ json, responseRef, showDialog })) {
         return;
     }
     if (responseRef.current) {
@@ -185,7 +186,7 @@ export function handleResponse(
     }
 }
 
-export function RenderResponse({jsonArr, showDialog}: {
+export function RenderResponse({ jsonArr, showDialog }: {
     jsonArr: { [key: string]: string | object | object[] | number | number[] | string[] }[],
     showDialog: (title: string, message: React.ReactNode, quote?: (boolean | undefined)) => void
 }) {
@@ -194,7 +195,7 @@ export function RenderResponse({jsonArr, showDialog}: {
         <div ref={responseRef}>
             {
                 jsonArr.map((json, i) => {
-                    if (handleDialog({json, showDialog})) {
+                    if (handleDialog({ json, showDialog })) {
                         return <div key={i}></div>;
                     }
                     return (
@@ -208,14 +209,14 @@ export function RenderResponse({jsonArr, showDialog}: {
     );
 }
 
-export function OutputValuesDisplay({name, store}: {name: string, store: CommandStoreType}) {
+export function OutputValuesDisplay({ name, store }: { name: string, store: CommandStoreType }) {
     const output = store((state) => state.output);
     const textRef = useRef<HTMLParagraphElement>(null);
     const responseRef = useRef<HTMLDivElement>(null);
     const { showDialog } = useDialog();
 
     const runCommandCallback = useCallback(() => {
-        runCommand({command: name, values: output, onResponse: (json) => handleResponse({json, responseRef, showDialog})});
+        runCommand({ command: name, values: output, onResponse: (json) => handleResponse({ json, responseRef, showDialog }) });
     }, [name, output, responseRef, showDialog]);
 
     const clearOutput = useCallback(() => {
@@ -235,7 +236,7 @@ export function OutputValuesDisplay({name, store}: {name: string, store: Command
         <div className="relative">
             <div className='flex items-center'>
                 <TooltipProvider>
-                    <BlockCopyButton className="rounded-[5px] [&_svg]:size-3.5 mr-1 mb-1" size="sm" left={true} getText={getText}/>
+                    <BlockCopyButton className="rounded-[5px] [&_svg]:size-3.5 mr-1 mb-1" size="sm" left={true} getText={getText} />
                 </TooltipProvider>
                 <p className="w-full rounded h-6 pl-1 mb-1 bg-accent border border-slate-500 border-opacity-50" ref={textRef}>/{name}&nbsp;
                     {

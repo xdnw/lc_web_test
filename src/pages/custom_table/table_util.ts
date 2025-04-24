@@ -4,7 +4,7 @@ import { DEFAULT_TABS } from "../../lib/layouts";
 import { WebTable, WebTableError } from '@/lib/apitypes';
 import { getRenderer, isHtmlRenderer } from '@/components/ui/renderers';
 import { ReactNode } from 'react';
-import { CM, Command, STRIP_PREFIXES } from '@/utils/Command';
+import { AnyCommandPath, BaseCommand, CM, Command, STRIP_PREFIXES } from '@/utils/Command';
 import { TableInfo } from './AbstractTable';
 import { ConfigColumns, ObjectColumnRender, OrderIdx } from "./DataTable";
 import { JSONValue } from "@/lib/internaltypes";
@@ -66,10 +66,10 @@ export function getReactSlots(columnsInfo: ConfigColumns[]): { [key: number]: ((
     return reactSlots ? reactSlots : undefined;
 }
 
-export function getColOptions(type: string, filter?: (f: Command) => boolean): [string, string][] {
-    const commands: { [key: string]: Command } = CM.getPlaceholderCommands(type);
+export function getColOptions(type: keyof typeof COMMANDS.placeholders, filter?: (f: BaseCommand) => boolean): [string, string][] {
+    const commands: BaseCommand[] = CM.placeholders(type).getCommands();
     const result: [string, string][] = [];
-    for (const [key, value] of Object.entries(commands)) {
+    for (const value of commands) {
         if (filter && !filter(value)) {
             continue;
         }

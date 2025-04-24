@@ -8,7 +8,7 @@ import { Button } from "../ui/button";
 import { suspenseQueryOptions } from "@/lib/queries";
 
 
-export function useDeepCompareMemo<T>(value: T): T {
+export function useDeepMemo<T>(value: T): T {
     const [memoValue, setMemoValue] = useState(value);
 
     useEffect(() => {
@@ -57,7 +57,7 @@ export default function EndpointWrapper<T, A extends { [key: string]: string | s
         data: NonNullable<QueryResult<T>['data']>;
     }) => ReactNode;
 }) {
-    const stableQuery: { [k: string]: string | string[] } = useDeepCompareMemo(args ?
+    const stableQuery: { [k: string]: string | string[] } = useDeepMemo(args ?
         (Object.fromEntries(Object.entries(args).filter(([_, value]) => value !== undefined)) as { [k: string]: string | string[] }) : {});
 
     const fallbackRender = useCallback(
@@ -72,7 +72,7 @@ export default function EndpointWrapper<T, A extends { [key: string]: string | s
 
     return (
         <ErrorBoundary fallbackRender={fallbackRender} onError={handle_error ?? console.error}>
-            <Suspense fallback={<Loading />}>
+            <Suspense fallback={<Loading variant="ripple" />}>
                 <BulkQueryWrapper
                     endpoint={endpoint.endpoint}
                     query={stableQuery}

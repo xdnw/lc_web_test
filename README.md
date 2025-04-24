@@ -30,18 +30,12 @@ This will run the application in development mode using the configuration in env
 
 The project uses separate configuration files for development and production environments:
 
-- `env.dev.ts` - Contains environment variables for development
-- `env.prod.ts` - Contains environment variables for production
+- `env.dev.ts` - For development (P&W main)
+- `env.dev-test.ts` - For development (P&W test)
+- `env.main.ts` - Production (P&W main)
+- `env.test.ts` - Production (P&W test)
 
-To modify environment variables, edit the appropriate file. The configuration structure looks like:
-
-```typescript
-export default {
-    'process.env.API_URL': 'http://localhost:80/api/',
-    'process.env.EXTERNAL_URL': 'http://localhost:5173/',
-    // other environment variables
-};
-```
+To modify environment variables, edit the appropriate file. The values for your bot/site will differ.
 
 ### Backend Configuration
 

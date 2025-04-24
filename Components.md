@@ -2,7 +2,7 @@ ApiFormInputs: TODO update to accept an endpoit with types like EndpointWrapper
 - Input: Endpoint.displayProps
 - Output: Input components, button, and data (children)
 
-useDeepCompareMemo(variable) - memoize const via deep compare
+useDeepMemo(variable) - memoize const via deep compare
 
 export default function EndpointWrapper(
     readonly endpoint: CommonEndpoint<T, A, B>;

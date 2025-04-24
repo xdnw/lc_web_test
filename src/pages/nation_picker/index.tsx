@@ -1,15 +1,18 @@
 import { ApiFormInputs } from "@/components/api/apiform";
+import { WebUrl } from "@/lib/apitypes";
 import { LOGIN_MAIL } from "@/lib/endpoints";
+import { useCallback } from "react";
 
 export default function NationPicker() {
+    const setLocation = useCallback(({data}: {data: WebUrl}) => {
+        window.location.href = data.url;
+    }, []);
     return (
         <div className="p-4">
             <ApiFormInputs
                 endpoint={LOGIN_MAIL}
                 label="Send Code"
-                handle_response={({data}) => {
-                    window.location.href = data.url;
-                }}
+                handle_response={setLocation}
                 message={<>
                     <h2 className="text-lg font-extrabold">Nation Select:</h2>
                     <p>

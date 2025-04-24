@@ -1,14 +1,14 @@
-import { commandCompletions } from "./CompletionUtil";
-// import { CommandWeights, Sentence } from "./Embedding";
+import { useQuery } from '@tanstack/react-query';
+import { WebPermission } from './../lib/apitypes.d';
 import {
-    findMatchingBracket,
-    findMatchingQuoteOrBracket,
     getCharFrequency,
-    isQuoteOrBracket,
-    split, splitCustom
+    split
 } from "./StringUtil";
 import { COMMANDS } from "@/lib/commands.ts";
-import type { CommandBehavior } from "@/lib/internaltypes";
+import type { CommandBehavior, JSONValue } from "@/lib/internaltypes";
+import { bulkQueryOptions } from '@/lib/queries';
+import { useDialog } from '@/components/layout/DialogContext';
+import { useEffect, useMemo } from 'react';
 
 export type IArgument = {
     name: string;
@@ -70,11 +70,12 @@ export type ICommandMap = {
     options: { [name: string]: IOptionData | string };
 }
 
-///
-
 export type CommandPath<T> = T extends ICommandGroup
     ? { [K in keyof T]: [K] | [K, ...CommandPath<T[K]>] }[keyof T]
     : [];
+
+export type AnyCommandPath = CommandPath<typeof COMMANDS.commands>;
+export type AnyPlaceholderPath<T extends keyof typeof COMMANDS.placeholders> = CommandPath<typeof COMMANDS.placeholders[T]['commands']>;
 
 export type CommandArguments<T, P extends string[]> = P extends [infer K, ...infer Rest]
     ? K extends keyof T
@@ -86,7 +87,15 @@ export type CommandArguments<T, P extends string[]> = P extends [infer K, ...inf
     : never
     : never;
 
-///
+export type CommandType<T, P extends string[]> = P extends [infer K, ...infer Rest]
+    ? K extends keyof T
+    ? Rest extends [] // Is it the last part of the path?
+    ? T[K] extends ICommand // Is the item at the path an ICommand?
+    ? T[K] // Yes, return the ICommand type
+    : never // No, it's not an ICommand (might be another group), return never
+    : CommandType<T[K], Extract<Rest, string[]>> // Not the last part, recurse into the subgroup
+    : never // Key K not found in T
+    : never; // Path P is empty
 
 export class Argument {
     name: string;
@@ -96,10 +105,6 @@ export class Argument {
     constructor(name: string, arg: IArgument) {
         this.name = name;
         this.arg = arg;
-    }
-
-    getMap(): CommandMap {
-        return CM;
     }
 
     clone(): Argument {
@@ -183,7 +188,7 @@ export function getTypeBreakdown(ref: CommandMap, type: string): TypeBreakdown {
     }
 }
 
-export class Command {
+export class BaseCommand {
     command: ICommand;
     name: string;
     arguments: Argument[] | null = null;
@@ -191,7 +196,12 @@ export class Command {
     descWordFreq: Set<string> | null = null;
     descShort: string | null = null;
 
-    hasRequiredArgument() {
+    constructor(name: string, commandData: ICommand) {
+        this.command = commandData;
+        this.name = name;
+    }
+
+    hasRequiredArgument(): boolean {
         if (this.command.arguments) {
             for (const arg of Object.values(this.command.arguments)) {
                 if (arg.optional !== true) return true;
@@ -202,14 +212,9 @@ export class Command {
 
     getDescShort(): string {
         if (this.descShort == null) {
-            this.descShort = this.command.desc.split("\n")[0];
+            this.descShort = this.command.desc?.split("\n")[0] ?? ""; // Handle potentially undefined desc
         }
         return this.descShort;
-    }
-
-    constructor(name: string, command: ICommand) {
-        this.command = command;
-        this.name = name;
     }
 
     getCharFrequency(): { [key: string]: number } {
@@ -220,9 +225,11 @@ export class Command {
     getWordFrequency(): Set<string> {
         if (this.descWordFreq == null) {
             this.descWordFreq = new Set();
-            this.command.desc.split(" ").forEach((word) => {
-                this.descWordFreq!.add(word.toLowerCase());
-            });
+            if (this.command.desc) { // Handle potentially undefined desc
+                this.command.desc.split(" ").forEach((word) => {
+                    this.descWordFreq!.add(word.toLowerCase());
+                });
+            }
             for (const arg of this.getArguments()) {
                 for (const child of arg.getTypeBreakdown().getAllChildren()) {
                     this.descWordFreq.add(child.toLowerCase());
@@ -239,16 +246,8 @@ export class Command {
     }
 
     getFullText(): string {
-        return `${this.name} ${this.command.desc}`;
+        return `${this.name} ${this.command.desc ?? ''}`; // Handle potentially undefined desc
     }
-
-    // toSentence(weights: CommandWeights): Sentence {
-    //     const weight = weights.commands[this.name];
-    //     return weight && {
-    //         text: this.getFullText(),
-    //         vector: weight.vector
-    //     };
-    // }
 
     getArguments(): Argument[] {
         if (this.arguments == null) {
@@ -259,6 +258,37 @@ export class Command {
             }
         }
         return this.arguments;
+    }
+}
+
+export class Command<P extends CommandPath<typeof COMMANDS.commands>> extends BaseCommand {
+    path: P;
+    data: Partial<CommandType<typeof COMMANDS.commands, P>>;
+
+    constructor(path: P, data: Partial<CommandType<typeof COMMANDS.commands, P>>) {
+        const name = path[path.length - 1] as string;
+        const commandData = data as ICommand; // Assume data is a valid ICommand structure
+        super(name, commandData);
+        this.path = path;
+        this.data = data;
+    }
+
+    fullPath() {
+        return this.path.join(" ");
+    }
+}
+export class Placeholder<T extends keyof typeof COMMANDS.placeholders, P extends CommandPath<typeof COMMANDS.placeholders[T]['commands']>> extends BaseCommand {
+    type: T;
+    path: P;
+    data: Partial<CommandType<typeof COMMANDS.placeholders, P>>;
+
+    constructor(type: T, path: P, data: Partial<CommandType<typeof COMMANDS.placeholders[T]['commands'], P>>) {
+        const name = path[path.length - 1] as string;
+        const commandData = data as ICommand;
+        super(name, commandData);
+        this.path = path;
+        this.data = data;
+        this.type = type;
     }
 }
 
@@ -275,31 +305,192 @@ export type Completion = {
 export const STRIP_PREFIXES = ["get", "is", "can", "has"];
 
 export class PlaceholderMap<T extends keyof typeof COMMANDS.placeholders> {
-    name: string;
+    name: T;
     data: typeof COMMANDS.placeholders[T];
-    create: Command | undefined;
+    create: BaseCommand | undefined;
+    ph_cache: Map<string, Placeholder<T, AnyPlaceholderPath<T>>> = new Map();
 
     constructor(name: T) {
         this.name = name;
-        this.data = COMMANDS.placeholders[this.name as T];
+        this.data = COMMANDS.placeholders[this.name];
     }
 
-    getCommandsData(): typeof COMMANDS.placeholders[T]['commands'] {
-        return this.data.commands;
+    get<P extends CommandPath<typeof this.data['commands']>>(path: P): Placeholder<T, P> {
+        const pathFull = path.join(" ");
+        const cached = this.ph_cache.get(pathFull);
+        if (cached) return cached as Placeholder<T, P>;
+
+        let current: ICommandGroup | ICommand = this.data['commands'];
+        const pathAsStrArr = [...path] as string[];
+        while (pathAsStrArr.length > 0) {
+            current = (current as ICommandGroup)[pathAsStrArr[0]];
+            pathAsStrArr.shift();
+        }
+        const cmd = current as Partial<CommandType<typeof this.data['commands'], P>>;
+        const result = new Placeholder(this.name, path, cmd);
+        this.ph_cache.set(pathFull, result);
+        return result;
     }
 
-    getCreate(): Command | undefined {
+    getCommands(): Placeholder<T, AnyPlaceholderPath<T>>[] {
+        return this.getPlaceholderPaths().map(path => this.get(path));
+    }
+
+
+    getPlaceholderPaths(): CommandPath<typeof this.data['commands']>[] {
+        const paths: CommandPath<typeof this.data['commands']>[] = [];
+        const recurse = (group: ICommandGroup, prefix: string[]) => {
+            Object.keys(group).forEach(key => {
+                const value = group[key];
+                // Cast the new prefix to the specific placeholder command path type
+                const newPrefix = [...prefix, key] as CommandPath<typeof this.data['commands']>;
+                if (isCommand(value)) {
+                    paths.push(newPrefix);
+                } else if (typeof value === 'object' && value !== null) { // Check if it's a nested group
+                    recurse(value, newPrefix);
+                }
+            });
+        };
+        recurse(this.data['commands'], []);
+        return paths;
+    }
+
+    searchPlaceholders(functionString: string) {
+        const commands: ICommandGroup = this.data['commands'];
+        const startsWith: { [key: string]: ICommand } = {};
+        const completeMatch: { [key: string]: ICommand } = {};
+        const funcStrLower = functionString.toLowerCase();
+        for (const [key, value] of Object.entries(commands)) {
+            if (key === funcStrLower) {
+                completeMatch[key] = value as ICommand;
+            } else if (key.startsWith(funcStrLower)) {
+                startsWith[key] = value as ICommand;
+            } else {
+                for (const prefix of STRIP_PREFIXES) {
+                    const prefixed = prefix + funcStrLower;
+                    if (key === prefixed) {
+                        completeMatch[key] = value as ICommand;
+                    } else if (key.startsWith(prefixed)) {
+                        startsWith[key] = value as ICommand;
+                    }
+                }
+            }
+        }
+        return {
+            completeMatch,
+            startsWith
+        };
+    }
+
+    getCommandsData(): typeof this.data['commands'] {
+        return this.data['commands'];
+    }
+
+    getCreate(): BaseCommand | undefined {
         if (!this.create) {
             const create = (this.data as IPlaceholder).create;
             if (create) {
-                this.create = new Command(this.name, create);
+                this.create = new BaseCommand(this.name, create);
             }
         }
         return this.create;
     }
 
     array(): PlaceholderArrayBuilder<T> {
-        return new PlaceholderArrayBuilder(this.name as T);
+        return new PlaceholderArrayBuilder(this.name);
+    }
+
+    aliased(): PlaceholderObjectBuilder<T> {
+        return new PlaceholderObjectBuilder(this.name);
+    }
+}
+
+export class PlaceholderObjectBuilder<
+    T extends keyof typeof COMMANDS.placeholders,
+    R extends Record<string, JSONValue> = {}
+> {
+    private readonly type: T;
+    private readonly placeholders: string[] = [];
+    private readonly indexes: Map<string, number> = new Map();
+    private readonly indexToAlias: Map<number, string> = new Map();
+
+    constructor(type: T) {
+        this.type = type;
+    }
+
+    addRaw<A extends string>(
+        placeholder: string,
+        alias: A
+    ): PlaceholderObjectBuilder<T, R & Record<A, JSONValue>> {
+        this.indexes.set(alias, this.placeholders.length);
+        this.indexToAlias.set(this.placeholders.length, alias);
+        this.placeholders.push(placeholder);
+        return this as unknown as PlaceholderObjectBuilder<T, R & Record<A, JSONValue>>;
+    }
+
+    add<
+        C extends keyof typeof COMMANDS.placeholders[T]['commands'],
+        A extends string
+    >(
+        { cmd, args, alias }: {
+            cmd: C,
+            args?: typeof COMMANDS.placeholders[T]['commands'][C] extends { arguments: infer Args }
+            ? { [key in keyof Args]?: string }
+            : never,
+            alias: A
+        }
+    ): PlaceholderObjectBuilder<T, R & Record<A, JSONValue>> {
+        let str;
+        if (args) {
+            str = ("{" + (cmd as string) + "(" + Object.entries(args).map(([key, value]) => key + ": " + (value as string)).join(" ") + ")}");
+        } else {
+            str = ("{" + (cmd as string) + "}");
+        }
+        this.indexes.set(alias, this.placeholders.length);
+        this.indexToAlias.set(this.placeholders.length, alias);
+        this.placeholders.push(str);
+        return this as unknown as PlaceholderObjectBuilder<T, R & Record<A, JSONValue>>;
+    }
+
+    shorten(): PlaceholderObjectBuilder<T, R> {
+        for (let i = 0; i < this.placeholders.length; i++) {
+            const value = this.placeholders[i];
+            const newValue = value.replace(/^\{(get|is|can|has)/, "{");
+            this.placeholders[i] = newValue;
+            this.indexes.delete(value);
+            this.indexes.set(newValue, i);
+            this.indexToAlias.set(i, newValue);
+        }
+        return this;
+    }
+
+    array(): string[] {
+        return [...this.placeholders];
+    }
+
+    aliasedArray(): (string | [string, string])[] {
+        // Use the reverse mapping for direct lookups
+        return this.placeholders.map((placeholder, index) => {
+            const alias = this.indexToAlias.get(index);
+            return alias ? [placeholder, alias] : placeholder;
+        });
+    }
+
+    // Create a typed wrapper for the row data
+    createRowAdapter<V = any>(row: V[]): R {
+        const handler: ProxyHandler<object> = {
+            get: (target: object, prop: string | symbol, receiver: any) => {
+                if (typeof prop === 'string') {
+                    const index = this.indexes.get(prop);
+                    if (index !== undefined) {
+                        return row[index];
+                    }
+                }
+                return undefined;
+            }
+        };
+
+        return new Proxy({}, handler) as R;
     }
 }
 
@@ -369,41 +560,66 @@ export class PlaceholderArrayBuilder<T extends keyof typeof COMMANDS.placeholder
 
 export class CommandMap {
     data: ICommandMap;
-    flat: { [key: string]: Command } | null = null;
-    ph_flat: { [key: string]: { [key: string]: Command } } = {};
+    cmd_paths: CommandPath<typeof COMMANDS.commands>[] = [];
+
+    cmd_cache: Map<string, Command<AnyCommandPath>> = new Map();
+    ph_cache: Map<string, PlaceholderMap<keyof typeof COMMANDS.placeholders>> = new Map();
 
     constructor(commands: ICommandMap) {
         this.data = commands;
     }
 
-    private flattenCommands(group: ICommandGroup) {
-        const result: { [key: string]: Command } = {};
-        const maxDepth = 5;
-        const recurse = (sub: ICommandGroup, prefix: string, depth: number) => {
-            Object.keys(sub).forEach(key => {
-                const value = sub[key];
-                const newKey: string = prefix ? `${prefix} ${key}` : key;
-                if (isCommand(value)) {
-                    result[newKey] = new Command(newKey, value);
-                } else if (depth < maxDepth) {
-                    recurse(value, newKey, depth + 1);
-                }
-            });
-        };
-        recurse(group, "", 0);
+    placeholders<G extends keyof typeof COMMANDS.placeholders>(type: G): PlaceholderMap<G> {
+        const cached = this.ph_cache.get(type);
+        if (cached) return cached as unknown as PlaceholderMap<G>; // Cast to unknown first
+        const phMap = new PlaceholderMap(type);
+        this.ph_cache.set(type, phMap as unknown as PlaceholderMap<keyof typeof COMMANDS.placeholders>);
+        return phMap;
+    }
+
+    get<P extends CommandPath<typeof COMMANDS.commands>>(path: P): Command<P> {
+        const pathFull = path.join(" ");
+        const cached = this.cmd_cache.get(pathFull);
+        if (cached) return cached as Command<P>;
+
+        let current: ICommandGroup | ICommand = this.data.commands;
+        const pathAsStrArr = [...path] as string[];
+        while (pathAsStrArr.length > 0) {
+            current = (current as ICommandGroup)[pathAsStrArr[0]];
+            pathAsStrArr.shift();
+        }
+        const cmd = current as Partial<CommandType<typeof COMMANDS.commands, P>>;
+        const result = new Command(path, cmd);
+        this.cmd_cache.set(pathFull, result);
         return result;
     }
 
-    getPlaceholderCommands(placeholder_type: string): { [key: string]: Command } {
-        if (this.ph_flat[placeholder_type] == null && this.data.placeholders[placeholder_type]) {
-            this.ph_flat[placeholder_type] = this.flattenCommands(this.data.placeholders[placeholder_type].commands);
-        }
-        return this.ph_flat[placeholder_type];
+    // getPlaceholderCommands(placeholder_type: keyof typeof COMMANDS.placeholders): { [key: string]: Command<AnyCommandPath> } {
+    //     if (this.ph_flat[placeholder_type] == null && this.data.placeholders[placeholder_type]) {
+    //         this.ph_flat[placeholder_type] = this.flattenCommands(this.data.placeholders[placeholder_type].commands);
+    //     }
+    //     return this.ph_flat[placeholder_type];
+    // }
+
+    getCommandPaths(): CommandPath<typeof COMMANDS.commands>[] {
+        if (this.cmd_paths.length > 0) return this.cmd_paths;
+        const recurse = (group: ICommandGroup, prefix: string[]) => {
+            Object.keys(group).forEach(key => {
+                const value = group[key];
+                const newPrefix = [...prefix, key] as CommandPath<typeof COMMANDS.commands>;
+                if (isCommand(value)) {
+                    this.cmd_paths.push(newPrefix);
+                } else {
+                    recurse(value, newPrefix);
+                }
+            });
+        };
+        recurse(this.data.commands, []);
+        return this.cmd_paths;
     }
 
-    getCommands(): { [key: string]: Command } {
-        if (this.flat == null) this.flat = this.flattenCommands(this.data.commands);
-        return this.flat;
+    getCommands(): Command<AnyCommandPath>[] {
+        return this.getCommandPaths().map(path => this.get(path));
     }
 
     getPlaceholderTypes(toSimpleName: boolean): Array<keyof typeof COMMANDS.placeholders> {
@@ -414,31 +630,22 @@ export class CommandMap {
         return result as Array<keyof typeof COMMANDS.placeholders>;
     }
 
-    placeholders<G extends keyof typeof COMMANDS.placeholders>(type: G): PlaceholderMap<G> {
-        return new PlaceholderMap(type);
-    }
-
-    get(text: string): Command {
-        const commands = this.getCommands();
-        return commands[text];
-    }
-
     builder(name: string): CommandBuilder {
         return new CommandBuilder(name, this);
     }
 
-    buildTest(): Command {
+    buildTest(): BaseCommand {
         const allArgs: { [key: string]: IArgument } = {};
-        Object.values(this.getCommands()).forEach((cmd) => {
-            if (!cmd.command.arguments) {
-                return;
+        for (const path of this.getCommandPaths()) {
+            const command = this.get(path);
+            if (command.command.arguments) {
+                Object.values(command.command.arguments).forEach((arg) => {
+                    if (!allArgs[arg.type]) {
+                        allArgs[arg.type] = arg;
+                    }
+                });
             }
-            Object.values(cmd.command.arguments).forEach((arg) => {
-                if (!allArgs[arg.type]) {
-                    allArgs[arg.type] = arg;
-                }
-            });
-        });
+        }
 
         const builder = this.builder("test");
         builder.help("This is a test command")
@@ -449,33 +656,7 @@ export class CommandMap {
             builder.argument(key, arg.optional == null ? false : arg.optional, arg.desc ?? "", arg.type, arg.def, arg.choices, arg.filter);
         });
         return builder.build();
-    }
 
-    searchPlaceholders(placeholder_type: string, functionString: string) {
-        const commands: ICommandGroup = this.data.placeholders[placeholder_type].commands;
-        const startsWith: { [key: string]: ICommand } = {};
-        const completeMatch: { [key: string]: ICommand } = {};
-        const funcStrLower = functionString.toLowerCase();
-        for (const [key, value] of Object.entries(commands)) {
-            if (key === funcStrLower) {
-                completeMatch[key] = value as ICommand;
-            } else if (key.startsWith(funcStrLower)) {
-                startsWith[key] = value as ICommand;
-            } else {
-                for (const prefix of STRIP_PREFIXES) {
-                    const prefixed = prefix + funcStrLower;
-                    if (key === prefixed) {
-                        completeMatch[key] = value as ICommand;
-                    } else if (key.startsWith(prefixed)) {
-                        startsWith[key] = value as ICommand;
-                    }
-                }
-            }
-        }
-        return {
-            completeMatch,
-            startsWith
-        };
     }
 
     // getPlaceholderCommand(placeholder_type: string, functionString: string) {
@@ -483,399 +664,399 @@ export class CommandMap {
     //     return Object.keys(result.completeMatch).length > 0 ? result.completeMatch[Object.keys(result.completeMatch)[0]] : undefined;
     // }
 
-    getCurrentlyTypingCommand(parent: Command | null, content: string, token: string, caretPosition: number, placeholder_type: string): Completion {
-        // find the index of the first non valid function character
-        let endOfFunction = content.search(/[^a-zA-Z0-9_$]/);
-        if (endOfFunction == -1) endOfFunction = content.length;
-        let endOfFunctionAndArgs = endOfFunction;
-        const functionString = content.substring(0, endOfFunction);
-        // check if the next character is a bracket
-        const nextChar = content.charAt(endOfFunction);
-        let functionContent = "";
-        let hasFuncContent = false;
+    // getCurrentlyTypingCommand(parent: Command | null, content: string, token: string, caretPosition: number, placeholder_type: string): Completion {
+    //     // find the index of the first non valid function character
+    //     let endOfFunction = content.search(/[^a-zA-Z0-9_$]/);
+    //     if (endOfFunction == -1) endOfFunction = content.length;
+    //     let endOfFunctionAndArgs = endOfFunction;
+    //     const functionString = content.substring(0, endOfFunction);
+    //     // check if the next character is a bracket
+    //     const nextChar = content.charAt(endOfFunction);
+    //     let functionContent = "";
+    //     let hasFuncContent = false;
 
-        if (nextChar === "(") {
-            hasFuncContent = true;
-            // get the bracket end using the bracket matching function StringUtils.findMatchingBracket
-            const bracketEnd = findMatchingBracket(content, endOfFunction);
-            // if its not -1
-            if (bracketEnd !== -1) {
-                console.log("Bracket end " + bracketEnd);
-                functionContent = content.substring(endOfFunction + 1, bracketEnd);
-                endOfFunctionAndArgs = bracketEnd + 1;
-            } else {
-                // suggest arguments
-                console.log("No matching bracket found")
-            }
-        }
-        const search = this.searchPlaceholders(placeholder_type, functionString);
-        const command = Object.keys(search.completeMatch).length > 0 ? search.completeMatch[Object.keys(search.completeMatch)[0]] : undefined;
+    //     if (nextChar === "(") {
+    //         hasFuncContent = true;
+    //         // get the bracket end using the bracket matching function StringUtils.findMatchingBracket
+    //         const bracketEnd = findMatchingBracket(content, endOfFunction);
+    //         // if its not -1
+    //         if (bracketEnd !== -1) {
+    //             console.log("Bracket end " + bracketEnd);
+    //             functionContent = content.substring(endOfFunction + 1, bracketEnd);
+    //             endOfFunctionAndArgs = bracketEnd + 1;
+    //         } else {
+    //             // suggest arguments
+    //             console.log("No matching bracket found")
+    //         }
+    //     }
+    //     const search = this.searchPlaceholders(placeholder_type, functionString);
+    //     const command = Object.keys(search.completeMatch).length > 0 ? search.completeMatch[Object.keys(search.completeMatch)[0]] : undefined;
 
-        console.log("F: " + functionString + " | C:" + functionContent);
+    //     console.log("F: " + functionString + " | C:" + functionContent);
 
-        if (caretPosition > endOfFunctionAndArgs) {
-            const endChar = content.charAt(endOfFunctionAndArgs)
-            if (command && endChar == ".") {
-                if (command) {
-                    const type = command.return_type as string;
-                    const breakdown = getTypeBreakdown(this, type);
-                    if (breakdown.element === "Map") {
-                        // options
-                        return {
-                            placeholder_type: placeholder_type,
-                            options: [{
-                                name: "HANDLE MAP " + command.return_type,
-                                value: "HELLO WORLD"
-                            }]
-                        };
-                    }
-                    return {
-                        placeholder_type: placeholder_type,
-                        options: [{
-                            name: "HANDLE SUBCOMMAND " + command.return_type + " | " + breakdown.child?.[0].element,
-                            value: "HELLO WORLD"
-                        }]
-                    };
-                }
-            }
-            console.log("Caret past function " + caretPosition + " " + endOfFunctionAndArgs)
-            return {
-                placeholder_type: placeholder_type,
-                options: [{
-                    name: "CARET PAST FUNCTION",
-                    value: "HELLO WORLD"
-                }]
-            };
-        }
+    //     if (caretPosition > endOfFunctionAndArgs) {
+    //         const endChar = content.charAt(endOfFunctionAndArgs)
+    //         if (command && endChar == ".") {
+    //             if (command) {
+    //                 const type = command.return_type as string;
+    //                 const breakdown = getTypeBreakdown(this, type);
+    //                 if (breakdown.element === "Map") {
+    //                     // options
+    //                     return {
+    //                         placeholder_type: placeholder_type,
+    //                         options: [{
+    //                             name: "HANDLE MAP " + command.return_type,
+    //                             value: "HELLO WORLD"
+    //                         }]
+    //                     };
+    //                 }
+    //                 return {
+    //                     placeholder_type: placeholder_type,
+    //                     options: [{
+    //                         name: "HANDLE SUBCOMMAND " + command.return_type + " | " + breakdown.child?.[0].element,
+    //                         value: "HELLO WORLD"
+    //                     }]
+    //                 };
+    //             }
+    //         }
+    //         console.log("Caret past function " + caretPosition + " " + endOfFunctionAndArgs)
+    //         return {
+    //             placeholder_type: placeholder_type,
+    //             options: [{
+    //                 name: "CARET PAST FUNCTION",
+    //                 value: "HELLO WORLD"
+    //             }]
+    //         };
+    //     }
 
-        // if caret position is the bracket, suggest the arguments
-        if (hasFuncContent) {
-            if (caretPosition === endOfFunctionAndArgs) {
-                return {
-                    placeholder_type: placeholder_type,
-                    options: [{
-                        name: "END-BRACKET",
-                        value: "HELLO WORLD"
-                    }]
-                };
-                // is end bracket
-            } else if (caretPosition > endOfFunction) {
-                // get command
-                if (command) {
-                    return getCurrentlyTypingArg(command, functionContent, caretPosition - endOfFunction - 1, placeholder_type);
-                } else {
-                    return {
-                        command: command,
-                        placeholder_type: placeholder_type,
-                        options: [{
-                            name: "ARGS, UNKNOWN COMMAND " + functionString,
-                            value: "HELLO WORLD"
-                        }]
-                    };
-                }
-            } else if (caretPosition === endOfFunction) {
-                return {
-                    command: command,
-                    placeholder_type: placeholder_type,
-                    options: [{
-                        name: "START-BRACKET",
-                        value: "HELLO WORLD"
-                    }]
-                };
-            } else {
-                // is function part
-                return {
-                    command: command,
-                    placeholder_type: placeholder_type,
-                    options: [{
-                        name: "MID-FUNC-HAS-ARGS",
-                        value: "HELLO WORLD"
-                    }]
-                };
-            }
-        } else if (caretPosition == endOfFunction) {
-            if (command) {
-                return {
-                    placeholder_type: placeholder_type,
-                    command: command,
-                    options: [{
-                        name: "COMPLETE-MATCH",
-                        value: "HELLO WORLD"
-                    }]
-                };
-            } else if (Object.keys(search.startsWith).length > 0) {
-                let valPrefix = "#";
-                // if token contains # then prefix is all the characters up to and including the LAST #
-                if (token.indexOf("#") !== -1) {
-                    valPrefix = token.substring(0, token.lastIndexOf("#") + 1);
-                }
-                return {
-                    placeholder_type: placeholder_type,
-                    options: commandCompletions(search.startsWith, valPrefix)
-                };
-            } else {
-                return {
-                    placeholder_type: placeholder_type,
-                    options: [{
-                        name: "END-FUNC-NO-ARGS-NO-MATCH",
-                        value: "HELLO WORLD"
-                    }]
-                };
-            }
-        } else {
-            if (caretPosition <= endOfFunction) {
-                return {
-                    placeholder_type: placeholder_type,
-                    command: command,
-                    options: [{
-                        name: "MID-FUNC-NO_ARGS",
-                        value: "HELLO WORLD"
-                    }]
-                };
-            } else {
-                return {
-                    placeholder_type: placeholder_type,
-                    command: command,
-                    options: [{
-                        name: "AFTER-FUNC-NO-ARGS",
-                        value: "HELLO WORLD"
-                    }]
-                };
-            }
-        }
-    }
+    //     // if caret position is the bracket, suggest the arguments
+    //     if (hasFuncContent) {
+    //         if (caretPosition === endOfFunctionAndArgs) {
+    //             return {
+    //                 placeholder_type: placeholder_type,
+    //                 options: [{
+    //                     name: "END-BRACKET",
+    //                     value: "HELLO WORLD"
+    //                 }]
+    //             };
+    //             // is end bracket
+    //         } else if (caretPosition > endOfFunction) {
+    //             // get command
+    //             if (command) {
+    //                 return getCurrentlyTypingArg(command, functionContent, caretPosition - endOfFunction - 1, placeholder_type);
+    //             } else {
+    //                 return {
+    //                     command: command,
+    //                     placeholder_type: placeholder_type,
+    //                     options: [{
+    //                         name: "ARGS, UNKNOWN COMMAND " + functionString,
+    //                         value: "HELLO WORLD"
+    //                     }]
+    //                 };
+    //             }
+    //         } else if (caretPosition === endOfFunction) {
+    //             return {
+    //                 command: command,
+    //                 placeholder_type: placeholder_type,
+    //                 options: [{
+    //                     name: "START-BRACKET",
+    //                     value: "HELLO WORLD"
+    //                 }]
+    //             };
+    //         } else {
+    //             // is function part
+    //             return {
+    //                 command: command,
+    //                 placeholder_type: placeholder_type,
+    //                 options: [{
+    //                     name: "MID-FUNC-HAS-ARGS",
+    //                     value: "HELLO WORLD"
+    //                 }]
+    //             };
+    //         }
+    //     } else if (caretPosition == endOfFunction) {
+    //         if (command) {
+    //             return {
+    //                 placeholder_type: placeholder_type,
+    //                 command: command,
+    //                 options: [{
+    //                     name: "COMPLETE-MATCH",
+    //                     value: "HELLO WORLD"
+    //                 }]
+    //             };
+    //         } else if (Object.keys(search.startsWith).length > 0) {
+    //             let valPrefix = "#";
+    //             // if token contains # then prefix is all the characters up to and including the LAST #
+    //             if (token.indexOf("#") !== -1) {
+    //                 valPrefix = token.substring(0, token.lastIndexOf("#") + 1);
+    //             }
+    //             return {
+    //                 placeholder_type: placeholder_type,
+    //                 options: commandCompletions(search.startsWith, valPrefix)
+    //             };
+    //         } else {
+    //             return {
+    //                 placeholder_type: placeholder_type,
+    //                 options: [{
+    //                     name: "END-FUNC-NO-ARGS-NO-MATCH",
+    //                     value: "HELLO WORLD"
+    //                 }]
+    //             };
+    //         }
+    //     } else {
+    //         if (caretPosition <= endOfFunction) {
+    //             return {
+    //                 placeholder_type: placeholder_type,
+    //                 command: command,
+    //                 options: [{
+    //                     name: "MID-FUNC-NO_ARGS",
+    //                     value: "HELLO WORLD"
+    //                 }]
+    //             };
+    //         } else {
+    //             return {
+    //                 placeholder_type: placeholder_type,
+    //                 command: command,
+    //                 options: [{
+    //                     name: "AFTER-FUNC-NO-ARGS",
+    //                     value: "HELLO WORLD"
+    //                 }]
+    //             };
+    //         }
+    //     }
+    // }
 
-    getCurrentlyTypingFunction(content: string, token: string, caretPosition: number, placeholder_type: string): Completion {
-        if (isQuoteOrBracket(content.charAt(0)) && findMatchingQuoteOrBracket(content, 0) == content.length - 1) {
-            console.log("Content is quote or bracket");
-            return this.getCurrentlyTypingFunction(content.substring(1, content.length - 1), token, caretPosition - 1, placeholder_type);
-        }
-        const components = splitCustom(content, (f, i) => {
-            if (f.startsWith(",", i)) return [1, 1];
-            if (f.startsWith("||", i)) return [2, 2];
-            if (f.startsWith("&&", i)) return [2, 2];
-            if (f.startsWith("|", i)) return [1, 2];
-            if (f.startsWith("&", i)) return [1, 2];
+    // getCurrentlyTypingFunction(content: string, token: string, caretPosition: number, placeholder_type: string): Completion {
+    //     if (isQuoteOrBracket(content.charAt(0)) && findMatchingQuoteOrBracket(content, 0) == content.length - 1) {
+    //         console.log("Content is quote or bracket");
+    //         return this.getCurrentlyTypingFunction(content.substring(1, content.length - 1), token, caretPosition - 1, placeholder_type);
+    //     }
+    //     const components = splitCustom(content, (f, i) => {
+    //         if (f.startsWith(",", i)) return [1, 1];
+    //         if (f.startsWith("||", i)) return [2, 2];
+    //         if (f.startsWith("&&", i)) return [2, 2];
+    //         if (f.startsWith("|", i)) return [1, 2];
+    //         if (f.startsWith("&", i)) return [1, 2];
 
-            if (f.startsWith(">=", i)) return [2, 3];
-            if (f.startsWith("<=", i)) return [2, 3];
-            if (f.startsWith("!=", i)) return [2, 3];
-            if (f.startsWith("=", i)) return [1, 3];
-            if (f.startsWith(">", i)) return [1, 3];
-            if (f.startsWith("<", i)) return [1, 3];
-            return null;
-        }, Number.MAX_SAFE_INTEGER);
+    //         if (f.startsWith(">=", i)) return [2, 3];
+    //         if (f.startsWith("<=", i)) return [2, 3];
+    //         if (f.startsWith("!=", i)) return [2, 3];
+    //         if (f.startsWith("=", i)) return [1, 3];
+    //         if (f.startsWith(">", i)) return [1, 3];
+    //         if (f.startsWith("<", i)) return [1, 3];
+    //         return null;
+    //     }, Number.MAX_SAFE_INTEGER);
 
-        let lastIndex = 0;
-        let isNextValue = false;
+    //     let lastIndex = 0;
+    //     let isNextValue = false;
 
-        for (let i = 0; i < components.length; i++) {
-            const item = components[i];
-            let substring = item.content.trim();
-            if (!substring) continue;
-            const isCurrentValue = isNextValue;
-            isNextValue = item.type == 3;
+    //     for (let i = 0; i < components.length; i++) {
+    //         const item = components[i];
+    //         let substring = item.content.trim();
+    //         if (!substring) continue;
+    //         const isCurrentValue = isNextValue;
+    //         isNextValue = item.type == 3;
 
-            let start = content.indexOf(substring, lastIndex + item.offset + item.delimiter.length);
-            if (start == -1) {
-                throw new Error("Could not find component in content `" + item.content + "` `" + content + "` | " + lastIndex + " | " + item.offset + " | " + item.delimiter);
-            }
-            lastIndex = start + substring.length + item.offset;
-            const end = start + substring.length + item.offset;
+    //         let start = content.indexOf(substring, lastIndex + item.offset + item.delimiter.length);
+    //         if (start == -1) {
+    //             throw new Error("Could not find component in content `" + item.content + "` `" + content + "` | " + lastIndex + " | " + item.offset + " | " + item.delimiter);
+    //         }
+    //         lastIndex = start + substring.length + item.offset;
+    //         const end = start + substring.length + item.offset;
 
-            if (isQuoteOrBracket(substring.charAt(0)) && findMatchingQuoteOrBracket(substring, 0) == substring.length - 1) {
-                return this.getCurrentlyTypingFunction(substring.substring(1, substring.length - 1), token, caretPosition - start - 1, placeholder_type);
-            }
-            if (substring.startsWith("#")) {
-                substring = substring.substring(1);
-                start++;
-            }
-            if (start > caretPosition) {
-                return {
-                    placeholder_type: placeholder_type,
-                    options: [{
-                        name: "NO-RESULT (2)",
-                        value: JSON.stringify(item) + " | " + start + " | " + end + " | " + substring
-                    }]
-                };
-            }
-            if (caretPosition > end) {
-                continue;
-            }
-            console.log("Find at " + substring + " | " + (caretPosition - start) + " | " + caretPosition + " | " + start)
+    //         if (isQuoteOrBracket(substring.charAt(0)) && findMatchingQuoteOrBracket(substring, 0) == substring.length - 1) {
+    //             return this.getCurrentlyTypingFunction(substring.substring(1, substring.length - 1), token, caretPosition - start - 1, placeholder_type);
+    //         }
+    //         if (substring.startsWith("#")) {
+    //             substring = substring.substring(1);
+    //             start++;
+    //         }
+    //         if (start > caretPosition) {
+    //             return {
+    //                 placeholder_type: placeholder_type,
+    //                 options: [{
+    //                     name: "NO-RESULT (2)",
+    //                     value: JSON.stringify(item) + " | " + start + " | " + end + " | " + substring
+    //                 }]
+    //             };
+    //         }
+    //         if (caretPosition > end) {
+    //             continue;
+    //         }
+    //         console.log("Find at " + substring + " | " + (caretPosition - start) + " | " + caretPosition + " | " + start)
 
-            if (isCurrentValue) {
-                const commandComp = components[i - 1];
-                return {
-                    // TODO get command type
+    //         if (isCurrentValue) {
+    //             const commandComp = components[i - 1];
+    //             return {
+    //                 // TODO get command type
 
-                    placeholder_type: placeholder_type,
-                    options: [{
-                        name: "VALUE OF PREVIOUS " + JSON.stringify(components[i - 1]),
-                        value: "TODO"
-                    }]
-                };
-            }
+    //                 placeholder_type: placeholder_type,
+    //                 options: [{
+    //                     name: "VALUE OF PREVIOUS " + JSON.stringify(components[i - 1]),
+    //                     value: "TODO"
+    //                 }]
+    //             };
+    //         }
 
-            const completion = this.getCurrentlyTypingCommand(null, substring, token, caretPosition - start, placeholder_type);
-            if (completion != null) return completion;
-            return {
-                placeholder_type: placeholder_type,
-                options: [{
-                    name: "NO-RESULT (3)",
-                    value: "HELLO WORLD"
-                }]
-            };
-        }
-        return {
-            placeholder_type: placeholder_type,
-            options: [{
-                name: "NO-RESULT",
-                value: "HELLO WORLD"
-            }]
-        };
-    }
+    //         const completion = this.getCurrentlyTypingCommand(null, substring, token, caretPosition - start, placeholder_type);
+    //         if (completion != null) return completion;
+    //         return {
+    //             placeholder_type: placeholder_type,
+    //             options: [{
+    //                 name: "NO-RESULT (3)",
+    //                 value: "HELLO WORLD"
+    //             }]
+    //         };
+    //     }
+    //     return {
+    //         placeholder_type: placeholder_type,
+    //         options: [{
+    //             name: "NO-RESULT",
+    //             value: "HELLO WORLD"
+    //         }]
+    //     };
+    // }
 }
 
-function getCurrentlyTypingArg(command: ICommand, functionContent: string, caretPosition: number, placeholder_type: string): Completion {
-    // 1: typing an argument name
-    // 2: typing an argument value
-    // 3: space or comma (and optional space) and about to type an argument name
-    const entries = command.arguments ? Object.entries(command.arguments) : [];
-    let argCommaI = 0;
-    let lastNamedArgI = 0;
-    let lastUnnamedArgI = 0;
-    let lastArg: IArgument | null = null;
+// function getCurrentlyTypingArg(command: ICommand, functionContent: string, caretPosition: number, placeholder_type: string): Completion {
+//     // 1: typing an argument name
+//     // 2: typing an argument value
+//     // 3: space or comma (and optional space) and about to type an argument name
+//     const entries = command.arguments ? Object.entries(command.arguments) : [];
+//     let argCommaI = 0;
+//     let lastNamedArgI = 0;
+//     let lastUnnamedArgI = 0;
+//     let lastArg: IArgument | null = null;
 
-    for (let j = 0; j < functionContent.length; j++) {
-        const char = functionContent.charAt(j);
-        if (isQuoteOrBracket(char)) {
-            const jEnd = findMatchingQuoteOrBracket(functionContent, j);
-            if (jEnd != -1) {
-                if (jEnd > caretPosition) {
-                    // todo return
-                } else if (jEnd == caretPosition) {
-                    // todo return
-                }
-                j = jEnd;
-                continue;
-            }
-        }
-        switch (char) {
-            case ":": {
-                for (const [key, value] of Object.entries(command.arguments ?? {})) {
-                    if (functionContent.endsWith(key, j)) {
-                        if (j >= caretPosition) {
-                            if (j - key.length - 1 <= caretPosition) {
-                                return {
-                                    placeholder_type: placeholder_type,
-                                    argument: command.arguments?.[key],
-                                    options: [{
-                                        name: "ARG KEY " + key + " | " + j + " | " + caretPosition,
-                                        value: "HELLO WORLD"
-                                    }]
-                                };
-                            } else {
-                                const argContent = functionContent.substring(lastNamedArgI, j - key.length - 1);
-                                if (lastArg) {
-                                    return {
-                                        placeholder_type: placeholder_type,
-                                        argument: command.arguments?.[key],
-                                        options: [{
-                                            name: "Arg value, new arg specified " + lastArg.name + " | " + argContent,
-                                            value: "HELLO WORLD"
-                                        }]
-                                    };
-                                } else {
-                                    return {
-                                        placeholder_type: placeholder_type,
-                                        argument: command.arguments?.[key],
-                                        options: [{
-                                            name: "Arg value, new arg specified, previous arg invalid " + " | " + argContent,
-                                            value: "HELLO WORLD"
-                                        }]
-                                    };
-                                }
-                            }
-                        } else if (j + 1 == caretPosition) {
-                            return {
-                                placeholder_type: placeholder_type,
-                                argument: command.arguments?.[key],
-                                options: [{
-                                    name: "Arg key end colon " + key + " | " + lastArg,
-                                    value: "HELLO WORLD"
-                                }]
-                            };
-                        }
-                        lastArg = value;
-                        lastNamedArgI = j + 1;
-                    }
-                }
-                break;
-            }
-            case ",": {
-                if (!lastArg && entries.length > 1) {
-                    if (j >= caretPosition) {
-                        const argContent = functionContent.substring(lastUnnamedArgI, j - 1);
-                        // chec kif argCommaI is greater than number of args?
-                        if (argCommaI >= entries.length) {
-                            return {
-                                placeholder_type: placeholder_type,
-                                options: [{
-                                    name: "NO MORE AVAILABLE ARGS " + argContent,
-                                    value: "HELLO WORLD"
-                                }]
-                            };
-                        }
-                        const arg = entries[argCommaI][1];
-                        return {
-                            placeholder_type: placeholder_type,
-                            argument: arg,
-                            options: [{
-                                name: "ARG value, comma " + arg.name + " | " + argContent,
-                                value: "HELLO WORLD"
-                            }]
-                        };
+//     for (let j = 0; j < functionContent.length; j++) {
+//         const char = functionContent.charAt(j);
+//         if (isQuoteOrBracket(char)) {
+//             const jEnd = findMatchingQuoteOrBracket(functionContent, j);
+//             if (jEnd != -1) {
+//                 if (jEnd > caretPosition) {
+//                     // todo return
+//                 } else if (jEnd == caretPosition) {
+//                     // todo return
+//                 }
+//                 j = jEnd;
+//                 continue;
+//             }
+//         }
+//         switch (char) {
+//             case ":": {
+//                 for (const [key, value] of Object.entries(command.arguments ?? {})) {
+//                     if (functionContent.endsWith(key, j)) {
+//                         if (j >= caretPosition) {
+//                             if (j - key.length - 1 <= caretPosition) {
+//                                 return {
+//                                     placeholder_type: placeholder_type,
+//                                     argument: command.arguments?.[key],
+//                                     options: [{
+//                                         name: "ARG KEY " + key + " | " + j + " | " + caretPosition,
+//                                         value: "HELLO WORLD"
+//                                     }]
+//                                 };
+//                             } else {
+//                                 const argContent = functionContent.substring(lastNamedArgI, j - key.length - 1);
+//                                 if (lastArg) {
+//                                     return {
+//                                         placeholder_type: placeholder_type,
+//                                         argument: command.arguments?.[key],
+//                                         options: [{
+//                                             name: "Arg value, new arg specified " + lastArg.name + " | " + argContent,
+//                                             value: "HELLO WORLD"
+//                                         }]
+//                                     };
+//                                 } else {
+//                                     return {
+//                                         placeholder_type: placeholder_type,
+//                                         argument: command.arguments?.[key],
+//                                         options: [{
+//                                             name: "Arg value, new arg specified, previous arg invalid " + " | " + argContent,
+//                                             value: "HELLO WORLD"
+//                                         }]
+//                                     };
+//                                 }
+//                             }
+//                         } else if (j + 1 == caretPosition) {
+//                             return {
+//                                 placeholder_type: placeholder_type,
+//                                 argument: command.arguments?.[key],
+//                                 options: [{
+//                                     name: "Arg key end colon " + key + " | " + lastArg,
+//                                     value: "HELLO WORLD"
+//                                 }]
+//                             };
+//                         }
+//                         lastArg = value;
+//                         lastNamedArgI = j + 1;
+//                     }
+//                 }
+//                 break;
+//             }
+//             case ",": {
+//                 if (!lastArg && entries.length > 1) {
+//                     if (j >= caretPosition) {
+//                         const argContent = functionContent.substring(lastUnnamedArgI, j - 1);
+//                         // chec kif argCommaI is greater than number of args?
+//                         if (argCommaI >= entries.length) {
+//                             return {
+//                                 placeholder_type: placeholder_type,
+//                                 options: [{
+//                                     name: "NO MORE AVAILABLE ARGS " + argContent,
+//                                     value: "HELLO WORLD"
+//                                 }]
+//                             };
+//                         }
+//                         const arg = entries[argCommaI][1];
+//                         return {
+//                             placeholder_type: placeholder_type,
+//                             argument: arg,
+//                             options: [{
+//                                 name: "ARG value, comma " + arg.name + " | " + argContent,
+//                                 value: "HELLO WORLD"
+//                             }]
+//                         };
 
-                    }
-                    argCommaI++;
-                    lastUnnamedArgI = j + 1;
-                }
-                break;
-            }
-        }
-    }
-    if (lastArg) {
-        const argContent = functionContent.substring(lastNamedArgI);
-        return {
-            placeholder_type: placeholder_type,
-            argument: lastArg,
-            options: [{
-                name: "Arg value/end bracket " + lastArg.name + " | " + argContent,
-                value: "HELLO WORLD"
-            }]
-        };
-    }
-    const argContent = functionContent.substring(lastUnnamedArgI, functionContent.length);
-    if (argCommaI < entries.length) {
-        const arg = entries[argCommaI][1];
-        return {
-            placeholder_type: placeholder_type,
-            argument: arg,
-            options: [{
-                name: "Arg value/end bracket unnamed " + argContent,
-                value: "HELLO WORLD"
-            }]
-        };
-    }
-    return {
-        placeholder_type: placeholder_type,
-        options: [{
-            name: "NO RESULTS?? " + functionContent,
-            value: "HELLO WORLD"
-        }]
-    };
-}
+//                     }
+//                     argCommaI++;
+//                     lastUnnamedArgI = j + 1;
+//                 }
+//                 break;
+//             }
+//         }
+//     }
+//     if (lastArg) {
+//         const argContent = functionContent.substring(lastNamedArgI);
+//         return {
+//             placeholder_type: placeholder_type,
+//             argument: lastArg,
+//             options: [{
+//                 name: "Arg value/end bracket " + lastArg.name + " | " + argContent,
+//                 value: "HELLO WORLD"
+//             }]
+//         };
+//     }
+//     const argContent = functionContent.substring(lastUnnamedArgI, functionContent.length);
+//     if (argCommaI < entries.length) {
+//         const arg = entries[argCommaI][1];
+//         return {
+//             placeholder_type: placeholder_type,
+//             argument: arg,
+//             options: [{
+//                 name: "Arg value/end bracket unnamed " + argContent,
+//                 value: "HELLO WORLD"
+//             }]
+//         };
+//     }
+//     return {
+//         placeholder_type: placeholder_type,
+//         options: [{
+//             name: "NO RESULTS?? " + functionContent,
+//             value: "HELLO WORLD"
+//         }]
+//     };
+// }
 
 export class CommandBuilder {
     command: ICommand;
@@ -924,8 +1105,8 @@ export class CommandBuilder {
         return this;
     }
 
-    build(): Command {
-        return new Command(this.name, this.command)
+    build(): BaseCommand {
+        return new BaseCommand(this.name, this.command)
     }
 }
 

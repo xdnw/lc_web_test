@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 import { OrderIdx } from './DataTable';
 import { AbstractTableWithButtons, TableProps } from "./AbstractTable";
 
-export function StaticTable({ type, selection, columns, sort }: { type: string, selection: { [key: string]: string }, columns: (string | [string, string])[], sort: OrderIdx | OrderIdx[] | null }) {
+export function StaticTable({ type, selection, columns, sort }: { type: string, selection: { [key: string]: string }, columns: (string | [string, string])[], sort?: OrderIdx | OrderIdx[] | undefined }) {
     const getTableProps = useCallback((): TableProps => {
         return {
             type: type,
@@ -12,7 +12,7 @@ export function StaticTable({ type, selection, columns, sort }: { type: string, 
                     ? [col[0], col[1]]
                     : [col, null];
             })),
-            sort: sort ?? { idx: 0, dir: "asc" },
+            sort: sort,
         };
     }, [type, selection, columns, sort]);
 

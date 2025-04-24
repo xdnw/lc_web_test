@@ -120,9 +120,6 @@ export default function RaidSection() {
             description: "Nations least likely to defend or have counters"
         }
     }), []);
-    // const [enemies, setEnemies] = useState<WebEnemyInfo | null>(null);
-    // WebEnemyInfo = alliance ids, alliance names
-    // war find options
 
     const nationPicker = useMemo(() => {
         return <PickNation pickedNation={nation} updateNation={updateNation} />
@@ -131,7 +128,7 @@ export default function RaidSection() {
     const raidButtons = useMemo(() => {
         return Object.keys(raiding).map((key, index) => (
             <span key={index}>
-                <RaidButton 
+                <RaidButton
                     label={key}
                     option={raiding[key]}
                     endpoint={raiding[key].endpoint}
@@ -258,11 +255,11 @@ const ranks: string[] = ((COMMANDS.options.Rank.options)).map((o) => o === "REMO
 
 export function RaidOutput({ output, dismiss }: { output: WebTargets | boolean | string | null, dismiss: () => void }) {
     if (!output) return <></>
-    if (output === true) return (<Loading />);
-    
+    if (output === true) return (<Loading variant="ripple" />);
+
     // This gets calculated on every render but could be memoized
     const targets = output as WebTargets;
-    
+
     // Memoize the table header based on include_strength
     const tableHeader = useMemo(() => (
         <tr>
@@ -284,23 +281,22 @@ export function RaidOutput({ output, dismiss }: { output: WebTargets | boolean |
             <th>Infra</th>
         </tr>
     ), [targets.include_strength]);
-    
+
     // Memoize the row generation
     const tableRows = useMemo(() => (
         [targets.self, ...targets.targets].map((target, index) => (
-            <WebTargetRow 
-                key={index} 
-                includeStrength={targets.include_strength} 
-                now={Date.now()} 
-                self={targets.self} 
+            <WebTargetRow
+                key={index}
+                includeStrength={targets.include_strength}
+                now={Date.now()}
+                self={targets.self}
                 target={target}
-                classes={`even:bg-black/10 dark:even:bg-white/5 ${
-                    target.id === targets.self.id ? "border border-2 border-blue-500/50 bg-blue-500/20" : ""
-                }`} 
+                classes={`even:bg-black/10 dark:even:bg-white/5 ${target.id === targets.self.id ? "border border-2 border-blue-500/50 bg-blue-500/20" : ""
+                    }`}
             />
         ))
     ), [targets]);
-    
+
     return (
         <div className="w-full">
             <table className="w-full text-sm table-auto">

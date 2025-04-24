@@ -1,12 +1,12 @@
 import ArgInput from "./ArgInput";
-import { Argument, Command } from "../../utils/Command";
+import { AnyCommandPath, Argument, BaseCommand, Command } from "../../utils/Command";
 import { Label } from "../ui/label";
 import { useCallback, useMemo, useState } from "react";
 import MarkupRenderer from "../ui/MarkupRenderer";
 import LazyIcon from "../ui/LazyIcon";
 
 interface CommandProps {
-    command: Command,
+    command: BaseCommand,
     overrideName?: string,
     filterArguments: (arg: Argument) => boolean,
     initialValues: { [key: string]: string },

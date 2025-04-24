@@ -19,7 +19,6 @@ export function useDeepState<T extends JSONValue | Map<unknown, unknown> | Set<u
         ? (newValue as (prevState: T) => T)(prevState)
         : newValue;
       if (deepEqual(prevState, resolvedNewValue)) {
-        console.log('State not changed, skipping update', prevState, resolvedNewValue);
         return prevState;
       }
       console.log('State changed, updating');

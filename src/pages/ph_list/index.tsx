@@ -6,6 +6,6 @@ export default function PlaceholdersList() {
     const { placeholder } = useParams<{ placeholder: string }>();
 
     return (
-        <CmdList commands={Object.values(CM.getPlaceholderCommands(placeholder as string) ?? {})} prefix={"#"} />
+        <CmdList commands={Object.values(CM.placeholders(placeholder as keyof typeof CM.placeholders).getCommands() ?? {})} prefix={"#"} />
     );
 }

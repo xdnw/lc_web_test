@@ -14,6 +14,7 @@ import { JSONValue } from "@/lib/internaltypes";
 import { GoogleSheets } from "./TableWithExports";
 import { useDeepState } from "@/utils/StateUtil";
 import { QueryResult } from "@/lib/BulkQuery";
+import Loading from "@/components/ui/loading";
 
 export type TableInfo = {
     data: (string | number | number[])[][],
@@ -47,12 +48,8 @@ export function AbstractTableWithButtons({ getTableProps, load }: {
         const props = getTableProps();
         setType(props.type);
         setSelection(props.selection);
-        setColumns(f => {
-            console.log("Set columns from", f, "to", props.columns);
-            return props.columns;
-        });
+        setColumns(props.columns);
         setSortState(props.sort);
-        console.log("Set columns to", props.columns);
         return props;
     }, [getTableProps, setType, setSelection, setColumns, setSortState]);
 
@@ -334,6 +331,7 @@ function DeferTable(
     const [searchSet, setSearchSet] = useState<Set<number>>(new Set<number>());
     const [columnsInfo, setColumnsInfo] = useState<ConfigColumns[]>([]);
     const [errors, setErrors] = useState<WebTableError[]>([]);
+    const [isFetching, setIsFetching] = useState(false);
 
     const showErrors = useCallback(() => {
         if (errors.length > 0) {
@@ -395,6 +393,7 @@ function DeferTable(
 
         // Call tanstack query refetch with params
         // Fetch directly with the queryClient using the new params
+        setIsFetching(true);
         queryClient.fetchQuery(singleQueryOptions(TABLE.endpoint, params, 0)).then(({ data }) => {
             if (data) {
                 console.log("Data received from server", data);
@@ -403,11 +402,37 @@ function DeferTable(
             else onErrorOrNull("No data returned from server");
         }).catch((error) => {
             onErrorOrNull(error);
+        }).finally(() => {
+            setIsFetching(false);
         });
     }, [getTableProps, onSuccess, queryClient, onErrorOrNull]);
+    const label = "Generate Table";
+
+    const submitButton = useMemo(() => {
+        return (
+            <Button
+                variant="destructive"
+                size="sm"
+                className="me-1 relative"
+                onClick={submit}
+                disabled={isFetching}
+            >
+                <span className="flex items-center justify-center w-full">
+                    <span className={isFetching ? "invisible" : "visible"}>
+                        {label}
+                    </span>
+                    {isFetching && (
+                        <span className="absolute inset-0 flex items-center justify-center">
+                            <Loading size={3} variant="ripple" />
+                        </span>
+                    )}
+                </span>
+            </Button>
+        );
+    }, [isFetching, submit, label]);
 
     return <>
-        <Button variant="destructive" size="sm" className="me-1" onClick={submit}>Generate Table</Button>
+        {submitButton}
         {children(errorsButton, data, columnsInfo, searchSet, visibleColumns, setColumnsInfo, setData)}
     </>
 }

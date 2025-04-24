@@ -4,7 +4,8 @@ import {
   SortColumn,
   Column,
   DataGridHandle,
-  RenderCellProps
+  RenderCellProps,
+  textEditor
 } from "react-data-grid";
 import { JSONValue } from "@/lib/internaltypes";
 import { sortData } from "./sort";
@@ -84,7 +85,6 @@ export function DataTable({
       gridCols.push({
         key: String(dataIndex),
         name: colInfo.title,
-
         sortable: true,
         resizable: true,
         draggable: true,
@@ -94,6 +94,8 @@ export function DataTable({
           const value = props.row[dataIndex];
           return renderer(value);
         } : undefined,
+        renderEditCell: textEditor,
+        editable: true,
       });
     });
 
@@ -201,9 +203,10 @@ export function DataTable({
         rowHeight={25}
         renderers={{ noRowsFallback }}
         enableVirtualization={true}
+        onRowsChange={setData}
       />
     </div>;
-  }, [columnsInfo, data, sortColumns, handleSort, onColumnsReorder, table, gridColumns, noRowsFallback, rowClass]);
+  }, [columnsInfo, data, sortColumns, handleSort, onColumnsReorder, table, gridColumns, noRowsFallback, rowClass, setData]);
 
   return (
     <>
