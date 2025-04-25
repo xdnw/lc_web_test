@@ -128,7 +128,7 @@ const allianceTableConfig: TableRowConfig[] = [
         id: 'score',
         label: 'Score',
         value: (row) => (
-            <LazyExpander className={"underline"} content={
+            <LazyExpander content={
                 <>
                     <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{ attribute: "{score}", num_results: "5", highlight: row.id + "" }} />
                     <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
@@ -146,7 +146,7 @@ const allianceTableConfig: TableRowConfig[] = [
         id: 'stockpileValue',
         label: 'Estimated Stockpile Value',
         value: (row) => (
-            <LazyExpander className={"underline"} content={<>
+            <LazyExpander content={<>
                 <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{ attribute: "{getestimatedstockpilevalue}", num_results: "5", highlight: row.id + "" }} />
                 <CopoToClipboardTextArea text={numericMap(row.stockpileValue as string)} />
             </>}>
@@ -158,7 +158,7 @@ const allianceTableConfig: TableRowConfig[] = [
         id: 'lootValue',
         label: 'Loot Per Score',
         value: (row) => (
-            <LazyExpander className={"underline"} content={<>
+            <LazyExpander content={<>
                 <ViewCommand command={["alliance", "stats", "loot_ranking"]} args={{ time: "30d", num_results: "5", highlight: "AA:" + (row.id as number) }} />
                 <hr />
                 Alliance Loot Losses:
@@ -172,7 +172,7 @@ const allianceTableConfig: TableRowConfig[] = [
         id: 'revenue',
         label: 'Revenue Converted',
         value: (row) => (
-            <LazyExpander className={"underline"} content={<>
+            <LazyExpander content={<>
                 <ViewCommand command={["trade", "findproducer"]} args={{ resources: "*", includeNegative: "true", num_results: "5", highlight: row.id as number + "" }} />
                 <StaticViewGraph endpoint={ALLIANCESTATS} args={{
                     metrics: 'revenue',
@@ -190,7 +190,7 @@ const allianceTableConfig: TableRowConfig[] = [
         id: 'cost',
         label: 'Alliance Value',
         value: (row) => (
-            <LazyExpander className={"underline"} content={<>
+            <LazyExpander content={<>
                 <ViewCommand command={["alliance", "cost"]} args={{ nations: "AA:" + row.id }} />
             </>}>
                 ${commafy(row.cost as number)}
@@ -225,10 +225,10 @@ const allianceTableConfig: TableRowConfig[] = [
         id: 'treasures',
         label: 'Treasures',
         value: (row) => (
-            <LazyExpander className={"underline"} content={<>
+            <LazyExpander content={<>
                 <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{ attribute: "{numtreasures}", num_results: "5", highlight: row.id as number + "" }} />
                 <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
-                    metric: 'treasures',
+                    metric: 'treasure',
                     alliances: "aa:" + row.id,
                     start: 'timestamp:' + row.dateCreated,
                 }} />
@@ -248,10 +248,10 @@ const allianceTableConfig: TableRowConfig[] = [
         id: 'cities',
         label: 'Cities',
         value: (row) => (
-            <LazyExpander className={"underline"} content={<>
-                <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{ attribute: "{numcities}", num_results: "5", highlight: row.id as number + "" }} />
+            <LazyExpander content={<>
+                <ViewCommand command={["alliance", "stats", "attribute_ranking"]} args={{ attribute: "{getcities}", num_results: "5", highlight: row.id as number + "" }} />
                 <StaticViewGraph endpoint={METRIC_COMPARE_BY_TURN} args={{
-                    metric: 'cities',
+                    metric: 'city',
                     alliances: "aa:" + row.id,
                     start: 'timestamp:' + row.dateCreated,
                 }} />
@@ -392,7 +392,7 @@ export default function Alliance() {
             )
 
             return (
-                <div className="overflow-hidden rounded-lg border border-primary/20 shadow-sm">
+                <div className="rounded-lg border border-primary/20 shadow-sm">
                 <table className="display text-xs compact font-mono w-full bg-accent">
                     <colgroup>
                         <col className="w-auto" /> {/* Label column - just enough width for content */}
