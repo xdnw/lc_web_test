@@ -334,7 +334,6 @@ export default function Alliance() {
             const renderHeaderLinks = () => (
                 <div className="mt-1 flex flex-wrap gap-1 justify-start">
                     {allianceHeaderLinks.map((link, index) => {
-                        // Skip if condition is defined and returns false
                         if (link.condition && !link.condition(row)) {
                             return null;
                         }
@@ -352,14 +351,14 @@ export default function Alliance() {
             );
 
             const renderTableRows = () => (
-                allianceTableConfig.map((config) => {
+                allianceTableConfig.map((config, i) => {
                     // Skip if condition is defined and returns false
                     if (config.condition && !config.condition(row)) {
                         return null;
                     }
 
                     return (
-                        <tr key={config.id}>
+                        <tr key={config.id} className={`divide-x divide-primary/5 ${i % 2 === 0 ? "bg-primary/5" : ""}`}>
                             <td className="p-1 min-w-fit whitespace-nowrap font-medium text-right pr-3">{config.label}</td>
                             <td className="p-1 w-full">
                                 <div className="flex items-center relative">
@@ -393,7 +392,8 @@ export default function Alliance() {
             )
 
             return (
-                <table className="display text-xs compact font-mono dataTable w-full">
+                <div className="overflow-hidden rounded-lg border border-primary/20 shadow-sm">
+                <table className="display text-xs compact font-mono w-full bg-accent">
                     <colgroup>
                         <col className="w-auto" /> {/* Label column - just enough width for content */}
                         <col className="w-full" /> {/* Content column - takes all remaining space */}
@@ -427,10 +427,11 @@ export default function Alliance() {
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-primary/5">
                         {renderTableRows()}
                     </tbody>
                 </table>
+                </div>
             );
         }}
     </EndpointWrapper>
